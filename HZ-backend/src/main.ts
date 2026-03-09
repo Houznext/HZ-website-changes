@@ -8,7 +8,13 @@ import compression from 'compression';
 import helmet from 'helmet';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
-dotenv.config();
+dotenv.config({
+  path: path.resolve(
+    __dirname,
+    '..',
+    `.env.${process.env.NODE_ENV || 'development'}`,
+  ),
+});
 dotenv.config();
 
 async function bootstrap() {
@@ -84,6 +90,10 @@ async function bootstrap() {
   // }
 
   app.enableShutdownHooks();
+
+  const port = process.env.PORT || 4000;
+
+  console.log("DATABASE_URL:", process.env.DATABASE_URL ? "Loaded" : "Missing");
 
   await app.listen(port);
 
