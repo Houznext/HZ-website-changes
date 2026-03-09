@@ -15,6 +15,7 @@ dotenv.config({
     `.env.${process.env.NODE_ENV || 'development'}`,
   ),
 });
+dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -36,7 +37,7 @@ async function bootstrap() {
     }),
   );
 
-  const port = Number(process.env.PORT) || 4400;
+  const port = process.env.PORT || 4000;
   const isProd = process.env.NODE_ENV === 'production';
 
   if (isProd) {
@@ -49,6 +50,7 @@ async function bootstrap() {
     app.enableCors({
       origin: (origin, cb) => {
         if (!origin) return cb(null, true);
+        if (allowedOrigins.length === 0) return cb(null, true);
         const normalized = origin.replace(/\/$/, '');
         if (allowedOrigins.includes(normalized)) return cb(null, true);
         return cb(new Error(`CORS blocked for origin: ${origin}`), false);
@@ -89,6 +91,6 @@ async function bootstrap() {
 
   app.enableShutdownHooks();
 
-  await app.listen(port, '0.0.0.0');
+  await app.listen(port);
 }
 bootstrap();

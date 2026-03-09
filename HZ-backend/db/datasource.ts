@@ -7,9 +7,14 @@ const envPath = path.resolve(
   `.env.${process.env.NODE_ENV || 'development'}`,
 );
 dotenv.config({ path: envPath });
+dotenv.config();
 
-const postgresUrl = process.env.POSTGRES_URL;
+const postgresUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
+if (!postgresUrl) {
+  // Keep startup diagnostics explicit for cloud deploys.
+  console.warn('Database URL is missing. Set DATABASE_URL (or POSTGRES_URL).');
+}
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',

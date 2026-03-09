@@ -27,7 +27,7 @@
     COPY --from=builder /app/dist ./dist
     
     # Expose backend port
-    EXPOSE 4400
+    EXPOSE 4000
     
     # Start app
-    CMD ["node", "dist/src/server.js"]
+    CMD ["node", "dist/main.js"]
