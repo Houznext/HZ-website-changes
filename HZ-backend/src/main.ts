@@ -37,7 +37,6 @@ async function bootstrap() {
     }),
   );
 
-  const port = process.env.PORT || 4000;
   const isProd = process.env.NODE_ENV === 'production';
 
   if (isProd) {
