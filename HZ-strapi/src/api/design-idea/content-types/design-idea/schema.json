@@ -1,0 +1,21 @@
+{
+  "kind": "collectionType",
+  "collectionName": "design_ideas",
+  "info": {
+    "singularName": "design-idea",
+    "pluralName": "design-ideas",
+    "displayName": "DesignIdeas",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "DesignIdeas": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.design-ideas"
+    }
+  }
+}

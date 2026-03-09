@@ -1,0 +1,36 @@
+{
+  "collectionName": "components_interiors_kitchens",
+  "info": {
+    "displayName": "kitchen",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "mainImageUrl": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "heading": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "faq": {
+      "type": "json"
+    },
+    "ImageList": {
+      "displayName": "ImageList",
+      "type": "component",
+      "repeatable": true,
+      "component": "kitchen.image-list"
+    }
+  }
+}

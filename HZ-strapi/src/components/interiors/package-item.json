@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_interiors_package_items",
+  "info": {
+    "displayName": "packageItem"
+  },
+  "options": {},
+  "attributes": {
+    "offerTitle": {
+      "type": "string"
+    },
+    "highlightOfProperty": {
+      "type": "string"
+    },
+    "price": {
+      "type": "string"
+    },
+    "imageUrl": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}

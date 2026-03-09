@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": 1001,
+  "propertyName": "Sample House",
+  "construction_type": "New",
+  "property_type": "Residential",
+  "construction_scope": "House",
+  "house_construction_info": {
+    "total_area": { "size": 1200, "unit": "sq.ft" },
+    "length": { "size": 40, "unit": "ft" },
+    "width": { "size": 30, "unit": "ft" },
+    "adjacent_roads": 2,
+    "land_facing": "East",
+    "total_floors": 1,
+    "gate_side": "East",
+    "staircase_gate": "South",
+    "additionOptions": ["Parking"],
+    "floors": [
+      {
+        "floor": "Ground Floor",
+        "portions": 1,
+        "type_of_portions": ["2BHK"],
+        "portionDetails": [
+          {
+            "portionType": "2BHK",
+            "bedrooms": 2,
+            "bathrooms": 2,
+            "balconies": 1,
+            "indian_bathroom_required": true,
+            "additional_rooms": ["pooja_room"]
+          }
+        ],
+        "ground_floor_details": ["parking", "staircase"]
+      }
+    ]
+  },
+  "vastuPreference": "BALANCED",
+  "generateVariants": 3,
+  "tolerance": { "areaTolerancePct": 5 }
+}

@@ -1,0 +1,73 @@
+.main_container {
+  margin-top: 20px;
+  border: 1px solid rgb(198, 187, 187);
+  padding: 20px;
+  border-radius: 10px;
+  position: relative;
+  box-shadow: 1px 10px 10px rgb(214, 212, 212);
+  .img_cont {
+    position: relative;
+    height: 180px;
+    width: 420px;
+    > img {
+      border-radius: 10px;
+    }
+  }
+  .info_cont {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 5px;
+    text-transform: uppercase;
+  }
+  .location_cont {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    .location {
+      font-weight: 600;
+    }
+  }
+  .measurement {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    p {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+  }
+  .year_constructed {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    p {
+        font-size: 16px;
+        font-weight: 500;
+      }
+  }
+  .price_cont {
+    display: flex;
+    text-transform: uppercase;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 10px;
+    background-color: rgb(247, 245, 245);
+    border-radius: 6px;
+    .price {
+      font-weight: 700;
+    }
+    .view_more {
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_interiors_plumbings",
+  "info": {
+    "displayName": "Plumbing"
+  },
+  "options": {},
+  "attributes": {
+    "heroSection": {
+      "type": "json"
+    },
+    "homeServices": {
+      "type": "json"
+    },
+    "choosePlumbingServices": {
+      "type": "json"
+    },
+    "mostlyBooked": {
+      "type": "json"
+    }
+  }
+}

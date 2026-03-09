@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_interiors_paintings",
+  "info": {
+    "displayName": "Painting"
+  },
+  "options": {},
+  "attributes": {
+    "heroSection": {
+      "type": "json"
+    },
+    "AboutUs": {
+      "type": "json"
+    },
+    "ourServices": {
+      "type": "json"
+    },
+    "ourPartners": {
+      "type": "json"
+    },
+    "testimonials": {
+      "type": "json"
+    },
+    "faq": {
+      "type": "json"
+    },
+    "ourBlogs": {
+      "type": "json"
+    }
+  }
+}

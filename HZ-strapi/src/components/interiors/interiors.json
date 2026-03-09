@@ -1,0 +1,78 @@
+{
+  "collectionName": "components_interiors_interiors",
+  "info": {
+    "displayName": "Interiors",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "kitchen": {
+      "type": "json"
+    },
+    "livingRoom": {
+      "type": "json"
+    },
+    "packages": {
+      "type": "json"
+    },
+    "heroSection": {
+      "type": "json"
+    },
+    "cardsSection": {
+      "type": "json"
+    },
+    "heading": {
+      "type": "json"
+    },
+    "bedrooms": {
+      "type": "json"
+    },
+    "diningRoom": {
+      "type": "json"
+    },
+    "balconies": {
+      "type": "json"
+    },
+    "bathrooms": {
+      "type": "json"
+    },
+    "poojaRooms": {
+      "type": "json"
+    },
+    "studyRoom": {
+      "type": "json"
+    },
+    "tiles": {
+      "type": "json"
+    },
+    "tvUnit": {
+      "type": "json"
+    },
+    "wardrobe": {
+      "type": "json"
+    },
+    "wayWeWork": {
+      "type": "json"
+    },
+    "testimonials": {
+      "type": "json"
+    },
+    "ourBlogs": {
+      "type": "json"
+    },
+    "desingIdeas": {
+      "type": "json"
+    },
+    "interiorBgImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  }
+}

@@ -1,0 +1,54 @@
+@font-face {
+  font-family: 'Gordita';
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+
+  src: local('Gordita-Light'),
+    url('/fonts/Gordita-Light.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Gordita';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: local('Gordita-Regular'),
+    url('/fonts/Gordita-Regular.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Gordita';
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: local('Gordita-Medium'),
+    url('/fonts/Gordita-Medium.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Gordita';
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  src: local('Gordita-SemiBold'),
+    url('/fonts/Gordita-SemiBold.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Gordita';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: local('Gordita-Bold'),
+    url('/fonts/Gordita-Bold.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Gordita';
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+  src: local('Gordita-Extra-Bold'),
+    url('/fonts/Gordita-Extra-Bold.otf') format('opentype');
+}

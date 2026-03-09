@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_interiors_interior_designs",
+  "info": {
+    "displayName": "interiorDesign"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "subHeading": {
+      "type": "string"
+    },
+    "list": {
+      "displayName": "list",
+      "type": "component",
+      "repeatable": true,
+      "component": "interiors.list"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_interiors_civil_engineering_design_s",
+  "info": {
+    "displayName": "CivilEngineeringDesign "
+  },
+  "options": {},
+  "attributes": {
+    "heroSection": {
+      "type": "json"
+    },
+    "ourProcess": {
+      "type": "json"
+    },
+    "packages": {
+      "type": "json"
+    },
+    "ourServices": {
+      "type": "json"
+    },
+    "testimonials": {
+      "type": "json"
+    },
+    "faq": {
+      "type": "json"
+    },
+    "ourBlogs": {
+      "type": "json"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_interiors_testimonial_items",
+  "info": {
+    "displayName": "testimonialItem"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "message": {
+      "type": "text"
+    },
+    "rating": {
+      "type": "integer"
+    }
+  }
+}

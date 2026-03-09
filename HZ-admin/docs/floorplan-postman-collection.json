@@ -1,0 +1,44 @@
+{
+  "info": {
+    "name": "Floorplan Generator",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Generate Floorplan",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{{sample_generate_request_json}}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/floorplans/generate",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "floorplans", "generate"]
+        }
+      }
+    },
+    {
+      "name": "Get Floorplan by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/floorplans/:planId",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "floorplans", ":planId"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "sample_generate_request_json", "value": "{}" }
+  ]
+}

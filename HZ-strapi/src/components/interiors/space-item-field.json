@@ -1,0 +1,12 @@
+{
+  "collectionName": "components_interiors_space_item_fields",
+  "info": {
+    "displayName": "spaceItemField"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    }
+  }
+}

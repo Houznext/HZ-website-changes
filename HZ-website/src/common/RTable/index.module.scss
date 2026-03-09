@@ -1,0 +1,66 @@
+.container {
+  overflow: auto;
+  background-color: white;
+  margin-top: 20px;
+  border-radius: 6px;
+  box-shadow: 10px 10px 20px 3px rgb(237, 240, 241);
+}
+
+.table {
+  width: 100%;
+
+  .thead {
+    padding-bottom: 20px;
+
+    .trhead {
+      background-color: white;
+      text-align: center;
+    }
+
+    th {
+      border-right: 2px solid #f0f0f0;
+      padding: 10px 10px;
+    }
+
+    th:last-child {
+      border-right: unset;
+    }
+  }
+
+  .tbody {
+    .trbody {
+      text-align: center;
+      border-bottom: 2px solid #f0f0f0;
+
+      td {
+        padding: 15px 10px;
+
+      }
+    }
+
+    .trbody:hover {
+      background: #e2e1e1;
+    }
+
+    .trbody:last-child {
+      border-bottom: unset;
+    }
+  }
+
+}
+
+@media screen and (max-width: 500px) {
+  .container {
+    overflow: auto;
+  }
+}
+
+.paginationContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}

@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_interiors_vastus",
+  "info": {
+    "displayName": "Vastu"
+  },
+  "options": {},
+  "attributes": {
+    "heroSection": {
+      "type": "json"
+    },
+    "ourSevices": {
+      "type": "json"
+    },
+    "vastuDefinition": {
+      "type": "json"
+    },
+    "ourVastuProcess": {
+      "type": "json"
+    },
+    "testimonials": {
+      "type": "json"
+    },
+    "faq": {
+      "type": "json"
+    },
+    "ourBlogs": {
+      "type": "json"
+    }
+  }
+}

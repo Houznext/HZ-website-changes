@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_interiors_way_we_works",
+  "info": {
+    "displayName": "WayWeWork"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "subHeading": {
+      "type": "string"
+    },
+    "steps": {
+      "displayName": "steps",
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.steps"
+    }
+  }
+}

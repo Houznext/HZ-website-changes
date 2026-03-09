@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_interiors_card_items",
+  "info": {
+    "displayName": "cardItem"
+  },
+  "options": {},
+  "attributes": {
+    "description": {
+      "type": "text"
+    },
+    "title": {
+      "type": "string"
+    },
+    "iconUrl": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}

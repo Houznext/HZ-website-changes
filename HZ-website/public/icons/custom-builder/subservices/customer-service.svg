@@ -1,0 +1,11 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<path d="M0 8C0 3.58172 3.58172 0 8 0H56C60.4183 0 64 3.58172 64 8V56C64 60.4183 60.4183 64 56 64H8C3.58172 64 0 60.4183 0 56V8Z" fill="#EDF3FC"/>
+<mask id="path-2-inside-1_504_2540" fill="white">
+<path d="M0 8C0 3.58172 3.58172 0 8 0H56C60.4183 0 64 3.58172 64 8V56C64 60.4183 60.4183 64 56 64H8C3.58172 64 0 60.4183 0 56V8Z"/>
+</mask>
+<path d="M0 0H64H0ZM64 56C64 62.0751 59.0751 67 53 67H11C4.92487 67 0 62.0751 0 56C0 58.7614 3.58172 61 8 61H56C60.4183 61 64 58.7614 64 56ZM0 64V0V64ZM64 0V64V0Z" fill="#1358BF" mask="url(#path-2-inside-1_504_2540)"/>
+<rect x="10" y="10" width="44" height="44" fill="url(#pattern0_504_2540)"/>
+<defs>
+<pattern id="pattern0_504_2540" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_504_2540" transform="translate(0 -0.0481061) scale(0.00119048)"/>
+</pattern>

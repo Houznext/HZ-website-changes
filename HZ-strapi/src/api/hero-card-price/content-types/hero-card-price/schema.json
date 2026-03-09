@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "hero_card_prices",
+  "info": {
+    "singularName": "hero-card-price",
+    "pluralName": "hero-card-prices",
+    "displayName": "heroCardPrice"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "HeroSection": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.hero-section"
+    },
+    "CardSection": {
+      "type": "component",
+      "repeatable": false,
+      "component": "kitchen.card-section"
+    },
+    "PriceEstimator": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.price-estimator"
+    }
+  }
+}

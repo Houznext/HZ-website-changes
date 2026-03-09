@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_interiors_step_items",
+  "info": {
+    "displayName": "stepItem"
+  },
+  "options": {},
+  "attributes": {
+    "imageUrl": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "stepTitle": {
+      "type": "string"
+    }
+  }
+}

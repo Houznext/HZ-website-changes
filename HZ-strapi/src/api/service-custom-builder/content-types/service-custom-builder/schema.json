@@ -1,0 +1,119 @@
+{
+  "kind": "collectionType",
+  "collectionName": "service_custom_builders",
+  "info": {
+    "singularName": "service-custom-builder",
+    "pluralName": "service-custom-builders",
+    "displayName": "ListItems",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "kitchen": {
+      "displayName": "kitchen",
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "LivingRoom": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "HeroSection": {
+      "displayName": "HeroSection",
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.hero-section"
+    },
+    "CardSection": {
+      "displayName": "CardSection",
+      "type": "component",
+      "repeatable": false,
+      "component": "kitchen.card-section"
+    },
+    "Packages": {
+      "displayName": "Packages",
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.packages"
+    },
+    "PriceEstimator": {
+      "displayName": "PriceEstimator",
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.price-estimator"
+    },
+    "Bedrooms": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "DiningRoom": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "Balconies": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "Bathrooms": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "Hall": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "PoojaRoom": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "StudyRoom": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "Tiles": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "TvUnit": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "Wardrobe": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "WayWeWork": {
+      "displayName": "WayWeWork",
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.way-we-work"
+    },
+    "Testimonials": {
+      "displayName": "Testimonials",
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.testimonials"
+    },
+    "DesignIdeas": {
+      "displayName": "DesignIdeas",
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.design-ideas"
+    }
+  }
+}

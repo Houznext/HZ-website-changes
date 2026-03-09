@@ -1,0 +1,44 @@
+{
+  "collectionName": "components_interiors_price_estimators",
+  "info": {
+    "displayName": "PriceEstimator"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "subHeading": {
+      "type": "string"
+    },
+    "imageUrl": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "contentTitle": {
+      "type": "string"
+    },
+    "contentDescription": {
+      "type": "text"
+    },
+    "iconUrl": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "calculateBtnText": {
+      "type": "string"
+    }
+  }
+}

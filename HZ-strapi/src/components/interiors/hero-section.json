@@ -1,0 +1,34 @@
+{
+  "collectionName": "components_interiors_hero_sections",
+  "info": {
+    "displayName": "HeroSection"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "subHeading": {
+      "type": "string"
+    },
+    "bgImageUrl": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "bookingCtaUrl": {
+      "type": "json"
+    },
+    "locationCtaUrl": {
+      "type": "json"
+    },
+    "formHeading": {
+      "type": "string"
+    }
+  }
+}

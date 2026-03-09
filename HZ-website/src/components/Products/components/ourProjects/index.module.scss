@@ -1,0 +1,28 @@
+.sliderClassName {
+  :global {
+    .slick-slider {
+      display: flex !important;
+      height: auto !important;
+      align-items: stretch !important;
+      .slick-list {
+        display: flex !important;
+        height: auto !important;
+        align-items: stretch !important;
+        padding: 0 35px 0 0 !important;
+        .slick-track {
+          display: flex !important;
+          height: auto !important;
+          align-items: stretch !important;
+          gap: 25px !important;
+          padding: 10px 0px 10px 10px;
+          .slick-slide {
+            display: flex !important;
+            height: auto !important;
+            align-items: stretch !important;
+          }
+        }
+      }
+    }
+
+  }
+}

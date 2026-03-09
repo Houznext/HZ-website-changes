@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_interiors_list_items",
+  "info": {
+    "displayName": "listItems",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "cardItem1": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.card-item"
+    },
+    "cardItem2": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.card-item"
+    },
+    "cardItem3": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.card-item"
+    },
+    "cardItem4": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.card-item"
+    }
+  }
+}

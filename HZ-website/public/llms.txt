@@ -1,0 +1,41 @@
+site: https://www.onecasa.in
+sitemap: https://www.onecasa.in/sitemap.xml
+contact: mailto:onecasa.in@gmail.com
+
+# Brand summary
+summary: OneCasa is an India-first home & real-estate platform: buy/rent properties, interiors, solar, furniture, legal services, and custom builder tracking.
+
+# Core pages (short, factual summaries)
+page: https://www.onecasa.in/
+summary: Home—overview of services, city coverage, and CTAs to list/browse properties and interiors.
+
+page: https://www.onecasa.in/properties
+summary: Unified listing—filters by city, BHK, facing, price, construction status; company projects + individual listings.
+
+page: https://www.onecasa.in/interiors
+summary: Interiors packages (Essentials, Premium, Luxury) BHK-wise; online tracking, transparent pricing; lead form.
+
+page: https://www.onecasa.in/services/custom-builder
+summary: Custom builder with daily progress logs, invoices, and quality checks; city/state-specific packages.
+
+page: https://www.onecasa.in/legalservices
+summary: Property documentation, injunctions, MoUs; pan-India legal help, especially Telangana.
+
+page: https://www.onecasa.in/solar
+summary: Residential and commercial solar solutions with installation support and financing options.
+
+# APIs (if public)
+# api: https://api.onecasa.in/v1/properties?city={city}
+# api: https://api.onecasa.in/v1/search?q={query}
+
+# License & bot permissions
+license: CC-BY-NC 4.0
+
+User-agent: GPTBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: DeepseekBot
+Allow: /

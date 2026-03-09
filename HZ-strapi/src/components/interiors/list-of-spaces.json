@@ -1,0 +1,51 @@
+{
+  "collectionName": "components_interiors_list_of_spaces",
+  "info": {
+    "displayName": "ListOfSpaces",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "kitchen": {
+      "displayName": "spaceItem",
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.space-item"
+    },
+    "bedroom": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.space-item"
+    },
+    "livingRoom": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.space-item"
+    },
+    "tvUnit": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.space-item"
+    },
+    "bathroom": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.space-item"
+    },
+    "balcony": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.space-item"
+    },
+    "Wardrobe": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.space-item"
+    },
+    "diningRoom": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.space-item"
+    }
+  }
+}

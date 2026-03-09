@@ -1,0 +1,14 @@
+
+export enum WalletTxnType {
+  CREDIT = 'CREDIT',
+  DEBIT = 'DEBIT',
+}
+
+export enum WalletReferenceType {
+  ORDER = 'ORDER',
+  PAYMENT = 'PAYMENT',
+  REFUND = 'REFUND',
+  REWARD = 'REWARD',
+  PROPERTY_PROMOTION = 'PROPERTY_PROMOTION',
+  PROJECT_PROMOTION = 'PROJECT_PROMOTION',
+}

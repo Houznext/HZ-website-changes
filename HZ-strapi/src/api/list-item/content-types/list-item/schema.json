@@ -1,0 +1,91 @@
+{
+  "kind": "collectionType",
+  "collectionName": "list_items",
+  "info": {
+    "singularName": "list-item",
+    "pluralName": "list-items",
+    "displayName": "ListItem"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "subHeading": {
+      "type": "string"
+    },
+    "faqImageUrl": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "Kitchen": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "LivingRoom": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "Bedroom": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "DiningRoom": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "Balconies": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "Bathroom": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "Home": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "PoojaRoom": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "StudyRoom": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "Tiles": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "TvUnit": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    },
+    "Wardrobe": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.kitchen"
+    }
+  }
+}

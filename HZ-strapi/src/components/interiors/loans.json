@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_interiors_loans",
+  "info": {
+    "displayName": "Loans"
+  },
+  "options": {},
+  "attributes": {
+    "heroSection": {
+      "type": "json"
+    },
+    "bankingPartners": {
+      "type": "json"
+    },
+    "faqs": {
+      "type": "json"
+    }
+  }
+}

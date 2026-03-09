@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_kitchen_image_list_items",
+  "info": {
+    "displayName": "ImageListItem"
+  },
+  "options": {},
+  "attributes": {
+    "imageUrl": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_kitchen_card_sections",
+  "info": {
+    "displayName": "CardSection",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "mainHeading": {
+      "type": "string"
+    },
+    "subHeading": {
+      "type": "string"
+    },
+    "listItems": {
+      "displayName": "listItems",
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.list-items"
+    }
+  }
+}

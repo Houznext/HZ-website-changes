@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "work_flow_testimonials",
+  "info": {
+    "singularName": "work-flow-testimonial",
+    "pluralName": "work-flow-testimonials",
+    "displayName": "WorkFlowTestimonial",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "wayWeWork": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.way-we-work"
+    },
+    "Testimonials": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.testimonials"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_interiors_design_ideas",
+  "info": {
+    "displayName": "DesignIdeas"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "subHeading": {
+      "type": "string"
+    },
+    "listOfSpaces": {
+      "displayName": "ListOfSpaces",
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.list-of-spaces"
+    }
+  }
+}

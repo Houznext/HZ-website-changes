@@ -1,0 +1,39 @@
+{
+  "collectionName": "components_interiors_furnitures",
+  "info": {
+    "displayName": "Furnitures"
+  },
+  "options": {},
+  "attributes": {
+    "heroSection": {
+      "type": "json"
+    },
+    "cards": {
+      "type": "json"
+    },
+    "customizeFurniture": {
+      "type": "json"
+    },
+    "exploreOurWideRangeOfFurniture": {
+      "type": "json"
+    },
+    "bestSellingPackages": {
+      "type": "json"
+    },
+    "furnitureTypes": {
+      "type": "json"
+    },
+    "designIdeas": {
+      "type": "json"
+    },
+    "whyVisitUs": {
+      "type": "json"
+    },
+    "testimonials": {
+      "type": "json"
+    },
+    "ourBlogs": {
+      "type": "json"
+    }
+  }
+}

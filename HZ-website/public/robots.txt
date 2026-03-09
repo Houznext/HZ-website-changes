@@ -1,0 +1,32 @@
+# OneCasa robots.txt
+# https://www.onecasa.in
+
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 2
+
+User-agent: *
+Allow: /
+
+# Block internal/private paths
+Disallow: /admin
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+Disallow: /user/*
+Disallow: /cart
+
+Disallow: /post-property/details
+
+# Allow specific API endpoints crawlers might need
+Allow: /api/sitemap
+
+# Sitemap
+Sitemap: https://www.onecasa.in/sitemap.xml
+
+# Host
+Host: https://www.onecasa.in

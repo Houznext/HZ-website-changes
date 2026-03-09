@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_interiors_lists",
+  "info": {
+    "displayName": "list"
+  },
+  "options": {},
+  "attributes": {
+    "listCardItem": {
+      "displayName": "listCardItem",
+      "type": "component",
+      "repeatable": true,
+      "component": "interiors.list-card-item"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_interiors_space_items",
+  "info": {
+    "displayName": "spaceItem",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "spaceItemField1": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.step-item"
+    },
+    "spaceItemField2": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.step-item"
+    },
+    "spaceItemField3": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.step-item"
+    },
+    "spaceItemField4": {
+      "type": "component",
+      "repeatable": false,
+      "component": "interiors.step-item"
+    }
+  }
+}

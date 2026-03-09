@@ -1,0 +1,59 @@
+.main_container {
+  position: relative;
+  overflow: hidden;
+
+  .sub_cont {
+    margin-bottom: 20px;
+  }
+
+  .contact_cont {
+    position: fixed;
+    right: 0;
+    top: 26%;
+    z-index: 1000;
+    ul {
+      background-color: rgb(227, 235, 239);
+      border-radius: 20px;
+      position: relative;
+      li {
+        position: relative;
+        overflow: hidden;
+        padding: 8px 2px;
+        display: flex;
+        margin-bottom: px;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(41, 83, 109);
+        border: 1px solid rgb(224, 218, 209);
+        transition: margin-left 1s ease, background-color 0.3s ease;
+        font-weight: 700;
+        border-radius: 6px;
+
+        a {
+          display: flex;
+          color: white;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          text-decoration: none;
+        }
+        &:hover {
+          margin-left: -12px; /* Adjust the margin as needed */
+          background-color: rgb(172, 51, 51);
+          transition: 0.5s ease-in-out;
+        }
+
+        svg {
+          margin-right: 5px;
+          fill: white; /* Set the fill color of the icons to white */
+        }
+      }
+      .item {
+        border-bottom-left-radius: 10px;
+      }
+      .item1 {
+        border-top-left-radius: 10px;
+      }
+    }
+  }
+}
