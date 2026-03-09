@@ -8,13 +8,7 @@ import compression from 'compression';
 import helmet from 'helmet';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
-dotenv.config({
-  path: path.resolve(
-    __dirname,
-    '..',
-    `.env.${process.env.NODE_ENV || 'development'}`,
-  ),
-});
+dotenv.config();
 dotenv.config();
 
 async function bootstrap() {
@@ -92,5 +86,8 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   await app.listen(port);
+
+console.log(`🚀 Houznext backend running on port ${port}`);
+console.log(`🌐 Health check: /healthz`);
 }
 bootstrap();
