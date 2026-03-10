@@ -341,6 +341,6 @@ export default function LoginComponent() {
           </p>
         </div>
       </div>
-    </div>
+    
   );
 }
