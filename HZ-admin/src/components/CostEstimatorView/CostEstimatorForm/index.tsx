@@ -559,6 +559,22 @@ useEffect(() => {
     try {
       let response: any = null;
 
+      let resolvedBranchId = branchId ?? undefined;
+      if (!editingEstimation && !resolvedBranchId) {
+        try {
+          const branchesRes = await apiClient.get(
+            `${apiClient.URLS.branches}/idwithname`,
+            {},
+            true
+          );
+          const list = Array.isArray(branchesRes?.body) ? branchesRes.body : [];
+          const firstBranchId = list[0]?.branchId ?? list[0]?.id;
+          if (firstBranchId) resolvedBranchId = firstBranchId;
+        } catch (e) {
+          console.warn("Could not fetch default branch:", e);
+        }
+      }
+
       const payLoad = {
         ...formValues,
         phone: Number(formValues.phone),
@@ -566,7 +582,7 @@ useEffect(() => {
         details,
         discount: toDecimalString(formValues.discount),
         category: categoryProp ?? (activetab?.category as string) ?? "Interior",
-        branchId: branchId ?? undefined,
+        branchId: resolvedBranchId,
       };
 
       if (editingEstimation) {
@@ -593,9 +609,13 @@ useEffect(() => {
           fetchDetails();
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving estimation:", error);
-      toast.error("Failed to save the details");
+      const message =
+        error?.body?.message ||
+        error?.message ||
+        "Failed to save the details";
+      toast.error(message);
     } finally {
       setLoading(false);
     }

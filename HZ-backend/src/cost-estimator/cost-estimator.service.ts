@@ -39,24 +39,37 @@ export class CostEstimatorService {
 
   async create(createCostEstimatorDto: CreateCostEstimatorDto): Promise<any> {
     try {
-      const user = await this.userRepository.findOne({
+      let user = await this.userRepository.findOne({
         where: { id: createCostEstimatorDto.userId },
       });
 
       if (!user) {
-        throw new BadRequestException(
-          'User not found, cannot create estimation',
-        );
+        user = await this.userRepository.findOne({
+          where: { role: UserRole.ADMIN },
+        });
+        if (!user) {
+          throw new BadRequestException(
+            'User not found, cannot create estimation',
+          );
+        }
       }
-      if (!createCostEstimatorDto.branchId) {
-        throw new BadRequestException('branchId is required');
-      }
-      const branch = await this.branchRepository.findOne({
-        where: { id: createCostEstimatorDto.branchId },
-      });
 
+      let branch: Branch | null = null;
+      if (createCostEstimatorDto.branchId) {
+        branch = await this.branchRepository.findOne({
+          where: { id: createCostEstimatorDto.branchId },
+        });
+      }
       if (!branch) {
-        throw new BadRequestException('Invalid branchId');
+        branch = await this.branchRepository.findOne({
+          where: {},
+          order: { id: 'ASC' },
+        });
+      }
+      if (!branch) {
+        throw new BadRequestException(
+          'No branch available. Please create a branch first.',
+        );
       }
 
       const category =
@@ -461,8 +474,8 @@ export class CostEstimatorService {
 
    
     if (isSuperAdmin || isBranchHead) {
-      
-      if (targetUserId) {
+      const isStaticAdmin = targetUserId === 'houznext-admin';
+      if (targetUserId && !isStaticAdmin) {
         queryBuilder.andWhere('costEstimator.postedById = :uid', {
           uid: targetUserId,
         });
