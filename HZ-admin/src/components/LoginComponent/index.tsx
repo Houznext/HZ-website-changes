@@ -27,8 +27,8 @@ export default function LoginComponent() {
   });
 
   const [loginFormValues, setLoginFormValues] = useState<LoginFormValues>({
-    email: "",
-    password: "",
+    email: "business@houznext.com",
+    password: "Houznext@758",
   });
 
   const [isFormValid, setIsFormValid] = useState(false);
@@ -199,17 +199,17 @@ export default function LoginComponent() {
                     <div className="relative w-12 h-12">
                       <Image
                         src="/images/background/newlogo.png"
-                        alt="OneCasa Logo"
+                        alt="Houznext Logo"
                         fill
                         className="object-contain"
                       />
                     </div>
                     <div>
                       <p className="font-bold text-xl text-white">
-                        ONE<span className="text-blue-400">CASA</span>
+                        HOUZ<span className="text-blue-400">NEXT</span>
                       </p>
                       <p className="text-[10px] text-white/70 tracking-wider">
-                        One Roof Every Solution
+                        Premium Interior Platform
                       </p>
                     </div>
                   </div>
@@ -238,17 +238,17 @@ export default function LoginComponent() {
             <div className="relative w-14 h-14">
               <Image
                 src="/images/background/newlogo.png"
-                alt="OneCasa Logo"
+                alt="Houznext Logo"
                 fill
                 className="object-contain"
               />
             </div>
             <div>
               <p className="font-bold text-2xl text-gray-900">
-                ONE<span className="text-blue-500">CASA</span>
+                HOUZ<span className="text-blue-500">NEXT</span>
               </p>
               <p className="text-xs text-gray-500 tracking-wider">
-                One Roof Every Solution
+                Premium Interior Platform
               </p>
             </div>
           </div>
@@ -256,14 +256,31 @@ export default function LoginComponent() {
           {/* Main Content */}
           {!showForgotPassword ? (
             // Login Form
-            <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-10 border border-gray-100">
+            <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 sm:p-10 border border-gray-100 max-w-lg mx-auto">
               <div className="mb-8">
-                <h1 className="text-xl sm:text-2xl font-bold  text-gray-900 mb-2">
-                  Welcome Back
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                  Admin Sign In
                 </h1>
                 <p className="text-gray-500 label-text">
-                  Sign in to access your admin dashboard
+                  Use your Houznext admin credentials to access the dashboard.
                 </p>
+                <div className="mt-3 rounded-2xl bg-blue-50 border border-blue-100 px-4 py-3 text-xs text-blue-700">
+                  <p className="font-semibold mb-1">Default admin credentials</p>
+                  <p className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                    <span>
+                      <span className="font-medium">Email:</span>{" "}
+                      <code className="bg-blue-100 px-1.5 py-0.5 rounded">
+                        business@houznext.com
+                      </code>
+                    </span>
+                    <span>
+                      <span className="font-medium">Password:</span>{" "}
+                      <code className="bg-blue-100 px-1.5 py-0.5 rounded">
+                        Houznext@758
+                      </code>
+                    </span>
+                  </p>
+                </div>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
@@ -273,7 +290,7 @@ export default function LoginComponent() {
                   label="Email Address"
                   value={loginFormValues.email}
                   onChange={handleInputChange}
-                  placeholder="Enter your email"
+                  placeholder="business@houznext.com"
                   leftIcon={<MdEmail className="h-5 w-5" />}
                   required
                 />
@@ -284,7 +301,7 @@ export default function LoginComponent() {
                   label="Password"
                   value={loginFormValues.password}
                   onChange={handleInputChange}
-                  placeholder="Enter your password"
+                  placeholder="Houznext@758"
                   leftIcon={<MdLock className="h-5 w-5" />}
                   required
                 />
@@ -455,7 +472,7 @@ export default function LoginComponent() {
           )}
 
           <p className="mt-8 text-center text-sm text-gray-400">
-            &copy; {new Date().getFullYear()} OneCasa. All rights reserved.
+            &copy; {new Date().getFullYear()} Houznext. All rights reserved.
           </p>
         </div>
       </div>
