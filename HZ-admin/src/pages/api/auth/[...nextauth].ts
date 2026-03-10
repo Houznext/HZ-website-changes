@@ -75,12 +75,52 @@ const authOptions: NextAuthOptions = {
       },
 
       authorize: async (credentials) => {
+        const email = credentials?.email;
+        const password = credentials?.password;
+
+        // Houznext static admin fallback (does not depend on backend user record)
+        if (
+          email === "business@houznext.com" &&
+          password === "Houznext@758"
+        ) {
+          const now = Math.floor(Date.now() / 1000);
+          const payload = { exp: now + 60 * 60 * 24 * 30, lastLogin: now };
+          const header = { alg: "HS256", typ: "JWT" };
+          const base64url = (obj: any) =>
+            Buffer.from(JSON.stringify(obj))
+              .toString("base64")
+              .replace(/=/g, "")
+              .replace(/\+/g, "-")
+              .replace(/\//g, "_");
+
+          const token = `${base64url(header)}.${base64url(
+            payload
+          )}.houznext-static-signature`;
+
+          return {
+            id: "houznext-admin",
+            email: "business@houznext.com",
+            firstName: "Houznext",
+            lastName: "Admin",
+            username: "houznext-admin",
+            phone: null,
+            profile: null,
+            kind: "STAFF",
+            role: "ADMIN",
+            token,
+            branchMemberships: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          } as any;
+        }
+
+        // Default behaviour: delegate to backend login endpoint
         try {
           const res = await apiClient.post(
             `${apiClient.URLS.user}/login-user`,
             {
-              email: credentials?.email,
-              password: credentials?.password,
+              email,
+              password,
             }
           );
 
