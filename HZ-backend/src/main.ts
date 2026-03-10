@@ -90,13 +90,13 @@ async function bootstrap() {
 
   app.enableShutdownHooks();
 
-  const port = process.env.PORT || 4000;
+  const port = Number(process.env.PORT) || 4000;
 
-  console.log("DATABASE_URL:", process.env.DATABASE_URL ? "Loaded" : "Missing");
+  console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'Loaded' : 'Missing');
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
-console.log(`🚀 Houznext backend running on port ${port}`);
-console.log(`🌐 Health check: /healthz`);
+  console.log(`🚀 Houznext backend running on port ${port}`);
+  console.log('🌐 Health check: /healthz');
 }
 bootstrap();
