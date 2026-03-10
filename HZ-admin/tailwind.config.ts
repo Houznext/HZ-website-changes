@@ -10,6 +10,18 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        brand: {
+          primary: "#2f80ed",
+          "primary-dark": "#1c64d8",
+          "primary-darker": "#174ea6",
+          dark: "#0f2a44",
+          surface: "#f5f7fa",
+          muted: "#d1e0f2",
+          ink: "#1f2933",
+          "ink-muted": "#52606d",
+        },
+      },
       transitionProperty: {
         height: "height",
         spacing: "margin, padding",

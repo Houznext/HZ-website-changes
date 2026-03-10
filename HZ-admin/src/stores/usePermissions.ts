@@ -106,12 +106,15 @@ export const usePermissionStore = create<PermissionStore>((set, get) => ({
   hasPermission: (resource, action = "view") => {
     const { initialized, permissions, userRole } = get();
     if (!initialized) return false;
-    if (userRole === "ADMIN") return true;
+    if (userRole === "ADMIN" || userRole === "SuperAdmin") return true;
 
     return permissions.some(
       (perm) => perm.resource === resource && perm[action]
     );
   },
 
-  isAdmin: () => get().userRole === "ADMIN",
+  isAdmin: () => {
+    const role = get().userRole;
+    return role === "ADMIN" || role === "SuperAdmin";
+  },
 }));

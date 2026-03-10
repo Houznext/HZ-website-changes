@@ -17,8 +17,8 @@ interface UploadProgressLoaderProps {
     overlay?: boolean;
 }
 
-const RING_BORDER = "border-blue-600";
-const FILL_BLUE = "bg-[#5297ff]";
+const RING_BORDER = "border-brand-primary";
+const FILL_BLUE = "bg-brand-primary";
 
 const icons = [
     { id: 1, Icon: HiOutlineHome, label: "Real Estate" },
@@ -31,8 +31,8 @@ const icons = [
 const ThemeLoader: React.FC<UploadProgressLoaderProps> = ({
     progress = 0,
     size = "clamp(160px, 28vw, 220px)",
-    logoSrc = "/images/logo.png",
-    logoAlt = "OneCasa",
+    logoSrc = "/images/houznext-logo.png",
+    logoAlt = "Houznext",
     orbitThreshold = 20,
     showFooter = false,
     showGuide = true,

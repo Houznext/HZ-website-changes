@@ -48,12 +48,14 @@ export interface CostEstimator extends CEformValues {
 
 export interface CEformProps {
   closeDrawer: () => void;
-  editingEstimation?: CostEstimator;
+  editingEstimation?: CostEstimator | null;
   setCostEstimators?: any;
   fetchDetails?: () => Promise<void>;
-  setEditingEstimation?: React.Dispatch<React.SetStateAction<CostEstimator>>;
+  setEditingEstimation?: React.Dispatch<React.SetStateAction<CostEstimator | null>>;
   userId: string;
-  branchId?:string;
+  branchId?: string | null;
+  category?: string;
+  onSuccessRefetch?: () => void;
 }
 
 export const validateFormValues = (formValues: CEformValues) => {

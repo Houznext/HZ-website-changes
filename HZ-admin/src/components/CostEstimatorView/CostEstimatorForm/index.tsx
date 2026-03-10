@@ -30,7 +30,9 @@ const CostEstimatorForm = ({
   fetchDetails,
   setEditingEstimation,
   userId,
-  branchId
+  branchId,
+  category: categoryProp,
+  onSuccessRefetch,
 }: CEformProps) => {
   const [errors, setErrors] = useState<any>({});
   const [isEditing, setIsEditing] = useState(false);
@@ -109,13 +111,13 @@ const CostEstimatorForm = ({
   const toDecimalString = (value: any) =>
     value === null || value === undefined ? "0" : String(value);
 
-  useEffect(() => {
+useEffect(() => {
     if (editingEstimation) {
       const itemGroups = editingEstimation.itemGroups?.length
         ? editingEstimation.itemGroups.map((group, index) => ({
-          ...group,
-          order: group.order ?? index,
-        }))
+            ...group,
+            order: group.order ?? index,
+          }))
         : [];
       setFormValues({
         userId: editingEstimation.userId,
@@ -128,7 +130,6 @@ const CostEstimatorForm = ({
         property_name: editingEstimation.property_name,
         bhk: editingEstimation.bhk,
         floor_plan: editingEstimation.floor_plan,
-
         property_image: editingEstimation.property_image,
         date: editingEstimation?.date
           ? new Date(editingEstimation.date).toISOString().split("T")[0]
@@ -140,13 +141,43 @@ const CostEstimatorForm = ({
         discount: editingEstimation.discount,
         branchId: editingEstimation.branchId,
       });
-
-      setLocationDetails({
-        ...editingEstimation.location,
-      });
+      setLocationDetails({ ...editingEstimation.location });
       setDetails(editingEstimation?.details);
+    } else if (userId) {
+      // Reset form when opening for new estimation
+      const emptyLocation = {
+        city: "",
+        locality: "",
+        sub_locality: "",
+        landmark: "",
+        pincode: "",
+        state: "",
+        address_line_1: "",
+      };
+      setFormValues({
+        userId,
+        firstname: "",
+        lastname: "",
+        email: "",
+        phone: null,
+        date: new Date().toISOString().split("T")[0],
+        property_type: null,
+        property_name: "",
+        designerName: "",
+        bhk: null,
+        subTotal: 0,
+        discount: 0,
+        details: "",
+        floor_plan: "",
+        property_image: "",
+        itemGroups: [],
+        location: emptyLocation,
+        branchId: branchId ?? undefined,
+      });
+      setLocationDetails(emptyLocation);
+      setDetails(undefined);
     }
-  }, [editingEstimation]);
+  }, [editingEstimation, userId, branchId]);
 
   useEffect(() => {
     setFormValues((prev) => ({
@@ -534,8 +565,8 @@ const CostEstimatorForm = ({
         subTotal: Number(formValues.subTotal),
         details,
         discount: toDecimalString(formValues.discount),
-        category: activetab.category || "Interior",
-        branchId: branchId,
+        category: categoryProp ?? (activetab?.category as string) ?? "Interior",
+        branchId: branchId ?? undefined,
       };
 
       if (editingEstimation) {
@@ -553,9 +584,8 @@ const CostEstimatorForm = ({
       }
 
       if (response.status === 201) {
-        setCostEstimators((prev) => [...prev, response.body]);
-        setEditingEstimation(response.body);
-
+        setEditingEstimation?.(response.body);
+        onSuccessRefetch?.();
         toast.success("Successfully created estimation details");
       } else if (response.status === 200) {
         toast.success("Successfully updated estimation details");
@@ -585,8 +615,7 @@ const CostEstimatorForm = ({
       });
 
       await apiClient.put(
-        `
-        ${apiClient.URLS.cost_estimator}/${editingEstimation.id}`,
+        `${apiClient.URLS.cost_estimator}/${editingEstimation.id}`,
         { details: formatted },
         true
       );

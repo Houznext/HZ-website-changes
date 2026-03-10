@@ -11,10 +11,10 @@ function Home() {
   return (
     <div className="w-full">
       <SEO
-        title="OneCasa - Your Real Estate Property listing"
-        description="Right Path for Dream home,Explore our premium real estate services. Find your dream home with DreamCasa, your trusted Property listing."
-        keywords="Real estate, DreamCasa, Dream home, Property listing,Properties around hyderabad"
-        favicon="/images/background/newlogo.png"
+        title="Houznext Admin - Premium Interior Living"
+        description="Houznext admin dashboard. Manage interior projects, CRM, cost estimator, and referrals."
+        keywords="Houznext, admin, interior design, cost estimator, CRM"
+        favicon="/images/houznext-logo.png"
       />
 
       <div className="p-6 md:px-10 md:py-10 space-y-4">
@@ -22,7 +22,7 @@ function Home() {
           Hi! {userName?.charAt(0).toUpperCase() + userName?.slice(1)} 👋
         </h1>
         <p className="text-gray-600 label-text">
-          Your contributions are building <span className="font-semibold text-[#3586FF] ">OneCasa</span> — one property at a time.
+          Your contributions are building <span className="font-semibold text-[#2f80ed]">Houznext</span> — premium interior living.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6">
           {session?.lastLogin && (

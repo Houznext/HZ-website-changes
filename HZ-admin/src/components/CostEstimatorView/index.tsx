@@ -42,11 +42,8 @@ type FiltersState = {
   stateData: Record<string, boolean>;
 };
 
-const TABS = [
-  { key: "Interior", label: "Interiors" },
-  { key: "CustomBuilder", label: "Custom Builder" },
-  { key: "Solar", label: "Solar" },
-];
+// Phase-1: Only Interiors; Custom Builder and Solar hidden
+const TABS = [{ key: "Interior", label: "Interiors" }];
 
 const CostEstimatorView: React.FC = () => {
   const router = useRouter();
@@ -618,6 +615,8 @@ const CostEstimatorView: React.FC = () => {
           editingEstimation={editingEstimation}
           userId={userId}
           branchId={activeBranchId}
+          category={activeTab}
+          onSuccessRefetch={() => fetchCostEstimators(userId!, activeTab, activeBranchId)}
         />
       </Drawer>
     </div>

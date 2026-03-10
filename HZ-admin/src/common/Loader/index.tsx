@@ -42,12 +42,12 @@ const Loader = ({ tagline = DEFAULT_TAGLINE }: LoaderProps) => {
     const { Icon, label } = LOADER_ICONS[index];
     return (
       <div className="flex flex-col items-center gap-2">
-        <div className="relative p-3 rounded-xl  shadow-md shadow-[#3586FF]/10 ring-2 ring-[#3586FF]/10">
+        <div className="relative p-3 rounded-xl  shadow-md shadow-brand-primary/10 ring-2 ring-brand-primary/10">
           <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/60 to-transparent pointer-events-none" />
           <Icon
             size={26}
             strokeWidth={1.75}
-            className="relative w-5 h-5 md:w-7 md:h-7 text-[#3586FF]"
+            className="relative w-5 h-5 md:w-7 md:h-7 text-brand-primary"
           />
         </div>
         <span className="text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-widest whitespace-nowrap">

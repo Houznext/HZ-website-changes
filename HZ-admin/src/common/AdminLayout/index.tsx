@@ -81,68 +81,89 @@ interface Notification {
 }
 
 const RightNav = ({ items, isMobile = false, onItemClick }) => {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const handleItemClick = (item) => {
-    if (isMobile && onItemClick) {
-      onItemClick();
-    }
-    if (item.subLink) {
-      setOpenIndex(openIndex === item.index ? null : item.index);
-    }
-  };
+  const router = useRouter();
+  const initialOpen = items.findIndex(
+    (item: any) =>
+      item.subLink?.some((sub: any) => sub.link === router.pathname)
+  );
+  const [openIndex, setOpenIndex] = useState<number | null>(
+    initialOpen >= 0 ? initialOpen : null
+  );
 
   return (
-    <ul role="list" className="space-y-1 px-2">
+    <ul role="list" className="space-y-0.5 px-2">
       {items.map((item, index) => (
         <li key={`${index}-${item.name}-link`} className="relative group">
-          <Link
-            href={item.link}
-            onClick={() => handleItemClick(item)}
-            className={clsx(
-              "flex items-center gap-x-2.5 px-2 py-2 rounded-lg text-[13px] font-medium transition-all duration-200",
-              item.isActive
-                ? "bg-[#e8f1ff] text-[#3586FF] shadow-sm"
-                : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
-            )}
-          >
-            <span className={clsx(
-              "flex-shrink-0 w-7 h-7 rounded-md flex items-center justify-center text-[14px] transition-colors",
-              item.isActive
-                ? "bg-[#3586FF] text-white"
-                : "bg-slate-100 text-slate-500 group-hover:bg-slate-200"
-            )}>
-              {item.icon}
-            </span>
-            <span className="md:block hidden">{item.name}</span>
-            {isMobile && (
-              <span className="md:hidden block">{item.name}</span>
-            )}
-          </Link>
-
-          {item.subLink && (openIndex === index || !isMobile) && (
-            <ul
+          {item.subLink ? (
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  if (isMobile && onItemClick) onItemClick();
+                  setOpenIndex(openIndex === index ? null : index);
+                }}
+                className={clsx(
+                  "w-full flex items-center gap-x-2.5 px-2.5 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 border-l-2",
+                  item.isActive
+                    ? "bg-brand-primary/10 text-brand-primary border-brand-primary"
+                    : "border-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                )}
+              >
+                <span className={clsx(
+                  "flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-[15px] transition-colors",
+                  item.isActive
+                    ? "bg-brand-primary text-white"
+                    : "bg-slate-100 text-slate-500 group-hover:bg-slate-200"
+                )}>
+                  {item.icon}
+                </span>
+                <span className="md:block hidden flex-1 text-left">{item.name}</span>
+              </button>
+              {openIndex === index && (
+                <ul className="mt-0.5 ml-4 pl-2 border-l-2 border-slate-200 space-y-0.5">
+                  {item.subLink.map((subItem, subIdx) => (
+                    <li key={subIdx}>
+                      <Link
+                        href={subItem.link}
+                        onClick={() => isMobile && onItemClick?.()}
+                        className={clsx(
+                          "flex items-center gap-x-2 px-2.5 py-2 rounded-lg text-[12px] font-medium transition-colors",
+                          router.pathname === subItem.link
+                            ? "bg-brand-primary/10 text-brand-primary"
+                            : "text-slate-600 hover:bg-slate-50 hover:text-slate-800"
+                        )}
+                      >
+                        <span className="w-6 h-6 rounded-md flex items-center justify-center bg-slate-100 text-slate-500 text-[12px]">
+                          {subItem.icon}
+                        </span>
+                        <span>{subItem.name}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          ) : (
+            <Link
+              href={item.link}
+              onClick={() => isMobile && onItemClick?.()}
               className={clsx(
-                "bg-white shadow-lg border border-slate-200 rounded-lg z-10 py-1 overflow-hidden",
-                isMobile
-                  ? "mt-1 ml-3 w-full"
-                  : "absolute top-full left-0 mt-1 min-w-[180px] hidden group-hover:block"
+                "flex items-center gap-x-2.5 px-2.5 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 border-l-2",
+                item.isActive
+                  ? "bg-brand-primary/10 text-brand-primary border-brand-primary"
+                  : "border-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-800"
               )}
             >
-              {item.subLink.map((subItem, subIdx) => (
-                <li key={subIdx}>
-                  <Link
-                    href={subItem.link}
-                    onClick={() => isMobile && onItemClick && onItemClick()}
-                    className="flex items-center gap-x-2 px-3 py-2 text-[12px] font-medium text-slate-600 hover:bg-slate-50 hover:text-[#3586FF] transition-colors"
-                  >
-                    <span className="w-5 h-5 rounded flex items-center justify-center bg-slate-100 text-slate-500 text-[12px]">
-                      {subItem.icon}
-                    </span>
-                    <span>{subItem.name}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+              <span className={clsx(
+                "flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-[15px] transition-colors",
+                item.isActive
+                  ? "bg-brand-primary text-white"
+                  : "bg-slate-100 text-slate-500 group-hover:bg-slate-200"
+              )}>
+                {item.icon}
+              </span>
+              <span className="md:block hidden">{item.name}</span>
+            </Link>
           )}
         </li>
       ))}
@@ -284,7 +305,7 @@ function AdminLayout({
       isActive: router.pathname.startsWith("/serviceleads"),
     },
     {
-      name: "Referral Progress",
+      name: "Houznext Rewards",
       link: "/referandearn",
       icon: <FiGift className="text-[16px]" />,
       table: "referrals",
@@ -382,7 +403,6 @@ function AdminLayout({
     "/dashboard",
     "/blogs",
     "/cost-estimator",
-    "/crm",
     "/invoice",
     "/referandearn",
   ]);
@@ -529,7 +549,13 @@ function AdminLayout({
         }
 
         if (newItem.link === "/settings" && Array.isArray(newItem.subLink)) {
+          const hiddenSettingsLinks = new Set([
+            "/settings/careersAdmin",
+            "/settings/branches",
+            "/settings/attendance-management",
+          ]);
           const filteredSubLinks = newItem.subLink.filter((sub: any) => {
+            if (hiddenSettingsLinks.has(sub.link)) return false;
             if (!sub.table) return true;
             return hasPermission(sub.table, "view");
           });
@@ -558,22 +584,22 @@ function AdminLayout({
     : notifications?.slice(0, 3);
 
   const CommonNavItem = () => (
-    <div className="flex h-full flex-col bg-white border-r border-slate-200">
+    <div className="flex h-full flex-col bg-white border-r border-slate-200 shadow-sm">
       {/* Logo Section */}
-      <div className="flex-shrink-0 px-3 py-3 border-b border-slate-100">
+      <div className="flex-shrink-0 px-3 py-4 border-b border-slate-100 bg-slate-50/50">
         <Link href={"/"}>
-          <div className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity">
-            <div className="relative w-9 h-9 rounded-lg overflow-hidden">
+          <div className="flex items-center gap-2.5 cursor-pointer hover:opacity-90 transition-opacity">
+            <div className="relative w-9 h-9 rounded-xl overflow-hidden bg-transparent flex-shrink-0">
               <Image
-                src="/images/background/newlogo.png"
-                alt="dreamcasa-logo"
+                src="/images/houznext-logo.png"
+                alt="Houznext"
                 fill
-                className="absolute object-cover"
+                className="object-contain"
               />
             </div>
             <div className="hidden md:flex md:flex-col font-bold leading-tight">
               <p className="flex gap-1">
-                <span className="text-[16px] text-[#3586FF]">HOUZ</span>
+                <span className="text-[16px] text-[#2f80ed]">HOUZ</span>
                 <span className="text-[16px] text-slate-800">NEXT</span>
               </p>
               <p className="text-[9px] font-medium text-slate-500 text-nowrap">
@@ -599,15 +625,15 @@ function AdminLayout({
           <div className="flex items-center gap-2.5">
             <div className="relative w-9 h-9 rounded-lg overflow-hidden">
               <Image
-                src="/images/background/newlogo.png"
-                alt="dreamcasa-logo"
+                src="/images/houznext-logo.png"
+                alt="Houznext"
                 fill
                 className="absolute object-cover"
               />
             </div>
             <div className="flex flex-col font-bold leading-tight">
               <p className="flex gap-1">
-                <span className="text-[16px] text-[#3586FF]">HOUZ</span>
+                <span className="text-[16px] text-[#2f80ed]">HOUZ</span>
                 <span className="text-[16px] text-slate-800">NEXT</span>
               </p>
               <p className="text-[9px] font-medium text-slate-500">
@@ -668,7 +694,7 @@ function AdminLayout({
         {/* Main Content Area */}
         <div className="w-full h-full flex flex-col overflow-y-auto">
           {/* Top Header */}
-          <div className="flex min-w-full h-14 items-center sticky top-0 z-30 justify-between px-3 md:px-5 bg-white border-b border-gray-200 shadow-sm">
+          <div className="flex min-w-full h-14 items-center sticky top-0 z-30 justify-between px-3 md:px-5 bg-white border-b border-slate-200 shadow-sm">
             <div className="flex gap-4 items-center">
               {/* Mobile Menu Button */}
               <Button
@@ -684,9 +710,9 @@ function AdminLayout({
                 <span className="text-black font-medium text-[14px] md:text-[16px]">
                   Admin Panel
                 </span>
-                {userRole === "ADMIN" && (
-                  <span className="px-2 py-0.5 text-[10px] font-bold bg-red-100 text-red-700 rounded-full uppercase tracking-wide">
-                    Admin
+                {(userRole === "ADMIN" || userRole === "SuperAdmin") && (
+                  <span className="px-2 py-0.5 text-[10px] font-bold bg-brand-primary/15 text-brand-primary rounded-full uppercase tracking-wide">
+                    Super Admin
                   </span>
                 )}
                 <BranchBadge memberships={data?.user?.branchMemberships} />
@@ -868,7 +894,7 @@ function AdminLayout({
           </div>
 
           {/* Page Content */}
-          <div className="flex-1 min-h-[calc(100%-56px)] bg-[#f8f8f8] overflow-auto">
+          <div className="flex-1 min-h-[calc(100%-56px)] bg-slate-50/80 overflow-auto">
             {page}
           </div>
         </div>

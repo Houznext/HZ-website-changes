@@ -10,8 +10,8 @@ const CostEstimationHeader = () => {
         <div className="flex items-center gap-3">
           <div className="relative h-12 w-12 rounded-lg border border-gray-200 bg-white">
             <Image
-              src="/images/background/newlogo.png"
-              alt="OneCasa logo"
+              src="/images/houznext-logo.png"
+              alt="Houznext logo"
               fill
               className="object-contain p-1.5"
               sizes="48px"
@@ -21,11 +21,11 @@ const CostEstimationHeader = () => {
 
           <div className="leading-tight">
             <div className="flex items-baseline  font-bold tracking-wide">
-              <span className="text-lg md:text-xl">ONE</span>
-              <span className="text-lg md:text-xl text-[#3586FF] ">CASA</span>
+              <span className="text-lg md:text-xl text-[#2f80ed]">Houz</span>
+              <span className="text-lg md:text-xl text-slate-800">next</span>
             </div>
             <p className="text-[10px] md:text-xs text-gray-600 font-medium">
-              One Roof. Every Solution
+              Premium Interior Living
             </p>
           </div>
         </div>

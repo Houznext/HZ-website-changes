@@ -54,13 +54,16 @@ const CostEstimatorDetailsView = () => {
   const fetchCostEstimationById = async () => {
     setIsLoading(true);
     try {
-       const branchId =
-      session?.data?.user?.branchMemberships?.[0]?.branchId ?? undefined;
+      const branchId =
+        session?.data?.user?.branchMemberships?.[0]?.branchId ?? undefined;
       const response = await apiClient.get(
-        `${apiClient.URLS.cost_estimator}/${router.query.id}`, { branchId },true
+        `${apiClient.URLS.cost_estimator}/${router.query.id}`,
+        { branchId },
+        true
       );
       if (response.status === 200) {
         setDetails(response.body);
+        if (openModal) setEditingEstimation(response.body);
       }
     } catch (error) {
       console.log(error);
@@ -397,9 +400,9 @@ const CostEstimatorDetailsView = () => {
           userId={user?.id}
           closeDrawer={closeDrawer}
           editingEstimation={editingEstimation}
+          setEditingEstimation={setEditingEstimation}
           fetchDetails={fetchCostEstimationById}
           branchId={session?.data?.user?.branchMemberships?.[0]?.branchId}
-
         />
       </Drawer>
       <Modal

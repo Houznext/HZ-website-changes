@@ -90,9 +90,9 @@ export default function ResetPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-brand-dark flex items-center justify-center p-6">
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-10 border border-gray-100 text-center">
+          <div className="bg-brand-surface rounded-3xl shadow-xl p-8 sm:p-10 border border-brand-muted text-center">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <MdCheckCircle className="w-12 h-12 text-green-600" />
             </div>
@@ -105,7 +105,7 @@ export default function ResetPasswordPage() {
             </p>
             <button
               onClick={() => router.push("/login")}
-              className="w-full py-3.5 px-4 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-lg shadow-blue-500/30 transition-all duration-300"
+              className="w-full py-3.5 px-4 rounded-xl font-semibold text-white bg-gradient-to-r from-brand-primary to-brand-primary-dark hover:from-brand-primary-dark hover:to-brand-primary-darker shadow-lg shadow-brand-primary/30 transition-all duration-300"
             >
               Go to Login
             </button>
@@ -116,30 +116,30 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-brand-dark flex items-center justify-center p-6">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-10">
-          <div className="relative w-14 h-14">
+          <div className="relative w-14 h-14 flex-shrink-0">
             <Image
-              src="/images/background/newlogo.png"
-              alt="OneCasa Logo"
+              src="/images/houznext-logo.png"
+              alt="Houznext Logo"
               fill
               className="object-contain"
             />
           </div>
           <div>
-            <p className="font-bold text-2xl text-gray-900">
-              ONE<span className="text-blue-500">CASA</span>
+            <p className="font-bold text-2xl text-white">
+              <span className="text-brand-muted">Houz</span>next
             </p>
-            <p className="text-xs text-gray-500 tracking-wider">
-              One Roof Every Solution
+            <p className="text-xs text-brand-muted/80 tracking-wider">
+              Premium Interior Living
             </p>
           </div>
         </div>
 
         {/* Form Card */}
-        <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-10 border border-gray-100">
+        <div className="bg-brand-surface rounded-3xl shadow-xl p-8 sm:p-10 border border-brand-muted">
           <div className="mb-8">
             <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
               <MdLock className="w-8 h-8 text-blue-600" />

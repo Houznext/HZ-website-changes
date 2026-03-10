@@ -120,14 +120,15 @@ export default function LoginComponent() {
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-[#0f2a44]">
       <div className="w-full max-w-xl px-4 sm:px-6">
-        {/* Brand logo top center */}
+        {/* Brand logo top center - transparent background */}
         <div className="flex flex-col items-center mb-8">
-          <div className="relative w-56 h-12 sm:w-64 sm:h-14 mb-3">
+          <div className="relative w-56 h-12 sm:w-64 sm:h-14 mb-3 bg-transparent">
             <Image
-              src="/images/background/newlogo.png"
+              src="/images/houznext-logo.png"
               alt="Houznext Logo"
               fill
-              className="object-contain"
+              className="object-contain bg-transparent"
+              style={{ background: "transparent" }}
             />
           </div>
           <p className="text-xs sm:text-sm text-[#d1e0f2] tracking-widest uppercase">
