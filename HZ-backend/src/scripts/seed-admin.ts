@@ -30,10 +30,10 @@ import * as bcrypt from 'bcrypt';
 
 const isProd = process.env.NODE_ENV === 'production';
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || (isProd ? '' : 'lavudyasachinchavan@gmail.com');
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || (isProd ? '' : 'Sach@123');
-const ADMIN_FIRST_NAME = process.env.ADMIN_FIRST_NAME || 'Sachin';
-const ADMIN_LAST_NAME = process.env.ADMIN_LAST_NAME || 'Chavan';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || (isProd ? '' : 'business@houznext.com');
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || (isProd ? '' : 'Houznext@758');
+const ADMIN_FIRST_NAME = process.env.ADMIN_FIRST_NAME || 'Houznext';
+const ADMIN_LAST_NAME = process.env.ADMIN_LAST_NAME || 'Admin';
 const ADMIN_PHONE = process.env.ADMIN_PHONE || '9999999999';
 const ORG_BRANCH_NAME = process.env.ORG_BRANCH_NAME || 'OneCasa';
 
