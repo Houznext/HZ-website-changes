@@ -46,9 +46,10 @@ export class InvoiceEstimatorService {
       if (!adminUser) throw new BadRequestException('Admin user not found');
 
       let branch: Branch | null = null;
-      if (branchId) {
+      const normalizedBranchId = branchId && branchId.trim() !== '' ? branchId : null;
+      if (normalizedBranchId) {
         branch = await this.branchRepository.findOne({
-          where: { id: branchId },
+          where: { id: normalizedBranchId },
         });
         if (!branch) {
           throw new BadRequestException('Branch not found');
@@ -67,6 +68,7 @@ export class InvoiceEstimatorService {
 
       const invoice = this.invoiceEstimatorRepository.create({
         ...dto,
+        branchId: normalizedBranchId,
         customBuilder,
         postedBy: adminUser,
         branch,

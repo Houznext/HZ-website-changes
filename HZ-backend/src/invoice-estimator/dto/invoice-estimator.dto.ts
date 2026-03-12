@@ -41,9 +41,10 @@ export class CreateInvoiceEstimatorDto {
   @IsString()
   userId: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  branchId: string;
+  branchId?: string;
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()

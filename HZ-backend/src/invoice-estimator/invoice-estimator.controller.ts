@@ -23,7 +23,6 @@ import { ControllerAuthGuard, RequestUser } from 'src/guard';
 
 @ApiTags('invoice-estimator')
 @Controller('invoice-estimator')
-@UseGuards(ControllerAuthGuard)
 export class InvoiceEstimatorController {
   constructor(
     private readonly invoiceEstimatorService: InvoiceEstimatorService,
@@ -38,21 +37,9 @@ export class InvoiceEstimatorController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   async create(
-    @Req() req: { user: RequestUser },
     @Body() createInvoiceEstimatorDto: CreateInvoiceEstimatorDto,
   ): Promise<InvoiceEstimator> {
-    const currentUser = req.user;
-    const effectiveBranchId =
-      createInvoiceEstimatorDto.branchId ??
-      currentUser.activeBranchId ??
-      currentUser.branchMembership?.branchId;
-
-    const payload: CreateInvoiceEstimatorDto = {
-      ...createInvoiceEstimatorDto,
-      userId: currentUser.id,
-      branchId: effectiveBranchId,
-    };
-    return this.invoiceEstimatorService.create(payload);
+    return this.invoiceEstimatorService.create(createInvoiceEstimatorDto);
   }
 
   @Get()
@@ -173,18 +160,10 @@ export class InvoiceEstimatorController {
   })
   @ApiResponse({ status: 404, description: 'Invoice estimator not found.' })
   async update(
-    @Req() req: { user: RequestUser },
     @Param('id') id: string,
     @Body() updateInvoiceEstimatorDto: UpdateInvoiceEstimatorDto,
   ): Promise<InvoiceEstimator> {
-    const currentUser = req.user;
-
-    const payload: UpdateInvoiceEstimatorDto = {
-      ...updateInvoiceEstimatorDto,
-      userId: currentUser.id,
-    };
-
-    return this.invoiceEstimatorService.update(id, payload);
+    return this.invoiceEstimatorService.update(id, updateInvoiceEstimatorDto);
   }
 
   @Delete(':id')

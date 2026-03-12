@@ -51,11 +51,11 @@ export default function InvoiceView() {
     // 👇 Decide which branchId to use
 const effectiveBranchId = useMemo(() => {
   if (canShowBranchFilter) {
-    return selectedBranch; // ORG selected branch
+    return selectedBranch || null; // ORG selected branch
   }
 
   // Without branches module, fall back to no explicit branch filter.
-  return membership?.branchId ? String(membership.branchId) : "";
+  return membership?.branchId ? String(membership.branchId) : null;
 }, [canShowBranchFilter, selectedBranch, membership]);
 
 
@@ -114,15 +114,15 @@ const effectiveBranchId = useMemo(() => {
   //   }
   // }, [user]);
   useEffect(() => {
-  if (!user?.id) return;
-  if (!effectiveBranchId) return;
+    if (!user?.id) return;
 
-  fetchInvoiceEstimator(user.id, {
-    branchId: effectiveBranchId,
-    page: 1,
-    limit: 10,
-  });
-}, [user?.id, effectiveBranchId]);
+    const query: any = { page: 1, limit: 10 };
+    if (effectiveBranchId) {
+      query.branchId = effectiveBranchId;
+    }
+
+    fetchInvoiceEstimator(user.id, query);
+  }, [user?.id, effectiveBranchId]);
 
 
   if (isLoading) {
@@ -231,7 +231,7 @@ export const InvoiceEstimatorForm = ({
   const [editingItemId, setEditingItemId] = useState<number | null>(null);
 
   const [invoiceData, setInvoiceData] = useState({
-    userId: Number(userId),
+    userId: userId,
     billToName: "",
     billToAddress: "",
     billToCity: "",
