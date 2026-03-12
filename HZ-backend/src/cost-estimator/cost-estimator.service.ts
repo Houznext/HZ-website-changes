@@ -19,7 +19,6 @@ import { ItemGroup } from './entities/itemgroup.entity';
 import { UserRole } from 'src/user/enum/user.enum';
 import { EstimationCategory } from './Enum/cost-estimator.enum';
 import { MailerService } from 'src/sendEmail.service';
-import { Branch } from 'src/branch/entities/branch.entity';
 import { RequestUser } from 'src/guard';
 import { S3Service } from 'src/common/s3/s3.service';
 
@@ -30,8 +29,6 @@ export class CostEstimatorService {
     private readonly costEstimatorRepository: Repository<CostEstimator>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(Branch)
-    private readonly branchRepository: Repository<Branch>,
     private notificationService: NotificationService,
     private readonly mailerService: MailerService,
     private readonly s3Service: S3Service,
@@ -54,24 +51,6 @@ export class CostEstimatorService {
         }
       }
 
-      let branch: Branch | null = null;
-      if (createCostEstimatorDto.branchId) {
-        branch = await this.branchRepository.findOne({
-          where: { id: createCostEstimatorDto.branchId },
-        });
-      }
-      if (!branch) {
-        branch = await this.branchRepository.findOne({
-          where: {},
-          order: { id: 'ASC' },
-        });
-      }
-      if (!branch) {
-        throw new BadRequestException(
-          'No branch available. Please create a branch first.',
-        );
-      }
-
       const category =
         createCostEstimatorDto.category || EstimationCategory.INTERIOR;
 
@@ -79,7 +58,6 @@ export class CostEstimatorService {
         ...createCostEstimatorDto,
         postedBy: user,
         category,
-        branch,
       });
 
       if (
@@ -108,7 +86,6 @@ export class CostEstimatorService {
   }
 
   async findAll(
-    branchId?: number,
     firstname?: string,
     lastname?: string,
     email?: string,
@@ -127,13 +104,7 @@ export class CostEstimatorService {
     try {
       const queryBuilder = this.costEstimatorRepository
         .createQueryBuilder('costEstimator')
-        .leftJoinAndSelect('costEstimator.postedBy', 'postedBy')
-        .leftJoinAndSelect('costEstimator.branch', 'branch');
-      if (branchId) {
-        queryBuilder.andWhere('costEstimator.branchId = :branchId', {
-          branchId,
-        });
-      }
+        .leftJoinAndSelect('costEstimator.postedBy', 'postedBy');
 
       if (firstname) {
         queryBuilder.andWhere('costEstimator.firstname ILIKE :firstname', {
@@ -232,19 +203,14 @@ export class CostEstimatorService {
     }
   }
 
-  async findById(id: string, branchId?: string): Promise<CostEstimator> {
+  async findById(id: string): Promise<CostEstimator> {
     try {
       const query = await this.costEstimatorRepository
         .createQueryBuilder('costEstimator')
         .leftJoinAndSelect('costEstimator.postedBy', 'postedBy')
         .leftJoinAndSelect('costEstimator.itemGroups', 'itemGroups')
-        .leftJoinAndSelect('costEstimator.branch', 'branch')
         .where('costEstimator.id = :id', { id })
         .orderBy('itemGroups.order', 'ASC');
-
-      if (branchId) {
-        query.andWhere('costEstimator.branchId = :branchId', { branchId });
-      }
       const costEstimator = await query.getOne();
 
       if (!costEstimator) {
@@ -261,7 +227,7 @@ export class CostEstimatorService {
   async update(id: string, updateDto: UpdateCostEstimatorDto): Promise<any> {
     const existingEstimator = await this.costEstimatorRepository.findOne({
       where: { id },
-      relations: ['itemGroups', 'postedBy', 'branch'],
+      relations: ['itemGroups', 'postedBy'],
     });
 
     if (!existingEstimator) {
@@ -285,18 +251,6 @@ export class CostEstimatorService {
     }
 
     Object.assign(existingEstimator, updateDto);
-    if (updateDto.branchId) {
-      const branch = await this.branchRepository.findOne({
-        where: { id: updateDto.branchId },
-      });
-
-      if (!branch) {
-        throw new BadRequestException('Invalid branchId');
-      }
-
-      existingEstimator.branch = branch;
-    }
-
     if (Array.isArray(updateDto.itemGroups)) {
       const existingGroupsMap = new Map<number, ItemGroup>();
       existingEstimator.itemGroups.forEach((group) => {
@@ -429,7 +383,7 @@ export class CostEstimatorService {
   }
 
   async fetchEstimationsByUser(
-    currentUser: RequestUser,
+    _currentUser: RequestUser | null,
     filters: {
       firstname?: string;
       lastname?: string;
@@ -446,44 +400,16 @@ export class CostEstimatorService {
     },
     page = 1,
     limit = 10,
-    branchId?: string,
+    _branchId?: string,
     targetUserId?: string,
   ) {
-    if (!currentUser) {
-      throw new UnauthorizedException('User not authenticated');
-    }
-
-   
-    const active = currentUser.branchMembership;
-
-    const isSuperAdmin = currentUser.role === UserRole.ADMIN;
-
-    const isBranchHead = active?.isBranchHead === true;
-
-   
-
     const queryBuilder = this.costEstimatorRepository
       .createQueryBuilder('costEstimator')
-      .leftJoinAndSelect('costEstimator.postedBy', 'postedBy')
-      .leftJoinAndSelect('costEstimator.branch', 'branch');
+      .leftJoinAndSelect('costEstimator.postedBy', 'postedBy');
 
-    
-    if (branchId) {
-      queryBuilder.andWhere('costEstimator.branchId = :branchId', { branchId });
-    }
-
-   
-    if (isSuperAdmin || isBranchHead) {
-      const isStaticAdmin = targetUserId === 'houznext-admin';
-      if (targetUserId && !isStaticAdmin) {
-        queryBuilder.andWhere('costEstimator.postedById = :uid', {
-          uid: targetUserId,
-        });
-      }
-    } else {
-      
+    if (targetUserId) {
       queryBuilder.andWhere('costEstimator.postedById = :uid', {
-        uid: currentUser.id,
+        uid: targetUserId,
       });
     }
 

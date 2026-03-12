@@ -402,7 +402,6 @@ const CostEstimatorDetailsView = () => {
           editingEstimation={editingEstimation}
           setEditingEstimation={setEditingEstimation}
           fetchDetails={fetchCostEstimationById}
-          branchId={session?.data?.user?.branchMemberships?.[0]?.branchId}
         />
       </Drawer>
       <Modal

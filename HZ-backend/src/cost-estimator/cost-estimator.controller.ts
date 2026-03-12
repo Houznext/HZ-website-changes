@@ -50,7 +50,6 @@ export class CostEstimatorController {
     type: [CostEstimator],
   })
   @ApiQuery({ name: 'category', required: false, enum: EstimationCategory })
-  @ApiQuery({ name: 'branchId', required: false, type: Number })
   @ApiQuery({ name: 'firstname', required: false })
   @ApiQuery({ name: 'lastname', required: false })
   @ApiQuery({ name: 'email', required: false })
@@ -65,7 +64,6 @@ export class CostEstimatorController {
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   async findAll(
-     @Query('branchId') branchId?: number,
     @Query('firstname') firstname?: string,
     @Query('lastname') lastname?: string,
     @Query('email') email?: string,
@@ -82,7 +80,6 @@ export class CostEstimatorController {
     @Query('category') category?: EstimationCategory,
   ) {
     return await this.costEstimatorService.findAll(
-       branchId ? Number(branchId) : undefined,
       firstname,
       lastname,
       email,
@@ -110,9 +107,8 @@ export class CostEstimatorController {
   @ApiResponse({ status: 404, description: 'Cost estimator not found.' })
   async findById(
     @Param('id') id: string,
-     @Query('branchId') branchId?: string, 
   ): Promise<CostEstimator> {
-    return this.costEstimatorService.findById(id, branchId);
+    return this.costEstimatorService.findById(id);
   }
   // @UseGuards(ControllerAuthGuard)
   @Put(':id')
@@ -152,8 +148,6 @@ export class CostEstimatorController {
   async sendEmail(@Param('email') email: string): Promise<void> {
     return this.costEstimatorService.sendEmail(email);
   }
-  @UseGuards(ControllerAuthGuard)
-
   @Get('by-user/:userId')
   @ApiOperation({
     summary: 'Get cost Estimation for a specific user based on id',
@@ -164,11 +158,10 @@ export class CostEstimatorController {
   })
   async getEstimationsForUser(
     @Param('userId') userId: string,
-    @Req() req: { user: RequestUser },   
+    @Req() req: { user?: RequestUser },   
     @Query() query: any,
   ) {
     const {
-      branchId,
       firstname,
       lastname,
       email,
@@ -205,11 +198,10 @@ export class CostEstimatorController {
     };
 
     return this.costEstimatorService.fetchEstimationsByUser(
-      req.user,                               
+      req.user ?? null,                               
       filters,
       Number(page),
       Number(limit),
-      branchId,
       userId,                                  
     );
   }

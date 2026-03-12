@@ -123,31 +123,17 @@ export default function AttendanceManagementView() {
   }, [canShowBranchFilter, selectedBranch, sessionBranchId]);
 
   /** ------------- Fetch branches ------------- */
-  const fetchBranches = useCallback(async () => {
-    try {
-      const res = await apiClient.get(`${apiClient.URLS.branches}/idwithname`, {}, true);
-      const list = res.body || [];
-      const formatted: BranchOption[] = list.map((b: any) => ({
-        label: b.branchName,
-        value: b.branchId,
-      }));
-      setBranchOptions(formatted);
+  const fetchBranches = useCallback(() => {
+    // Backend branch listing has been removed; derive a simple option from session if present.
+    const formatted: BranchOption[] = sessionBranchId
+      ? [{ label: "Current Branch", value: sessionBranchId }]
+      : [];
+    setBranchOptions(formatted);
 
-      // default selection
-      if (!selectedBranch) {
-        if (!canShowBranchFilter && sessionBranchId) {
-          setSelectedBranch(sessionBranchId);
-        } else if (sessionBranchId) {
-          setSelectedBranch(sessionBranchId);
-        } else if (formatted.length > 0) {
-          setSelectedBranch(formatted[0].value);
-        }
-      }
-    } catch (e) {
-      console.error(e);
-      toast.error("Failed to load branches");
+    if (!selectedBranch && sessionBranchId) {
+      setSelectedBranch(sessionBranchId);
     }
-  }, [canShowBranchFilter, selectedBranch, sessionBranchId]);
+  }, [selectedBranch, sessionBranchId]);
 
   /** ------------- Fetch branch users ------------- */
   const fetchBranchUsers = useCallback(async () => {

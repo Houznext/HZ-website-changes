@@ -30,7 +30,6 @@ const CostEstimatorForm = ({
   fetchDetails,
   setEditingEstimation,
   userId,
-  branchId,
   category: categoryProp,
   onSuccessRefetch,
 }: CEformProps) => {
@@ -62,7 +61,6 @@ const CostEstimatorForm = ({
       state: "",
       address_line_1: "",
     },
-    branchId,
   });
   const [sectionTitle, setSectionTitle] = useState("");
   const [currentSection, setCurrentSection] = useState(null);
@@ -139,7 +137,6 @@ useEffect(() => {
         itemGroups,
         location: editingEstimation.location,
         discount: editingEstimation.discount,
-        branchId: editingEstimation.branchId,
       });
       setLocationDetails({ ...editingEstimation.location });
       setDetails(editingEstimation?.details);
@@ -172,12 +169,11 @@ useEffect(() => {
         property_image: "",
         itemGroups: [],
         location: emptyLocation,
-        branchId: branchId ?? undefined,
       });
       setLocationDetails(emptyLocation);
       setDetails(undefined);
     }
-  }, [editingEstimation, userId, branchId]);
+  }, [editingEstimation, userId]);
 
   useEffect(() => {
     setFormValues((prev) => ({
@@ -559,22 +555,6 @@ useEffect(() => {
     try {
       let response: any = null;
 
-      let resolvedBranchId = branchId ?? undefined;
-      if (!editingEstimation && !resolvedBranchId) {
-        try {
-          const branchesRes = await apiClient.get(
-            `${apiClient.URLS.branches}/idwithname`,
-            {},
-            true
-          );
-          const list = Array.isArray(branchesRes?.body) ? branchesRes.body : [];
-          const firstBranchId = list[0]?.branchId ?? list[0]?.id;
-          if (firstBranchId) resolvedBranchId = firstBranchId;
-        } catch (e) {
-          console.warn("Could not fetch default branch:", e);
-        }
-      }
-
       const payLoad = {
         ...formValues,
         phone: Number(formValues.phone),
@@ -582,7 +562,6 @@ useEffect(() => {
         details,
         discount: toDecimalString(formValues.discount),
         category: categoryProp ?? (activetab?.category as string) ?? "Interior",
-        branchId: resolvedBranchId,
       };
 
       if (editingEstimation) {

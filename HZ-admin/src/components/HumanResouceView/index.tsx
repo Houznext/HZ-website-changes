@@ -39,29 +39,16 @@ export default function HumanResourceView() {
     membership?.isBranchHead === true &&
     membership?.level === "ORG";
 
-  // ✅ fetch branches ONLY if dropdown is allowed
+  // ✅ fetch branches ONLY if dropdown is allowed – now derived from session, no backend call
   const fetchBranches = async () => {
-    try {
-      const res = await apiClient.get(
-        `${apiClient.URLS.branches}/idwithname`,
-        {},
-        true
-      );
-      const list = res.body || [];
+    const formatted = sessionBranchId && membership?.branchName
+      ? [{ label: membership.branchName, value: sessionBranchId }]
+      : [];
 
-      const formatted = list.map((b: any) => ({
-        label: b.branchName,
-        value: b.branchId,
-      }));
+    setBranchOptions(formatted);
 
-      setBranchOptions(formatted);
-
-      // ✅ only set first branch automatically if dropdown is allowed
-      if (formatted.length > 0 && !selectedBranch && canShowBranchFilter) {
-        setSelectedBranch(formatted[0].value);
-      }
-    } catch (error) {
-      console.error("Error:", error);
+    if (!selectedBranch && sessionBranchId) {
+      setSelectedBranch(sessionBranchId);
     }
   };
 

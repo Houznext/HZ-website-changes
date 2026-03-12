@@ -153,22 +153,8 @@ export default function CrmView() {
 
   // =========== EFFECTS ===========
   const fetchBranches = async () => {
-    try {
-      const res = await apiClient.get(
-        `${apiClient.URLS.branches}/idwithname`,
-        {},
-        true,
-      );
-      const list: any[] = res.body || [];
-      setBranchOptions(
-        list.map((branch) => ({
-          label: branch.branchName,
-          value: branch.branchId,
-        })),
-      );
-    } catch (error) {
-      console.error("error is ", error);
-    }
+    // Branch listing API removed; keep CRM functional without branch dropdown.
+    setBranchOptions([]);
   };
   useEffect(() => {
     fetchBranches();

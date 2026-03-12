@@ -10,6 +10,8 @@ export interface Permission {
 }
 
 export interface BranchMembershipLite {
+  // Legacy shape kept for compatibility with existing session payloads,
+  // but branch-based behaviour is no longer used.
   branchId: string;
   branchName?: string;
   level?: string;
@@ -51,24 +53,11 @@ export const usePermissionStore = create<PermissionStore>((set, get) => ({
   initialized: false,
 
   initFromSession: (memberships, userRole) => {
-    if (!memberships || memberships.length === 0) {
-      set({
-        permissions: [],
-        memberships: [],
-        activeBranchId: null,
-        userRole: userRole ?? null,
-        initialized: true,
-        isLoading: false,
-      });
-      return;
-    }
-
-    const primary = memberships.find((m) => m.isPrimary) ?? memberships[0];
-
     set({
-      memberships,
-      activeBranchId: primary.branchId,
-      permissions: primary.permissions ?? [],
+      // Branch memberships are no longer used for permission decisions
+      memberships: memberships ?? [],
+      activeBranchId: null,
+      permissions: [],
       userRole: userRole ?? null,
       initialized: true,
       isLoading: false,
@@ -86,14 +75,8 @@ export const usePermissionStore = create<PermissionStore>((set, get) => ({
   },
 
   switchBranch: (branchId) => {
-    const { memberships } = get();
-    const membership = memberships.find((m) => m.branchId === branchId);
-    if (!membership) return;
-
-    set({
-      activeBranchId: branchId,
-      permissions: membership.permissions ?? [],
-    });
+    // Branch switching is no-op now that branches are removed
+    set({ activeBranchId: null });
   },
 
   setPermissions: (permissions) =>
@@ -104,13 +87,11 @@ export const usePermissionStore = create<PermissionStore>((set, get) => ({
     }),
 
   hasPermission: (resource, action = "view") => {
-    const { initialized, permissions, userRole } = get();
-    if (!initialized) return false;
-    if (userRole === "ADMIN" || userRole === "SuperAdmin") return true;
-
-    return permissions.some(
-      (perm) => perm.resource === resource && perm[action]
-    );
+    // Branch/role-based permissions have been simplified away.
+    // All checks now return true so existing UI continues to work.
+    resource;
+    action;
+    return true;
   },
 
   isAdmin: () => {

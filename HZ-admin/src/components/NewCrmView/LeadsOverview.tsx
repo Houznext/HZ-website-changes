@@ -217,22 +217,8 @@ export default function LeadsOverview({
     }
   };
   const fetchBranches = async () => {
-    try {
-      const res = await apiClient.get(
-        `${apiClient.URLS.branches}/idwithname`,
-        {},
-        true,
-      );
-      const list: BranchList[] = res.body || [];
-      setBranchOptions(
-        list.map((branch) => ({
-          label: branch.branchName,
-          value: (branch.branchId),
-        })),
-      );
-    } catch (error) {
-      console.error("error is ", error);
-    }
+    // Branch listing API removed; leave branchOptions empty to avoid 404s.
+    setBranchOptions([]);
   };
   useEffect(() => {
     fetchBranches();

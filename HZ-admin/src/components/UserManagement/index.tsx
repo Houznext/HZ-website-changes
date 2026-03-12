@@ -154,14 +154,8 @@ const AdminUsersOverview = () => {
   }, [userData]);
 
   const fetchBranches = async () => {
-    try {
-      const res = await apiClient.get(apiClient.URLS.branches, {});
-      if (res.status === 200 && res.body) {
-        setBranches(res.body);
-      }
-    } catch (error) {
-      console.error("Error fetching branches:", error);
-    }
+    // Branch system removed on backend; skip loading branches to avoid 404s.
+    setBranches([]);
   };
 
   const fetchUsers = async () => {

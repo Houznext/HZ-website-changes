@@ -51,22 +51,12 @@ export default function LeadDetailsModal({
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const fetchBranchName = async () => {
-    if (!lead?.branchId) return;
-
-    try {
-      const res = await apiClient.get(
-        `${apiClient.URLS.branches}/${lead.branchId}`,
-        {},
-        true,
-      );
-
-      if (res.status === 200) {
-        setBranchName(res.body?.name || "N/A");
-      }
-    } catch (error) {
-      console.error("Error fetching branch:", error);
+    // Branch module has been removed; display generic label instead of fetching from backend.
+    if (!lead?.branchId) {
       setBranchName("N/A");
+      return;
     }
+    setBranchName(`Branch ${lead.branchId}`);
   };
 
   useEffect(() => {

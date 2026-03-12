@@ -62,12 +62,9 @@ import { CbDocumentModule } from './Custombuilder/cbdocument/cbdocument.module';
 import { PhaseModule } from './Custombuilder/phase/phase.module';
 import { MaterialsModule } from './Custombuilder/Materials/materials.module';
 import { PaymentTrackingModule } from './Custombuilder/payment-tracking/payment-tracking.module';
-import { BranchModule } from './branch/branch.module';
 import { CityModule } from './geography/city/city.module';
 import { StateModule } from './geography/state/state.module';
 import { ReferralModule } from './Referral/referral.module';
-import { BranchRoleModule } from './branchRole/branch-role.module';
-import { BranchRolePermissionModule } from './branch-role-permission/branch-role-permission.module';
 import { HrModule } from './employee-hr/hr.module';
 import { OrdersModule } from './orders/order.module';
 import { ReferAndEarnModule } from './referandearn/referandearn.module';
@@ -162,14 +159,11 @@ import { AuditLogInterceptor } from './audit-log/audit-log.interceptor';
     PhaseModule,
     MaterialsModule,
     PaymentTrackingModule,
-    BranchModule,
     CityModule,
     HrModule,
     ReferAndEarnModule,
     ChatModule,
     ChatbotModule,
-    BranchRolePermissionModule,
-    BranchRoleModule,
     StaffAttendanceModule,
     SolarOrdersModule,
     FloorplansModule,

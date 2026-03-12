@@ -12,8 +12,6 @@ import {
 import { PropertyType } from '../../Custombuilder/custom-property/enum/custom-property.enum';
 import { User } from 'src/user/entities/user.entity';
 import { ItemGroup } from './itemgroup.entity';
-import { Branch } from 'src/branch/entities/branch.entity'; 
-
 
 @Entity()
 export class CostEstimator {
@@ -95,14 +93,4 @@ export class CostEstimator {
 
   @UpdateDateColumn({ type: 'timestamp with time zone' })
   updatedAt: Date;
-  @Column({ type: 'uuid', nullable: true })
- 
-  branchId: string;
-  @ManyToOne(() => Branch, {
-    nullable: true,
-    onDelete: 'SET NULL',
-    eager: true,
-  })
-  @JoinColumn({ name: 'branchId' })
-  branch: Branch | null;
 }

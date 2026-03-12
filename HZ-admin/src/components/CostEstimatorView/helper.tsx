@@ -37,8 +37,6 @@ export interface CEformValues {
     address_line_1: string;
   };
   discount: number;
-  branchId:string;
-
 }
 
 export interface CostEstimator extends CEformValues {
@@ -53,7 +51,6 @@ export interface CEformProps {
   fetchDetails?: () => Promise<void>;
   setEditingEstimation?: React.Dispatch<React.SetStateAction<CostEstimator | null>>;
   userId: string;
-  branchId?: string | null;
   category?: string;
   onSuccessRefetch?: () => void;
 }

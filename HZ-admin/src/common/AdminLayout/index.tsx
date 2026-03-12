@@ -218,13 +218,6 @@ function AdminLayout({
       isActive: router.pathname.startsWith("/company-property"),
     },
     {
-      name: "Branches",
-      link: "/branches",
-      icon: <Building2 className="text-[16px]" />,
-      table: "branches",
-      isActive: router.pathname === "/branches",
-    },
-    {
       name: "Blogs",
       link: "/blogs",
       icon: <TbBrandBlogger className="text-[16px]" />,

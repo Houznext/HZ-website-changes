@@ -184,13 +184,6 @@ export class CreateCostEstimatorDto {
   @IsString()
   @IsOptional()
   discount?: number;
-   @ApiProperty({
-    required: false,
-    description: 'Branch to attach this estimation to',
-  })
-  @IsOptional()
-  @IsString()
-  branchId?: string;
 }
 
 export class UpdateCostEstimatorDto {
@@ -278,10 +271,4 @@ export class UpdateCostEstimatorDto {
   @IsString()
   @IsOptional()
   discount?: string;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  branchId?: string;
-  
 }

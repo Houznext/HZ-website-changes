@@ -15,7 +15,7 @@ interface CostEstimatorStore {
   costEstimators: CostEstimator[];
   setCostEstimators: (estimators: CostEstimator[]) => void;
   isLoading: boolean;
-  fetchCostEstimators: (userId: string, category: string, branchId?: string | null) => Promise<void>;
+  fetchCostEstimators: (userId: string, category: string) => Promise<void>;
   filters: FiltersState;
   setFilters: (filters: FiltersState) => void;
   activeTab: string;
@@ -33,14 +33,13 @@ export const useCostEstimatorStore = create<CostEstimatorStore>((set, get) => ({
 
   setFilters: (filters: FiltersState) => set({ filters }),
 
-  fetchCostEstimators: async (userId, category, branchId) => {
+  fetchCostEstimators: async (userId, category) => {
     set({ isLoading: true });
     try {
       const cleaned = category?.trim().replace(/\?+$/, "");
       let url = `${apiClient.URLS.cost_estimator}/by-user/${userId}?category=${encodeURIComponent(
         cleaned
       )}`;
-      if (branchId) url += `&branchId=${branchId}`;
       const res = await apiClient.get(url,{},true);
      const data = Array.isArray(res.body?.data)
       ? res.body.data

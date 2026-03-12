@@ -49,14 +49,9 @@ export default function InvoiceDetailsView() {
 
 
   const fetchBranches = async () => {
-    try {
-      const res = await apiClient.get(`${apiClient.URLS.branches}/idwithname`, {}, true);
-      const list: any[] = res.body || [];
-      setBranchOptions(list.map((branch) => ({ label: branch.branchName, value: branch.branchId })));
-    } catch (error) {
-      console.error("error is ", error);
-    }
-  }
+    // Branch listing API removed on backend; avoid calling it here.
+    setBranchOptions([]);
+  };
 
   const open = Boolean(anchorEl);
   const handleClick = (event) => {

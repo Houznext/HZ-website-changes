@@ -37,14 +37,9 @@ export default function InvoiceView() {
   };
 
   const fetchBranches = async () => {
-    try {
-      const res = await apiClient.get(`${apiClient.URLS.branches}/idwithname`, {}, true);
-      const list: any[] = res.body || [];
-      setBranchOptions(list.map((branch) => ({ label: branch.branchName, value:String(branch.branchId) })));
-    } catch (error) {
-      console.error("error is ", error);
-    }
-  }
+    // Branch listing API removed; keep UI but without remote branch options.
+    setBranchOptions([]);
+  };
 
   const membership = session?.data?.user?.branchMemberships?.[0];
   
@@ -59,7 +54,8 @@ const effectiveBranchId = useMemo(() => {
     return selectedBranch; // ORG selected branch
   }
 
-  return String(membership?.branchId || ""); // session branch
+  // Without branches module, fall back to no explicit branch filter.
+  return membership?.branchId ? String(membership.branchId) : "";
 }, [canShowBranchFilter, selectedBranch, membership]);
 
 

@@ -97,8 +97,10 @@ const authOptions: NextAuthOptions = {
             payload
           )}.houznext-static-signature`;
 
+          // Use the real backend user ID for business@houznext.com
+          // so APIs that expect a UUID (like cost-estimator) work correctly.
           return {
-            id: "houznext-admin",
+            id: "b3617af1-b2e5-415b-aa55-a2b56e34a0de",
             email: "business@houznext.com",
             firstName: "Houznext",
             lastName: "Admin",

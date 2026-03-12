@@ -47,7 +47,7 @@ const TABS = [{ key: "Interior", label: "Interiors" }];
 
 const CostEstimatorView: React.FC = () => {
   const router = useRouter();
-  const { hasPermission, activeBranchId } = usePermissionStore((s) => s);
+  const { hasPermission } = usePermissionStore((s) => s);
 
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
@@ -93,32 +93,6 @@ const CostEstimatorView: React.FC = () => {
   const [stateOptions, setStateOptions] = useState<
     { id: string; label: string }[]
   >([]);
-  const [branchOptions, setBranchOptions] = useState<
-    { label: string; value: string }[]
-  >([]);
-  const [selectedBranch, setSelectedBranch] = useState<any>(null);
-  const fetchBranches = async () => {
-    try {
-      const res = await apiClient.get(
-        `${apiClient.URLS.branches}/idwithname`,
-        {},
-        true,
-      );
-      const list: any[] = res.body || [];
-      setBranchOptions(
-        list.map((branch) => ({
-          label: branch.branchName,
-          value: branch.branchId,
-        })),
-      );
-    } catch (error) {
-      console.error("error is ", error);
-    }
-  };
-  useEffect(() => {
-    fetchBranches();
-  }, []);
-
   /* ---------------- Effects ---------------- */
 
   useEffect(() => {
@@ -130,9 +104,9 @@ const CostEstimatorView: React.FC = () => {
   // Fetch on auth/tab change
   useEffect(() => {
     if (status === "authenticated" && userId) {
-      fetchCostEstimators(userId, activeTab, activeBranchId);
+      fetchCostEstimators(userId, activeTab);
     }
-  }, [status, userId, activeTab, activeBranchId]);
+  }, [status, userId, activeTab]);
 
   // Build filter option sets whenever data changes
   useEffect(() => {
@@ -201,13 +175,6 @@ const CostEstimatorView: React.FC = () => {
       300,
     );
   }, [query]);
-  const membership = session?.user?.branchMemberships?.[0];
-
-  const canShowBranchFilter =
-    membership?.branchRoles?.some((r) => r.roleName === "SuperAdmin") &&
-    membership?.isBranchHead === true &&
-    membership?.level === "ORG";
-
   /* ---------------- Data ---------------- */
 
   /* ---------------- Helpers ---------------- */
@@ -248,16 +215,12 @@ const CostEstimatorView: React.FC = () => {
             selectedFilters.stateData[
               e?.location?.state?.trim()?.toLowerCase() || ""
             ];
-          const matchesBranch =
-            !selectedBranch || e.branchId === selectedBranch;
-
           return (
             matchQ &&
             bhkMatch &&
             dateMatch &&
             designerMatch &&
-            stateMatch &&
-            matchesBranch
+            stateMatch
           );
         })
       : [];
@@ -276,7 +239,7 @@ const CostEstimatorView: React.FC = () => {
     }
 
     return out;
-  }, [costEstimators, debouncedQuery, selectedFilters, sort, selectedBranch]);
+  }, [costEstimators, debouncedQuery, selectedFilters, sort]);
   const totalPages = Math.ceil(filtered.length / pageSize);
 
   const paginatedData = useMemo(() => {
@@ -286,7 +249,7 @@ const CostEstimatorView: React.FC = () => {
   }, [filtered, currentPage, pageSize]);
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedQuery, selectedFilters, activeTab, selectedBranch]);
+  }, [debouncedQuery, selectedFilters, activeTab]);
 
   const exportCSV = () => {
     if (!paginatedData.length) {
@@ -446,11 +409,6 @@ const CostEstimatorView: React.FC = () => {
               searchText={query}
               placeholder="Search by name, email, phone, property or location..."
               onSearchChange={setQuery}
-              branchOptions={branchOptions}
-              selectedBranch={selectedBranch}
-              onBranchChange={(opt) => {
-                setSelectedBranch(opt?.value ?? null);
-              }}
               filters={[
                 {
                   groupLabel: "BHK Type",
@@ -472,7 +430,6 @@ const CostEstimatorView: React.FC = () => {
               selectedFilters={selectedFilters}
               onFilterChange={setSelectedFilters}
               rootCls="md:mb-0"
-              showBranchFilter={canShowBranchFilter}
             />
           </div>
 
@@ -614,9 +571,8 @@ const CostEstimatorView: React.FC = () => {
           setEditingEstimation={setEditingEstimation}
           editingEstimation={editingEstimation}
           userId={userId}
-          branchId={activeBranchId}
           category={activeTab}
-          onSuccessRefetch={() => fetchCostEstimators(userId!, activeTab, activeBranchId)}
+          onSuccessRefetch={() => fetchCostEstimators(userId!, activeTab)}
         />
       </Drawer>
     </div>

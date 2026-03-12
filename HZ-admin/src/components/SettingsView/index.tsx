@@ -37,14 +37,7 @@ const subLinks = [
     borderColor: "hover:border-violet-300",
   },
   {
-    name: "Branches",
-    link: "/settings/branches",
-    icon: <LuNetwork className="text-xl" />,
-    desc: "Manage branch locations and settings",
-    table: "branch",
-    iconBg: "bg-amber-500",
-    hoverBg: "hover:bg-amber-50",
-    borderColor: "hover:border-amber-300",
+    // Branch settings removed
   },
   {
     name: "Attendance",
