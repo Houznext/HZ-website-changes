@@ -65,12 +65,12 @@ export default function LoginComponent() {
         redirect: false,
         email: loginFormValues.email,
         password: loginFormValues.password,
-        callbackUrl: "/dashboard",
+        callbackUrl: "/cost-estimator",
       });
 
       if (result?.ok) {
         toast.success("Login successful");
-        router.push("/dashboard");
+        router.push("/cost-estimator");
       } else {
         toast.error("Invalid credentials");
         setLoading(false);
@@ -124,11 +124,10 @@ export default function LoginComponent() {
         <div className="flex flex-col items-center mb-8">
           <div className="relative w-56 h-12 sm:w-64 sm:h-14 mb-3 bg-transparent">
             <Image
-              src="/images/houznext-logo.svg"
+              src="/images/Houznext Logo.png"
               alt="Houznext Logo"
               fill
-              className="object-contain bg-transparent"
-              style={{ background: "transparent" }}
+              className="object-contain"
             />
           </div>
           <p className="text-xs sm:text-sm text-[#d1e0f2] tracking-widest uppercase">

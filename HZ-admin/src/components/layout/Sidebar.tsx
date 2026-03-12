@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import Image from "next/image";
 import {
   LayoutDashboard,
   FileText,
@@ -28,9 +29,14 @@ export default function Sidebar() {
   return (
     <aside className="hidden md:flex flex-col w-64 bg-[#0f2a44] text-slate-100 h-screen sticky top-0 relative">
       <div className="h-16 flex items-center px-6 border-b border-white/5 flex-shrink-0">
-        <span className="text-lg font-semibold tracking-tight">
-          Houz<span className="text-[#2f80ed]">next</span>
-        </span>
+        <div className="relative w-40 h-10">
+          <Image
+            src="/images/Houznext Logo.png"
+            alt="Houznext Logo"
+            fill
+            className="object-contain"
+          />
+        </div>
       </div>
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
