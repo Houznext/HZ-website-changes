@@ -36,19 +36,6 @@ const subLinks = [
     hoverBg: "hover:bg-violet-50",
     borderColor: "hover:border-violet-300",
   },
-  {
-    // Branch settings removed
-  },
-  {
-    name: "Attendance",
-    link: "/settings/attendance-management",
-    icon: <FaCalendarCheck className="text-xl" />,
-    desc: "Manage employee attendance and records",
-    table: "attendance",
-    iconBg: "bg-emerald-500",
-    hoverBg: "hover:bg-emerald-50",
-    borderColor: "hover:border-emerald-300",
-  },
 ];
 
 interface DocumentationModalProps {
@@ -96,15 +83,15 @@ const DocumentationModal = ({ isOpen, onClose }: DocumentationModalProps) => {
   ];
 
   const handleEmailClick = () => {
-    window.location.href = "mailto:admin@onecasa.in";
+    window.location.href = "mailto:business@houznext.com";
   };
 
   const handlePhoneClick = () => {
-    window.location.href = "tel:+918897574909";
+    window.location.href = "tel:+918498823043";
   };
 
   const handleWhatsAppClick = () => {
-    window.open("https://wa.me/918897574909", "_blank");
+    window.open("https://wa.me/918498823043", "_blank");
   };
 
   return (
@@ -183,63 +170,35 @@ const DocumentationModal = ({ isOpen, onClose }: DocumentationModalProps) => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Button
                 onClick={handleEmailClick}
-                className="group bg-white hover:bg-blue-500 rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-blue-500"
+                className="group bg-white hover:bg-blue-500 rounded-2xl p-4 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-blue-500 aspect-square flex items-center justify-center"
               >
-                <div className="flex flex-col items-center gap-3">
-                  <div className="p-3 bg-blue-100 group-hover:bg-white/20 rounded-xl transition-colors duration-300">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="p-2 bg-blue-100 group-hover:bg-white/20 rounded-xl transition-colors duration-300">
                     <MdEmail className="text-2xl text-blue-500 group-hover:text-white" />
                   </div>
-                  <div className="text-center">
-                    <p className="text-xs text-gray-400 group-hover:text-blue-100 mb-1 transition-colors duration-300">
-                      Email Us
-                    </p>
-                    <p className="text-sm font-semibold text-gray-800 group-hover:text-white transition-colors duration-300 break-all">
-                      admin@onecasa.in
-                    </p>
-                  </div>
+                  <p className="text-xs font-semibold text-gray-800 group-hover:text-white transition-colors duration-300 text-center break-all">
+                    business@houznext.com
+                  </p>
                 </div>
               </Button>
 
               <Button
                 onClick={handlePhoneClick}
-                className="group bg-white hover:bg-slate-700 rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-slate-700"
+                className="group bg-white hover:bg-slate-700 rounded-2xl p-4 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-slate-700 aspect-square flex items-center justify-center"
               >
-                <div className="flex flex-col items-center gap-3">
-                  <div className="p-3 bg-slate-100 group-hover:bg-white/20 rounded-xl transition-colors duration-300">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="p-2 bg-slate-100 group-hover:bg-white/20 rounded-xl transition-colors duration-300">
                     <MdPhone className="text-2xl text-slate-600 group-hover:text-white" />
                   </div>
-                  <div className="text-center">
-                    <p className="text-xs text-gray-400 group-hover:text-slate-300 mb-1 transition-colors duration-300">
-                      Call Us
-                    </p>
-                    <p className="text-sm font-semibold text-gray-800 group-hover:text-white transition-colors duration-300">
-                      +91 86398 20425
-                    </p>
-                  </div>
+                  <p className="text-xs font-semibold text-gray-800 group-hover:text-white transition-colors duration-300 text-center">
+                    +91 84988 23043
+                  </p>
                 </div>
               </Button>
 
-              <Button
-                onClick={handleWhatsAppClick}
-                className="group bg-white hover:bg-green-500 rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-green-500"
-              >
-                <div className="flex flex-col items-center gap-3">
-                  <div className="p-3 bg-green-100 group-hover:bg-white/20 rounded-xl transition-colors duration-300">
-                    <FaWhatsapp className="text-2xl text-green-600 group-hover:text-white" />
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs text-gray-400 group-hover:text-green-100 mb-1 transition-colors duration-300">
-                      WhatsApp
-                    </p>
-                    <p className="text-sm font-semibold text-gray-800 group-hover:text-white transition-colors duration-300">
-                      Chat with us
-                    </p>
-                  </div>
-                </div>
-              </Button>
             </div>
 
             {/* Business Hours */}
@@ -342,30 +301,14 @@ const SettingsView = () => {
             </div>
           ))}
         </div>
-
-        {/* Help Section */}
-        <div className="mt-8 bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl px-6 py-4 shadow-xl">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
-                <MdHelp className="text-2xl text-white" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-white text-lg">
-                  Need Help?
-                </h3>
-                <p className="text-slate-300 text-sm sublabel-text">
-                  Check out our documentation or contact support
-                </p>
-              </div>
-            </div>
-            <Button
-              onClick={() => setIsModalOpen(true)}
-              className="px-6 py-2.5 bg-white text-slate-900 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl"
-            >
-              View Documentation
-            </Button>
-          </div>
+        <div className="mt-8 flex justify-end">
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-semibold hover:bg-slate-900 transition-colors shadow-md"
+          >
+            <MdHelp className="text-base" />
+            <span>Need Help</span>
+          </Button>
         </div>
       </div>
 

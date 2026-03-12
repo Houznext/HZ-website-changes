@@ -32,28 +32,22 @@ const CostEstimationHeader = () => {
 
         {/* Contact */}
         <div className="text-gray-700 font-medium md:text-sm text-xs space-y-1">
-          {/* Phones */}
+          {/* Phone */}
           <div
             className="flex items-center gap-2 whitespace-nowrap leading-none"
             style={{ fontVariantNumeric: "tabular-nums" }}
           >
             <FiPhone className="w-4 h-4 relative top-[1px] shrink-0" />
-            <div className="flex items-center gap-2">
-              <a href="tel:+918639820425" className="hover:underline">
-                +91&nbsp;8639820425
-              </a>
-              <span aria-hidden="true">•</span>
-              <a href="tel:+918897574909" className="hover:underline">
-                8897574909
-              </a>
-            </div>
+            <a href="tel:+918498823043" className="hover:underline">
+              +91&nbsp;84988&nbsp;23043
+            </a>
           </div>
 
           {/* Email */}
           <div className="flex items-center gap-2 whitespace-nowrap leading-none">
             <AiOutlineMail className="w-4 h-4 relative top-[1px] shrink-0" />
-            <a href="mailto:sales@onecasa.in" className="hover:underline">
-              sales@onecasa.in
+            <a href="mailto:business@houznext.com" className="hover:underline">
+              business@houznext.com
             </a>
           </div>
         </div>

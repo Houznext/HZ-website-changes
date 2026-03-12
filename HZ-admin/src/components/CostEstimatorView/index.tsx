@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import Button from "@/src/common/Button";
 import Drawer from "@/src/common/Drawer";
-import Loader from "../SpinLoader";
+import Loader from "@/src/common/Loader";
 import apiClient from "@/src/utils/apiClient";
 import toast, { LoaderIcon } from "react-hot-toast";
 import { useSession } from "next-auth/react";
@@ -324,12 +324,7 @@ const CostEstimatorView: React.FC = () => {
     Solar: <FiSun className="w-4 h-4" />,
   };
 
-  if (isLoading)
-    return (
-      <div className="w-full h-full flex items-center justify-center">
-        <Loader />
-      </div>
-    );
+  if (isLoading) return <Loader />;
 
   return (
     <div className="w-full max-w-full overflow-hidden px-2 md:px-0">

@@ -12,7 +12,7 @@ const referandearn = () => {
   const hasAccess = hasPermission("referral", "view");
   return (
     <>
-      {!hasAccess ? (
+      {hasAccess ? (
         <ReferandEarnView />
       ) : (
         <AccessDenied resource={"Refer and Earn"} />
