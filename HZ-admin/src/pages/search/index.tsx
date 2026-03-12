@@ -18,7 +18,7 @@ function SearchPage() {
     <div className="space-y-6">
       <PageHeader
         title="Search"
-        description={
+        subtitle={
           query
             ? `Showing results for "${query}".`
             : "Type in the search bar to search across the admin panel."
