@@ -15,6 +15,7 @@ import Script from "next/script";
 import { TourGuideProvider } from "../features/CustomBuilder/TourGuide/TourGuideProvider";
 import SocketInitializer from "../components/chat/SocketInitializer";
 import SessionSync from "@/src/components/SessionSync";
+import Head from "next/head";
 
 const GA4_ID = "G-MJ64LCY1PL";
 
@@ -72,6 +73,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
 
   return (
     <>
+      <Head>
+        <link rel="icon" href="/images/houznext-icon.png" />
+      </Head>
       <Script
         strategy="afterInteractive"
         src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`}

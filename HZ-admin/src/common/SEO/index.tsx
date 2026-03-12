@@ -32,7 +32,7 @@ export const SEO: React.FC<SeoProps> = ({
     js,
     image,
     keywords,
-    favicon = "/images/favicon.ico",
+    favicon = "/images/houznext-icon.png",
 }) => {
     const router = useRouter();
     const canonical =
