@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { object, string } from "yup";
 import clsx from "clsx";
-import Loader from "../SpinLoader";
+import Loader from "@/src/common/Loader";
 import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
 import CustomInput from "@/src/common/FormElements/CustomInput";
@@ -114,7 +114,7 @@ export default function LoginComponent() {
   };
 
   if (loading) {
-    return <Loader />;
+    return <Loader tagline="Houznext Admin page is cooking for you!" />;
   }
 
   return (
