@@ -337,10 +337,10 @@ const CostEstimatorView: React.FC = () => {
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-800">
-                Cost Estimator
+                Quotations
               </h1>
               <p className="text-xs text-slate-500 mt-0.5">
-                {filtered.length} estimations found
+                {filtered.length} quotations found
               </p>
             </div>
           </div>

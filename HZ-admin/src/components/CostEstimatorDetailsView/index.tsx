@@ -252,71 +252,103 @@ const CostEstimatorDetailsView = () => {
 
 
             {/* Title */}
-            <h1 className="md:text-2xl text-[18px] font-bold text-center mb-8">
-              COST ESTIMATION
-            </h1>
-            {/* Customer Info */}
-            <div className="bg-blue-50 border border-blue-100 rounded-lg md:p-4 p-3 md:mb-6 mb-3">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div className="w-full mb-6">
+              <div className="flex items-center justify-center">
+                <span className="inline-block font-semibold md:text-3xl text-2xl tracking-wide leading-tight text-slate-900">
+                  Quotation
+                </span>
+              </div>
+              <div className="mt-3 h-px w-full bg-slate-300" />
+            </div>
+
+            {/* Customer & Property Info */}
+            <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)] gap-4 md:mb-6 mb-4">
+              {/* Left: Quotation For & Property */}
+              <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <div className="mt-1">
-                    <User2 className="w-5 h-5 text-[#3586FF] " />
-                  </div>
                   <div>
-                    <p className="text-[#3586FF] font-medium">To</p>
-                    <p className="font-medium text-[14px] md:text-[16px]">
+                    <p className="text-[#2f80ed] font-semibold text-xs md:text-sm uppercase tracking-[0.12em]">
+                      Quotation For
+                    </p>
+                    <p className="font-semibold text-[14px] md:text-[16px] text-slate-900">
                       {details?.firstname} {details?.lastname}
                     </p>
-                    <div className="mt-1 flex items-center gap-2 text-gray-600">
-                      <Home className="w-4 h-4" />
-                      <span className="font-medium text-[12px] md:text-[14px]">
-                        Property Type:
-                      </span>
-                      <span className="font-medium text-[12px] md:text-[14px]">
-                        {details?.bhk || "—"}
-                      </span>
-                    </div>
                   </div>
                 </div>
 
-                <div className="flex flex-col md:items-end gap-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border text-gray-700">
-                    <MapPin className="w-4 h-4 text-[#3586FF] " />
-                    <span className="font-medium text-[12px] md:text-[14px]">
-                      {details?.location?.locality},{" "}
-                      {details?.location?.state
-                        ?.charAt(0)
-                        ?.toUpperCase()}
-                      {details?.location?.state?.slice(1)}
-                    </span>
-                  </div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border text-gray-700">
-                    <CalendarDays className="w-4 h-4 text-[#3586FF] " />
-                    <span className="font-medium text-[12px] md:text-[14px]">
-                      {new Date(details?.date).toDateString()}
-                    </span>
+                <div className="flex items-start gap-3">
+                  <div>
+                    <p className="text-[#2f80ed] font-semibold text-xs md:text-sm uppercase tracking-[0.12em]">
+                      Property Type
+                    </p>
+                    <p className="font-semibold text-[14px] md:text-[16px] text-slate-900">
+                      {details?.bhk || "—"}
+                    </p>
                   </div>
                 </div>
+              </div>
+
+              {/* Right: Location / Date */}
+              <div className="flex flex-col items-start md:items-end gap-1 text-slate-800 text-[12px] md:text-[14px]">
+                <span>
+                  {details?.location?.locality},{" "}
+                  {details?.location?.state?.charAt(0)?.toUpperCase()}
+                  {details?.location?.state?.slice(1)}
+                </span>
+                <span>{new Date(details?.date).toDateString()}</span>
               </div>
             </div>
 
-            {/* Totals Summary Card */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:mb-5 mb-3 print:mb-2">
-              <div className="rounded-lg border bg-white p-3">
-                <p className="font-medium text-gray-500 text-[12px]">Subtotal</p>
-                <p className="font-bold text-[16px] md:text-[18px]">₹ {Number(details?.subTotal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-              </div>
-              <div className="rounded-lg border bg-white p-3">
-                <p className="font-medium text-gray-500 text-[12px]">Discount</p>
-                <p className="font-bold text-[16px] md:text-[18px] text-emerald-600">
-                  - ₹ {Number(details?.discount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </p>
-              </div>
-              <div className="rounded-lg border bg-yellow-50 p-3">
-                <p className="font-medium text-gray-600 text-[12px]">Total (INR)</p>
-                <p className="font-bold text-[18px] md:text-[20px] text-[#3586FF] ">
-                  ₹ {total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </p>
+            {/* Price Summary – light blue bar */}
+            <div className="w-full md:mb-5 mb-3 print:mb-2">
+              <div className="flex flex-col sm:flex-row bg-[#e4efff] rounded-2xl overflow-hidden border border-slate-200">
+                <div className="flex-1 px-4 py-3">
+                  <p className="font-medium text-slate-700 text-[11px] uppercase tracking-[0.14em] mb-1">
+                    Subtotal
+                  </p>
+                  <p className="font-semibold text-[18px] md:text-[20px] text-slate-900">
+                    ₹{" "}
+                    {Number(details?.subTotal || 0).toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </p>
+                </div>
+                <div className="h-px sm:h-auto sm:w-px bg-slate-200/70 self-stretch sm:self-auto" />
+                <div className="flex-1 px-4 py-3">
+                  <p className="font-medium text-slate-700 text-[11px] uppercase tracking-[0.14em] mb-1">
+                    Discount
+                  </p>
+                  <p className="font-semibold text-[18px] md:text-[20px] text-emerald-600">
+                    - ₹{" "}
+                    {Number(details?.discount || 0).toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </p>
+                </div>
+                <div className="h-px sm:h-auto sm:w-px bg-slate-200/70 self-stretch sm:self-auto" />
+                <div className="flex-1 px-4 py-3">
+                  <p className="font-medium text-slate-700 text-[11px] uppercase tracking-[0.14em] mb-1">
+                    Total (INR)
+                  </p>
+                  <p className="font-semibold text-[20px] md:text-[22px] text-[#2f80ed]">
+                    ₹{" "}
+                    {total.toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </p>
+                </div>
+                <div className="h-px sm:h-auto sm:w-px bg-slate-200/70 self-stretch sm:self-auto" />
+                <div className="flex-1 px-4 py-3">
+                  <p className="font-medium text-slate-700 text-[11px] uppercase tracking-[0.14em] mb-1">
+                    Work Type
+                  </p>
+                  <p className="font-semibold text-[16px] md:text-[18px] text-slate-900">
+                    {details?.workType || "Interior Works"}
+                  </p>
+                </div>
               </div>
             </div>
             {/* Table */}
@@ -330,58 +362,108 @@ const CostEstimatorDetailsView = () => {
             />
             {details?.details?.length > 0 && (
               <>
-                <p className="text-[18px] mt-6 font-bold">Work Details</p>
+                <p className="text-[18px] mt-6 font-semibold text-slate-900">
+                  Work Details
+                </p>
                 <div
                   dangerouslySetInnerHTML={{
                     __html: details?.details,
                   }}
-                  className="flex flex-col w-full md:px-5 px-2 md:py-10 py-5 items-start md:gap-2 gap-1 md:leading-[25px] leading-[18.52px]  font-medium text-black md:text-[14px] text-[10px]"
+                  className="flex flex-col w-full md:px-5 px-2 md:py-6 py-4 items-start md:gap-2 gap-1 md:leading-[24px] leading-[18px] font-regular text-slate-800 md:text-[14px] text-[11px]"
                 ></div>
               </>
             )}
 
-            <div className="flex md:flex-row flex-col justify-between gap-4 md:mt-8 mt-6">
-              <div className="bg-gray-50 rounded-md border p-4 flex-1">
-                <h3 className="font-medium text-[14px] md:text-[16px] mb-2">
-                  Terms and Conditions
-                </h3>
-                <ul className="list-disc pl-5 space-y-1 text-gray-600 font-regular md:text-[12px] text-[11px]">
-                  <li>All prices are Exclusive of GST.</li>
-                  <li>Delivery timelines will be confirmed at contract signing.</li>
-                  <li>Changes to specs or quantities may incur additional charges.</li>
-                  <li>Warranty details are shared with the final invoice.</li>
-                </ul>
-              </div>
-
-              <div className="flex flex-col items-center justify-center">
-                <div className="relative w-[200px] md:h-[150px] h-[120px]">
-                  <Image
-                    src="/images/cost-estimator/thankyou-signature.PNG"
-                    alt="dreamcasa-signature"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-                <p className="font-medium text-[14px] md:text-[16px] mt-2 text-center">
-                  {details?.designerName}
-                </p>
-                <p className="font-regular text-gray-500 md:text-[14px] text-[12px]">
-                  Interior Designer
-                </p>
-              </div>
+            {/* Terms & Conditions full width */}
+            <div className="bg-gray-50 rounded-md border border-slate-200 p-4 md:mt-8 mt-6">
+              <h3 className="font-semibold text-[14px] md:text-[16px] mb-3 text-slate-900">
+                Terms and Conditions
+              </h3>
+              <ol className="list-decimal pl-5 space-y-1.5 text-gray-700 font-regular md:text-[12px] text-[11px]">
+                <li>
+                  <strong>Estimate Validity:</strong> This cost estimate is valid for 15 days from the
+                  date of issue. Prices may change after this period depending on material costs and
+                  project scope.
+                </li>
+                <li>
+                  <strong>Scope of Work:</strong> The estimate is prepared based on the initial
+                  requirements discussed during consultation. Any changes in design, materials,
+                  dimensions, or scope may lead to a revision in cost.
+                </li>
+                <li>
+                  <strong>Measurement Disclaimer:</strong> Final costing will be confirmed after
+                  detailed site measurements and design finalization.
+                </li>
+                <li>
+                  <strong>Material Availability:</strong> All materials mentioned are subject to
+                  availability. In case of unavailability, Houznext may suggest an equivalent
+                  alternative after client approval.
+                </li>
+                <li>
+                  <strong>Taxes:</strong> All prices mentioned are exclusive of applicable taxes
+                  unless otherwise specified.
+                </li>
+                <li>
+                  <strong>Payment Terms:</strong> Project execution will begin only after confirmation
+                  of design and receipt of the initial advance payment as per the payment schedule.
+                </li>
+                <li>
+                  <strong>Timeline:</strong> Project timelines depend on design finalization, material
+                  availability, and site readiness. Any delay in client approvals may affect the
+                  completion timeline.
+                </li>
+                <li>
+                  <strong>Electrical / Civil Changes:</strong> Major civil modifications, plumbing,
+                  electrical rewiring, or structural changes are not included unless explicitly
+                  mentioned in the estimate.
+                </li>
+                <li>
+                  <strong>Warranty:</strong> Houznext provides up to 10 years warranty on selected
+                  interior components as per company warranty policy.
+                </li>
+                <li>
+                  <strong>Site Conditions:</strong> The site must be ready for interior work before
+                  project commencement. Any delays due to unfinished civil work or external factors may
+                  affect timelines.
+                </li>
+                <li>
+                  <strong>Design Ownership:</strong> All designs, drawings, and 3D renders shared
+                  remain intellectual property of Houznext until the project is confirmed.
+                </li>
+                <li>
+                  <strong>Estimate Purpose:</strong> This document is an indicative estimate only and
+                  does not constitute a final contract or agreement.
+                </li>
+              </ol>
             </div>
-            <div>
-              {/* Bonus Services */}
-              <div className="bg-blue-50 border border-blue-100 rounded-lg md:p-5 p-3 mt-6">
-                <h2 className="text-[#3586FF] font-bold text-[16px] md:text-[18px] mb-2 flex items-center gap-2">
-                  <FileBadge2 className="w-5 h-5" />
-                  Bonus Services You Get
-                </h2>
-                <ul className="list-disc pl-5 font-medium text-gray-700 md:text-[14px] text-[12px] space-y-1">
-                  <li>🔍 Real-time updates via our online tracking system</li>
-                  <li>🪑 1-year warranty on eligible items (T&C apply)</li>
-                  <li>📸 3D design provided post MoU signing</li>
-                </ul>
+
+            {/* Houznext Promise */}
+            <div className="bg-blue-50 border border-blue-100 rounded-lg md:p-5 p-3 mt-6">
+              <h2 className="text-[#2f80ed] font-semibold text-[16px] md:text-[18px] mb-3">
+                Houznext Promise
+              </h2>
+              <ul className="font-medium text-gray-700 md:text-[14px] text-[12px] space-y-1">
+                <li>Free 3D Design</li>
+                <li>Transparent Pricing</li>
+                <li>40+ Quality Checks</li>
+                <li>10-Year Warranty</li>
+                <li>Real-time updates via our online tracking system (Under development)</li>
+              </ul>
+            </div>
+
+            {/* Thank you footer */}
+            <div className="mt-6 flex justify-end">
+              <div className="text-right max-w-xs">
+                <p
+                  className="text-lg md:text-xl text-slate-900"
+                  style={{ fontFamily: "cursive" }}
+                >
+                  Thank You
+                </p>
+                <p className="text-sm font-medium text-slate-800 mt-1">
+                  {details?.designerName || "Houznext Designer"}
+                </p>
+                <p className="text-xs text-slate-600">Interior Designer</p>
               </div>
             </div>
           </div>

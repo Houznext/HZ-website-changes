@@ -28,25 +28,25 @@ export const ConstEstimationTable = ({
   openSectionModal?: () => void;
 }) => {
   return (
-    <div className="overflow-x-auto  rounded-md shadow-custom mt-8">
-      <table className="w-full min-w-[800px] border border-gray-300 border-collapse">
+    <div className="overflow-x-auto rounded-xl border border-slate-200 mt-8 shadow-[0_6px_24px_rgba(15,42,68,0.06)]">
+      <table className="w-full min-w-[800px] border-collapse">
         <thead>
-          <tr className="bg-[#5297ff] text-white label-text">
-            <th className="py-2 px-4 text-left border border-gray-300">#</th>
-            <th className="py-2 px-4 text-left border border-gray-300">
-              Items Description
+          <tr className="bg-[#2f80ed] text-white text-xs uppercase tracking-[0.14em]">
+            <th className="py-3 px-4 text-left">#</th>
+            <th className="py-3 px-4 text-left">
+              Item Description
             </th>
-            <th className="py-2 px-4 text-center border border-gray-300">
-              QTY
+            <th className="py-3 px-4 text-center">
+              Qty
             </th>
-            <th className="py-2 px-4 text-center border border-gray-300">
-              Area(sft/Box)
+            <th className="py-3 px-4 text-center">
+              Area (sft/Box)
             </th>
-            <th className="py-2 px-4 text-right border border-gray-300">
-              Price(₹)
+            <th className="py-3 px-4 text-right">
+              Price (₹)
             </th>
-            <th className="py-2 px-4 text-right border border-gray-300">
-              Amount(₹)
+            <th className="py-3 px-4 text-right">
+              Amount (₹)
             </th>
             {isInForm && (
               <th className="py-2 px-4 text-right border border-gray-300 ">
@@ -55,13 +55,13 @@ export const ConstEstimationTable = ({
             )}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="text-sm">
           {costEstimation?.itemGroups?.map((group, groupIndex) => (
             <React.Fragment key={groupIndex}>
-              <tr className="w-full">
+              <tr className="w-full bg-slate-50/80">
                 <td
                   colSpan={isInForm ? 5 : 10}
-                  className="font-bold w-full  label-text py-1 px-3 bg-gray-100 border border-gray-300"
+                  className="font-semibold w-full py-2 px-4 text-[#0f2a44]"
                 >
                   {group.title}
                 </td>
@@ -91,28 +91,28 @@ export const ConstEstimationTable = ({
                 )}
               </tr>
               {group.items?.map((item, index) => (
-                <tr key={index} className="border-b label-text">
-                  <td className="md:py-4 py-2 md:px-4 px-2 text-center font-medium border border-gray-300">
+                <tr key={index} className="border-t border-slate-200">
+                  <td className="md:py-4 py-2 md:px-4 px-2 text-center font-medium text-slate-700">
                     {index + 1}
                   </td>
-                  <td className="py-2 md:px-4 px-2 border border-gray-300">
-                    <div className="font-medium label-text">
+                  <td className="py-2 md:px-4 px-2 align-top">
+                    <div className="font-medium text-slate-900">
                       {item?.item_name}
                     </div>
-                    <div className=" text-gray-600  font-regular md:text-[12px] text-[10px] md:leading-[25px] leading-[16px] tracking-[0.6px]">
+                    <div className="text-gray-600 font-regular md:text-[12px] text-[10px] md:leading-[20px] leading-[16px] tracking-[0.4px] mt-0.5">
                       {item?.description}
                     </div>
                   </td>
-                  <td className="md:py-4 py-2 md:px-4 px-2 text-center font-medium border border-gray-300">
+                  <td className="md:py-4 py-2 md:px-4 px-2 text-center font-medium text-slate-800">
                     {item?.quantity}
                   </td>
-                  <td className="md:py-4 py-2 md:px-4 px-2 text-center font-medium border border-gray-300">
+                  <td className="md:py-4 py-2 md:px-4 px-2 text-center font-medium text-slate-800">
                     {item?.area}
                   </td>
-                  <td className="md:py-4 py-2 md:px-4 px-2 text-right font-medium text-[#3586FF]  border border-gray-300">
+                  <td className="md:py-4 py-2 md:px-4 px-2 text-right font-medium text-[#2f80ed]">
                     {item?.unit_price}
                   </td>
-                  <td className="md:py-4 py-2 md:px-4 px-2 text-right font-medium text-[#3586FF]  border border-gray-300">
+                  <td className="md:py-4 py-2 md:px-4 px-2 text-right font-medium text-[#2f80ed]">
                     {item?.amount}
                   </td>
 

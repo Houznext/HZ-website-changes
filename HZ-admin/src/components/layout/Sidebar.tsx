@@ -14,10 +14,10 @@ import {
 import { signOut } from "next-auth/react";
 
 const NAV_ITEMS = [
+  { href: "/cost-estimator", label: "Quotation", icon: Calculator },
+  { href: "/invoice", label: "Invoice", icon: Receipt },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/blogs", label: "Blogs", icon: FileText },
-  { href: "/cost-estimator", label: "Cost Estimator", icon: Calculator },
-  { href: "/invoice", label: "Invoice", icon: Receipt },
   { href: "/referandearn", label: "Houznext Rewards", icon: Gift },
 ];
 

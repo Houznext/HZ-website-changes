@@ -122,7 +122,7 @@ export default function ResetPasswordPage() {
         <div className="flex items-center justify-center gap-3 mb-10">
           <div className="relative w-14 h-14 flex-shrink-0">
             <Image
-              src="/images/houznext-logo.png"
+              src="/images/houznext-logo.svg"
               alt="Houznext Logo"
               fill
               className="object-contain"

@@ -14,7 +14,7 @@ function Home() {
         title="Houznext Admin - Premium Interior Living"
         description="Houznext admin dashboard. Manage interior projects, CRM, cost estimator, and referrals."
         keywords="Houznext, admin, interior design, cost estimator, CRM"
-        favicon="/images/houznext-logo.png"
+        favicon="/images/houznext-logo.svg"
       />
 
       <div className="p-6 md:px-10 md:py-10 space-y-4">

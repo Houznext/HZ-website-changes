@@ -10,6 +10,7 @@ export interface CEformValues {
   property_type: null | string;
   bhk: null | string;
   subTotal: number;
+  workType?: string | null;
   floor_plan?: string;
   property_image?: string;
   designerName: string;

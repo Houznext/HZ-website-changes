@@ -48,6 +48,7 @@ const CostEstimatorForm = ({
     bhk: null,
     subTotal: 0,
     discount: 0,
+    workType: "",
     details: "",
     floor_plan: "",
     property_image: "",
@@ -127,6 +128,7 @@ useEffect(() => {
         property_type: editingEstimation.property_type,
         property_name: editingEstimation.property_name,
         bhk: editingEstimation.bhk,
+        workType: (editingEstimation as any).workType || "",
         floor_plan: editingEstimation.floor_plan,
         property_image: editingEstimation.property_image,
         date: editingEstimation?.date
@@ -164,6 +166,7 @@ useEffect(() => {
         bhk: null,
         subTotal: 0,
         discount: 0,
+        workType: "",
         details: "",
         floor_plan: "",
         property_image: "",
@@ -581,9 +584,9 @@ useEffect(() => {
       if (response.status === 201) {
         setEditingEstimation?.(response.body);
         onSuccessRefetch?.();
-        toast.success("Successfully created estimation details");
+        toast.success("Quotation saved.");
       } else if (response.status === 200) {
-        toast.success("Successfully updated estimation details");
+        toast.success("Updates saved.");
         if (fetchDetails) {
           fetchDetails();
         }
@@ -692,7 +695,7 @@ useEffect(() => {
             </div>
             <div>
               <h1 className="text-xl md:text-2xl font-bold text-slate-800">
-                {editingEstimation ? "Edit Estimation" : "New Estimation"}
+                {editingEstimation ? "Edit Quotation" : "Create Quotation"}
               </h1>
               {editingEstimation && (
                 <p className="text-sm text-slate-500 mt-0.5 flex items-center gap-1">
@@ -867,6 +870,19 @@ useEffect(() => {
                     defaultValue={formValues.bhk}
                   />
                 </div>
+
+                <CustomInput
+                  type="text"
+                  label="Work Type"
+                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
+                  rootCls="md:max-w-none"
+                  value={formValues.workType || ""}
+                  onChange={(e) =>
+                    handleFormChange(e.target.name, e.target.value)
+                  }
+                  placeholder="e.g. Interior Works"
+                  name="workType"
+                />
               </div>
 
               {/* File Inputs */}

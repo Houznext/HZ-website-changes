@@ -124,7 +124,7 @@ export default function LoginComponent() {
         <div className="flex flex-col items-center mb-8">
           <div className="relative w-56 h-12 sm:w-64 sm:h-14 mb-3 bg-transparent">
             <Image
-              src="/images/houznext-logo.png"
+              src="/images/houznext-logo.svg"
               alt="Houznext Logo"
               fill
               className="object-contain bg-transparent"
