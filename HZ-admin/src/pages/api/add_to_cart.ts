@@ -11,7 +11,13 @@ export default async function handler(
   res: NextApiResponse
 ) {
   try {
-    
+    // If GA4 is not configured, return an empty dataset instead of erroring
+    if (!process.env.GA4_ENABLED) {
+      return res.status(200).json({
+        data: [],
+        message: "GA4 reporting is disabled or not configured.",
+      });
+    }
     const [response] = await analyticsDataClient.runReport({
       property: "properties/465093464", 
       dateRanges: [{ startDate: "150 daysAgo", endDate: "today" }],
@@ -46,9 +52,13 @@ export default async function handler(
         eventCount: row.metricValues?.[0]?.value || "0",
       })) || [];
 
-    res.status(200).json(data);
+    return res.status(200).json(data);
   } catch (error) {
     console.error("Error fetching GA4 data:", error);
-    res.status(500).json({ error: "Error fetching GA4 analytics data" });
+    // In production we don't want this to surface as a 500 – just return empty data
+    return res.status(200).json({
+      data: [],
+      error: "GA4 analytics data unavailable (authentication or configuration issue).",
+    });
   }
 }
