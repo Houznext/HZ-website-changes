@@ -13,6 +13,7 @@ import { Dpr } from './entities/dpr.entity';
 import { BuildliveService } from './buildlive.service';
 import { BuildliveSeedService } from './buildlive-seed.service';
 import { BuildliveController } from './buildlive.controller';
+import { User } from '../user/entities/user.entity';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { BuildliveController } from './buildlive.controller';
       SnagItem,
       ScopeMedia,
       Dpr,
+      User,
     ]),
   ],
   providers: [BuildliveService, BuildliveSeedService],
