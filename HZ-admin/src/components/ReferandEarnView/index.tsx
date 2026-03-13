@@ -802,6 +802,7 @@ export default function ReferandEarnView() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <CustomInput
+              type="text"
               label="Friend Name"
               name="friendName"
               value={newReferral.friendName}
@@ -812,6 +813,7 @@ export default function ReferandEarnView() {
               labelCls="text-[12px] font-medium"
             />
             <CustomInput
+              type="text"
               label="Phone Number"
               name="friendPhone"
               value={newReferral.friendPhone}
@@ -822,6 +824,7 @@ export default function ReferandEarnView() {
               labelCls="text-[12px] font-medium"
             />
             <CustomInput
+              type="email"
               label="Email"
               name="friendEmail"
               value={newReferral.friendEmail}
@@ -832,6 +835,7 @@ export default function ReferandEarnView() {
               labelCls="text-[12px] font-medium"
             />
             <CustomInput
+              type="text"
               label="City"
               name="friendCity"
               value={newReferral.friendCity}
