@@ -847,17 +847,20 @@ export default function ReferandEarnView() {
             />
             <div className="md:col-span-2">
               <SingleSelect
+                type="single-select"
+                name="serviceType"
                 label="Service Type"
                 labelCls="text-[12px] font-medium"
                 options={serviceCategoryOptions}
-                value={
+                optionsInterface={{ isObj: true, displayKey: "label" }}
+                selectedOption={
                   newReferral.category
                     ? serviceCategoryOptions.find(
                         (opt) => opt.value === newReferral.category
                       ) ?? null
                     : null
                 }
-                onChange={(option) =>
+                handleChange={(_, option: any) =>
                   setNewReferral((prev) => ({
                     ...prev,
                     category: option?.value || "",
