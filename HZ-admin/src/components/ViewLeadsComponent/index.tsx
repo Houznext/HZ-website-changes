@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Button from "@/src/common/Button";
 import apiClient from "@/src/utils/apiClient";
 import { useRouter } from "next/router";
-import Loader from "../SpinLoader";
+import Loader from "@/src/common/Loader";
 
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { LuDownload } from "react-icons/lu";

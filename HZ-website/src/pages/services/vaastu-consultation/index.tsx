@@ -8,9 +8,9 @@ const VaastuConsultation = () => {
   return (
     <div>
       <SEO
-        title="Vaastu Consultation for Homes & Businesses | Expert Vaastu Guidance | OneCasa"
+        title="Vaastu Consultation for Homes & Businesses | Expert Vaastu Guidance | Houznext"
         description="Enhance harmony and prosperity with expert Vaastu consultation. Get personalized Vaastu guidance for homes, offices, and commercial spaces to attract positive energy and success."
-        keywords="Vaastu Consultation, Vaastu Shastra, Home Vaastu, Office Vaastu, Commercial Vaastu, Vaastu Expert, Vaastu Tips, Vaastu for Prosperity, Energy Balance, OneCasa Vaastu"
+        keywords="Vaastu Consultation, Vaastu Shastra, Home Vaastu, Office Vaastu, Commercial Vaastu, Vaastu Expert, Vaastu Tips, Vaastu for Prosperity, Energy Balance, Houznext Vaastu"
       />
 
       <VaastuComponent />

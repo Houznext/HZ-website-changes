@@ -11,7 +11,7 @@ import { FaRupeeSign, FaCheckCircle, FaClock, FaExclamationTriangle } from "reac
 import { MdEdit, MdDelete } from "react-icons/md";
 import { LuTrash2 } from "react-icons/lu";
 import { IoClose } from "react-icons/io5";
-import Loader from "@/src/components/SpinLoader";
+import Loader from "@/src/common/Loader";
 
 const paymentStatusOptions = [
   { label: "Pending", value: "Pending" },

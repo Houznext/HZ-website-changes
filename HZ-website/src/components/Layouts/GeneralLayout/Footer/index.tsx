@@ -4,7 +4,7 @@ const GeneralFooter = () => {
   const contactDetails = [
     "Phone :8897574909,  8639820425",
     "Monday to Sunday ( 9:00 AM - 9:00 PM IST )",
-    "Email : support@onecasa.in",
+    "Email : support@houznext.com",
   ];
 
   const CompanyDreamCasaLinks = [
@@ -101,7 +101,7 @@ const GeneralFooter = () => {
     links: [
       {
         imageLink: "/icons/social-links/linkedin.svg",
-        url: "https://www.onecasa.in/",
+        url: "https://www.houznext.com/",
       },
       {
         imageLink: "/icons/social-links/whatsapp.svg",
@@ -109,19 +109,19 @@ const GeneralFooter = () => {
       },
       {
         imageLink: "/icons/social-links/instagram.svg",
-        url: "https://www.instagram.com/onecasa.in/",
+        url: "https://www.instagram.com/houznext/",
       },
       {
         imageLink: "/icons/social-links/facebook.svg",
-        url: "https://www.facebook.com/onecasa.in",
+        url: "https://www.facebook.com/houznext",
       },
       {
         imageLink: "/icons/social-links/youtube.svg",
-        url: "https://www.youtube.com/@onecasaofficial",
+        url: "https://www.youtube.com/@houznext",
       },
       {
         imageLink: "/icons/social-links/twitter.svg",
-        url: "https://www.linkedin.com/company/onecasa1/",
+        url: "https://www.linkedin.com/company/houznext/",
       },
     ],
   };

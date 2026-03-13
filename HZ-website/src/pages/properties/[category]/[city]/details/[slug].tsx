@@ -65,10 +65,10 @@ function buildPropertySeo(details: any, currentUrl: string) {
         lookingType === 'Rent' ? 'for Rent' : 'for Sale',
         locationStr ? `in ${locationStr}` : '',
         priceStr ? `| ${priceStr}` : '',
-        '| OneCasa',
+        '| Houznext',
     ].filter(Boolean).join(' ');
 
-    const description = `${bhk ? bhk + ' ' : ''}${propertyType} ${lookingType === 'Rent' ? 'for rent' : 'for sale'} in ${locationStr}${priceStr ? ` at ${priceStr}` : ''}. ${pd?.description?.slice(0, 120) || 'View photos, floor plan, amenities and more on OneCasa.'}`;
+    const description = `${bhk ? bhk + ' ' : ''}${propertyType} ${lookingType === 'Rent' ? 'for rent' : 'for sale'} in ${locationStr}${priceStr ? ` at ${priceStr}` : ''}. ${pd?.description?.slice(0, 120) || 'View photos, floor plan, amenities and more on Houznext.'}`;
 
     const images = md?.propertyImages?.length
         ? md.propertyImages.slice(0, 5)
@@ -80,7 +80,7 @@ function buildPropertySeo(details: any, currentUrl: string) {
         `${propertyType} ${city}`,
         `buy property ${city}`,
         locality ? `property in ${locality}` : '',
-        `OneCasa ${city}`,
+        `Houznext ${city}`,
         'real estate India',
     ].filter(Boolean).join(', ');
 
@@ -127,14 +127,14 @@ function buildProjectSeo(details: any, currentUrl: string) {
     const locationStr = [locality, city].filter(Boolean).join(', ');
     const images = details.images?.slice(0, 5) || [];
 
-    const title = `${projectName} in ${locationStr} | OneCasa`;
-    const description = `Explore ${projectName} in ${locationStr}. View project details, floor plans, pricing, amenities and more on OneCasa.`;
+    const title = `${projectName} in ${locationStr} | Houznext`;
+    const description = `Explore ${projectName} in ${locationStr}. View project details, floor plans, pricing, amenities and more on Houznext.`;
 
     return {
         title,
         description,
         imageUrl: images[0] || '/images/logobb.png',
-        keywords: `${projectName}, ${city} real estate, property ${locality}, OneCasa`,
+        keywords: `${projectName}, ${city} real estate, property ${locality}, Houznext`,
         canonicalUrl: currentUrl,
         breadcrumbs: [
             { name: 'Home', item: `${BASE_DEPLOYMENT_URL}/` },

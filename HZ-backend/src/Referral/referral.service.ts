@@ -76,7 +76,7 @@ export class ReferralService {
     //   await this.whatsAppMsgService.sendMessage(user.phone, message);
     // }
     // if (user?.phone) {
-    //       const smsMessage =  `Hello ${user?.fullName}, your OneCasa customer account has been successfully created!`;
+    //       const smsMessage =  `Hello ${user?.fullName}, your Houznext customer account has been successfully created!`;
     //       await this.smsService.sendSms(user.phone, smsMessage);
     //     }
     const superAdmins = await this.userRepository.find({
@@ -116,7 +116,7 @@ export class ReferralService {
     if (!user) throw new NotFoundException('Referrer not found');
 
     const code = this.generateReferralCode(user.id);
-    return { link: `https://onecasa.in/refer?code=${code}` };
+    return { link: `https://houznext.com/refer?code=${code}` };
   }
 
   async getReferralsByUser(referrerId: string) {

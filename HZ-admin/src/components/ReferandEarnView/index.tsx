@@ -34,6 +34,10 @@ import {
 import { usePermissionStore } from "@/src/stores/usePermissions";
 import CustomTooltip from "@/src/common/ToolTip";
 import BackRoute from "@/src/common/BackRoute";
+import Modal from "@/src/common/Modal";
+import CustomInput from "@/src/common/FormElements/CustomInput";
+import { ServiceCategory } from "@/src/components/NewCrmView/types";
+import { MdAdd } from "react-icons/md";
 
 type Role = {
   id: number;
@@ -74,6 +78,22 @@ export default function ReferandEarnView() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const session = useSession();
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [newReferral, setNewReferral] = useState<{
+    friendName: string;
+    friendPhone: string;
+    friendEmail: string;
+    friendCity: string;
+    category: ServiceCategory | "";
+  }>({
+    friendName: "",
+    friendPhone: "",
+    friendEmail: "",
+    friendCity: "",
+    category: "",
+  });
 
   function toLocalDateString(date: Date): string {
     const year = date.getFullYear();
@@ -285,6 +305,63 @@ export default function ReferandEarnView() {
     }
   };
 
+  const serviceCategoryOptions = Object.values(ServiceCategory).map((value) => ({
+    label: value
+      .replace(/([A-Z])/g, " $1")
+      .trim()
+      .replace(/\s+/g, " "),
+    value,
+  }));
+
+  const resetCreateForm = () => {
+    setNewReferral({
+      friendName: "",
+      friendPhone: "",
+      friendEmail: "",
+      friendCity: "",
+      category: "",
+    });
+  };
+
+  const handleCreateReferral = async () => {
+    if (!user?.id) {
+      toast.error("User not found. Please re-login.");
+      return;
+    }
+    if (!newReferral.category) {
+      toast.error("Please select a service type.");
+      return;
+    }
+    try {
+      setCreateLoading(true);
+      const payload: any = {
+        referrerId: String(user.id),
+        category: newReferral.category,
+      };
+      if (newReferral.friendName) payload.friendName = newReferral.friendName;
+      if (newReferral.friendPhone) payload.friendPhone = newReferral.friendPhone;
+      if (newReferral.friendEmail) payload.friendEmail = newReferral.friendEmail;
+      if (newReferral.friendCity) payload.friendCity = newReferral.friendCity;
+
+      const res = await apiClient.post(apiClient.URLS.referrals, payload, true);
+      if (res.status === 201) {
+        toast.success("Referral created successfully");
+        resetCreateForm();
+        setIsCreateModalOpen(false);
+        fetchAllLeads(user.id, "all");
+      }
+    } catch (error: any) {
+      console.error("Error creating referral:", error);
+      const message =
+        error?.body?.message ||
+        error?.message ||
+        "Failed to create referral. Please try again.";
+      toast.error(message);
+    } finally {
+      setCreateLoading(false);
+    }
+  };
+
   function applyFilter() {
     try {
       let range: { startDate: string; endDate: string } | undefined;
@@ -379,6 +456,25 @@ export default function ReferandEarnView() {
           <div className="flex items-center justify-between gap-3 mb-4 mt-6">
             <h1 className="heading-text m-0">Refer And Earn</h1>
             <div className="flex items-center gap-2">
+              <CustomTooltip
+                label="Access Restricted. Contact Admin"
+                position="bottom"
+                tooltipBg="bg-black/60 backdrop-blur-md"
+                tooltipTextColor="text-white py-2 px-4 font-medium"
+                labelCls="text-[10px] font-medium"
+                showTooltip={!hasPermission("referral", "create")}
+              >
+                <Button
+                  className="md:px-6 px-4 py-2 bg-[#2f80ed] hover:bg-blue-600 transition text-white rounded-md flex items-center gap-2 shadow-sm"
+                  onClick={() => setIsCreateModalOpen(true)}
+                  disabled={!hasPermission("referral", "create")}
+                >
+                  <MdAdd className="text-white text-[18px]" />
+                  <span className="font-medium text-[12px] md:text-[14px]">
+                    New Reference
+                  </span>
+                </Button>
+              </CustomTooltip>
               <CustomTooltip
                 label="Access Restricted. Contact Admin"
                 position="bottom"
@@ -688,6 +784,107 @@ export default function ReferandEarnView() {
 
       {/* Loading overlay */}
 
+      <Modal
+        isOpen={isCreateModalOpen}
+        closeModal={() => {
+          setIsCreateModalOpen(false);
+          resetCreateForm();
+        }}
+        className="md:max-w-[480px] max-w-[320px]"
+      >
+        <div className="md:px-4 px-3 md:py-4 py-3 flex flex-col gap-3">
+          <h3 className="text-[16px] md:text-[18px] font-semibold text-slate-900 mb-1">
+            Create New Reference
+          </h3>
+          <p className="text-[11px] md:text-[12px] text-slate-500 mb-2">
+            Add a new referral manually to Houznext Rewards.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <CustomInput
+              label="Friend Name"
+              name="friendName"
+              value={newReferral.friendName}
+              onChange={(e) =>
+                setNewReferral((prev) => ({ ...prev, friendName: e.target.value }))
+              }
+              placeholder="Enter full name"
+              labelCls="text-[12px] font-medium"
+            />
+            <CustomInput
+              label="Phone Number"
+              name="friendPhone"
+              value={newReferral.friendPhone}
+              onChange={(e) =>
+                setNewReferral((prev) => ({ ...prev, friendPhone: e.target.value }))
+              }
+              placeholder="10-digit mobile"
+              labelCls="text-[12px] font-medium"
+            />
+            <CustomInput
+              label="Email"
+              name="friendEmail"
+              value={newReferral.friendEmail}
+              onChange={(e) =>
+                setNewReferral((prev) => ({ ...prev, friendEmail: e.target.value }))
+              }
+              placeholder="name@example.com"
+              labelCls="text-[12px] font-medium"
+            />
+            <CustomInput
+              label="City"
+              name="friendCity"
+              value={newReferral.friendCity}
+              onChange={(e) =>
+                setNewReferral((prev) => ({ ...prev, friendCity: e.target.value }))
+              }
+              placeholder="City"
+              labelCls="text-[12px] font-medium"
+            />
+            <div className="md:col-span-2">
+              <SingleSelect
+                label="Service Type"
+                labelCls="text-[12px] font-medium"
+                options={serviceCategoryOptions}
+                value={
+                  newReferral.category
+                    ? serviceCategoryOptions.find(
+                        (opt) => opt.value === newReferral.category
+                      ) ?? null
+                    : null
+                }
+                onChange={(option) =>
+                  setNewReferral((prev) => ({
+                    ...prev,
+                    category: option?.value || "",
+                  }))
+                }
+                placeholder="Select service"
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-center justify-end gap-2">
+            <Button
+              className="border-2 font-medium md:text-[12px] text-[10px] border-gray-300 md:px-3 px-2 md:py-1 py-1 rounded-md"
+              onClick={() => {
+                setIsCreateModalOpen(false);
+                resetCreateForm();
+              }}
+              disabled={createLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-[#2f80ed] hover:bg-blue-600 text-white font-medium md:text-[12px] text-[10px] md:px-4 px-3 md:py-1.5 py-1 rounded-md"
+              onClick={handleCreateReferral}
+              disabled={createLoading || !hasPermission("referral", "create")}
+            >
+              {createLoading ? "Saving..." : "Save Reference"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 }

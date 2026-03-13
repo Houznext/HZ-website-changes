@@ -45,7 +45,7 @@ const TriedOptions = () => {
           Tired of multiple options available in the market?
         </p>
         <p className="max-w-[400px] font-regular md:text-[16px] text-[12px] text-[#7B7C83] text-center">
-          No more worries! Here at OneCasa, we provide all-round services in
+          No more worries! Here at Houznext, we provide all-round services in
           every price range!
         </p>
       </div>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import apiClient from "@/src/utils/apiClient";
-import Loader from "@/src/components/SpinLoader";
+import Loader from "@/src/common/Loader";
 import Button from "@/src/common/Button";
 import toast from "react-hot-toast";
 import { RefreshCcw, Check, X } from "lucide-react";

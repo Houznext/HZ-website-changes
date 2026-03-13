@@ -687,7 +687,7 @@ useEffect(() => {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="sticky top-0 bg-white z-10 border-b border-slate-100 px-6 py-5 mb-6">
+      <div className="sticky top-0 z-10 px-6 py-5 mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white grid place-items-center shadow-lg shadow-blue-500/30">
@@ -826,63 +826,85 @@ useEffect(() => {
               </div>
             </div>
             <div className="p-5 space-y-5">
-              <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                <CustomInput
-                  type="text"
-                  label="Property Name"
-                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                  rootCls="md:max-w-none"
-                  value={formValues.property_name}
-                  onChange={(e) =>
-                    handleFormChange(e.target.name, e.target.value)
-                  }
-                  required
-                  placeholder="Property name"
-                  name="property_name"
-                />
-
-                <div className="min-w-0">
-                  <SelectBtnGrp
-                    options={proprtyTypes}
-                    label="Property Type"
+              <div className="grid gap-5 md:grid-cols-2">
+                {/* Left card: Property Name + Property Type */}
+                <div className="bg-slate-50/60 rounded-2xl border border-slate-200/70 p-4 space-y-4">
+                  <CustomInput
+                    type="text"
+                    label="Property Name"
                     labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                    // labelCls="mb-1.5 inline-block text-[13px] font-semibold text-slate-700 tracking-wide"
-                    className="md:gap-2 gap-1 md:flex-nowrap flex-wrap"
-                    btnClass="text-[13px] font-medium rounded-lg px-3 py-2 border-2 border-slate-200 hover:border-blue-300 transition-all"
-                    onSelectChange={(v) =>
-                      handleFormChange("property_type", v as string)
+                    rootCls="md:max-w-none"
+                    value={formValues.property_name}
+                    onChange={(e) =>
+                      handleFormChange(e.target.name, e.target.value)
                     }
-                    slant={false}
-                    defaultValue={formValues.property_type}
+                    required
+                    placeholder="Property name"
+                    name="property_name"
                   />
+
+                  <div className="min-w-0">
+                    <SelectBtnGrp
+                      options={proprtyTypes}
+                      label="Property Type"
+                      labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
+                      className="md:gap-2 gap-1 flex-wrap"
+                      btnClass="text-[13px] font-medium rounded-lg px-3 py-2 border-2 border-slate-200 hover:border-blue-300 transition-all"
+                      onSelectChange={(v) =>
+                        handleFormChange("property_type", v as string)
+                      }
+                      slant={false}
+                      defaultValue={formValues.property_type}
+                    />
+                  </div>
                 </div>
 
-                <div className="min-w-0">
-                  <SelectBtnGrp
-                    options={bhkArray}
-                    label="No of BHK"
+                {/* Right card: BHK + Work Type */}
+                <div className="bg-slate-50/60 rounded-2xl border border-slate-200/70 p-4 space-y-4">
+                  <div className="min-w-0">
+                    <SelectBtnGrp
+                      options={bhkArray}
+                      label="No of BHK"
+                      labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
+                      className="flex flex-wrap gap-2"
+                      btnClass="text-[13px] font-medium rounded-lg px-3 py-2 border-2 border-slate-200 hover:border-blue-300 transition-all"
+                      onSelectChange={(v) =>
+                        handleFormChange("bhk", v as string)
+                      }
+                      slant={false}
+                      defaultValue={formValues.bhk}
+                    />
+                  </div>
+
+                  {/* Fallback select for very small screens to ensure all options visible */}
+                  <div className="md:hidden">
+                    <select
+                      className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2f80ed]/30 focus:border-[#2f80ed]"
+                      value={formValues.bhk || ""}
+                      onChange={(e) => handleFormChange("bhk", e.target.value)}
+                    >
+                      <option value="">Select BHK</option>
+                      {bhkArray.map((b) => (
+                        <option key={b} value={b}>
+                          {b}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <CustomInput
+                    type="text"
+                    label="Work Type"
                     labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                    // labelCls="mb-1.5 inline-block text-[13px] font-semibold text-slate-700 tracking-wide"
-                    className="md:gap-2 gap-1 md:flex-nowrap flex-wrap"
-                    btnClass="text-[13px] font-medium rounded-lg px-3 py-2 border-2 border-slate-200 hover:border-blue-300 transition-all"
-                    onSelectChange={(v) => handleFormChange("bhk", v as string)}
-                    slant={false}
-                    defaultValue={formValues.bhk}
+                    rootCls="md:max-w-none"
+                    value={formValues.workType || ""}
+                    onChange={(e) =>
+                      handleFormChange(e.target.name, e.target.value)
+                    }
+                    placeholder="e.g. Interior Works"
+                    name="workType"
                   />
                 </div>
-
-                <CustomInput
-                  type="text"
-                  label="Work Type"
-                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                  rootCls="md:max-w-none"
-                  value={formValues.workType || ""}
-                  onChange={(e) =>
-                    handleFormChange(e.target.name, e.target.value)
-                  }
-                  placeholder="e.g. Interior Works"
-                  name="workType"
-                />
               </div>
 
               {/* File Inputs */}
@@ -1126,13 +1148,13 @@ useEffect(() => {
       </div>
 
       {/* Footer Actions */}
-      <div className="sticky bottom-0 bg-white border-t border-slate-100 px-6 py-5 flex items-center justify-between">
+      <div className="sticky bottom-0 px-6 py-5 flex items-center justify-between">
         <p className="text-xs text-slate-400 hidden md:block">
           {editingEstimation ? "Changes will be saved immediately" : "Fill all required fields to create estimation"}
         </p>
         <div className="flex items-center gap-3 w-full md:w-auto">
           <Button
-            className="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold transition-all duration-200"
+            className="flex-1 md:flex-none px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold transition-all duration-200 bg-transparent"
             onClick={closeDrawer}
           >
             Close

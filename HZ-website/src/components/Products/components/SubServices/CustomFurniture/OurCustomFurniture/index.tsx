@@ -49,7 +49,7 @@ export default function OurCustomFurniture({
             <div className="max-w-[430px] w-full h-[88px] bg-[#3586FF] flex items-center gap-x-[32px] justify-center px-10">
               <div className="max-w-[147px] min-h-[23px]">
                 <h1 className="text-[#FFFFFF] font-medium text-[16px] leading-[22.8px]">
-                  OneCasa Model
+                  Houznext Model
                 </h1>
               </div>
               <div className="max-w-[27px] min-h-[34px]">

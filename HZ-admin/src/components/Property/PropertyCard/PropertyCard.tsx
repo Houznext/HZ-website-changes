@@ -33,7 +33,7 @@ import {
   MdTrendingUp,
 } from "react-icons/md";
 import { HiBadgeCheck } from "react-icons/hi";
-import Loader from "../../SpinLoader";
+import Loader from "@/src/common/Loader";
 import { usePermissionStore } from "@/src/stores/usePermissions";
 import CustomTooltip from "@/src/common/ToolTip";
 import Modal from "@/src/common/Modal";

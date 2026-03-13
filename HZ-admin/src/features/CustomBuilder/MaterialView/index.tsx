@@ -4,7 +4,7 @@ import Modal from "@/src/common/Modal";
 import CustomInput from "@/src/common/FormElements/CustomInput";
 import SingleSelect from "@/src/common/FormElements/SingleSelect";
 import ImageFileUploader from "@/src/common/ImageFileUploader";
-import Loader from "@/src/components/SpinLoader";
+import Loader from "@/src/common/Loader";
 import { usePermissionStore } from "@/src/stores/usePermissions";
 import { MdAdd } from "react-icons/md";
 import apiClient from "@/src/utils/apiClient";

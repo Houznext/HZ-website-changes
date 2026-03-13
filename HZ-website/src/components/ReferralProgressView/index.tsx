@@ -80,7 +80,7 @@ type ReferralCase = {
 const HELPLINE_NUMBER = "+91 90000 00000";
 const HELPLINE_TEL = "tel:+919000000000";
 const HELPLINE_WHATSAPP =
-  "https://wa.me/919000000000?text=Hi%20OneCasa%2C%20I%20need%20help%20with%20my%20referral.";
+  "https://wa.me/919000000000?text=Hi%20Houznext%2C%20I%20need%20help%20with%20my%20referral.";
 
 const STEPS = [
   "Calling & Informing",

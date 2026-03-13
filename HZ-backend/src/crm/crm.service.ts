@@ -912,7 +912,7 @@ export class CrmLeadService {
     const results = { sent: 0, failed: 0, errors: [] as string[] };
     const message =
       customMessage?.trim() ||
-      `Hello! OneCasa has new offers and services for you. Contact us for more details.`;
+      `Hello! Houznext has new offers and services for you. Contact us for more details.`;
 
     for (const lead of validLeads) {
       const phone = lead.Phonenumber?.replace(/\D/g, '').slice(-10);

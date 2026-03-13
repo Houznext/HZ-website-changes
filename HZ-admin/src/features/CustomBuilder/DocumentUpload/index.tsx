@@ -14,7 +14,7 @@ import { DeleteForever } from "@mui/icons-material";
 import { RxCrossCircled } from "react-icons/rx";
 import apiClient from "@/src/utils/apiClient";
 import { useRouter } from "next/router";
-import Loader from "@/src/components/SpinLoader";
+import Loader from "@/src/common/Loader";
 import { MdDownload, MdEdit } from "react-icons/md";
 import { IoMdEye } from "react-icons/io";
 import { usePermissionStore } from "@/src/stores/usePermissions";

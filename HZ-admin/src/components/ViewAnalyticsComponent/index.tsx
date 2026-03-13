@@ -1,4 +1,4 @@
-import Loader from "../SpinLoader";
+import Loader from "@/src/common/Loader";
 import usePostPropertyStore, { PropertyStore } from "@/src/stores/postproperty";
 import Image from "next/image";
 import React, { useEffect, useState, useCallback } from "react";

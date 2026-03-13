@@ -158,7 +158,7 @@ const PrivacyComp = () => {
                                 Privacy Policy
                             </h1>
                             <p className="text-blue-100 font-medium text-lg">
-                                Transparent, secure, and customer-first privacy for all OneCasa
+                                Transparent, secure, and customer-first privacy for all Houznext
                                 services.
                             </p>
                         </div>
@@ -263,7 +263,7 @@ const PrivacyComp = () => {
                             <div className="prose max-w-none">
                                 <p className="text-slate-700 leading-relaxed font-medium text-lg mb-4">
                                     Welcome to{" "}
-                                    <span className="font-bold text-blue-500">OneCasa</span>, your
+                                    <span className="font-bold text-blue-500">Houznext</span>, your
                                     comprehensive platform for{" "}
                                     <span className="font-bold">
                                         real estate listings, interior design, and construction services
@@ -900,7 +900,7 @@ const PrivacyComp = () => {
                                             Age Requirement: 18+
                                         </h3>
                                         <p className="text-slate-700 font-medium mb-3">
-                                            OneCasa is intended for individuals aged 18 years and above. We do
+                                            Houznext is intended for individuals aged 18 years and above. We do
                                             not knowingly collect personal information from children.
                                         </p>
                                         <p className="text-slate-700 font-medium">
@@ -979,7 +979,7 @@ const PrivacyComp = () => {
 
                                 <div className="grid md:grid-cols-3 gap-4">
                                     <Link
-                                        href="mailto:admin@onecasa.in"
+                                        href="mailto:business@houznext.com"
                                         className="group bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-xl p-6 border-2 border-blue-100 hover:border-blue-400 transition-all duration-300 hover:shadow-md"
                                     >
                                         <div className="flex flex-col items-center text-center">
@@ -988,7 +988,7 @@ const PrivacyComp = () => {
                                             </div>
                                             <h4 className="font-bold text-slate-800 mb-2">Email Us</h4>
                                             <p className="text-sm text-blue-500 font-bold break-all">
-                                                admin@onecasa.in
+                                                business@houznext.com
                                             </p>
                                         </div>
                                     </Link>
@@ -1013,7 +1013,7 @@ const PrivacyComp = () => {
                                             <div className="p-4 bg-slate-700 rounded-full text-white mb-4">
                                                 <MdBusiness className="text-3xl" />
                                             </div>
-                                            <h4 className="font-bold text-slate-800 mb-2">OneCasa</h4>
+                                            <h4 className="font-bold text-slate-800 mb-2">Houznext</h4>
                                             <p className="text-sm text-slate-600 font-bold">
                                                 Real Estate, Interiors &amp; Construction Platform
                                             </p>
@@ -1057,7 +1057,7 @@ const PrivacyComp = () => {
                                 <div>
                                     <h3 className="text-2xl font-bold mb-3">Your Trust Matters</h3>
                                     <p className="font-medium label-text leading-relaxed mb-4">
-                                        By using OneCasa s services, you acknowledge that you have read,
+                                        By using Houznext services, you acknowledge that you have read,
                                         understood, and agree to this Privacy Policy. We are committed to
                                         constantly improving our platform with your privacy and trust at the
                                         center.

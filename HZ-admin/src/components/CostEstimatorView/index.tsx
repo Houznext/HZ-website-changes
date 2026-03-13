@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import Button from "@/src/common/Button";
-import Drawer from "@/src/common/Drawer";
+import Modal from "@/src/common/Modal";
 import Loader from "@/src/common/Loader";
 import apiClient from "@/src/utils/apiClient";
 import toast, { LoaderIcon } from "react-hot-toast";
@@ -26,7 +26,6 @@ import {
 import { useCostEstimatorStore } from "@/src/stores/costEstimatorstrore";
 import PaginationControls from "../CrmView/pagination";
 import { FiHome, FiSun, FiPenTool } from "react-icons/fi";
-import Modal from "@/src/common/Modal";
 
 export interface CEcardProps {
   key?: number;
@@ -551,25 +550,27 @@ const CostEstimatorView: React.FC = () => {
         </div>
       )}
 
-      {/* Form Drawer */}
-      <Drawer
-        open={openModal}
-        handleDrawerToggle={() => setOpenModal(false)}
-        closeIconCls="text-slate-500 hover:text-slate-800"
-        openVariant="right"
-        panelCls="w-[95%] sm:w-[95%] lg:w-[calc(100%-340px)] shadow-2xl"
-        overLayCls="bg-slate-900/60 backdrop-blur-sm"
+      {/* Form Modal */}
+      <Modal
+        isOpen={openModal}
+        closeModal={closeDrawer}
+        isCloseRequired={false}
+        rootCls="z-[200]"
+        className="bg-white/80 backdrop-blur-xl border border-white/40 shadow-[0_20px_60px_rgba(15,42,68,0.35)] rounded-2xl p-0 w-full max-w-5xl mx-auto"
+        title=""
       >
-        <CostEstimatorForm
-          closeDrawer={closeDrawer}
-          setCostEstimators={setCostEstimators}
-          setEditingEstimation={setEditingEstimation}
-          editingEstimation={editingEstimation}
-          userId={userId}
-          category={activeTab}
-          onSuccessRefetch={() => fetchCostEstimators(userId!, activeTab)}
-        />
-      </Drawer>
+        <div className="p-4 sm:p-6">
+          <CostEstimatorForm
+            closeDrawer={closeDrawer}
+            setCostEstimators={setCostEstimators}
+            setEditingEstimation={setEditingEstimation}
+            editingEstimation={editingEstimation}
+            userId={userId}
+            category={activeTab}
+            onSuccessRefetch={() => fetchCostEstimators(userId!, activeTab)}
+          />
+        </div>
+      </Modal>
     </div>
   );
 

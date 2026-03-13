@@ -285,7 +285,7 @@ export class MailerService {
       await this.sendMail(
         email,
         'New Referral Submitted',
-        'A new referral has been submitted on OneCasa.',
+        'A new referral has been submitted on Houznext.',
         populatedTemplate,
       );
     }

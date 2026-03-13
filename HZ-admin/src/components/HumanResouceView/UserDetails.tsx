@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import CustomDate from "@/src/common/FormElements/CustomDate";
 import { DropDown } from "@/src/common/PopOver";
 import { IoMdArrowDropdown } from "react-icons/io";
-import Loader from "@/src/components/SpinLoader";
+import Loader from "@/src/common/Loader";
 import { MdArrowBack } from "react-icons/md";
 import { useRef } from "react";
 import { uploadFile } from "@/src/utils/uploadFile";

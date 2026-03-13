@@ -11,7 +11,7 @@ import {
     UserPlus,
 } from "lucide-react";
 import Button from "@/src/common/Button";
-import Loader from "@/src/components/SpinLoader";
+import Loader from "@/src/common/Loader";
 
 interface Branch {
     id: number;

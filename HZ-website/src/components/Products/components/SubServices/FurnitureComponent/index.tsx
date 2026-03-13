@@ -51,7 +51,7 @@ const FurnitureHeroSectionData: IServiceHeroSectionInterfaceProps = {
 const TiredOfMultipleOptionsData: ITiredOfMultipleOptionsProps = {
   heading: "Tired of multiple options available in market?",
   subHeading:
-    "No more worries! Here at OneCasa, we provide all round services in every price range!!",
+    "No more worries! Here at Houznext, we provide all round services in every price range!!",
   listitems: [
     {
       description:

@@ -334,13 +334,13 @@ function SingleProperty({
             />
             <Image
               src="/images/logo.png"
-              alt="OneCasa Logo"
+              alt="Houznext Logo"
               width={120}
               height={60}
               className="absolute  opacity-60 mix-blend-multiply"
             />
             <p className="text-[24px] text-white opacity-50 font-medium  absolute top-[84%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              ONECASA
+              HOUZNEXT
             </p>
 
             <Button
@@ -381,13 +381,13 @@ function SingleProperty({
 
                 <Image
                   src="/images/logo.png"
-                  alt="OneCasa Logo"
+                  alt="Houznext Logo"
                   width={30}
                   height={30}
                   className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-60 mix-blend-multiply"
                 />
                 <p className="text-[10px] text-white opacity-40 font-medium  absolute top-[84%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  ONECASA
+                  HOUZNEXT
                 </p>
               </div>
             ))}

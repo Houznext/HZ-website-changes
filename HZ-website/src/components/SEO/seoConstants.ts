@@ -1,8 +1,8 @@
 // seoConstants.ts
 
 // Base constants
-export const BASE_DEPLOYMENT_URL = "https://www.onecasa.in";
-export const PROJECT_NAME = "OneCasa Real Estate";
+export const BASE_DEPLOYMENT_URL = "https://www.houznext.com";
+export const PROJECT_NAME = "Houznext Real Estate";
 export const PRIMARY_IMAGE_URL = `${BASE_DEPLOYMENT_URL}/images/logobb.png`;
 export const PRIMARY_PHONE = "+918897574909";
 
@@ -30,10 +30,10 @@ export const CORPORATE_CONTACTS = [
 
 // Social profiles (shared across all pages)
 export const SOCIAL_PROFILES = [
-  "https://www.facebook.com/onecasa",
-  "https://twitter.com/onecasa_in",
-  "https://www.instagram.com/onecasa.in/",
-  "https://www.linkedin.com/company/onecasa1/",
+  "https://www.facebook.com/houznext",
+  "https://twitter.com/houznext",
+  "https://www.instagram.com/houznext/",
+  "https://www.linkedin.com/company/houznext/",
 ];
 
 export const DEFAULT_ADDRESS = {
@@ -50,15 +50,15 @@ export const DEFAULT_OPENING_HOURS = "Mo-Su 09:00-18:00";
 // ---------------------------------------------------------------------------
 // Mega keyword index — structured by service vertical.
 // Google ignores <meta keywords> but Bing/Yandex still index them, and they
-// double as a living audit of every search phrase OneCasa should rank for.
+// double as a living audit of every search phrase Houznext should rank for.
 // ---------------------------------------------------------------------------
 
 const _BRAND = [
-  "OneCasa", "onecasa", "One Casa", "onecasa.in", "www.onecasa.in",
-  "OneCasa India", "OneCasa real estate", "OneCasa interiors",
-  "OneCasa solar", "OneCasa construction", "OneCasa furniture",
+  "Houznext", "houznext", "Houz next", "houznext.com", "www.houznext.com",
+  "Houznext India", "Houznext real estate", "Houznext interiors",
+  "Houznext solar", "Houznext construction", "Houznext furniture",
   "one stop home solution India", "all in one home services India",
-  "OneCasa app", "OneCasa reviews", "OneCasa contact",
+  "Houznext app", "Houznext reviews", "Houznext contact",
 ];
 
 const _REAL_ESTATE = [

@@ -35,7 +35,7 @@ const GENERAL_KNOWLEDGE = `
 - **Interiors quick tips:** Modular kitchen triangle (hob–sink–fridge) 4–7m. Wardrobe depth 22–24". TV viewing distance ≈ screen diagonal × 1.5–2. Sofa seat height 16–18".
 - **Painting:** Economy (2–3 yrs), Premium (4–6 yrs), Luxury (washable, low VOC). Estimate = area × base rate × finish multiplier.
 - **Construction:** Always do soil test, structural design, BOQ, and permits. Track progress (labor count, material GRNs, photos) daily.
-(Only use these when user asks general questions. For company specifics, prefer the OneCasa context.)
+(Only use these when user asks general questions. For company specifics, prefer the Houznext context.)
 `;
 
 const getFurnitureContext = async () => {

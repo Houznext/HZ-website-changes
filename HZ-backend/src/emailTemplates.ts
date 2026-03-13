@@ -6,7 +6,7 @@ export const otpEmailTemplate = (otp: string) => `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your OTP Code - OneCasa Real Estate</title>
+    <title>Your OTP Code - Houznext Real Estate</title>
     <link href="https://fonts.googleapis.in/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body style="font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background-color: #f7f9fc;">
@@ -14,7 +14,7 @@ export const otpEmailTemplate = (otp: string) => `
         <!-- Header Section -->
         <tr>
             <td style="padding: 30px 20px 20px; text-align: center; background: linear-gradient(135deg, #1a3a4a 0%, #2c5f7e 100%);">
-                <img alt="OneCasa Real Estate" src="https://onecasa.in/_next/image?url=%2Fimages%2Flogobw.png&w=2048&q=75" height="60px" style="display: block; margin: 0 auto;" />
+                <img alt="Houznext Real Estate" src="https://houznext.com/images/houznext-logo.png" height="60px" style="display: block; margin: 0 auto;" />
                 <p style="color: #ffffff; font-size: 16px; margin: 15px 0 0; letter-spacing: 0.5px; font-weight: 300;">One Roof, Every Solution</p>
             </td>
         </tr>
@@ -24,7 +24,7 @@ export const otpEmailTemplate = (otp: string) => `
             <td style="padding: 40px 30px; background: #ffffff; border-left: 1px solid #e6e9ed; border-right: 1px solid #e6e9ed;">
                 <h1 style="font-size: 26px; color: #2c5f7e; text-align: center; margin: 0 0 15px; font-weight: 600;">Verify Your Email Address</h1>
                 <p style="font-size: 16px; color: #5a6b7e; text-align: center; margin: 0 0 30px; line-height: 1.6;">
-                    Thank you for choosing OneCasa Real Estate. To complete your registration, please use the One-Time Password (OTP) below.
+                    Thank you for choosing Houznext Real Estate. To complete your registration, please use the One-Time Password (OTP) below.
                 </p>
                 
                 <!-- OTP Box -->
@@ -46,7 +46,7 @@ export const otpEmailTemplate = (otp: string) => `
                 
                 <!-- Instructions -->
                 <p style="font-size: 15px; color: #5a6b7e; text-align: center; margin: 30px 0 20px; line-height: 1.6;">
-                    For security reasons, please do not share this code with anyone. OneCasa representatives will never ask you for this code.
+                    For security reasons, please do not share this code with anyone. Houznext representatives will never ask you for this code.
                 </p>
                 
                 <!-- CTA Button -->
@@ -71,27 +71,27 @@ export const otpEmailTemplate = (otp: string) => `
         <tr>
             <td style="padding: 36px 24px; text-align: center; background: linear-gradient(180deg, #1a3a4a 0%, #152a36 100%); color: #ffffff;">
                 <p style="font-size: 14px; margin: 0 0 20px; color: #c3d4e6; line-height: 1.5;">
-                    Need help? Contact our support team at <a href="mailto:support@onecasa.in" style="color: #7dd3fc; text-decoration: none; font-weight: 500;">support@onecasa.in</a>
+                    Need help? Contact our support team at <a href="mailto:business@houznext.com" style="color: #7dd3fc; text-decoration: none; font-weight: 500;">business@houznext.com</a>
                 </p>
                 <!-- Social links (text-only for reliability in all email clients) -->
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 0 auto 20px;">
                     <tr>
                         <td style="padding: 4px 6px;">
-                            <a href="https://www.facebook.com/onecasa.in" target="_blank" rel="noopener" style="display: inline-block; padding: 8px 14px; background: rgba(255,255,255,0.12); color: #ffffff; font-size: 12px; font-weight: 600; text-decoration: none; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2);">Facebook</a>
+                            <a href="https://www.facebook.com/houznext" target="_blank" rel="noopener" style="display: inline-block; padding: 8px 14px; background: rgba(255,255,255,0.12); color: #ffffff; font-size: 12px; font-weight: 600; text-decoration: none; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2);">Facebook</a>
                         </td>
                         <td style="padding: 4px 6px;">
-                            <a href="https://www.instagram.com/onecasa.in/" target="_blank" rel="noopener" style="display: inline-block; padding: 8px 14px; background: rgba(255,255,255,0.12); color: #ffffff; font-size: 12px; font-weight: 600; text-decoration: none; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2);">Instagram</a>
+                            <a href="https://www.instagram.com/houznext/" target="_blank" rel="noopener" style="display: inline-block; padding: 8px 14px; background: rgba(255,255,255,0.12); color: #ffffff; font-size: 12px; font-weight: 600; text-decoration: none; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2);">Instagram</a>
                         </td>
                         <td style="padding: 4px 6px;">
-                            <a href="https://www.linkedin.com/company/onecasa" target="_blank" rel="noopener" style="display: inline-block; padding: 8px 14px; background: rgba(255,255,255,0.12); color: #ffffff; font-size: 12px; font-weight: 600; text-decoration: none; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2);">LinkedIn</a>
+                            <a href="https://www.linkedin.com/company/houznext/" target="_blank" rel="noopener" style="display: inline-block; padding: 8px 14px; background: rgba(255,255,255,0.12); color: #ffffff; font-size: 12px; font-weight: 600; text-decoration: none; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2);">LinkedIn</a>
                         </td>
                         <td style="padding: 4px 6px;">
-                            <a href="https://www.youtube.com/@onecasaofficial" target="_blank" rel="noopener" style="display: inline-block; padding: 8px 14px; background: rgba(255,255,255,0.12); color: #ffffff; font-size: 12px; font-weight: 600; text-decoration: none; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2);">YouTube</a>
+                            <a href="https://www.youtube.com/@houznext" target="_blank" rel="noopener" style="display: inline-block; padding: 8px 14px; background: rgba(255,255,255,0.12); color: #ffffff; font-size: 12px; font-weight: 600; text-decoration: none; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2);">YouTube</a>
                         </td>
                     </tr>
                 </table>
                 <p style="font-size: 13px; margin: 0 0 4px; color: #94a3b8; font-weight: 500;">
-                    &copy; ${new Date().getFullYear()} OneCasa Real Estate. All rights reserved.
+                    &copy; ${new Date().getFullYear()} Houznext Real Estate. All rights reserved.
                 </p>
                 <p style="font-size: 12px; margin: 0; color: #64748b; letter-spacing: 0.5px;">
                     One Roof, Every Solution
@@ -108,17 +108,17 @@ export const USER_CONFIRMATION_TEMPLATE = `
   <body style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #434343;">
     <div style="max-width: 680px; margin: 0 auto; padding: 45px 30px 60px; background: #f4f7ff;">
       <header>
-        <img alt="DreamCasa Real Estate" src="https://onecasa.in/_next/image?url=%2Fimages%2Flogobw.png&w=2048&q=75" height="50px" width="50px" />
+        <img alt="Houznext Real Estate" src="https://houznext.com/images/houznext-logo.png" height="50px" width="50px" />
         <span style="float: right; color: #434343;">${'${currentDate}'}</span>
       </header>
       <main>
         <h1 style="font-size: 24px;">Property Posted Successfully!</h1>
         <p>Dear ${'${userName}'},</p>
-        <p>Your property <strong>${'${propertyTitle}'}</strong> has been successfully posted on DreamCasa Real Estate.</p>
+        <p>Your property <strong>${'${propertyTitle}'}</strong> has been successfully posted on Houznext Real Estate.</p>
         <p>Thank you for choosing us to showcase your property.</p>
       </main>
       <footer>
-        <p>Contact us at <a href="mailto:support@onecasa.in">support@onecasa.in</a></p>
+        <p>Contact us at <a href="mailto:business@houznext.com">business@houznext.com</a></p>
       </footer>
     </div>
   </body>
@@ -131,14 +131,14 @@ export const ADMIN_LEAD_NOTIFICATION_TEMPLATE = `
       
       <!-- Header -->
       <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <img src="https://onecasa.in/_next/image?url=%2Fimages%2Flogobw.png&w=2048&q=75" alt="DreamCasa Real Estate" style="height: 50px; width: 50px;" />
+        <img src="https://houznext.com/images/houznext-logo.png" alt="Houznext Real Estate" style="height: 50px; width: 50px;" />
         <span style="font-size: 14px; color: #666;">${'${currentDate}'}</span>
       </header>
 
       <!-- Main Content -->
       <main>
         <h2 style="font-size: 22px; color: #2c3e50; margin-bottom: 10px;">🎉 New Lead Notification</h2>
-        <p style="margin: 10px 0;">You have received a new lead on DreamCasa.</p>
+        <p style="margin: 10px 0;">You have received a new lead on Houznext.</p>
 
         <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
           <tr>
@@ -172,8 +172,8 @@ export const ADMIN_LEAD_NOTIFICATION_TEMPLATE = `
 
       <!-- Footer -->
       <footer style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px; font-size: 13px; color: #777;">
-        <p>Need help? Contact us at <a href="mailto:dreamcasarealestates@gmail.in" style="color: #3b82f6;">support@onecasa.in</a></p>
-        <p style="margin-top: 5px;">&copy; ${new Date().getFullYear()} DreamCasa Real Estate. All rights reserved.</p>
+        <p>Need help? Contact us at <a href="mailto:business@houznext.com" style="color: #3b82f6;">business@houznext.com</a></p>
+        <p style="margin-top: 5px;">&copy; ${new Date().getFullYear()} Houznext Real Estate. All rights reserved.</p>
       </footer>
     </div>
   </body>
@@ -186,7 +186,7 @@ export const ADMIN_NOTIFICATION_TEMPLATE = `
   <body style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #434343;">
     <div style="max-width: 680px; margin: 0 auto; padding: 45px 30px 60px; background: #f4f7ff;">
       <header>
-       <img alt="DreamCasa Real Estate" src="https://onecasa.in/_next/image?url=%2Fimages%2Flogobw.png&w=2048&q=75" height="50px" width="50px" />
+       <img alt="Houznext Real Estate" src="https://houznext.com/images/houznext-logo.png" height="50px" width="50px" />
         <span style="float: right; color: #434343;">${'${currentDate}'}</span>
       </header>
       <main>
@@ -196,7 +196,7 @@ export const ADMIN_NOTIFICATION_TEMPLATE = `
         <p>Please review the listing at your earliest convenience.</p>
       </main>
       <footer>
-        <p>Contact us at <a href="mailto:support@onecasa.in">support@onecasa.in</a></p>
+        <p>Contact us at <a href="mailto:business@houznext.com">business@houznext.com</a></p>
       </footer>
     </div>
   </body>
@@ -210,14 +210,14 @@ export const ADMIN_REFERRAL_NOTIFICATION_TEMPLATE = `
       
       <!-- Header -->
       <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <img src="https://onecasa.in/_next/image?url=%2Fimages%2Flogobw.png&w=2048&q=75" alt="DreamCasa Real Estate" style="height: 50px; width: 50px;" />
+        <img src="https://houznext.com/images/houznext-logo.png" alt="Houznext Real Estate" style="height: 50px; width: 50px;" />
         <span style="font-size: 14px; color: #666;">{{createdAt}}</span>
       </header>
 
       <!-- Main Content -->
       <main>
         <h2 style="font-size: 22px; color: #2c3e50; margin-bottom: 10px;">🤝 New Referral Received</h2>
-        <p style="margin: 10px 0;">A new referral has been submitted by a user on DreamCasa.</p>
+        <p style="margin: 10px 0;">A new referral has been submitted by a user on Houznext.</p>
 
         <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
           <tr>
@@ -243,8 +243,8 @@ export const ADMIN_REFERRAL_NOTIFICATION_TEMPLATE = `
 
       <!-- Footer -->
       <footer style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px; font-size: 13px; color: #777;">
-        <p>Need help? Contact us at <a href="mailto:dreamcasarealestates@gmail.in" style="color: #3b82f6;">support@onecasa.in</a></p>
-        <p style="margin-top: 5px;">&copy; ${new Date().getFullYear()} DreamCasa Real Estate. All rights reserved.</p>
+        <p>Need help? Contact us at <a href="mailto:business@houznext.com" style="color: #3b82f6;">business@houznext.com</a></p>
+        <p style="margin-top: 5px;">&copy; ${new Date().getFullYear()} Houznext Real Estate. All rights reserved.</p>
       </footer>
     </div>
   </body>
@@ -256,17 +256,17 @@ export const USER_NOTIFICATION_TEMPLATE = `
   <body style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #434343;">
     <div style="max-width: 680px; margin: 0 auto; padding: 45px 30px 60px; background: #f4f7ff;">
       <header>
-       <img alt="DreamCasa Real Estate" src="https://onecasa.in/_next/image?url=%2Fimages%2Flogobw.png&w=2048&q=75" height="50px" width="50px" />
+       <img alt="Houznext Real Estate" src="https://houznext.com/images/houznext-logo.png" height="50px" width="50px" />
         <span style="float: right; color: #434343;">${'${currentDate}'}</span>
       </header>
       <main>
         <h1 style="font-size: 24px;">Confirmation: Action Successful</h1>
         <p>Dear ${'${userName}'},</p>
-        <p>Your action has been successfully completed on DreamCasa Real Estate.</p>
-        <p>Thank you for choosing DreamCasa Real Estate!</p>
+        <p>Your action has been successfully completed on Houznext Real Estate.</p>
+        <p>Thank you for choosing Houznext Real Estate!</p>
       </main>
       <footer>
-        <p>Contact us at <a href="mailto:support@onecasa.in">support@onecasa.in</a></p>
+        <p>Contact us at <a href="mailto:business@houznext.com">business@houznext.com</a></p>
       </footer>
     </div>
   </body>
@@ -279,7 +279,7 @@ export const ADMIN_CONTACT_NOTIFICATION_TEMPLATE = `
       
       <!-- Header -->
       <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <img src="https://onecasa.in/_next/image?url=%2Fimages%2Flogobw.png&w=2048&q=75" alt="DreamCasa Real Estate" style="height: 50px; width: 50px;" />
+        <img src="https://houznext.com/images/houznext-logo.png" alt="Houznext Real Estate" style="height: 50px; width: 50px;" />
         <span style="font-size: 14px; color: #666;">${'${currentDate}'}</span>
       </header>
 
@@ -320,8 +320,8 @@ export const ADMIN_CONTACT_NOTIFICATION_TEMPLATE = `
 
       <!-- Footer -->
       <footer style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px; font-size: 13px; color: #777;">
-        <p>Need help? Contact us at <a href="mailto:dreamcasarealestates@gmail.in" style="color: #3b82f6;">support@onecasa.in</a></p>
-        <p style="margin-top: 5px;">&copy; ${new Date().getFullYear()} DreamCasa Real Estate. All rights reserved.</p>
+        <p>Need help? Contact us at <a href="mailto:business@houznext.com" style="color: #3b82f6;">business@houznext.com</a></p>
+        <p style="margin-top: 5px;">&copy; ${new Date().getFullYear()} Houznext Real Estate. All rights reserved.</p>
       </footer>
     </div>
   </body>
@@ -347,7 +347,7 @@ export const generateDocumentUploadTemplate = (
     <body style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #434343;">
       <div style="max-width: 680px; margin: 0 auto; padding: 45px 30px 60px; background: #f4f7ff;">
         <header style="display: flex; justify-content: space-between; align-items: center;">
-          <img alt="DreamCasa Real Estate" src="https://onecasa.in/_next/image?url=%2Fimages%2Flogobw.png&w=2048&q=75" height="50px" width="50px" />
+          <img alt="Houznext Real Estate" src="https://houznext.com/images/houznext-logo.png" height="50px" width="50px" />
         </header>
         <main>
           <h1 style="font-size: 24px;">Document Uploaded</h1>
@@ -356,7 +356,7 @@ export const generateDocumentUploadTemplate = (
           <p>You can now view or download it anytime from your dashboard.</p>
         </main>
         <footer style="margin-top: 30px;">
-          <p>If you have any questions, please contact us at <a href="mailto:support@onecasa.in">support@onecasa.in</a>.</p>
+          <p>If you have any questions, please contact us at <a href="mailto:business@houznext.com">business@houznext.com</a>.</p>
         </footer>
       </div>
     </body>
@@ -370,7 +370,7 @@ export const generateDailyProgressTemplate = (data: CreateDailyProgressDto) => {
   <body style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #434343;">
     <div style="max-width: 680px; margin: 0 auto; padding: 45px 30px 60px; background: #f4f7ff;">
       <header style="display: flex; justify-content: space-between; align-items: center;">
-        <img alt="DreamCasa Real Estate" src="https://onecasa.in/_next/image?url=%2Fimages%2Flogobw.png&w=2048&q=75" height="50px" width="50px" />
+        <img alt="Houznext Real Estate" src="https://houznext.com/images/houznext-logo.png" height="50px" width="50px" />
       </header>
       <main>
         <h1 style="font-size: 24px;">Daily Progress Update - Day ${data?.day} (${data?.date})</h1>
@@ -445,7 +445,7 @@ export const generateDailyProgressTemplate = (data: CreateDailyProgressDto) => {
         </section>
       </main>
      <footer>
-        <p>If you have any questions, feel free to contact our support team at <a href="mailto:support@onecasa.in">support@onecasa.in</a></p>
+        <p>If you have any questions, feel free to contact our support team at <a href="mailto:business@houznext.com">business@houznext.com</a></p>
       </footer>
     </div>
   </body>
@@ -464,13 +464,13 @@ export const generateReferralTemplate = (data: {
     <body style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #434343;">
       <div style="max-width: 680px; margin: 0 auto; padding: 45px 30px 60px; background: #f4f7ff;">
         <header style="display: flex; justify-content: space-between; align-items: center;">
-          <img alt="DreamCasa" src="https://onecasa.in/_next/image?url=%2Fimages%2Flogobw.png&w=2048&q=75" height="50px" width="50px" />
+          <img alt="Houznext" src="https://houznext.com/images/houznext-logo.png" height="50px" width="50px" />
         </header>
 
         <main>
           <h1 style="font-size: 24px;">Referral Submitted Successfully</h1>
           <p>Hello ${data.referrerName},</p>
-          <p>Thank you for referring <strong>${data.friendName || 'your friend'}</strong> to OneCasa.</p>
+          <p>Thank you for referring <strong>${data.friendName || 'your friend'}</strong> to Houznext.</p>
 
           <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
             <tbody>
@@ -497,7 +497,7 @@ export const generateReferralTemplate = (data: {
         </main>
 
         <footer style="margin-top: 40px;">
-          <p>If you have any questions, feel free to contact our team at <a href="mailto:support@onecasa.in">support@onecasa.in</a></p>
+          <p>If you have any questions, feel free to contact our team at <a href="mailto:business@houznext.com">business@houznext.com</a></p>
         </footer>
       </div>
     </body>
@@ -518,7 +518,7 @@ export const generatePropertyUpdateTemplate = (
         <ul style="padding-left: 20px;">
           ${changes.map((change) => `<li>${change}</li>`).join('')}
         </ul>
-        <p style="margin-top: 30px;">Thank you,<br />The OneCasa Team</p>
+        <p style="margin-top: 30px;">Thank you,<br />The Houznext Team</p>
       </div>
     </body>
   </html>
@@ -531,7 +531,7 @@ export const generateProjectUpdateTemplate = (project: { name: string }) => {
       <div style="max-width: 600px; margin: auto; background: #fff; padding: 20px 30px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
         <h2 style="color: #2b2b2b;">Project Updated</h2>
         <p>The project <strong>${project.name}</strong> has been successfully updated.</p>
-        <p style="margin-top: 30px;">Thank you,<br />The OneCasa Team</p>
+        <p style="margin-top: 30px;">Thank you,<br />The Houznext Team</p>
       </div>
     </body>
   </html>
@@ -546,7 +546,7 @@ export const generateDailyProgressSummaryTemplate = (
   <body style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #434343;">
     <div style="max-width: 680px; margin: 0 auto; padding: 45px 30px 60px; background: #f4f7ff;">
       <header style="display: flex; justify-content: space-between; align-items: center;">
-       <img alt="DreamCasa Real Estate" src="https://onecasa.in/_next/image?url=%2Fimages%2Flogobw.png&w=2048&q=75" height="50px" width="50px" />
+       <img alt="Houznext Real Estate" src="https://houznext.com/images/houznext-logo.png" height="50px" width="50px" />
       </header>
       <main>
         <h1 style="font-size: 24px;">Week progress summary</h1>
@@ -610,7 +610,7 @@ export const generateDailyProgressSummaryTemplate = (
           .join('')}
       </main>
       <footer>
-        <p>If you have any questions, feel free to contact our support team at <a href="mailto:support@onecasa.in">support@onecasa.in</a></p>
+        <p>If you have any questions, feel free to contact our support team at <a href="mailto:business@houznext.com">business@houznext.com</a></p>
       </footer>
     </div>
   </body>
@@ -625,7 +625,7 @@ export const OWNER_LEAD_NOTIFICATION_TEMPLATE = `
   <body style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #434343;">
     <div style="max-width: 680px; margin: 0 auto; padding: 45px 30px 60px; background: #f4f7ff;">
       <header>
-        <img alt="DreamCasa Real Estate" src="https://onecasa.in/_next/image?url=%2Fimages%2Flogobw.png&w=2048&q=75" height="50px" width="50px" />
+        <img alt="Houznext Real Estate" src="https://houznext.com/images/houznext-logo.png" height="50px" width="50px" />
         <span style="float: right; color: #434343;">${'${currentDate}'}</span>
       </header>
       <main>
@@ -644,7 +644,7 @@ export const OWNER_LEAD_NOTIFICATION_TEMPLATE = `
         <p style="margin-top: 20px;">Please follow up promptly to maximize engagement.</p>
       </main>
       <footer style="margin-top: 30px;">
-        <p>Need help? Contact us at <a href="mailto:support@onecasa.in">support@onecasa.in</a></p>
+        <p>Need help? Contact us at <a href="mailto:business@houznext.com">business@houznext.com</a></p>
       </footer>
     </div>
   </body>
@@ -656,13 +656,13 @@ export const CUSTOM_BUILDER_CREATION_TEMPLATE = `
   <body style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #434343;">
     <div style="max-width: 680px; margin: 0 auto; padding: 45px 30px 60px; background: #f4f7ff;">
       <header style="display: flex; justify-content: space-between; align-items: center;">
-        <img src="https://onecasa.in/_next/image?url=%2Fimages%2Flogobw.png&w=2048&q=75" alt="DreamCasa Real Estate" height="50" width="50" />
+        <img src="https://houznext.com/images/houznext-logo.png" alt="Houznext Real Estate" height="50" width="50" />
         <span style="color: #434343;">\${currentDate}</span>
       </header>
       <main>
         <h1 style="font-size: 24px; margin-top: 20px;">Custom Builder Tracking Activated</h1>
         <p>Hello <strong>\${userName}</strong>,</p>
-        <p>We’re excited to let you know that your custom builder tracking has been successfully initiated with DreamCasa.</p>
+        <p>We’re excited to let you know that your custom builder tracking has been successfully initiated with Houznext.</p>
 
         <h2 style="font-size: 18px; margin-top: 20px;">Project Overview:</h2>
         <ul style="list-style: none; padding: 0;">
@@ -680,7 +680,7 @@ export const CUSTOM_BUILDER_CREATION_TEMPLATE = `
         </p>
       </main>
       <footer style="margin-top: 30px;">
-        <p>Need help? Reach us at <a href="mailto:support@onecasa.in">support@onecasa.in</a></p>
+        <p>Need help? Reach us at <a href="mailto:business@houznext.com">business@houznext.com</a></p>
       </footer>
     </div>
   </body>

@@ -35,7 +35,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || (isProd ? '' : 'Houznext@75
 const ADMIN_FIRST_NAME = process.env.ADMIN_FIRST_NAME || 'Houznext';
 const ADMIN_LAST_NAME = process.env.ADMIN_LAST_NAME || 'Admin';
 const ADMIN_PHONE = process.env.ADMIN_PHONE || '9999999999';
-const ORG_BRANCH_NAME = process.env.ORG_BRANCH_NAME || 'OneCasa';
+const ORG_BRANCH_NAME = process.env.ORG_BRANCH_NAME || 'Houznext';
 
 if (isProd && (!ADMIN_EMAIL || !ADMIN_PASSWORD)) {
   console.error('ERROR: ADMIN_EMAIL and ADMIN_PASSWORD are required in production.');

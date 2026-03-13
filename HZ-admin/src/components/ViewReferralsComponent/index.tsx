@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/router";
 import apiClient from "@/src/utils/apiClient";
-import Loader from "../SpinLoader";
+import Loader from "@/src/common/Loader";
 import BackRoute from "@/src/common/BackRoute";
 import Button from "@/src/common/Button";
 import { LuDownload } from "react-icons/lu";

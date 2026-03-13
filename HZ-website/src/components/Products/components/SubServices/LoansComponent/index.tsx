@@ -8,8 +8,8 @@ import GoogleAdSense from "@/components/GoogleAdSense";
 
 export default function LoansComponent() {
   const LoansHeroSectionData: ILoansHeroSectionprops = {
-    heading: "OneCasa",
-    subheading: "Apply Home Loan at OneCasa",
+    heading: "Houznext",
+    subheading: "Apply Home Loan at Houznext",
     bgimageurl: "/images/custombuilder/subservices/Loans/Loansherosection.png",
     listItems: [
       {

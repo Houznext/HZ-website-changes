@@ -273,7 +273,7 @@ const CompanyDetailsPropertyView = ({ data }: any) => {
     const location = `${project?.location?.locality || "N/A"}, ${project?.location?.city || "N/A"
       }`;
     const image = project?.mediaDetails?.propertyImages?.[0] || "/fallback.jpg";
-    const title = project?.name || project?.company?.name || "OneCasa Project";
+    const title = project?.name || project?.company?.name || "Houznext Project";
     const bhk = project?.units?.[0]?.BHK || "N/A";
     const price = project?.minPrice
       ? `₹${(project.minPrice / 100000).toFixed(1)} L`

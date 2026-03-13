@@ -7,7 +7,7 @@ import apiClient from "@/src/utils/apiClient";
 import Button from "@/src/common/Button";
 import Modal from "@/src/common/Modal";
 import Drawer from "@/src/common/Drawer";
-import Loader from "@/src/components/SpinLoader";
+import Loader from "@/src/common/Loader";
 import CheckboxInput from "@/src/common/FormElements/CheckBoxInput";
 import SingleSelect from "@/src/common/FormElements/SingleSelect";
 import CustomInput from "@/src/common/FormElements/CustomInput";

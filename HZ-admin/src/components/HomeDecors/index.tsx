@@ -6,7 +6,7 @@ import HomeDecorForm from "./HomeDecorForm";
 import { HomeMini } from "@mui/icons-material";
 import Drawer from "@/src/common/Drawer";
 import Button from "@/src/common/Button";
-import Loader from "../SpinLoader";
+import Loader from "@/src/common/Loader";
 import { CgTrash } from "react-icons/cg";
 import { Pagination } from "@mui/material";
 import { signOut, useSession } from "next-auth/react";

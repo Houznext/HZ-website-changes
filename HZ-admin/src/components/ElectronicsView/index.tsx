@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import Drawer from "@/src/common/Drawer";
 import Button from "@/src/common/Button";
-import Loader from "../SpinLoader";
+import Loader from "@/src/common/Loader";
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
 import apiClient from "@/src/utils/apiClient";

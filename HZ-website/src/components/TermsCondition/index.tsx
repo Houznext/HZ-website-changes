@@ -7,17 +7,17 @@ const TermsAndConditions = () => {
     <div className="container mx-auto py-10 px-10">
       <h1 className="text-3xl font-bold mb-4">Terms and Conditions</h1>
       <h2 className="mb-4 text-gray-600">
-        Welcome to OneCasa! These terms and conditions outline the rules and regulations for the use of our website.
+        Welcome to Houznext! These terms and conditions outline the rules and regulations for the use of our website.
       </h2>
 
       <h2 className="text-2xl font-medium mb-2">1. Introduction</h2>
       <p className="mb-4 text-gray-600">
-        By accessing this website, we assume you accept these terms and conditions. Do not continue to use OneCasa if you do not agree to all of the terms and conditions stated on this page.
+        By accessing this website, we assume you accept these terms and conditions. Do not continue to use Houznext if you do not agree to all of the terms and conditions stated on this page.
       </p>
 
       <h2 className="text-2xl font-medium mb-2">2. Cookies</h2>
       <p className="mb-4 text-gray-600">
-        We employ the use of cookies. By accessing OneCasa, you agreed to use cookies in agreement with our Privacy Policy.
+        We employ the use of cookies. By accessing Houznext, you agreed to use cookies in agreement with our Privacy Policy.
       </p>
 
       <h2 className="text-2xl font-medium mb-2">3. License</h2>

@@ -5,7 +5,7 @@ import Button from "@/src/common/Button";
 import Image from "next/image";
 import Modal from "@/src/common/Modal";
 import SingleSelect from "@/src/common/FormElements/SingleSelect";
-import Loader from "@/src/components/SpinLoader";
+import Loader from "@/src/common/Loader";
 import SearchComponent from "@/src/common/SearchSelect";
 import toast from "react-hot-toast";
 import { usePermissionStore } from "@/src/stores/usePermissions";

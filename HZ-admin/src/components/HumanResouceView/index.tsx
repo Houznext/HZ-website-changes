@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import apiClient from "@/src/utils/apiClient";
 import ReusableSearchFilter from "@/src/common/SearchFilter";
 import { useRouter } from "next/router";
-import Loader from "@/src/components/SpinLoader";
+import Loader from "@/src/common/Loader";
 import {
   User,
   Users,

@@ -14,7 +14,7 @@ import { IoArrowBack } from "react-icons/io5";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import apiClient from "@/src/utils/apiClient";
-import Loader from "../SpinLoader";
+import Loader from "@/src/common/Loader";
 import CostEstimationHeader from "../CostEstimatorDetailsView/CostEstimatorHeader";
 import { usePermissionStore } from "@/src/stores/usePermissions";
 import CustomTooltip from "@/src/common/ToolTip";

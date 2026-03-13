@@ -24,7 +24,7 @@ import {
   SendMessageArgs,
   Attachment,
 } from "../../utils/chat/types";
-import Loader from "@/src/components/SpinLoader";
+import Loader from "@/src/common/Loader";
 import { AddChannel } from "./AddChannel";
 import { SidebarContent } from "./SidebarContent";
 import { ChatWindow } from "./ChatWindow";

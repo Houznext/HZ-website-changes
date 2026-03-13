@@ -8,10 +8,10 @@ const electronics = () => {
   return (
     <div>
       <SEO
-        title="Buy Electronics Online | Latest Gadgets, Home Appliances & Smart Devices | OneCasa"
-        description="Discover top-quality electronics, including smartphones, laptops, home appliances, and smart devices. Shop the latest technology at OneCasa with great deals!"
+        title="Buy Electronics Online | Latest Gadgets, Home Appliances & Smart Devices | Houznext"
+        description="Discover top-quality electronics, including smartphones, laptops, home appliances, and smart devices. Shop the latest technology at Houznext with great deals!"
         keywords="Electronics, Buy Electronics Online, Smartphones, Laptops, Home Appliances, Smart Devices, Gadgets, Best Electronics Deals, Tech Accessories, Consumer Electronics"
-        imageUrl="https://www.onecasa.in/images/logobb.png"
+        imageUrl="https://www.houznext.com/images/logobb.png"
       />
 
       <ElectronicsComponent />

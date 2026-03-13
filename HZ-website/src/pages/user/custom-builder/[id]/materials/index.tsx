@@ -7,9 +7,9 @@ const MaterialsPage = () => {
   return (
     <div className="flex w-full">
       <SEO
-        title="Materials | Custom Builder | OneCasa"
+        title="Materials | Custom Builder | Houznext"
         description="View and track all construction materials for your custom builder project."
-        keywords="Construction Materials, Building Materials, Material Tracking, OneCasa Builder"
+        keywords="Construction Materials, Building Materials, Material Tracking, Houznext Builder"
       />
       <MaterialsView />
     </div>

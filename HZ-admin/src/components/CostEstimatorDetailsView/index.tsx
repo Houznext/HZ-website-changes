@@ -469,23 +469,24 @@ const CostEstimatorDetailsView = () => {
           </div>
         </>
       )}
-      <Drawer
-        open={openModal}
-        handleDrawerToggle={() => setOpenModal(false)}
-        closeIconCls="text-black"
-        openVariant="right"
+      <Modal
+        isOpen={openModal}
+        closeModal={closeDrawer}
+        title=""
+        isCloseRequired={false}
         rootCls="z-[9999]"
-        panelCls="w-[90%] sm:w-[95%] lg:w-[calc(100%-340px)] shadow-xl"
-        overLayCls="bg-gray-700 bg-opacity-40"
+        className="bg-white/80 backdrop-blur-xl border border-white/40 shadow-[0_20px_60px_rgba(15,42,68,0.35)] rounded-2xl p-0 w-full max-w-5xl mx-auto"
       >
-        <CostEstimatorForm
-          userId={user?.id}
-          closeDrawer={closeDrawer}
-          editingEstimation={editingEstimation}
-          setEditingEstimation={setEditingEstimation}
-          fetchDetails={fetchCostEstimationById}
-        />
-      </Drawer>
+        <div className="p-4 sm:p-6">
+          <CostEstimatorForm
+            userId={user?.id}
+            closeDrawer={closeDrawer}
+            editingEstimation={editingEstimation}
+            setEditingEstimation={setEditingEstimation}
+            fetchDetails={fetchCostEstimationById}
+          />
+        </div>
+      </Modal>
       <Modal
         isOpen={openDeleteModal}
         closeModal={() => setOpenDeleteModal(false)}

@@ -37,7 +37,7 @@ const NEW_ADMIN_PASSWORD = 'Houznext@758';
 const NEW_ADMIN_FIRST_NAME = 'Houznext';
 const NEW_ADMIN_LAST_NAME = 'Admin';
 const NEW_ADMIN_USERNAME = 'houznext-admin';
-const ORG_BRANCH_NAME = process.env.ORG_BRANCH_NAME || 'OneCasa';
+const ORG_BRANCH_NAME = process.env.ORG_BRANCH_NAME || 'Houznext';
 
 async function run() {
   const app = await NestFactory.createApplicationContext(AppModule);

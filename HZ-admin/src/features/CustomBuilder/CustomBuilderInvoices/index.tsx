@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import Loader from "@/src/components/SpinLoader";
+import Loader from "@/src/common/Loader";
 import Drawer from "@/src/common/Drawer";
 import Modal from "@/src/common/Modal";
 import Button from "@/src/common/Button";

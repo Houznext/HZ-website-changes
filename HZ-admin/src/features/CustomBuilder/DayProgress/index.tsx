@@ -21,7 +21,7 @@ import { HelpCircle } from "lucide-react";
 import {
   getCurrentAddress,
 } from "@/src/utils/locationDetails/datafetchingFunctions";
-import Loader from "@/src/components/SpinLoader";
+import Loader from "@/src/common/Loader";
 import {
   dailyStatus,
   getIcon,
