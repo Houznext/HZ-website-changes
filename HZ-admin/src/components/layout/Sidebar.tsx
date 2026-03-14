@@ -11,8 +11,6 @@ import {
   User,
   Settings,
   LogOut,
-  Building2,
-  Layers,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
@@ -22,8 +20,6 @@ const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/blogs", label: "Blogs", icon: FileText },
   { href: "/referandearn", label: "Houznext Rewards", icon: Gift },
-  { href: "/buildlive", label: "BuildLive", icon: Building2 },
-  { href: "/buildlive/templates", label: "Scope Templates", icon: Layers },
 ];
 
 export default function Sidebar() {

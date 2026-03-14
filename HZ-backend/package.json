@@ -38,7 +38,7 @@
     "seed:prod:all": "npm run seed:prod:admin && npm run seed:prod:blog && npm run seed:prod:furniture && npm run seed:prod:electronics && npm run seed:prod:homeDecor"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.943.0",
+    "@aws-sdk/client-s3": "^3.1009.0",
     "@aws-sdk/s3-request-presigner": "^3.943.0",
     "@nestjs/cache-manager": "^3.1.0",
     "@nestjs/common": "^10.0.0",
@@ -79,7 +79,7 @@
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.1",
     "swagger-ui-express": "^5.0.0",
-    "twilio": "^5.3.1",
+    "twilio": "^5.13.0",
     "typeorm": "^0.3.20"
   },
   "devDependencies": {

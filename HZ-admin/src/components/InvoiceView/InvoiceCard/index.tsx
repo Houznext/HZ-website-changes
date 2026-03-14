@@ -18,73 +18,53 @@ export const InvoiceCard = ({ data, hasPermission }: any) => {
   return (
     <div
       key={data.id}
-      className="w-full bg-white md:max-w-[1352px] max-w-[320px] rounded flex flex-col md:gap-4 gap-2 md:px-4  p-2 shadow shadow-gray-200 border border-gray-200 md:items-start items-center"
+      className="w-full bg-white border border-[rgba(0,0,0,0.08)] hover:border-[#1D4E7A] rounded-[12px] flex flex-col md:gap-4 gap-3 md:px-5 p-4 transition-colors"
     >
-      <div className="grid md:grid-cols-4 lg:grid-cols-6 grid-cols-2 w-full  gap-2 px-1 md:py-4 py-2 md:px-0">
-        <div className="flex flex-col  gap-1">
-          <p className="flex items-center gap-1 md:text-[14px] text-[12px] text-nowrap text-gray-500 font-medium">
-            <FiUser /> Name
+      <div className="grid md:grid-cols-4 lg:grid-cols-6 grid-cols-2 w-full gap-3">
+        <div className="flex flex-col gap-0.5">
+          <p className="flex items-center gap-1 text-[11px] text-[#6B7280]">
+            <FiUser className="h-3.5 w-3.5 text-[#6B7280]" /> Name
           </p>
-          <p className="font-medium md:text-[14px] text-[10px] text-nowrap">
-            {data?.billToName}
-          </p>
+          <p className="text-[13px] font-medium text-[#111827]">{data?.billToName}</p>
         </div>
-
-        <div className="flex flex-col  gap-1">
-          <p className="flex items-center gap-1 md:text-[14px] text-[12px] text-nowrap text-gray-500 font-medium">
-            <FiHash /> Invoice No
+        <div className="flex flex-col gap-0.5">
+          <p className="flex items-center gap-1 text-[11px] text-[#6B7280]">
+            <FiHash className="h-3.5 w-3.5 text-[#6B7280]" /> Invoice No
           </p>
-          <p className="font-medium md:text-[14px] text-[10px] text-nowrap">
-            {data?.invoiceNumber}
-          </p>
+          <p className="text-[13px] font-medium text-[#111827]">{data?.invoiceNumber}</p>
         </div>
-
-        <div className="flex flex-col  gap-1">
-          <p className="flex items-center gap-1 md:text-[14px] text-[12px] text-nowrap text-gray-500 font-medium">
-            <FiCalendar /> Date
+        <div className="flex flex-col gap-0.5">
+          <p className="flex items-center gap-1 text-[11px] text-[#6B7280]">
+            <FiCalendar className="h-3.5 w-3.5 text-[#6B7280]" /> Date
           </p>
-          <p className="font-medium md:text-[14px] text-[10px] text-nowrap">
-            {new Date(data.invoiceDate).toDateString()}
-          </p>
+          <p className="text-[13px] font-medium text-[#111827]">{new Date(data.invoiceDate).toDateString()}</p>
         </div>
-
-        <div className="flex flex-col  gap-1">
-          <p className="flex items-center gap-1 md:text-[14px] text-[12px] text-nowrap text-gray-500 font-medium">
-            <FiClock /> Due
+        <div className="flex flex-col gap-0.5">
+          <p className="flex items-center gap-1 text-[11px] text-[#6B7280]">
+            <FiClock className="h-3.5 w-3.5 text-[#6B7280]" /> Due
           </p>
-          <p className="font-medium md:text-[14px] text-[10px] text-nowrap">
-            {new Date(data?.invoiceDue).toDateString()}
-          </p>
+          <p className="text-[13px] font-medium text-[#111827]">{new Date(data?.invoiceDue).toDateString()}</p>
         </div>
-
-        <div className="flex flex-col  gap-1">
-          <p className="flex items-center gap-1 md:text-[14px] text-[12px] text-nowrap text-gray-500 font-medium">
-            <FiMapPin /> Address
+        <div className="flex flex-col gap-0.5">
+          <p className="flex items-center gap-1 text-[11px] text-[#6B7280]">
+            <FiMapPin className="h-3.5 w-3.5 text-[#6B7280]" /> Address
           </p>
-          <p className="font-medium md:text-[14px] text-[10px] text-wrap">
-            {data?.billToAddress}
-          </p>
+          <p className="text-[13px] font-medium text-[#111827] line-clamp-1">{data?.billToAddress}</p>
         </div>
-
-        <div className="flex flex-col  gap-1">
-          <p className="flex items-center gap-1 md:text-[14px] text-[12px] text-nowrap text-gray-500 font-medium">
-            <FiMap /> City
+        <div className="flex flex-col gap-0.5">
+          <p className="flex items-center gap-1 text-[11px] text-[#6B7280]">
+            <FiMap className="h-3.5 w-3.5 text-[#6B7280]" /> City
           </p>
-          <p className="font-medium md:text-[14px] text-[10px] text-nowrap">
-            {data.billToCity}
-          </p>
+          <p className="text-[13px] font-medium text-[#111827]">{data.billToCity}</p>
         </div>
-        <div className="flex flex-col  gap-1">
-          <p className="flex items-center gap-1 tracking-[1.2px] md:text-[14px] text-[12px] text-nowrap text-gray-500 font-medium">
-            <BiRupee /> SubTotal
+        <div className="flex flex-col gap-0.5">
+          <p className="flex items-center gap-1 text-[11px] text-[#6B7280]">
+            <BiRupee className="h-3.5 w-3.5 text-[#6B7280]" /> SubTotal
           </p>
-          <p className="font-medium md:text-[14px] text-[10px] text-nowrap">
-            {data.subTotal}
-          </p>
+          <p className="text-[15px] font-medium text-[#1D4E7A]">₹ {Number(data.subTotal).toLocaleString("en-IN")}</p>
         </div>
       </div>
-
-      <div className="flex items-center md:justify-start justify-center w-full">
+      <div className="flex items-center md:justify-start justify-center w-full pt-1">
         <CustomTooltip
           label="Access Restricted Contact Admin"
           position="bottom"
@@ -94,7 +74,7 @@ export const InvoiceCard = ({ data, hasPermission }: any) => {
           showTooltip={!hasPermission("invoice_estimator", "view")}
         >
           <Button
-            className="md:px-5 px-3 py-2 md:text-[14px] text-[12px] rounded font-medium text-white bg-[#3586FF]"
+            className="inline-flex items-center px-4 py-[6px] rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[12px] font-medium transition-colors"
             onClick={() => router.push(`/invoice/${data.id}`)}
             disabled={!hasPermission("invoice_estimator", "view")}
           >

@@ -3,11 +3,12 @@
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useSessionStore } from "@/src/stores/useSessionStore";
-
+import { usePermissionStore } from "@/src/stores/usePermissions";
 
 export default function SessionSync() {
   const { data, status } = useSession();
   const setSession = useSessionStore((s) => s.setSession);
+  const initFromSession = usePermissionStore((s) => s.initFromSession);
 
   useEffect(() => {
     const token =
@@ -23,7 +24,12 @@ export default function SessionSync() {
       branchMembership: Array.isArray(branchMembership) ? branchMembership : [],
       lastLogin,
     });
-  }, [data, status, setSession]);
+
+    if (user && status === "authenticated") {
+      const memberships = Array.isArray(branchMembership) ? branchMembership : [];
+      initFromSession(memberships, (user as any).role, (user as any).email ?? null);
+    }
+  }, [data, status, setSession, initFromSession]);
 
   return null;
 }

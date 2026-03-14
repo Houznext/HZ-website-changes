@@ -11,6 +11,7 @@ import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import CustomTooltip from "@/src/common/ToolTip";
 import { MdAdd } from "react-icons/md";
+import { FileText } from "lucide-react";
 import ReusableSearchFilter from "@/src/common/SearchFilter";
 import { InvoiceCard } from "./InvoiceCard";
 import { usePermissionStore } from "@/src/stores/usePermissions";
@@ -135,27 +136,39 @@ const effectiveBranchId = useMemo(() => {
 
   return (
     <>
-      <div className="w-full  mt-5 md:p-5  p-3 relative overflow-hidden">
-        <div className="flex md:mb-6 mb-5 justify-between items-center">
-          <h1 className="font-bold heading-text text-[#5297FF]">Invoice</h1>
-          <CustomTooltip
-            label="Add New Estimation"
-            position="bottom"
-            tooltipBg="bg-black/60 backdrop-blur-md"
-            tooltipTextColor="text-white py-2 px-4 font-medium"
-            labelCls="text-[12px] font-medium "
-            showTooltip={!hasPermission("invoice_estimator", "create")}
-          >
-            <Button
-              onClick={() => setOpenModal(true)}
-              disabled={!hasPermission("invoice_estimator", "create")}
-              className="mt-auto bg-[#5297ff] text-white   label-text md:py-[14px] py-1 md:p-2 px-2 rounded-full "
+      <div className="w-full mt-5 md:p-5 p-3 relative overflow-hidden bg-[#f5f6f8] min-h-screen">
+        {/* Page header */}
+        <div className="mb-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-[rgba(0,0,0,0.08)] rounded-[12px] px-6 py-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
+                <FileText className="w-5 h-5 text-[#0C447C]" />
+              </div>
+              <div className="flex flex-col">
+                <h1 className="text-[17px] font-medium text-[#1A1A1A]">Invoices</h1>
+                <p className="text-[12px] text-[#6B7280]">{filteredInvoices?.length ?? 0} invoices found</p>
+              </div>
+            </div>
+            <CustomTooltip
+              label="Add New Estimation"
+              position="bottom"
+              tooltipBg="bg-black/60 backdrop-blur-md"
+              tooltipTextColor="text-white py-2 px-4 font-medium"
+              labelCls="text-[12px] font-medium "
+              showTooltip={!hasPermission("invoice_estimator", "create")}
             >
-              <MdAdd className="md:text-[20px] font-medium text-[18px]" />
-            </Button>
-          </CustomTooltip>
+              <Button
+                onClick={() => setOpenModal(true)}
+                disabled={!hasPermission("invoice_estimator", "create")}
+                className="flex items-center gap-2 px-4 py-[7px] rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors"
+              >
+                <MdAdd className="w-4 h-4" />
+                <span className="hidden md:inline">New Invoice</span>
+              </Button>
+            </CustomTooltip>
+          </div>
         </div>
-        <div >
+        <div className="w-full bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] px-4 py-3 mb-5">
           <ReusableSearchFilter
             searchText={searchQuery}
             placeholder="Search by name, email, phone, property name or location"
@@ -169,11 +182,11 @@ const effectiveBranchId = useMemo(() => {
               setSelectedBranch(opt?.value ?? null)
             }}
             showBranchFilter={canShowBranchFilter}
-            className=" py-[3px]"
+            className="py-[3px]"
           />
         </div>
 
-        <div className="flex flex-col md:gap-6 gap-3 md:px-1  px-1">
+        <div className="flex flex-col md:gap-4 gap-3 md:px-0 px-0">
           {filteredInvoices?.length > 0 &&
             filteredInvoices?.map((data, index) => (
               <InvoiceCard data={data} key={index} hasPermission={hasPermission} />
@@ -536,13 +549,13 @@ export const InvoiceEstimatorForm = ({
   return (
     <>
       <div className="flex flex-col md:gap-3 gap-2 w-full">
-        <h1 className="text-gray-700 text-lg md:text-xl font-bold">
+        <h1 className="text-[17px] font-medium text-[#1A1A1A]">
           Fill Invoice Details
         </h1>
-        <form className=" flex flex-col gap-2 w-full" onSubmit={handleSubmit}>
-          <div className="flex flex-col gap-2 w-full">
-            <div className="flex flex-col gap-2 border-2 shadow border-gray-200 md:p-5 p-2 rounded-md">
-              <h2 className="font-medium text-medium text-[#3586FF] ">
+        <form className="flex flex-col gap-3 w-full" onSubmit={handleSubmit}>
+          <div className="flex flex-col gap-3 w-full">
+            <div className="flex flex-col gap-3 border border-[rgba(0,0,0,0.08)] md:p-5 p-4 rounded-[12px] bg-white">
+              <h2 className="text-[13px] font-medium text-[#0C447C]">
                 Basic Details
               </h2>
               <div className="w-full flex md:flex-row flex-col md:gap-4 items-center justify-center  px-2 gap-2">
@@ -609,8 +622,8 @@ export const InvoiceEstimatorForm = ({
               </div>
             </div>
 
-            <div className="flex flex-col md:gap-3 gap-2 border-2 shadow border-gray-200 md:p-5 p-2 rounded-md">
-              <h2 className="font-medium text-medium text-[#3586FF] ">
+            <div className="flex flex-col md:gap-3 gap-2 border border-[rgba(0,0,0,0.08)] md:p-5 p-4 rounded-[12px] bg-white">
+              <h2 className="text-[13px] font-medium text-[#0C447C]">
                 Shipping Details
               </h2>
               <div className="w-full flex flex-col md:flex-row   gap-x-5">
@@ -651,8 +664,8 @@ export const InvoiceEstimatorForm = ({
               </div>
             </div>
 
-            <div className="flex flex-col md:gap-5 gap-2 border-2 shadow border-gray-200 md:p-5 p-2 rounded-md">
-              <h2 className="font-medium text-medium text-[#3586FF] ">
+            <div className="flex flex-col md:gap-5 gap-2 border border-[rgba(0,0,0,0.08)] md:p-5 p-4 rounded-[12px] bg-white">
+              <h2 className="text-[13px] font-medium text-[#0C447C]">
                 Invoice Info
               </h2>
               <div className="w-full flex flex-col md:flex-row gap-2">
@@ -746,7 +759,7 @@ export const InvoiceEstimatorForm = ({
             </div>
             <div className="flex justify-end items-end">
               <Button
-                className="py-1 font-medium label-text md:px-[28px] px-[14px] rounded-md border-2 bg-[#3B82F6] text-white"
+                className="py-2 px-4 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors"
                 onClick={() => setOpenAddItemModal(true)}
               >
                 Add item
@@ -765,25 +778,24 @@ export const InvoiceEstimatorForm = ({
           {invoiceData?.items.length > 0 && (
             <div className="flex w-full items-center justify-end md:mt-5 mt-3">
               <div className="md:mt-4 mt-2 text-right flex flex-col items-start gap-2 ">
-                <p className="font-bold border-b-[1px] label-text border-[#5297FF] pb-2">
-                  Subtotal: ₹ {invoiceData?.subTotal}
+                <p className="font-semibold text-[15px] text-[#1D4E7A] border-b border-[rgba(0,0,0,0.08)] pb-2">
+                  Subtotal: ₹ {Number(invoiceData?.subTotal ?? 0).toLocaleString("en-IN")}
                 </p>
               </div>
             </div>
           )}
 
-          <div className="flex flex-row justify-between mt-10 px-2  mb-5">
+          <div className="flex flex-row justify-between mt-10 px-2 mb-5 gap-3">
             <Button
               key={"closeButton"}
-              className="py-1 md:px-[28px] px-[16px] rounded-md border-2 label-text font-medium border-[#3B82F6]"
+              className="py-2 px-4 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[13px] font-medium transition-colors"
               onClick={closeDrawer}
             >
               Close
             </Button>
-
             <Button
               type="submit"
-              className="py-1 md:px-[28px] px-[16px] rounded-md border-2 label-text font-medium bg-[#3B82F6] text-white"
+              className="py-2 px-4 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors"
             >
               Submit
             </Button>
@@ -872,15 +884,15 @@ export const InvoiceEstimatorForm = ({
                 />
               </div>
 
-              <div className="flex w-full items-center justify-between mt-4">
+              <div className="flex w-full items-center justify-between mt-4 gap-2">
                 <Button
-                  className="py-1 md:px-[28px] px-[14px] label-text font-medium rounded-md border-2 border-[#3B82F6]"
+                  className="py-2 px-4 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[13px] font-medium transition-colors"
                   onClick={() => setOpenAddItemModal(false)}
                 >
                   Cancel
                 </Button>
                 <Button
-                  className="py-[4px] md:px-[28px] px-[14px] label-text font-medium rounded-md border-2 bg-[#3B82F6] text-white"
+                  className="py-2 px-4 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors"
                   onClick={addItem}
                 >
                   {isEditing ? "Save" : "Add"} Item

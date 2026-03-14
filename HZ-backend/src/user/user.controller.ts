@@ -17,7 +17,7 @@ import {
   ApiTags,
   ApiOkResponse,
 } from '@nestjs/swagger';
-import { ControllerAuthGuard } from 'src/guard';
+import { ControllerAuthGuard, AdminPortal, Permissions } from 'src/guard';
 import {
   CreateUserDto,
   UpdateUserDto,
@@ -146,7 +146,10 @@ export class UserController {
   }
   // @UseGuards(ControllerAuthGuard)
 
-  //new code for admin user creation
+  //new code for admin user creation — only business@houznext.com or users with user create permission
+  @UseGuards(ControllerAuthGuard)
+  @AdminPortal()
+  @Permissions('user', 'create')
   @Post('admin/create-with-branch')
   @ApiOperation({
     summary: 'Create user and assign to a branch with roles (one-shot)',
@@ -230,7 +233,9 @@ export class UserController {
     return this.userService.getPostedPropertyCount(userId);
   }
   // =============== UPDATE ADMIN USER WITH BRANCH BY BRANCH ID =================
-  // @UseGuards(ControllerAuthGuard)
+  @UseGuards(ControllerAuthGuard)
+  @AdminPortal()
+  @Permissions('user', 'edit')
   @Patch('admin/update-with-branch/:userId')
   @ApiOperation({
     summary: 'Update user and branch membership details by user ID',
@@ -249,7 +254,9 @@ export class UserController {
   }
 
   // =============== GET ALL ADMIN USERS BY BRANCH ID =================
-  // Prefer a clear, specific path
+  @UseGuards(ControllerAuthGuard)
+  @AdminPortal()
+  @Permissions('user', 'view')
   @Get('by-branch/:branchId/admin-users')
   @ApiOperation({ summary: 'Get all admin users assigned to a branch' })
   @ApiOkResponse({

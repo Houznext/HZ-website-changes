@@ -136,6 +136,9 @@ const URLS = {
   deleteChatMessage: `${base_url}chat/messages`,
   chatThreads: `${base_url}chat/threads`,
   clearChat: `${base_url}chat/threads`,
+
+  // Interiors (BuildLive) base
+  interiors: `${base_url}interiors`,
 };
 
 const getResponseBody = (response) => {

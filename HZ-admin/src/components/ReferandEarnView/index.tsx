@@ -38,6 +38,7 @@ import Modal from "@/src/common/Modal";
 import CustomInput from "@/src/common/FormElements/CustomInput";
 import { ServiceCategory } from "@/src/components/NewCrmView/types";
 import { MdAdd } from "react-icons/md";
+import { Gift } from "lucide-react";
 
 type Role = {
   id: number;
@@ -440,70 +441,77 @@ export default function ReferandEarnView() {
 
   const EmptyState = () => (
     <div className="w-full py-16 flex flex-col items-center justify-center text-center">
-      <div className="text-3xl mb-2">🗂️</div>
-      <p className="font-bold text-[16px] md:text-[18px]">No referrals found</p>
-      <p className="text-gray-500 text-sm md:text-[14px]">Try changing filters or date range.</p>
+      <div className="w-16 h-16 rounded-full bg-[#F3F4F6] flex items-center justify-center mb-3 text-2xl">🗂️</div>
+      <p className="font-medium text-[17px] text-[#1A1A1A]">No referrals found</p>
+      <p className="text-[12px] text-[#6B7280] mt-1">Try changing filters or date range.</p>
     </div>
   );
 
   return (
     <>
-      <div className="p-4 md:p-6 w-full">
-        <div className=" w-full max-w-[1500px]">
-          <div className="flex items-center gap-3">
+      <div className="p-4 md:p-6 w-full bg-[#f5f6f8] min-h-screen">
+        <div className="w-full max-w-[1500px]">
+          <div className="flex items-center gap-3 mb-4">
             <BackRoute />
           </div>
-          <div className="flex items-center justify-between gap-3 mb-4 mt-6">
-            <h1 className="heading-text m-0">Refer And Earn</h1>
-            <div className="flex items-center gap-2">
-              <CustomTooltip
-                label="Access Restricted. Contact Admin"
-                position="bottom"
-                tooltipBg="bg-black/60 backdrop-blur-md"
-                tooltipTextColor="text-white py-2 px-4 font-medium"
-                labelCls="text-[10px] font-medium"
-                showTooltip={!hasPermission("referral", "create")}
-              >
-                <Button
-                  className="md:px-6 px-4 py-2 bg-[#2f80ed] hover:bg-blue-600 transition text-white rounded-md flex items-center gap-2 shadow-sm"
-                  onClick={() => setIsCreateModalOpen(true)}
-                  disabled={!hasPermission("referral", "create")}
+          {/* Page header */}
+          <div className="mb-5">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-[rgba(0,0,0,0.08)] rounded-[12px] px-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
+                  <Gift className="w-5 h-5 text-[#0C447C]" />
+                </div>
+                <div className="flex flex-col">
+                  <h1 className="text-[17px] font-medium text-[#1A1A1A]">Houznext Rewards</h1>
+                  <p className="text-[12px] text-[#6B7280]">{filteredData.length} referrals found</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <CustomTooltip
+                  label="Access Restricted. Contact Admin"
+                  position="bottom"
+                  tooltipBg="bg-black/60 backdrop-blur-md"
+                  tooltipTextColor="text-white py-2 px-4 font-medium"
+                  labelCls="text-[10px] font-medium"
+                  showTooltip={!hasPermission("referral", "create")}
                 >
-                  <MdAdd className="text-white text-[18px]" />
-                  <span className="font-medium text-[12px] md:text-[14px]">
+                  <Button
+                    className="flex items-center gap-2 px-4 py-[7px] rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors"
+                    onClick={() => setIsCreateModalOpen(true)}
+                    disabled={!hasPermission("referral", "create")}
+                  >
+                    <MdAdd className="w-4 h-4" />
                     New Reference
-                  </span>
-                </Button>
-              </CustomTooltip>
-              <CustomTooltip
-                label="Access Restricted. Contact Admin"
-                position="bottom"
-                tooltipBg="bg-black/60 backdrop-blur-md"
-                tooltipTextColor="text-white py-2 px-4 font-medium"
-                labelCls="text-[10px] font-medium"
-                showTooltip={!hasPermission("referral", "delete")}
-              >
-                <Button
-                  className={`p-2 rounded-[6px] ${selectedLeads.length ? "bg-red-50" : "bg-gray-100"}`}
-                  onClick={handleDeleteSelected}
-                  disabled={!hasPermission("referral", "delete") || selectedLeads.length === 0}
-                  title={selectedLeads.length ? "Delete selected" : "No rows selected"}
+                  </Button>
+                </CustomTooltip>
+                <CustomTooltip
+                  label="Access Restricted. Contact Admin"
+                  position="bottom"
+                  tooltipBg="bg-black/60 backdrop-blur-md"
+                  tooltipTextColor="text-white py-2 px-4 font-medium"
+                  labelCls="text-[10px] font-medium"
+                  showTooltip={!hasPermission("referral", "delete")}
                 >
-                  <Delete className={`!text-[20px] ${selectedLeads.length ? "text-red-600" : "text-gray-400"}`} />
-                </Button>
-              </CustomTooltip>
-
-              {/* Download */}
-              <CSVLink data={allLeads} headers={TableHeader} filename="referandearn">
-                <Button className="md:px-6 px-4  py-2 bg-[#5297ff] hover:bg-blue-500 transition text-white rounded-md flex items-center gap-2 shadow-sm">
-                  <LuDownload className="text-white text-[18px]" />
-                  <span className="font-medium text-[12px] md:text-[14px]">Download</span>
-                </Button>
-              </CSVLink>
+                  <Button
+                    className={`p-2 rounded-[8px] transition-colors ${selectedLeads.length ? "bg-red-50 hover:bg-red-100 text-red-600" : "bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#6B7280]"}`}
+                    onClick={handleDeleteSelected}
+                    disabled={!hasPermission("referral", "delete") || selectedLeads.length === 0}
+                    title={selectedLeads.length ? "Delete selected" : "No rows selected"}
+                  >
+                    <Delete className="!text-[20px]" />
+                  </Button>
+                </CustomTooltip>
+                <CSVLink data={allLeads} headers={TableHeader} filename="referandearn">
+                  <Button className="flex items-center gap-2 px-4 py-[7px] rounded-[8px] border border-[rgba(0,0,0,0.12)] bg-white hover:border-[#1D4E7A] text-[#4B5563] text-[13px] font-medium transition-colors">
+                    <LuDownload className="w-4 h-4" />
+                    Download
+                  </Button>
+                </CSVLink>
+              </div>
             </div>
           </div>
 
-          <div className="rounded-md border border-gray-200 bg-white shadow-sm p-3 md:p-4 mb-4">
+          <div className="rounded-[12px] border border-[rgba(0,0,0,0.08)] bg-white p-3 md:p-4 mb-4">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-3">
               <div className="flex items-center  gap-2 w-full">
                 <ReusableSearchFilter
@@ -523,18 +531,18 @@ export default function ReferandEarnView() {
                 />
                 <Button
                   onClick={() => setIsOpen((v) => !v)}
-                  className="flex items-center gap-2 bg-white border font-medium border-gray-300 md:text-[14px] text-[12px] text-nowrap py-[4px] md:px-4 px-2 rounded-md"
+                  className="flex items-center gap-2 bg-white border border-[rgba(0,0,0,0.12)] hover:border-[#1D4E7A] font-medium text-[13px] text-[#4B5563] py-2 px-3 rounded-[8px] transition-colors"
                 >
-                  <FiSliders className="text-gray-500" />
+                  <FiSliders className="text-[#6B7280]" />
                   Sort By
                 </Button>
               </div>
 
-              <div className="text-sm text-gray-600">
+              <div className="text-[12px] text-[#6B7280]">
                 <span className="mr-2">Total:</span>
-                <span className="font-bold">{filteredData.length}</span>
+                <span className="font-semibold text-[#111827]">{filteredData.length}</span>
                 {selectedLeads.length > 0 && (
-                  <span className="ml-3 inline-flex items-center gap-2 rounded-[6px] bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1">
+                  <span className="ml-3 inline-flex items-center gap-2 rounded-[8px] bg-[#E6F1FB] text-[#0C447C] border border-[#0C447C]/20 px-3 py-1 text-[12px] font-medium">
                     Selected: <b>{selectedLeads.length}</b>
                   </span>
                 )}
@@ -544,10 +552,10 @@ export default function ReferandEarnView() {
             {/* Date filter popover */}
             {isOpen && (
               <div className="relative">
-                <div className="absolute right-0 mt-2 md:w-[260px] w-[180px] bg-white border border-gray-200 shadow-xl rounded-md z-20">
+                <div className="absolute right-0 mt-2 md:w-[260px] w-[180px] bg-white border border-[rgba(0,0,0,0.08)] rounded-[12px] shadow-lg z-20 overflow-hidden">
                   <ul className="py-2 max-h-[320px] overflow-auto">
                     {filtersdata.map((filter) => (
-                      <li key={filter.id} className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50">
+                      <li key={filter.id} className="flex items-center gap-2 px-3 py-2 hover:bg-[#F9FAFB] transition-colors">
                         <input
                           type="radio"
                           id={filter.id}
@@ -605,12 +613,12 @@ export default function ReferandEarnView() {
           </div>
 
           {/* Data card with table */}
-          <div className="rounded-md border border-gray-200 bg-white shadow-sm overflow-hidden">
+          <div className="rounded-[12px] border border-[rgba(0,0,0,0.08)] bg-white overflow-hidden">
             <TableContainer component={Paper} elevation={0} className="!bg-transparent">
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell className="bg-gray-100 text-gray-700 font-bold py-3 px-3 text-center sticky top-0 z-10">
+                    <TableCell className="bg-[#F9FAFB] text-[#6B7280] font-semibold py-3 px-3 text-center sticky top-0 z-10 text-[12px]">
                       <input
                         type="checkbox"
                         checked={selectedLeads.length > 0 && selectedLeads.length === paginatedData.length}
@@ -637,7 +645,7 @@ export default function ReferandEarnView() {
                     ].map((h) => (
                       <TableCell
                         key={h}
-                        className="bg-gray-100 uppercase text-gray-700 text-nowrap py-3 px-4 font-bold text-center text-[12px] md:text-[13px] sticky top-0 z-10"
+                        className="bg-[#F9FAFB] text-[#6B7280] text-nowrap py-3 px-4 font-semibold text-center text-[12px] md:text-[13px] sticky top-0 z-10"
                       >
                         {h}
                       </TableCell>
@@ -667,7 +675,7 @@ export default function ReferandEarnView() {
                           />
                         </TableCell>
 
-                        <TableCell className="text-center px-4 py-2 font-medium text-gray-800 text-[12px] md:text-[14px]">
+                        <TableCell className="text-center px-4 py-2 font-medium text-[#111827] text-[12px] md:text-[14px]">
                           <span className="line-clamp-1">{lead?.friendName || "-"}</span>
                         </TableCell>
 
@@ -687,21 +695,21 @@ export default function ReferandEarnView() {
                           className={`text-center px-4 py-2 text-[12px] md:text-[14px] ${roleColors[lead.category] || "text-gray-500"
                             }`}
                         >
-                          <div className="inline-flex items-center font-medium gap-1 rounded-[4px] border px-2 py-1 bg-gray-50">
+                          <div className="inline-flex items-center font-medium gap-1 rounded-[6px] border border-[rgba(0,0,0,0.08)] px-2 py-1 bg-[#F3F4F6]">
                             <span className="text-[14px]">{roleIcons[lead?.category]}</span>
                             <span className="text-[12px] md:text-[13px]">{lead?.category}</span>
                           </div>
                         </TableCell>
 
-                        <TableCell className="text-center px-4 py-2 text-gray-500 text-[12px] md:text-[14px]">
+                        <TableCell className="text-center px-4 py-2 text-[#6B7280] text-[12px] md:text-[14px]">
                           {lead.referrer?.id || "-"}
                         </TableCell>
 
-                        <TableCell className="text-center text-nowrap px-4 py-2 text-gray-500 text-[12px] md:text-[14px]">
+                        <TableCell className="text-center text-nowrap px-4 py-2 text-[#6B7280] text-[12px] md:text-[14px]">
                           {lead.createdAt ? new Date(lead.createdAt).toDateString() : "-"}
                         </TableCell>
 
-                        <TableCell className="text-center px-4 py-2 text-gray-500 text-[12px] md:text-[14px]">
+                        <TableCell className="text-center px-4 py-2 text-[#6B7280] text-[12px] md:text-[14px]">
                           {lead?.assignedBy ? lead.assignedBy : "N/A"}
                         </TableCell>
 
@@ -710,7 +718,7 @@ export default function ReferandEarnView() {
                             type="single-select"
                             name="assignedUser"
                             options={roleUsers.map((u) => ({ name: u.name, id: u.id }))}
-                            rootCls="border  bg-blue-50 px-1 w-full md:rounded-[8px] rounded-[6px] font-medium text-[12px] md:text-[14px]"
+                            rootCls="border border-[rgba(0,0,0,0.08)] bg-[#E6F1FB] px-1 w-full rounded-[8px] font-medium text-[12px] md:text-[14px]"
                             buttonCls="border-none"
                             selectedOption={{ name: assignedUser || "Not Available" }}
                             optionsInterface={{ isObj: true, displayKey: "name" }}
@@ -730,18 +738,18 @@ export default function ReferandEarnView() {
                             >
                               <Button
                                 onClick={() => handleDelete(lead.id)}
-                                className="px-2 py-1 rounded bg-red-50"
+                                className="px-2 py-1.5 rounded-[8px] bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
                                 disabled={!hasPermission("referral", "delete")}
                               >
-                                <LuTrash2 className="text-red-600 md:text-[18px] text-[14px]" />
+                                <LuTrash2 className="md:text-[18px] text-[14px]" />
                               </Button>
                             </CustomTooltip>
 
                             <Button
-                              className="md:px-3 px-2 md:py-2 py-1 text-[11px] md:text-[12px] bg-green-600 hover:bg-green-700 transition text-white rounded-[8px] flex items-center gap-1"
+                              className="md:px-3 px-2 md:py-2 py-1.5 text-[11px] md:text-[12px] bg-[#1D9E75] hover:bg-[#178B65] text-white rounded-[8px] flex items-center gap-1 transition-colors"
                               onClick={() => handleWhatsappSend(lead?.name, lead?.phonenumber)}
                             >
-                              <BiLogoWhatsapp className="text-white md:text-[18px] text-[14px]" />
+                              <BiLogoWhatsapp className="md:text-[18px] text-[14px]" />
                               Send
                             </Button>
                           </div>
@@ -790,13 +798,13 @@ export default function ReferandEarnView() {
           setIsCreateModalOpen(false);
           resetCreateForm();
         }}
-        className="md:max-w-[480px] max-w-[320px]"
+        className="md:max-w-[480px] max-w-[320px] rounded-[12px] border border-[rgba(0,0,0,0.08)]"
       >
         <div className="md:px-4 px-3 md:py-4 py-3 flex flex-col gap-3">
-          <h3 className="text-[16px] md:text-[18px] font-semibold text-slate-900 mb-1">
+          <h3 className="text-[17px] font-medium text-[#1A1A1A] mb-1">
             Create New Reference
           </h3>
-          <p className="text-[11px] md:text-[12px] text-slate-500 mb-2">
+          <p className="text-[12px] text-[#6B7280] mb-2">
             Add a new referral manually to Houznext Rewards.
           </p>
 
@@ -873,7 +881,7 @@ export default function ReferandEarnView() {
 
           <div className="mt-4 flex items-center justify-end gap-2">
             <Button
-              className="border-2 font-medium md:text-[12px] text-[10px] border-gray-300 md:px-3 px-2 md:py-1 py-1 rounded-md"
+              className="py-2 px-4 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[13px] font-medium transition-colors"
               onClick={() => {
                 setIsCreateModalOpen(false);
                 resetCreateForm();
@@ -883,7 +891,7 @@ export default function ReferandEarnView() {
               Cancel
             </Button>
             <Button
-              className="bg-[#2f80ed] hover:bg-blue-600 text-white font-medium md:text-[12px] text-[10px] md:px-4 px-3 md:py-1.5 py-1 rounded-md"
+              className="py-2 px-4 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors"
               onClick={handleCreateReferral}
               disabled={createLoading || !hasPermission("referral", "create")}
             >

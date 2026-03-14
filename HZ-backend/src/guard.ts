@@ -154,13 +154,19 @@ export class ControllerAuthGuard implements CanActivate {
       return true;
     }
 
-    // ====== Permission checks for STANDARD users ======
-
+    // ====== business@houznext.com can manage users (create, edit, view) ======
     const metadata = this.reflector.get<{
       resource: string;
       action: PermissionAction;
     }>(PERMISSIONS_KEY, context.getHandler());
+    if (
+      metadata?.resource?.toLowerCase() === 'user' &&
+      (user as any).email === 'business@houznext.com'
+    ) {
+      return true;
+    }
 
+    // ====== Permission checks for STANDARD users ======
     if (!metadata) {
       return true;
     }

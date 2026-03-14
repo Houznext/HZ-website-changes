@@ -326,27 +326,27 @@ const CostEstimatorView: React.FC = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <div className="w-full max-w-full overflow-hidden px-2 md:px-0">
-      {/* Header with Tabs */}
-      <div className="sticky top-0 z-10 pt-4 mb-6">
-        <div className="flex  md:flex-row md:items-center justify-between gap-4 bg-white/95 backdrop-blur-md border border-slate-200/80 shadow-lg shadow-slate-200/40 rounded-2xl px-5 py-4">
-          <div className="flex items-center gap-4">
-            <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white grid place-items-center shadow-lg shadow-blue-500/30">
-              <Calculator className="w-5 h-5" />
+    <div className="w-full max-w-full overflow-hidden px-2 md:px-0 bg-[#f5f6f8]">
+      {/* Topbar / Header */}
+      <div className="mb-5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-[rgba(0,0,0,0.08)] rounded-[12px] px-7 py-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
+              <Calculator className="w-5 h-5 text-[#0C447C]" />
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-800">
+            <div className="flex flex-col">
+              <h1 className="text-[17px] font-medium text-[#1A1A1A]">
                 Quotations
               </h1>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-[12px] text-[#6B7280]">
                 {filtered.length} quotations found
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Tabs */}
-            <div className="flex items-center bg-slate-100 rounded-xl p-1">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Tab (Interiors) kept for logic, styled as outlined */}
+            <div className="flex items-center">
               {TABS.map((t) => (
                 <button
                   key={t.key}
@@ -361,10 +361,10 @@ const CostEstimatorView: React.FC = () => {
                       { shallow: true },
                     );
                   }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center gap-2 px-3 py-[7px] rounded-[8px] border border-[rgba(0,0,0,0.12)] text-[13px] ${
                     activeTab === t.key
-                      ? "bg-white text-blue-600 shadow-sm"
-                      : "text-slate-600 hover:text-slate-800"
+                      ? "bg-[#E6F1FB] text-[#0C447C]"
+                      : "bg-white text-[#6B7280]"
                   }`}
                 >
                   {tabIcons[t.key]}
@@ -373,7 +373,7 @@ const CostEstimatorView: React.FC = () => {
               ))}
             </div>
 
-            {/* Add Button */}
+            {/* New Quotation button */}
             <CustomTooltip
               label="Access Restricted"
               position="bottom"
@@ -384,11 +384,10 @@ const CostEstimatorView: React.FC = () => {
             >
               <Button
                 onClick={() => setOpenModal(true)}
-                // disabled={!hasPermission("cost_estimator", "create")}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:from-blue-600 hover:to-blue-700 transition-all"
+                className="flex items-center gap-2 px-4 py-[7px] rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors"
               >
                 <Plus className="w-4 h-4" />
-                <span className="hidden md:inline">New</span>
+                <span className="hidden md:inline">New Quotation</span>
               </Button>
             </CustomTooltip>
           </div>
@@ -396,8 +395,8 @@ const CostEstimatorView: React.FC = () => {
       </div>
 
       {/* Toolbar */}
-      <div className="w-full bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 mb-6">
-        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+      <div className="w-full bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] px-4 py-3 mb-5">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-3">
           <div className="flex-1">
             <ReusableSearchFilter
               searchText={query}
@@ -427,20 +426,20 @@ const CostEstimatorView: React.FC = () => {
             />
           </div>
 
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             {/* Export Button */}
             <button
-              className="group flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold text-sm shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200"
+              className="flex items-center gap-2 px-3 py-2 rounded-[8px] bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-[13px] font-medium transition-colors"
               onClick={exportCSV}
               title="Export filtered list"
             >
-              <Download className="w-4 h-4 group-hover:animate-bounce" />
+              <Download className="w-4 h-4" />
               <span className="hidden md:inline">Export</span>
             </button>
 
-            {/* Sort Button */}
+            {/* Sort Button styled as dropdown trigger (logic unchanged) */}
             <button
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-slate-700 font-medium text-sm transition-all duration-200"
+              className="flex items-center gap-2 px-3 py-2 rounded-[8px] border border-[rgba(0,0,0,0.12)] bg-white hover:border-[#2563EB] text-[13px] text-[#4B5563] transition-colors"
               onClick={() =>
                 setSort((s) =>
                   s === "recent" ? "name" : s === "name" ? "total" : "recent",
@@ -448,20 +447,19 @@ const CostEstimatorView: React.FC = () => {
               }
               title={`Sort: ${sort}`}
             >
-              <ArrowUpDown className="w-4 h-4 text-slate-400" />
-              <span className="text-slate-500">Sort:</span>
-              <span className="capitalize text-blue-600 font-semibold">
-                {sort}
+              <ArrowUpDown className="w-4 h-4 text-[#9CA3AF]" />
+              <span>
+                Sort: <span className="capitalize">{sort}</span>
               </span>
             </button>
 
             {/* View Toggle */}
-            <div className="flex items-center bg-slate-100 rounded-xl p-1.5 gap-1">
+            <div className="flex items-center rounded-[8px] border border-[rgba(0,0,0,0.12)] overflow-hidden">
               <button
-                className={`p-2.5 rounded-lg transition-all duration-200 ${
+                className={`px-2.5 py-2 flex items-center justify-center ${
                   view === "cards"
-                    ? "bg-white text-blue-600 shadow-md"
-                    : "text-slate-400 hover:text-slate-600 hover:bg-white/50"
+                    ? "bg-[#E5E7EB] text-[#111827]"
+                    : "bg-white text-[#9CA3AF]"
                 }`}
                 onClick={() => setView("cards")}
                 title="Cards view"
@@ -469,10 +467,10 @@ const CostEstimatorView: React.FC = () => {
                 <LayoutGrid className="w-4 h-4" />
               </button>
               <button
-                className={`p-2.5 rounded-lg transition-all duration-200 ${
+                className={`px-2.5 py-2 flex items-center justify-center ${
                   view === "compact"
-                    ? "bg-white text-blue-600 shadow-md"
-                    : "text-slate-400 hover:text-slate-600 hover:bg-white/50"
+                    ? "bg-[#E5E7EB] text-[#111827]"
+                    : "bg-white text-[#9CA3AF]"
                 }`}
                 onClick={() => setView("compact")}
                 title="Compact view"
@@ -497,8 +495,8 @@ const CostEstimatorView: React.FC = () => {
           </p>
         </div>
       ) : view === "compact" ? (
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-          <div className="divide-y divide-slate-100">
+        <div className="bg-white rounded-[16px] border border-[rgba(0,0,0,0.08)] overflow-hidden">
+          <div className="divide-y divide-[rgba(0,0,0,0.04)]">
             {paginatedData?.map((e) => (
               <CompactRow
                 key={e.id}
@@ -671,12 +669,12 @@ const CompactRow = ({
   };
 
   return (
-    <div className="px-5 py-4 flex flex-col md:flex-row md:items-center gap-3 hover:bg-slate-50 transition-colors">
+    <div className="px-5 py-4 flex flex-col md:flex-row md:items-center gap-4 hover:bg-[#F9FAFB] transition-colors">
       <div className="flex-1 min-w-0">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-4">
           {/* Avatar */}
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0">
-            <span className="text-blue-600 font-bold text-sm">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E6F1FB] to-[#EFF6FF] flex items-center justify-center flex-shrink-0">
+            <span className="text-[#0C447C] font-semibold text-sm">
               {item.firstname?.charAt(0)}
               {item.lastname?.charAt(0)}
             </span>
@@ -684,10 +682,10 @@ const CompactRow = ({
 
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span className="font-semibold text-[15px] text-slate-800">
+              <span className="text-[14px] font-medium text-[#111827]">
                 {item.firstname} {item.lastname}
               </span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#F3F4F6] text-[#6B7280]">
                 {new Date(item.date).toLocaleDateString("en-IN", {
                   year: "numeric",
                   month: "short",
@@ -695,12 +693,12 @@ const CompactRow = ({
                 })}
               </span>
             </div>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
-              <span className="text-sm text-slate-500">
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="text-[12px] text-[#6B7280]">
                 {item.location?.city}, {item.location?.state}
               </span>
               {item.bhk && (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium">
+                <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#E6F1FB] text-[#0C447C] font-medium">
                   {item.bhk}
                 </span>
               )}
@@ -708,13 +706,13 @@ const CompactRow = ({
           </div>
 
           {/* Total */}
-          <div className="text-right">
-            <span className="text-lg font-bold text-slate-800">
-              ₹ {total.toLocaleString()}
+          <div className="text-right ml-auto">
+            <span className="text-[15px] font-semibold text-[#1D4E7A]">
+              ₹ {total.toLocaleString("en-IN")}
             </span>
             {Number(item.discount) > 0 && (
-              <p className="text-xs text-emerald-600">
-                -₹{Number(item.discount).toLocaleString()} discount
+              <p className="text-[11px] text-[#059669]">
+                -₹{Number(item.discount).toLocaleString("en-IN")} discount
               </p>
             )}
           </div>
@@ -723,23 +721,18 @@ const CompactRow = ({
 
       <div className="flex items-center gap-2 md:ml-4">
         <button
-          className="px-4 py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 text-sm font-medium transition-all flex items-center gap-1.5"
+          className="px-3 py-1.5 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[12px] font-medium transition-colors flex items-center gap-1.5"
           onClick={() => router.push(`/cost-estimator/${activeTab}/${item.id}`)}
         >
           <Eye className="w-4 h-4" />
-          View
+          <span>View</span>
         </button>
         <button
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg
-             bg-blue-50 text-blue-600
-             hover:bg-blue-100 hover:text-blue-700
-             border border-blue-100
-             text-sm font-medium
-             transition-all duration-200"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[12px] font-medium transition-colors"
           onClick={() => setDuplicateModal(true)}
         >
           <Copy className="w-4 h-4" />
-          Duplicate
+          <span>Duplicate</span>
         </button>
         <Modal
           isOpen={duplicateModal}

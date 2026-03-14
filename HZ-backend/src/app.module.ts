@@ -78,7 +78,6 @@ import { SolarOrdersModule } from './solar-orders/solar-orders.module';
 import { FloorplansModule } from './floorplans/floorplans.module';
 import { ShiprocketModule } from './shiprocket/shiprocket.module';
 import { AuditLogModule } from './audit-log/audit-log.module';
-import { BuildliveModule } from './buildlive/buildlive.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditLogInterceptor } from './audit-log/audit-log.interceptor';
 
@@ -170,7 +169,6 @@ import { AuditLogInterceptor } from './audit-log/audit-log.interceptor';
     FloorplansModule,
     ShiprocketModule,
     AuditLogModule,
-    BuildliveModule,
   ],
   controllers: [AppController],
   providers: [

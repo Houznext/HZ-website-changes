@@ -685,21 +685,24 @@ useEffect(() => {
   const proprtyTypes = ["Apartment", "Villas", "Independent House"];
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-[#f5f6f8]">
       {/* Header */}
-      <div className="sticky top-0 z-10 px-6 py-5 mb-6">
+      <div className="sticky top-0 z-10 px-6 py-5 mb-5 bg-[#f5f6f8]">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white grid place-items-center shadow-lg shadow-blue-500/30">
-              <FiFileText className="w-5 h-5" />
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
+              <FiFileText className="w-5 h-5 text-[#0C447C]" />
             </div>
-            <div>
-              <h1 className="text-xl md:text-2xl font-bold text-slate-800">
+            <div className="flex flex-col">
+              <h1 className="text-[17px] md:text-[18px] font-medium text-[#1A1A1A]">
                 {editingEstimation ? "Edit Quotation" : "Create Quotation"}
               </h1>
               {editingEstimation && (
-                <p className="text-sm text-slate-500 mt-0.5 flex items-center gap-1">
-                  Customer: <span className="font-medium text-slate-700">{editingEstimation?.firstname} {editingEstimation?.lastname}</span>
+                <p className="text-[12px] text-[#6B7280] mt-0.5 flex items-center gap-1">
+                  Customer:{" "}
+                  <span className="font-medium text-[#111827]">
+                    {editingEstimation?.firstname} {editingEstimation?.lastname}
+                  </span>
                   <ProfileIcon />
                 </p>
               )}
@@ -707,7 +710,7 @@ useEffect(() => {
           </div>
           <button
             onClick={closeDrawer}
-            className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+            className="p-2 rounded-[8px] hover:bg-[#E5E7EB] text-[#6B7280] hover:text-[#111827] transition-colors"
           >
             <FiX className="w-5 h-5" />
           </button>
@@ -715,17 +718,17 @@ useEffect(() => {
       </div>
 
       <div className="flex-1 overflow-y-auto px-6 pb-6">
-        <div className="w-full flex flex-col gap-6">
+        <div className="w-full flex flex-col gap-5">
           {/* User Info Section */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
+          <div className="bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] overflow-hidden">
+            <div className="px-5 py-4 border-b border-[rgba(0,0,0,0.06)] bg-[#F9FAFB]">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center">
-                  <FiUser className="w-4 h-4 text-blue-600" />
+                <div className="w-9 h-9 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
+                  <FiUser className="w-4 h-4 text-[#0C447C]" />
                 </div>
                 <div>
-                  <h2 className="text-base font-semibold text-slate-800">User Information</h2>
-                  <p className="text-xs text-slate-500">Customer and designer details</p>
+                  <h2 className="text-[14px] font-medium text-[#111827]">User Information</h2>
+                  <p className="text-[11px] text-[#6B7280]">Customer and designer details</p>
                 </div>
               </div>
             </div>
@@ -813,15 +816,15 @@ useEffect(() => {
           </div>
 
           {/* Property Details Section */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
+          <div className="bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] overflow-hidden">
+            <div className="px-5 py-4 border-b border-[rgba(0,0,0,0.06)] bg-[#F9FAFB]">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-[8px] bg-emerald-50 flex items-center justify-center">
                   <FiHome className="w-4 h-4 text-emerald-600" />
                 </div>
                 <div>
-                  <h2 className="text-base font-semibold text-slate-800">Property Details</h2>
-                  <p className="text-xs text-slate-500">Property information and type</p>
+                  <h2 className="text-[14px] font-medium text-[#111827]">Property Details</h2>
+                  <p className="text-[11px] text-[#6B7280]">Property information and type</p>
                 </div>
               </div>
             </div>
@@ -934,15 +937,15 @@ useEffect(() => {
           </div>
 
           {/* Location Details Section */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
+          <div className="bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] overflow-hidden">
+            <div className="px-5 py-4 border-b border-[rgba(0,0,0,0.06)] bg-[#F9FAFB]">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-purple-100 flex items-center justify-center">
-                  <FiMapPin className="w-4 h-4 text-purple-600" />
+                <div className="w-9 h-9 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
+                  <FiMapPin className="w-4 h-4 text-[#0C447C]" />
                 </div>
                 <div>
-                  <h2 className="text-base font-semibold text-slate-800">Location Details</h2>
-                  <p className="text-xs text-slate-500">Property address and location</p>
+                  <h2 className="text-[14px] font-medium text-[#111827]">Location Details</h2>
+                  <p className="text-[11px] text-[#6B7280]">Property address and location</p>
                 </div>
               </div>
             </div>
@@ -1148,19 +1151,21 @@ useEffect(() => {
       </div>
 
       {/* Footer Actions */}
-      <div className="sticky bottom-0 px-6 py-5 flex items-center justify-between">
-        <p className="text-xs text-slate-400 hidden md:block">
-          {editingEstimation ? "Changes will be saved immediately" : "Fill all required fields to create estimation"}
+      <div className="sticky bottom-0 px-6 py-5 flex items-center justify-between bg-white border-t border-[rgba(0,0,0,0.08)]">
+        <p className="text-[12px] text-[#6B7280] hidden md:block">
+          {editingEstimation
+            ? "Changes will be saved immediately"
+            : "Fill all required fields to create a new quotation"}
         </p>
         <div className="flex items-center gap-3 w-full md:w-auto">
           <Button
-            className="flex-1 md:flex-none px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold transition-all duration-200 bg-transparent"
+            className="flex-1 md:flex-none px-4 py-2 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[13px] font-medium transition-colors"
             onClick={closeDrawer}
           >
             Close
           </Button>
           <Button
-            className="flex-1 md:flex-none px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:from-blue-600 hover:to-blue-700 active:scale-[.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-1 md:flex-none px-4 py-2 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             type="submit"
             onClick={handleSubmit}
             disabled={loading}
@@ -1186,17 +1191,19 @@ useEffect(() => {
         closeModal={() => setOpenAddsectionModal(false)}
         title=""
         isCloseRequired={false}
-        className="md:w-[500px] w-[340px] md:ml-[0px] ml-[10px] rounded-2xl"
+        className="md:w-[500px] w-[340px] md:ml-[0px] ml-[10px] rounded-[12px] border border-[rgba(0,0,0,0.08)]"
         rootCls="z-[99999]"
       >
         <div className="flex flex-col gap-5 w-full">
-          <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
-              <FiLayers className="w-5 h-5 text-blue-600" />
+          <div className="flex items-center gap-3 pb-4 border-b border-[rgba(0,0,0,0.08)]">
+            <div className="w-10 h-10 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
+              <FiLayers className="w-5 h-5 text-[#0C447C]" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-800">{isEditingSection ? "Edit Section" : "Add New Section"}</h3>
-              <p className="text-xs text-slate-500">Create a category for your items</p>
+              <h3 className="text-[16px] font-medium text-[#1A1A1A]">
+                {isEditingSection ? "Edit Section" : "Add New Section"}
+              </h3>
+              <p className="text-[12px] text-[#6B7280]">Create a category for your items</p>
             </div>
           </div>
           <CustomInput
@@ -1212,7 +1219,7 @@ useEffect(() => {
           />
           <div className="flex items-center justify-end gap-3 pt-2">
             <Button
-              className="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold transition-all"
+              className="px-4 py-2 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[13px] font-medium transition-colors"
               onClick={() => {
                 setSectionTitle("");
                 setOpenAddsectionModal(false);
@@ -1221,7 +1228,7 @@ useEffect(() => {
               Cancel
             </Button>
             <Button
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl transition-all flex items-center gap-2"
+              className="px-4 py-2 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors flex items-center gap-2"
               onClick={addSection}
             >
               <FiPlus className="w-4 h-4" />
@@ -1237,17 +1244,19 @@ useEffect(() => {
         closeModal={closeAddItemModal}
         title=""
         isCloseRequired={false}
-        className="md:w-[700px] w-[360px] md:ml-[0px] ml-[10px] rounded-2xl"
+        className="md:w-[700px] w-[360px] md:ml-[0px] ml-[10px] rounded-[12px] border border-[rgba(0,0,0,0.08)]"
         rootCls="z-[99999]"
       >
         <div className="flex flex-col gap-5 w-full">
-          <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-            <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+          <div className="flex items-center gap-3 pb-4 border-b border-[rgba(0,0,0,0.08)]">
+            <div className="w-10 h-10 rounded-[8px] bg-emerald-50 flex items-center justify-center">
               <FiPlus className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-800">{isEditing ? "Edit Item" : "Add New Item"}</h3>
-              <p className="text-xs text-slate-500">Add item details to the section</p>
+              <h3 className="text-[16px] font-medium text-[#1A1A1A]">
+                {isEditing ? "Edit Item" : "Add New Item"}
+              </h3>
+              <p className="text-[12px] text-[#6B7280]">Add item details to the section</p>
             </div>
           </div>
 
@@ -1322,13 +1331,13 @@ useEffect(() => {
 
           <div className="flex items-center justify-end gap-3 pt-2">
             <Button
-              className="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold transition-all"
+              className="px-4 py-2 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[13px] font-medium transition-colors"
               onClick={closeAddItemModal}
             >
               Cancel
             </Button>
             <Button
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold shadow-lg shadow-emerald-500/30 hover:shadow-xl transition-all flex items-center gap-2 disabled:opacity-50"
+              className="px-4 py-2 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
               onClick={addItem}
               disabled={loading}
             >

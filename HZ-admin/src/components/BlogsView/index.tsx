@@ -285,18 +285,18 @@ const BlogsView = () => {
   };
 
   return (
-    <div className="min-w-full flex flex-col md:px-10 px-3 gap-y-6">
+    <div className="min-w-full flex flex-col md:px-6 px-3 gap-y-5 bg-[#f5f6f8] min-h-screen py-4">
       {/* Header Section */}
-      <div className="sticky top-0 z-10 pt-4">
-        <div className="flex items-center justify-between bg-white/95 backdrop-blur-md border border-slate-200/80 shadow-lg shadow-slate-200/40 rounded-2xl px-6 py-4">
-          <div className="flex items-center gap-4">
-            <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white grid place-items-center shadow-lg shadow-blue-500/30">
-              <FaBloggerB className="w-5 h-5" />
+      <div className="mb-5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-[rgba(0,0,0,0.08)] rounded-[12px] px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
+              <FaBloggerB className="w-5 h-5 text-[#0C447C]" />
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-800">Blogs</h1>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Manage your blog posts ({filteredData.length} total)
+            <div className="flex flex-col">
+              <h1 className="text-[17px] font-medium text-[#1A1A1A]">Blogs</h1>
+              <p className="text-[12px] text-[#6B7280]">
+                {filteredData.length} posts found
               </p>
             </div>
           </div>
@@ -309,18 +309,18 @@ const BlogsView = () => {
             showTooltip={!hasPermission("blog", "create")}
           >
             <Button
-              className="flex px-5 py-2.5 text-sm rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 font-semibold items-center gap-2 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:from-blue-600 hover:to-blue-700 active:scale-[.98] transition-all duration-200"
+              className="flex items-center gap-2 px-4 py-[7px] rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors"
               onClick={handleAddNew}
               disabled={!hasPermission("blog", "create")}
             >
-              <FaPlus className="w-3.5 h-3.5" />
+              <FaPlus className="w-4 h-4" />
               Add New Blog
             </Button>
           </CustomTooltip>
         </div>
       </div>
 
-      <div className="w-full bg-white rounded-xl border border-slate-200/80 shadow-sm p-4">
+      <div className="w-full bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] px-4 py-3 mb-1">
         <ReusableSearchFilter
           searchText={searchQuery}
           onSearchChange={setSearchQuery}
@@ -333,41 +333,41 @@ const BlogsView = () => {
         />
       </div>
       {/* Stats Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-slate-200/80 p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
-            <FaBloggerB className="w-5 h-5 text-blue-600" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
+            <FaBloggerB className="w-5 h-5 text-[#0C447C]" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-slate-800">{allData?.length}</p>
-            <p className="text-xs text-slate-500">Total Blogs</p>
+            <p className="text-[18px] font-semibold text-[#111827]">{allData?.length}</p>
+            <p className="text-[11px] text-[#6B7280]">Total Blogs</p>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200/80 p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
+        <div className="bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-[8px] bg-amber-50 flex items-center justify-center">
             <span className="text-amber-600 text-lg">🔥</span>
           </div>
           <div>
-            <p className="text-2xl font-bold text-slate-800">{allData.filter((b: any) => b.blogStatus === 'Trending').length}</p>
-            <p className="text-xs text-slate-500">Trending</p>
+            <p className="text-[18px] font-semibold text-[#111827]">{allData.filter((b: any) => b.blogStatus === 'Trending').length}</p>
+            <p className="text-[11px] text-[#6B7280]">Trending</p>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200/80 p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+        <div className="bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-[8px] bg-emerald-50 flex items-center justify-center">
             <span className="text-emerald-600 text-lg">⭐</span>
           </div>
           <div>
-            <p className="text-2xl font-bold text-slate-800">{allData.filter((b: any) => b.blogStatus === 'Featured').length}</p>
-            <p className="text-xs text-slate-500">Featured</p>
+            <p className="text-[18px] font-semibold text-[#111827]">{allData.filter((b: any) => b.blogStatus === 'Featured').length}</p>
+            <p className="text-[11px] text-[#6B7280]">Featured</p>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200/80 p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center">
-            <span className="text-slate-600 text-lg">📄</span>
+        <div className="bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-[8px] bg-[#F3F4F6] flex items-center justify-center">
+            <span className="text-[#6B7280] text-lg">📄</span>
           </div>
           <div>
-            <p className="text-2xl font-bold text-slate-800">{allData.filter((b: any) => b.blogStatus === 'Regular').length}</p>
-            <p className="text-xs text-slate-500">Regular</p>
+            <p className="text-[18px] font-semibold text-[#111827]">{allData.filter((b: any) => b.blogStatus === 'Regular').length}</p>
+            <p className="text-[11px] text-[#6B7280]">Regular</p>
           </div>
         </div>
       </div>
@@ -375,19 +375,19 @@ const BlogsView = () => {
 
       {/* Blog Cards Grid */}
       {displayedData?.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-slate-200/80">
-          <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-            <FaBloggerB className="w-10 h-10 text-slate-300" />
+        <div className="flex flex-col items-center justify-center py-16 bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)]">
+          <div className="w-20 h-20 rounded-full bg-[#F3F4F6] flex items-center justify-center mb-4">
+            <FaBloggerB className="w-10 h-10 text-[#9CA3AF]" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-700 mb-1">No blogs found</h3>
-          <p className="text-sm text-slate-500">Try adjusting your search or filters</p>
+          <h3 className="text-[17px] font-medium text-[#1A1A1A] mb-1">No blogs found</h3>
+          <p className="text-[12px] text-[#6B7280]">Try adjusting your search or filters</p>
         </div>
       ) : (
-        <div className="grid gap-5 grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {displayedData.map((b: any, index: number) => (
             <div
               key={index}
-              className="group bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 overflow-hidden"
+              className="group bg-white border border-[rgba(0,0,0,0.08)] hover:border-[#1D4E7A] rounded-[12px] transition-colors overflow-hidden"
             >
               {/* Image Section */}
               <div className="relative w-full h-[160px] md:h-[180px] overflow-hidden">
@@ -411,7 +411,7 @@ const BlogsView = () => {
                 {/* Quick View Button */}
                 <Button
                   onClick={() => handleView(b)}
-                  className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-slate-600 hover:bg-white hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-sm"
+                  className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-[#6B7280] hover:bg-white hover:text-[#0C447C] opacity-0 group-hover:opacity-100 transition-all duration-200 border border-[rgba(0,0,0,0.08)]"
                 >
                   <FaEye className="w-3.5 h-3.5" />
                 </Button>
@@ -420,10 +420,10 @@ const BlogsView = () => {
               {/* Content Section */}
               <div className="p-4 flex flex-col gap-3">
                 <div>
-                  <h2 className="text-[15px] font-semibold text-slate-800 line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors duration-200">
+                  <h2 className="text-[15px] font-medium text-[#111827] line-clamp-2 leading-snug group-hover:text-[#0C447C] transition-colors duration-200">
                     {b?.title}
                   </h2>
-                  <p className="text-slate-500 text-[13px] line-clamp-2 mt-1.5 leading-relaxed">
+                  <p className="text-[#6B7280] text-[13px] line-clamp-2 mt-1.5 leading-relaxed">
                     {b?.previewDescription}
                   </p>
                 </div>
@@ -438,7 +438,7 @@ const BlogsView = () => {
                       href={b.externalResourceLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[10px] font-medium px-2.5 py-1 rounded-full bg-slate-50 text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-1"
+                      className="text-[10px] font-medium px-2.5 py-1 rounded-full bg-[#F3F4F6] text-[#6B7280] hover:bg-[#E6F1FB] hover:text-[#0C447C] transition-colors flex items-center gap-1"
                     >
                       <FiLink className="w-3 h-3" />
                       Link
@@ -447,18 +447,17 @@ const BlogsView = () => {
                 </div>
 
                 {/* Divider */}
-                <div className="h-px bg-slate-100" />
+                <div className="h-px bg-[rgba(0,0,0,0.06)]" />
 
                 {/* Action Buttons */}
                 <div className="flex items-center justify-between gap-2">
                   <Button
                     onClick={() => handleView(b)}
-                    className="flex-1 px-3 py-2 rounded-lg bg-slate-50 text-slate-600 hover:bg-slate-100 text-xs font-medium transition-all duration-150 flex items-center justify-center gap-1.5"
+                    className="flex-1 px-3 py-2 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5"
                   >
                     <FaEye className="w-3 h-3" />
                     View
                   </Button>
-
                   <CustomTooltip
                     label="Access Restricted"
                     position="bottom"
@@ -470,13 +469,12 @@ const BlogsView = () => {
                     <Button
                       onClick={() => handleEdit(b)}
                       disabled={!hasPermission("blog", "edit")}
-                      className="flex-1 px-3 py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-medium transition-all duration-150 flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 px-3 py-2 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <FaEdit className="w-3 h-3" />
                       Edit
                     </Button>
                   </CustomTooltip>
-
                   <CustomTooltip
                     label="Access Restricted"
                     position="bottom"
@@ -488,7 +486,7 @@ const BlogsView = () => {
                     <Button
                       onClick={() => handleDelete(b.id)}
                       disabled={!hasPermission("blog", "delete")}
-                      className="px-3 py-2 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 text-xs font-medium transition-all duration-150 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-2 rounded-[8px] bg-red-50 text-red-600 hover:bg-red-100 text-[12px] font-medium transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <FaTrash className="w-3 h-3" />
                     </Button>
@@ -502,7 +500,7 @@ const BlogsView = () => {
 
       {/* Pagination */}
       {filteredData?.length > pageSize && (
-        <div className="flex items-center justify-center mx-auto mb-6 bg-white rounded-xl border border-slate-200/80 p-4">
+        <div className="flex items-center justify-center mx-auto mb-6 bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] p-4">
           <PaginationControls
             currentPage={currentpage}
             totalPages={totalPages}
@@ -528,15 +526,15 @@ const BlogsView = () => {
         >
           <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="sticky top-0 bg-white z-10 border-b border-slate-100 px-6 py-4">
+            <div className="sticky top-0 bg-white z-10 border-b border-[rgba(0,0,0,0.08)] px-6 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white grid place-items-center shadow-lg shadow-blue-500/30">
-                    <FaBloggerB className="w-4 h-4" />
+                  <div className="h-10 w-10 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
+                    <FaBloggerB className="w-4 h-4 text-[#0C447C]" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-slate-800">Blog Preview</h2>
-                    <p className="text-xs text-slate-500">View blog details</p>
+                    <h2 className="text-[17px] font-medium text-[#1A1A1A]">Blog Preview</h2>
+                    <p className="text-[12px] text-[#6B7280]">View blog details</p>
                   </div>
                 </div>
                 <Button
@@ -544,7 +542,7 @@ const BlogsView = () => {
                     setViewModal(false);
                     setViewBlog(null);
                   }}
-                  className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="p-2 rounded-[8px] hover:bg-[#F3F4F6] text-[#6B7280] hover:text-[#111827] transition-colors"
                 >
                   <FiX className="w-5 h-5" />
                 </Button>
@@ -623,13 +621,13 @@ const BlogsView = () => {
             </div>
 
             {/* Footer */}
-            <div className="sticky bottom-0 bg-white border-t border-slate-100 px-6 py-4 flex items-center justify-end gap-3">
+            <div className="sticky bottom-0 bg-white border-t border-[rgba(0,0,0,0.08)] px-6 py-4 flex items-center justify-end gap-3">
               <Button
                 onClick={() => {
                   setViewModal(false);
                   setViewBlog(null);
                 }}
-                className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-medium transition-all"
+                className="px-4 py-2 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[13px] font-medium transition-colors"
               >
                 Close
               </Button>
@@ -639,7 +637,7 @@ const BlogsView = () => {
                     setViewModal(false);
                     handleEdit(viewBlog);
                   }}
-                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium shadow-lg shadow-blue-500/30 hover:shadow-xl transition-all flex items-center gap-2"
+                  className="px-4 py-2 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors flex items-center gap-2"
                 >
                   <FaEdit className="w-3.5 h-3.5" />
                   Edit Blog
@@ -663,24 +661,24 @@ const BlogsView = () => {
 
           <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="sticky top-0 bg-white z-10 border-b border-slate-100 px-6 md:px-10 py-5">
+            <div className="sticky top-0 bg-white z-10 border-b border-[rgba(0,0,0,0.08)] px-6 md:px-10 py-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white grid place-items-center shadow-lg shadow-blue-500/30">
-                    <FaBloggerB className="w-5 h-5" />
+                  <div className="h-10 w-10 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
+                    <FaBloggerB className="w-5 h-5 text-[#0C447C]" />
                   </div>
                   <div>
-                    <h1 className="text-xl md:text-2xl font-bold text-slate-800">
+                    <h1 className="text-[17px] md:text-[18px] font-medium text-[#1A1A1A]">
                       {updateBlogId ? "Edit Blog" : "Create New Blog"}
                     </h1>
-                    <p className="text-sm text-slate-500 mt-0.5">
+                    <p className="text-[12px] text-[#6B7280] mt-0.5">
                       {updateBlogId ? "Update blog information" : "Fill in the details to create a new blog post"}
                     </p>
                   </div>
                 </div>
                 <Button
                   onClick={handleReset}
-                  className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="p-2 rounded-[8px] hover:bg-[#F3F4F6] text-[#6B7280] hover:text-[#111827] transition-colors"
                 >
                   <FiX className="w-5 h-5" />
                 </Button>
@@ -850,21 +848,21 @@ const BlogsView = () => {
               </div>
 
               {/* Footer Actions */}
-              <div className="sticky bottom-0 bg-white border-t border-slate-100 px-6 md:px-10 py-5 flex items-center justify-between">
-                <p className="text-xs text-slate-400 hidden md:block">
+              <div className="sticky bottom-0 bg-white border-t border-[rgba(0,0,0,0.08)] px-6 md:px-10 py-5 flex items-center justify-between">
+                <p className="text-[12px] text-[#6B7280] hidden md:block">
                   {updateBlogId ? "Changes will be saved immediately" : "Blog will be published after submission"}
                 </p>
                 <div className="flex items-center gap-3 w-full md:w-auto">
                   <Button
                     key={"cancelButton"}
-                    className="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold transition-all duration-200"
+                    className="flex-1 md:flex-none px-4 py-2 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[13px] font-medium transition-colors"
                     onClick={handleReset}
                   >
                     Cancel
                   </Button>
                   <Button
                     key={"submitbutton"}
-                    className="flex-1 md:flex-none px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:from-blue-600 hover:to-blue-700 active:scale-[.98] transition-all duration-200 flex items-center justify-center gap-2"
+                    className="flex-1 md:flex-none px-4 py-2 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors flex items-center justify-center gap-2"
                     onClick={handleSubmit}
                   >
                     {updateBlogId ? (

@@ -38,96 +38,130 @@ const CostEstimationCard = ({ key, data, onDuplicate, activeTab }: CEcardProps) 
 
     return (
         <div
-            className="overflow-hidden bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 w-full p-4"
+            className="w-full bg-white border border-[rgba(0,0,0,0.08)] hover:border-[#1D4E7A] transition-colors rounded-[12px] mb-[14px] overflow-hidden"
             key={key}
         >
-            <div className="flex md:flex-row flex-col gap-x-[48px] gap-y-[24px]">
-                {/* Images */}
-                <div className="md:w-[20%] w-[100%]">
-                    <div className="flex flex-col gap-2">
-                        <div className="relative w-full md:h-32 h-24">
+            <div className="flex flex-col md:flex-row">
+                {/* LEFT: Image gallery panel */}
+                <div className="w-full md:w-[200px] flex-shrink-0 border-r border-[rgba(0,0,0,0.06)] bg-[#F3F4F6]">
+                    <div className="w-full h-[130px] relative">
+                        <img
+                            className="absolute inset-0 w-full h-full object-cover"
+                            src="https://cdn.pixabay.com/photo/2017/04/10/22/28/residence-2219972_640.jpg"
+                            alt="Property"
+                        />
+                    </div>
+                    <div className="px-[3px] py-[3px] flex gap-[3px] bg-[#E5E7EB]">
+                        <div className="relative flex-1 h-[44px] overflow-hidden rounded-[4px]">
                             <img
-                                className="absolute w-full h-full object-cover rounded-[8px]"
+                                className="absolute inset-0 w-full h-full object-cover"
                                 src="https://cdn.pixabay.com/photo/2017/04/10/22/28/residence-2219972_640.jpg"
-                                alt="image 1"
+                                alt="Thumb 1"
                             />
                         </div>
-                        <div className="w-full flex gap-2">
-                            <div className="relative w-[50%] md:h-16 h-10 rounded overflow-hidden">
-                                <img
-                                    className="absolute w-full h-full object-cover rounded-[8px]"
-                                    src="https://cdn.pixabay.com/photo/2017/04/10/22/28/residence-2219972_640.jpg"
-                                    alt="image 2"
-                                />
-                            </div>
-                            <div className="relative w-[50%] md:h-16 h-10 rounded overflow-hidden">
-                                <img
-                                    className="absolute w-full h-full object-cover rounded-[8px]"
-                                    src="https://cdn.pixabay.com/photo/2017/04/10/22/28/residence-2219972_640.jpg"
-                                    alt="image 3"
-                                />
-                                <span className="w-full h-full bg-black bg-opacity-40 absolute md:text-[14px] text-[12px] font-medium z-10 flex justify-center items-center text-white">
-                                    +2 photos
-                                </span>
-                            </div>
+                        <div className="relative flex-1 h-[44px] overflow-hidden rounded-[4px]">
+                            <img
+                                className="absolute inset-0 w-full h-full object-cover"
+                                src="https://cdn.pixabay.com/photo/2017/04/10/22/28/residence-2219972_640.jpg"
+                                alt="Thumb 2"
+                            />
+                            <span className="absolute inset-0 flex items-center justify-center bg-black/55 text-white text-[10px] rounded-[20px] mx-[6px] my-[6px]">
+                                +2 photos
+                            </span>
                         </div>
                     </div>
                 </div>
 
-                {/* Info */}
-                <div className="md:w-[70%] w-full flex flex-col md:gap-y-[8px] gap-y-[4px] justify-evenly items-start">
-                    <div className="md:col-span-9 grid md:gap-4 gap-2 md:grid-cols-3 grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-                        <InfoKV icon={<LuUser className="md:h-5 h-3 md:w-5 w-3 text-[#3586FF] " />} label="Name">
-                            {data?.firstname} {data?.lastname}
+                {/* RIGHT: Card body */}
+                <div className="flex-1 px-[18px] py-[18px] md:py-[18px]">
+                    {/* Row 1: Name | Email | Phone | Location | BHK */}
+                    <div className="grid gap-3 md:grid-cols-5 grid-cols-2">
+                        <InfoKV icon={<LuUser className="h-4 w-4 text-[#6B7280]" />} label="Name">
+                            <span className="text-[13px] font-medium text-[#111827]">
+                                {data?.firstname} {data?.lastname}
+                            </span>
                         </InfoKV>
 
-                        <InfoKV icon={<FaRegEnvelope className="md:h-5 h-3 md:w-5 w-3 text-[#3586FF] " />} label="Email">
-                            {data?.email}
+                        <InfoKV icon={<FaRegEnvelope className="h-4 w-4 text-[#6B7280]" />} label="Email">
+                            <span className="text-[12px] font-medium text-[#111827] break-all">
+                                {data?.email}
+                            </span>
                         </InfoKV>
 
-                        <InfoKV icon={<LuPhone className="md:h-5 h-3 md:w-5 w-3 text-[#3586FF] " />} label="Phone">
-                            {data?.phone}
+                        <InfoKV icon={<LuPhone className="h-4 w-4 text-[#6B7280]" />} label="Phone">
+                            <span className="text-[13px] font-medium text-[#111827]">
+                                {data?.phone}
+                            </span>
                         </InfoKV>
 
-                        <InfoKV icon={<LuMapPin className="md:h-5 h-3 md:w-5 w-3 text-[#3586FF] " />} label="Location">
-                            {data?.location?.city}, {data?.location?.state}
+                        <InfoKV icon={<LuMapPin className="h-4 w-4 text-[#6B7280]" />} label="Location">
+                            <span className="text-[13px] font-medium text-[#111827]">
+                                {data?.location?.city}, {data?.location?.state}
+                            </span>
                         </InfoKV>
 
-                        <InfoKV icon={<FaCouch className="md:h-5 h-3 md:w-5 w-3 text-[#3586FF] " />} label="BHK">
-                            {data?.bhk}
-                        </InfoKV>
-
-                        <InfoKV icon={<LuCalendar className="md:h-5 h-3 md:w-5 w-3 text-[#3586FF] " />} label="Date">
-                            {new Date(data?.date).toDateString()}
-                        </InfoKV>
-
-                        <InfoKV icon={<BiRupee className="md:h-5 h-3 md:w-5 w-3 text-[#3586FF] " />} label="Total">
-                            {(Number(data?.subTotal) || 0) - (Number(data?.discount) || 0)}
-                        </InfoKV>
-
-                        <InfoKV icon={<Discount className="md:h-5 h-3 md:w-5 w-3 text-[#3586FF] " />} label="Discount">
-                            {data?.discount}
-                        </InfoKV>
-
-                        <InfoKV icon={<BiRupee className="md:h-5 h-3 md:w-5 w-3 text-[#3586FF] " />} label="Designed By">
-                            <span className="flex items-center gap-2 text-[#3586FF] ">
-                                <HiBadgeCheck className="text-[#3586FF]  text-xl" /> {data?.designerName || "N/A"}
+                        <InfoKV icon={<FaCouch className="h-4 w-4 text-[#6B7280]" />} label="BHK">
+                            <span className="text-[13px] font-medium text-[#111827]">
+                                {data?.bhk}
                             </span>
                         </InfoKV>
                     </div>
 
-                    {/* Actions */}
-                    <div className="bg-gray-50 flex flex-wrap gap-2 justify-between w-full items-center mt-3">
+                    <div className="mt-3 border-t border-[rgba(0,0,0,0.07)]" />
+
+                    {/* Row 2: Date | Total | Discount | Designed By | Status */}
+                    <div className="mt-3 grid gap-3 md:grid-cols-5 grid-cols-2">
+                        <InfoKV icon={<LuCalendar className="h-4 w-4 text-[#6B7280]" />} label="Date">
+                            <span className="text-[13px] font-medium text-[#111827]">
+                                {new Date(data?.date).toDateString()}
+                            </span>
+                        </InfoKV>
+
+                        <InfoKV icon={<BiRupee className="h-4 w-4 text-[#1D4E7A]" />} label="Total">
+                            <span className="text-[15px] font-medium text-[#1D4E7A]">
+                                ₹
+                                {(
+                                    (Number(data?.subTotal) || 0) -
+                                    (Number(data?.discount) || 0)
+                                ).toLocaleString("en-IN")}
+                            </span>
+                        </InfoKV>
+
+                        <InfoKV icon={<Discount className="h-4 w-4 text-[#6B7280]" />} label="Discount">
+                            <span className="text-[13px] font-medium text-[#111827]">
+                                ₹{(Number(data?.discount) || 0).toLocaleString("en-IN")}
+                            </span>
+                        </InfoKV>
+
+                        <InfoKV icon={<BiRupee className="h-4 w-4 text-[#1D9E75]" />} label="Designed By">
+                            <span className="flex items-center gap-1 text-[13px] font-medium text-[#1D9E75]">
+                                <HiBadgeCheck className="text-[#1D9E75] text-lg" />{" "}
+                                {data?.designerName || "N/A"}
+                            </span>
+                        </InfoKV>
+
+                        <InfoKV
+                            icon={null}
+                            label="Status"
+                        >
+                            <span className="inline-flex items-center px-[10px] py-[3px] rounded-[20px] text-[11px] font-medium bg-[#EAF3DE] text-[#3B6D11]">
+                                Active
+                            </span>
+                        </InfoKV>
+                    </div>
+
+                    {/* Footer actions */}
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
                         <div className="flex gap-2">
                             <Button
-                                className="inline-flex text-[12px] items-center md:px-4 px-2  py-1 border border-transparent md:text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+                                className="inline-flex items-center px-4 py-[6px] rounded-[6px] text-[12px] font-medium bg-[#1D4E7A] text-white"
                                 onClick={() => router.push(`/cost-estimator/${activeTab}/${data.id}`)}
                             >
                                 View Details
                             </Button>
 
                             <Button
-                                className="inline-flex text-[12px] items-center md:px-4 px-2  py-1 border border-transparent md:text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+                                className="inline-flex items-center px-4 py-[6px] rounded-[6px] text-[12px] font-medium border border-[#1D4E7A] text-[#1D4E7A] bg-white"
                                 onClick={handleDuplicate}
                             >
                                 Duplicate
@@ -192,11 +226,13 @@ const InfoKV = ({
     label: string;
     children: React.ReactNode;
 }) => (
-    <div className="md:space-y-2 space-y-1">
-        <div className="flex items-center md:gap-2 gap-1 key-text text-gray-500">
+    <div className="space-y-1">
+        <div className="flex items-center gap-1 text-[11px] text-[#6B7280]">
             {icon}
-            <span className="font-medium key-text">{label}</span>
+            <span className="font-medium">{label}</span>
         </div>
-        <p className="key-text font-medium text-gray-900 break-all">{children}</p>
+        <div className="text-[#111827] break-all">
+            {children}
+        </div>
     </div>
 );

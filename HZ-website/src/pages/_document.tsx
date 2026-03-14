@@ -10,6 +10,10 @@ export default function Document() {
         {" "}
         <link rel="icon" href="/favicon.ico" />
         <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap"
+          rel="stylesheet"
+        />
+        <link
           rel="icon"
           type="image/png"
           sizes="32x32"
