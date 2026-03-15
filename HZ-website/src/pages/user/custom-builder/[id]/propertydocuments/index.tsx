@@ -1,9 +1,9 @@
 import withUserLayout from "@/components/Layouts/UserLayout";
 import React from "react";
 import SEO from '@/components/SEO';
-
-
 import PropertyDocumentsView from "@/components/CustomBuilder/PropertyDocumentsView";
+
+export const dynamic = "force-dynamic";
 
 function PropertyDocuments() {
   return (

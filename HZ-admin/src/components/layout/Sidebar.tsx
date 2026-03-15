@@ -11,6 +11,7 @@ import {
   User,
   Settings,
   LogOut,
+  Home,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
@@ -20,6 +21,7 @@ const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/blogs", label: "Blogs", icon: FileText },
   { href: "/referandearn", label: "Houznext Rewards", icon: Gift },
+  { href: "/interiors", label: "BuildLive Interiors", icon: Home },
 ];
 
 export default function Sidebar() {

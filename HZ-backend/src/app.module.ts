@@ -78,6 +78,7 @@ import { SolarOrdersModule } from './solar-orders/solar-orders.module';
 import { FloorplansModule } from './floorplans/floorplans.module';
 import { ShiprocketModule } from './shiprocket/shiprocket.module';
 import { AuditLogModule } from './audit-log/audit-log.module';
+import { InteriorModule } from './interiors/interior.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditLogInterceptor } from './audit-log/audit-log.interceptor';
 
@@ -90,6 +91,10 @@ import { AuditLogInterceptor } from './audit-log/audit-log.interceptor';
     TypeOrmModule.forRoot({
       ...dataSourceOptions,
       autoLoadEntities: true,
+      synchronize: true,
+      logging: false,
+      migrations: [],
+      migrationsRun: false,
     }),
     ScheduleModule.forRoot(),
     RealtimeModule,
@@ -169,6 +174,7 @@ import { AuditLogInterceptor } from './audit-log/audit-log.interceptor';
     FloorplansModule,
     ShiprocketModule,
     AuditLogModule,
+    InteriorModule,
   ],
   controllers: [AppController],
   providers: [

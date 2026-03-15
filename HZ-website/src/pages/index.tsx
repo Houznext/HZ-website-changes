@@ -1,9 +1,7 @@
 import Homepage from "@/components/Homepage";
 import withGeneralLayout from "@/components/Layouts/GeneralLayout";
 import SEO from '@/components/SEO';
-
 import WelcomeModal from "@/components/welcomeModal";
-import apiClient from "@/utils/apiClient";
 
 function Home({ initialBlogs }: { initialBlogs: any[] }) {
 
@@ -42,23 +40,22 @@ function Home({ initialBlogs }: { initialBlogs: any[] }) {
 }
 
 export async function getStaticProps() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT;
+  if (!apiUrl) {
+    return { props: { initialBlogs: [] }, revalidate: 600 };
+  }
   try {
-    const res = await apiClient.get(apiClient.URLS.blogs, {});
-    const blogs = res.body?.blogs || [];
+    const res = await fetch(`${apiUrl}/blog`);
+    if (!res.ok) return { props: { initialBlogs: [] }, revalidate: 600 };
+    const data = await res.json();
+    const blogs = Array.isArray(data?.blogs) ? data.blogs : data?.body?.blogs ?? [];
     return {
-      props: {
-        initialBlogs: blogs,
-      },
+      props: { initialBlogs: blogs },
       revalidate: 800,
     };
   } catch (error) {
     console.error("Error fetching blogs for homepage:", error);
-    return {
-      props: {
-        initialBlogs: [],
-      },
-      revalidate: 600,
-    };
+    return { props: { initialBlogs: [] }, revalidate: 600 };
   }
 }
 

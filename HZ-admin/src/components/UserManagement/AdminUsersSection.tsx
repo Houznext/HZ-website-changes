@@ -332,6 +332,8 @@ export default function AdminUsersSection() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <CustomInput
               label="First Name"
+              type="text"
+              name="firstName"
               value={userDetails.firstName}
               onChange={(e) =>
                 setUserDetails((p) => ({ ...p, firstName: e.target.value }))
@@ -342,6 +344,8 @@ export default function AdminUsersSection() {
             />
             <CustomInput
               label="Last Name"
+              type="text"
+              name="lastName"
               value={userDetails.lastName}
               onChange={(e) =>
                 setUserDetails((p) => ({ ...p, lastName: e.target.value }))
@@ -353,6 +357,7 @@ export default function AdminUsersSection() {
             <CustomInput
               label="Email"
               type="email"
+              name="email"
               value={userDetails.email}
               onChange={(e) =>
                 setUserDetails((p) => ({ ...p, email: e.target.value }))
@@ -366,6 +371,7 @@ export default function AdminUsersSection() {
               <CustomInput
                 label="Password"
                 type="password"
+                name="password"
                 value={userDetails.password}
                 onChange={(e) =>
                   setUserDetails((p) => ({ ...p, password: e.target.value }))
@@ -379,6 +385,7 @@ export default function AdminUsersSection() {
               <CustomInput
                 label="New Password (leave blank to keep)"
                 type="password"
+                name="password"
                 value={userDetails.password}
                 onChange={(e) =>
                   setUserDetails((p) => ({ ...p, password: e.target.value }))
@@ -389,6 +396,8 @@ export default function AdminUsersSection() {
             )}
             <CustomInput
               label="Phone"
+              type="text"
+              name="phone"
               value={userDetails.phone}
               onChange={(e) =>
                 setUserDetails((p) => ({ ...p, phone: e.target.value }))

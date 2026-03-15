@@ -1,10 +1,14 @@
 import Button from "@/common/Button";
 import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import { twMerge } from "tailwind-merge";
 import Image from "next/image";
-import { Worker, Viewer } from "@react-pdf-viewer/core";
-import "@react-pdf-viewer/core/lib/styles/index.css";
 import Modal from "@/common/Modal";
+
+const PdfViewerWrapper = dynamic(
+  () => import("./PdfViewerWrapper"),
+  { ssr: false, loading: () => <p className="text-sm text-gray-500 p-2">Loading document...</p> }
+);
 import { IoMdEye } from "react-icons/io";
 import { LuDownload, LuLoader2 } from "react-icons/lu";
 import { X } from "lucide-react";
@@ -129,13 +133,7 @@ const DocumentSection = ({
                         {fileName || `Document ${index + 1}`}
                       </p>
                       <div className="w-full h-28 overflow-hidden border rounded-md">
-                        <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-                          <Viewer
-                            fileUrl={doc.fileUrl}
-                            defaultScale={0.9}
-                            plugins={[]}
-                          />
-                        </Worker>
+                        <PdfViewerWrapper fileUrl={doc.fileUrl} defaultScale={0.9} />
                       </div>
                     </div>
                   ) : (
@@ -257,9 +255,7 @@ const DocumentSection = ({
           <div className="flex-1 overflow-auto w-full flex items-center justify-center p-4 md:p-6 bg-gray-100">
             {previewUrl?.endsWith(".pdf") ? (
               <div className="md:w-[480px] w-[300px] md:h-[500px] h-[300px] overflow-auto border rounded-md bg-white">
-                <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-                  <Viewer fileUrl={previewUrl} defaultScale={1.0} />
-                </Worker>
+                <PdfViewerWrapper fileUrl={previewUrl} defaultScale={1.0} />
               </div>
             ) : (
               <div className="relative md:w-[480px] w-[280px] md:h-[500px] h-[220px]">

@@ -13,48 +13,49 @@ const BlogDetailPage = ({ blog, similarBlogs }: { blog: any; similarBlogs?: any[
 
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
-    const res = await apiClient.get(apiClient.URLS.blogs, {});
-    const raw = res?.body;
-    const blogs = Array.isArray(raw?.blogs)
-      ? raw?.blogs
-      : Array.isArray((raw as any)?.blogs)
-        ? (raw as any).blogs
-        : [];
-
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT;
+    if (!apiUrl) {
+      return { paths: [], fallback: "blocking" };
+    }
+    const res = await fetch(`${apiUrl}/blog`);
+    if (!res.ok) return { paths: [], fallback: "blocking" };
+    const data = await res.json();
+    const blogs = Array.isArray(data) ? data : (data?.blogs ?? []);
     const paths = blogs
-      .filter((blog: any) => blog?.id != null)
-      .map((blog: any) => ({
-        params: { id: String(blog.id) },
+      .filter((b: { id?: string | number }) => b?.id != null)
+      .map((b: { id: string | number }) => ({
+        params: { id: String(b.id) },
       }));
-
-    return {
-      paths,
-      fallback: "blocking",
-    };
-  } catch (e) {
-    console.error("Error generating paths", e);
+    return { paths, fallback: "blocking" };
+  } catch {
     return { paths: [], fallback: "blocking" };
   }
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
   const id = context.params?.id;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT;
+  if (!apiUrl) {
+    return {
+      props: { blog: null, similarBlogs: [] },
+      revalidate: 600,
+    };
+  }
   try {
-    const res = await apiClient.get(`${apiClient.URLS.blogs}/${id}`, {});
-    const blog = res.body || null;
+    const blogRes = await fetch(`${apiUrl}/blog/${id}`);
+    const blogRaw = await blogRes.json();
+    const blog = blogRaw?.body ?? blogRaw ?? null;
 
     let similarBlogs: any[] = [];
     if (blog?.blogType) {
       try {
-        const listRes = await apiClient.get(apiClient.URLS.blogs, {
-          blogType: blog.blogType,
-          take: 5,
-        });
-        const list = Array.isArray((listRes?.body as any)?.blogs)
-          ? (listRes.body as any).blogs
-          : [];
+        const listRes = await fetch(
+          `${apiUrl}/blog?blogType=${encodeURIComponent(blog.blogType)}&take=5`
+        );
+        const listRaw = await listRes.json();
+        const list = Array.isArray(listRaw?.blogs) ? listRaw.blogs : listRaw?.body?.blogs ?? [];
         similarBlogs = list
-          .filter((b: any) => b?.id != null && String(b.id) !== String(id))
+          .filter((b: { id?: string | number }) => b?.id != null && String(b.id) !== String(id))
           .slice(0, 4);
       } catch {
         similarBlogs = [];

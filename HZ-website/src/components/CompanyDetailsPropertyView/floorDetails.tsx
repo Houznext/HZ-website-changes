@@ -1,12 +1,13 @@
 import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Button from "@/common/Button";
 import { FiGrid } from "react-icons/fi";
-import { Document, Page, pdfjs } from "react-pdf";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 
-// Setup PDF worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+const PdfFloorPlanCell = dynamic(
+  () => import("./PdfFloorPlanCell"),
+  { ssr: false, loading: () => <p className="text-xs text-gray-500">Loading...</p> }
+);
 
 const PriceFloorPlan = ({ propertyData, data }: any) => {
   const [selectedUnitIndex, setSelectedUnitIndex] = useState(0);
@@ -83,14 +84,7 @@ const PriceFloorPlan = ({ propertyData, data }: any) => {
                   key={idx}
                   className="md:w-[200px] w-[150px] md:h-[150px] h-[100px] bg-white border rounded-xl shadow-md flex items-center justify-center hover:shadow-lg transition-all duration-300"
                 >
-                  <Document file={floorplan}>
-                    <Page
-                      pageNumber={1}
-                      width={300}
-                      renderAnnotationLayer={false}
-                      renderTextLayer={false}
-                    />
-                  </Document>
+                  <PdfFloorPlanCell file={floorplan} />
                 </div>
               ) : (
                 <div

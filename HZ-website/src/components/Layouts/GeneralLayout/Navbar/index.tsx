@@ -147,6 +147,27 @@ const NavDropDown = ({ item, subLink }: any) => {
     Plot: ["Residential Plot", "Commercial Plot"],
   };
 
+  const [portalHref, setPortalHref] = useState<string>("/portal/login");
+  const [portalLabel, setPortalLabel] = useState<string>("Login / My project");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const token = localStorage.getItem("hz_customer_token");
+      if (!token) return;
+      const parts = token.split(".");
+      if (parts.length < 2) return;
+      const payloadJson = atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"));
+      const payload: { projectId?: string } = JSON.parse(payloadJson);
+      if (payload.projectId) {
+        setPortalHref(`/portal/${payload.projectId}`);
+        setPortalLabel("My project");
+      }
+    } catch {
+      // ignore parse errors, fall back to login
+    }
+  }, []);
+
   return (
     <Popover
       className="relative"
@@ -652,6 +673,11 @@ const Navbar = ({ isVisibleItems }: ShowItems) => {
                   <span className="text-nowrap lg:text-[12px] xl:text-[14px]">Get Estimate</span>
                 </span>
               </Button>
+              <Link href={portalHref}>
+                <button className="text-sm font-medium px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                  {portalLabel}
+                </button>
+              </Link>
               {!user || !token ? (
                 <Button
                   onClick={() =>
