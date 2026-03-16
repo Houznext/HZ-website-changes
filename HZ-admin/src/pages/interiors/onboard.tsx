@@ -17,6 +17,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import withAdminLayout from '@/src/common/AdminLayout';
+import apiClient from '@/src/utils/apiClient';
 
 const STEPS = ['Basic details', 'OTP verify', 'Requirements', 'Budget & timeline'];
 
@@ -68,7 +69,6 @@ function OnboardPage() {
     paymentPreference: 'Milestone based', specialNotes: '',
   });
 
-  const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') ?? '' : '';
 
   const set = (key: keyof FormData, value: string) =>
@@ -88,7 +88,7 @@ function OnboardPage() {
     }
     setSending(true); setError('');
     try {
-      const res = await fetch(`${API}/interiors/auth/send-otp`, {
+      const res = await fetch(`${apiClient.URLS.interiors}/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mobile: form.mobile }),
@@ -109,7 +109,7 @@ function OnboardPage() {
     if (code.length !== 6) { setError('Enter all 6 digits'); return; }
     setSending(true); setError('');
     try {
-      const res = await fetch(`${API}/interiors/auth/verify-otp`, {
+      const res = await fetch(`${apiClient.URLS.interiors}/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mobile: form.mobile, otp: code }),
@@ -142,7 +142,7 @@ function OnboardPage() {
     try {
       let cId = customerId;
       if (!cId) {
-        const cRes = await fetch(`${API}/interiors/customers`, {
+        const cRes = await fetch(`${apiClient.URLS.interiors}/customers`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({ fullName: form.fullName, mobile: form.mobile, email: form.email, city: form.city, locality: form.locality }),
@@ -151,7 +151,7 @@ function OnboardPage() {
         const cData = await cRes.json() as { id: string };
         cId = cData.id;
       }
-      const pRes = await fetch(`${API}/interiors/projects`, {
+      const pRes = await fetch(`${apiClient.URLS.interiors}/projects`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({

@@ -18,6 +18,7 @@ import Alert from '@mui/material/Alert';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import withAdminLayout from '@/src/common/AdminLayout';
+import apiClient from '@/src/utils/apiClient';
 
 interface ICustomer { fullName: string; mobile: string; }
 interface IRep { fullName: string; }
@@ -62,30 +63,33 @@ function InteriorsPage() {
   const [view, setView]         = useState<string>('cards');
   const [sort, setSort]         = useState('updated');
 
-  const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
-
   const loadProjects = useCallback(async (q: string, status: string) => {
     setLoading(true);
     setError('');
     try {
-      const token = typeof window !== 'undefined'
-        ? (localStorage.getItem('token') ?? '') : '';
-      const params = new URLSearchParams();
-      if (q) params.set('search', q);
-      if (status !== 'all') params.set('status', status);
-      const res = await fetch(`${API}/interiors/projects?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-      const data: unknown = await res.json();
+      const params: Record<string, string> = {};
+      if (q) params.search = q;
+      if (status !== 'all') params.status = status;
+
+      const { body } = await apiClient.get(
+        `${apiClient.URLS.interiors}/projects`,
+        params,
+        true,
+      );
+
+      const data: unknown = body;
       setProjects(Array.isArray(data) ? (data as IProject[]) : []);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load projects');
+      setError(
+        e instanceof Error
+          ? e.message
+          : 'Failed to load projects',
+      );
       setProjects([]);
     } finally {
       setLoading(false);
     }
-  }, [API]);
+  }, []);
 
   useEffect(() => { loadProjects('', 'all'); }, [loadProjects]);
 
@@ -192,7 +196,7 @@ function InteriorsPage() {
       {/* ── Error ── */}
       {error && (
         <Alert severity="error" sx={{ mb: 2, borderRadius: '8px' }} onClose={() => setError('')}>
-          {error} — Check that backend is running on {API}
+          {error}
         </Alert>
       )}
 
