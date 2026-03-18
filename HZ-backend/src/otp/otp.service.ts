@@ -30,12 +30,12 @@ export const DLT_TEMPLATES = {
   LOGIN_OTP: {
     id: '1707176050742281427',
     text: (otp: string) =>
-      `Dear User, Your login verification OTP Code is ${otp}. Please do not share this OTP with anyone. Onecasa`,
+      `Dear User, Your login verification OTP Code is ${otp}. Please do not share this OTP with anyone. Houznext`,
   },
   ONECASA_OTP: {
     id: '1707176050746186677',
     text: (otp: string) =>
-      `Dear User, Your Onecasa verification OTP Code is ${otp}. Please do not share this OTP with anyone.`,
+      `Dear User, Your Houznext verification OTP Code is ${otp}. Please do not share this OTP with anyone.`,
   },
 };
 
@@ -57,7 +57,7 @@ export class OtpService {
   // -------------------------------
   async sendOtp(sendOtpDto: SendOtpDto): Promise<ReturnOtpDto> {
     const { email, phone } = sendOtpDto;
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     if (email) {
       let existingOtp = await this.otpRepository.findOne({ where: { email } });
@@ -129,7 +129,7 @@ export class OtpService {
   // -------------------------------
   async resendOtp(sendOtpDto: SendOtpDto): Promise<ReturnOtpDto> {
     const { email, phone } = sendOtpDto;
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     if (email) {
       const existingOtp = await this.otpRepository.findOne({

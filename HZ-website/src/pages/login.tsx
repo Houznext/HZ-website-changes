@@ -237,30 +237,59 @@ export default function LoginPage() {
 
 // ─── OTP Flow ─────────────────────────────────────────────────────────────────
 
+/** Strip country code, spaces, dashes — return last 10 digits */
+function sanitizePhone(raw: string): string {
+  return raw.replace(/\D/g, '').slice(-10)
+}
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'
+
 function OtpFlow({ onSuccess }: { onSuccess: () => void }) {
   const [step, setStep] = useState<OtpStep>('phone')
   const [phone, setPhone] = useState('')
+  const [cleanPhone, setCleanPhone] = useState('')
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value
+    setPhone(raw)
+    setCleanPhone(sanitizePhone(raw))
+  }
+
   const sendOtp = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    if (cleanPhone.length !== 10) {
+      setError('Please enter a valid 10-digit mobile number.')
+      return
+    }
+
     setLoading(true)
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/otp/send`, {
+      const res = await fetch(`${API_BASE}/otp/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({ phone: cleanPhone }),
       })
+
       if (res.ok) {
         setStep('verify')
       } else {
-        setError('Failed to send OTP. Please check the number and try again.')
+        let msg = 'Failed to send OTP. Please try again.'
+        try {
+          const data = await res.json()
+          if (data?.message) msg = Array.isArray(data.message) ? data.message[0] : data.message
+        } catch { /* ignore parse errors */ }
+        setError(msg)
       }
-    } catch {
-      setError('Network error. Please try again.')
+    } catch (err) {
+      setError(
+        `Could not reach the server (${API_BASE}). Check your connection and try again.`
+      )
+      if (process.env.NODE_ENV === 'development') console.error('[sendOtp]', err)
     } finally {
       setLoading(false)
     }
@@ -274,16 +303,17 @@ function OtpFlow({ onSuccess }: { onSuccess: () => void }) {
     try {
       const result = await signIn('otp-login', {
         redirect: false,
-        identifier: phone,
+        identifier: cleanPhone,
         otp: otpString,
       })
       if (result?.ok) {
         onSuccess()
       } else {
-        setError('Invalid OTP. Please try again.')
+        setError('Invalid or expired OTP. Please try again.')
       }
-    } catch {
+    } catch (err) {
       setError('Verification failed. Please try again.')
+      if (process.env.NODE_ENV === 'development') console.error('[verifyOtp]', err)
     } finally {
       setLoading(false)
     }
@@ -309,7 +339,8 @@ function OtpFlow({ onSuccess }: { onSuccess: () => void }) {
     return (
       <form onSubmit={verifyOtp}>
         <p className="text-[13px] mb-4 text-charcoal">
-          Enter the 6-digit OTP sent to <span className="font-[600]">{phone}</span>
+          Enter the 6-digit OTP sent to{' '}
+          <span className="font-[600]">+91 {cleanPhone}</span>
         </p>
         <div className="flex gap-2 mb-4">
           {otp.map((d, i) => (
@@ -320,6 +351,7 @@ function OtpFlow({ onSuccess }: { onSuccess: () => void }) {
               onChange={(e) => handleOtpChange(i, e.target.value)}
               onKeyDown={(e) => handleOtpKeyDown(i, e)}
               maxLength={1}
+              inputMode="numeric"
               className="w-10 h-12 rounded-xl border-2 text-center text-[18px] font-bold outline-none transition-colors"
               style={{ borderColor: d ? '#2f80ed' : '#dde8f5', color: '#1f2933' }}
             />
@@ -329,12 +361,17 @@ function OtpFlow({ onSuccess }: { onSuccess: () => void }) {
         <button
           type="submit"
           disabled={loading || otp.join('').length < 6}
-          className="w-full py-3 rounded-xl font-head font-bold text-white text-[14px] disabled:opacity-60 transition-all"
+          className="w-full py-3 rounded-xl font-head font-bold text-white text-[14px] disabled:opacity-60 transition-all hover:-translate-y-0.5"
           style={{ background: '#2f80ed' }}
         >
           {loading ? 'Verifying…' : 'Verify & Login →'}
         </button>
-        <button type="button" onClick={() => setStep('phone')} className="w-full mt-2 text-[12px]" style={{ color: '#5a6a7e' }}>
+        <button
+          type="button"
+          onClick={() => { setStep('phone'); setOtp(['','','','','','']); setError('') }}
+          className="w-full mt-2 text-[12px]"
+          style={{ color: '#5a6a7e' }}
+        >
           ← Change number
         </button>
       </form>
@@ -343,25 +380,43 @@ function OtpFlow({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <form onSubmit={sendOtp}>
-      <label className="block text-xs font-[500] text-charcoal mb-1">Mobile number *</label>
-      <input
-        required type="tel"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-        className="w-full border rounded-xl px-4 py-3 text-sm outline-none mb-4 transition-colors"
-        style={{ borderColor: '#dde8f5' }}
-        onFocus={(e) => { e.currentTarget.style.borderColor = '#2f80ed' }}
-        onBlur={(e) => { e.currentTarget.style.borderColor = '#dde8f5' }}
-        placeholder="+91 98765 43210"
-      />
+      <label className="block text-xs font-[500] text-charcoal mb-1">
+        Mobile number *
+      </label>
+      <div className="relative mb-4">
+        <span
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-[500] select-none pointer-events-none"
+          style={{ color: '#5a6a7e' }}
+        >
+          +91
+        </span>
+        <input
+          required
+          type="tel"
+          inputMode="numeric"
+          value={phone}
+          onChange={handlePhoneChange}
+          className="w-full border rounded-xl pl-12 pr-4 py-3 text-sm outline-none transition-colors"
+          style={{ borderColor: '#dde8f5' }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = '#2f80ed' }}
+          onBlur={(e) => { e.currentTarget.style.borderColor = '#dde8f5' }}
+          placeholder="98765 43210"
+          maxLength={14}
+        />
+      </div>
+      {cleanPhone.length > 0 && cleanPhone.length !== 10 && (
+        <p className="text-xs mb-2" style={{ color: '#f2994a' }}>
+          Enter the last 10 digits of your number
+        </p>
+      )}
       {error && <p className="text-xs text-red-600 mb-3">{error}</p>}
       <button
         type="submit"
-        disabled={loading || phone.length < 10}
-        className="w-full py-3 rounded-xl font-head font-bold text-white text-[14px] disabled:opacity-60 transition-all"
+        disabled={loading || cleanPhone.length !== 10}
+        className="w-full py-3 rounded-xl font-head font-bold text-white text-[14px] disabled:opacity-60 transition-all hover:-translate-y-0.5"
         style={{ background: '#2f80ed' }}
       >
-        {loading ? 'Sending…' : 'Send OTP →'}
+        {loading ? 'Sending OTP…' : 'Send OTP →'}
       </button>
     </form>
   )
