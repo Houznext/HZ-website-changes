@@ -4,10 +4,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material\FormControl';
-import InputLabel from '@mui/material/InputLabel';
 import Paper from '@mui/material/Paper';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -141,16 +138,21 @@ function UpdatePage() {
       <Paper sx={paperSx} elevation={0}>
         <Typography sx={{ fontSize: 13, fontWeight: 500, color: '#111827', mb: 2 }}>Trade & status</Typography>
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-          <FormControl size="small" sx={{ ...fieldSx, minWidth: 220 }}>
-            <InputLabel>Select trade</InputLabel>
-            <Select label="Select trade" value={tradeId} onChange={e => onTradeChange(e.target.value)}>
-              {trades.map(t => (
-                <MenuItem key={t.id} value={t.id} sx={{ fontSize: 13 }}>
-                  {t.customName ?? t.template?.name ?? 'Trade'}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <TextField
+            select
+            fullWidth
+            size="small"
+            label="Select trade"
+            value={tradeId}
+            onChange={e => onTradeChange(e.target.value)}
+            sx={{ ...fieldSx, minWidth: 220 }}
+          >
+            {trades.map(t => (
+              <MenuItem key={t.id} value={t.id} sx={{ fontSize: 13 }}>
+                {t.customName ?? t.template?.name ?? 'Trade'}
+              </MenuItem>
+            ))}
+          </TextField>
           <ToggleButtonGroup size="small" exclusive value={status} onChange={(_, v) => { if (v) setStatus(v); }}>
             <ToggleButton value="in_progress" sx={{ fontSize: 11, textTransform: 'none', borderRadius: '8px 0 0 8px' }}>In progress</ToggleButton>
             <ToggleButton value="on_hold"     sx={{ fontSize: 11, textTransform: 'none', borderRadius: '0 8px 8px 0' }}>On hold</ToggleButton>

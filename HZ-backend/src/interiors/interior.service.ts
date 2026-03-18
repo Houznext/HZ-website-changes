@@ -271,7 +271,26 @@ export class InteriorService {
     if (dto.specialNotes !== undefined) project.specialNotes = dto.specialNotes;
     if (dto.floorPlanUrl !== undefined) project.floorPlanUrl = dto.floorPlanUrl;
     if (dto.repId !== undefined) project.repId = dto.repId;
+    if ((dto as any).isHandedOver !== undefined) {
+      (project as any).isHandedOver = (dto as any).isHandedOver;
+    }
+    if ((dto as any).handoverDate !== undefined) {
+      (project as any).handoverDate = (dto as any).handoverDate
+        ? parseISO((dto as any).handoverDate)
+        : null;
+    }
+    if ((dto as any).status !== undefined) {
+      (project as any).status = (dto as any).status;
+    }
     return this.projectRepo.save(project);
+  }
+
+  async deleteProject(id: string): Promise<void> {
+    const existing = await this.projectRepo.findOne({ where: { id } });
+    if (!existing) {
+      return;
+    }
+    await this.projectRepo.delete(id);
   }
 
   async getTradeTemplates(): Promise<TradeTemplate[]> {
@@ -451,10 +470,16 @@ export class InteriorService {
     const now = new Date();
     if (dateFilter === 'today') {
       const today = startOfDay(now);
-      qb.andWhere('d.updateDate = :today', { today: today.toISOString().slice(0, 10) });
+      qb.andWhere(
+        'CAST(d.updateDate AS DATE) = CAST(:today AS DATE)',
+        { today: today.toISOString().slice(0, 10) },
+      );
     } else if (dateFilter === 'yesterday') {
       const yesterday = startOfDay(subDays(now, 1));
-      qb.andWhere('d.updateDate = :yesterday', { yesterday: yesterday.toISOString().slice(0, 10) });
+      qb.andWhere(
+        'CAST(d.updateDate AS DATE) = CAST(:yesterday AS DATE)',
+        { yesterday: yesterday.toISOString().slice(0, 10) },
+      );
     } else if (dateFilter === 'week') {
       const from = subDays(now, 7);
       qb.andWhere('d.updateDate >= :from', { from: from.toISOString().slice(0, 10) });
@@ -580,6 +605,13 @@ export class InteriorService {
     return this.qcItemRepo.save(item);
   }
 
+  async getQcItems(tradeId: string): Promise<QcItem[]> {
+    return this.qcItemRepo.find({
+      where: { tradeId },
+      order: { sequence: 'ASC' },
+    });
+  }
+
   async createSnag(dto: CreateSnagDto): Promise<SnagItem> {
     const snag = this.snagItemRepo.create({
       title: dto.title,
@@ -624,12 +656,33 @@ export class InteriorService {
     });
   }
 
+  async getProjectActivity(projectId: string): Promise<Record<string, unknown>[]> {
+    const updates = await this.dailyUpdateRepo.find({
+      where: { projectId },
+      relations: ['trade', 'trade.template'],
+      order: { createdAt: 'DESC' },
+      take: 20,
+    });
+    return updates.map((u) => ({
+      type: u.blockerNote ? 'blocker' : u.stageLabel ? 'progress' : 'update',
+      text: u.stageLabel
+        ? `${(u.trade as any)?.template?.name ?? 'Trade'} updated to ${u.cumulativeProgress}%`
+        : `Daily update added for ${(u.trade as any)?.template?.name ?? 'Trade'}`,
+      subtext: u.stageLabel ?? u.workDoneToday ?? '',
+      tradeSlug: (u.trade as any)?.template?.slug ?? '',
+      date: u.createdAt,
+    }));
+  }
+
   async generateDpr(projectId: string, date: string): Promise<DailyProgressReport> {
     const reportDate = parseISO(date);
-    const updates = await this.dailyUpdateRepo.find({
-      where: { projectId, updateDate: reportDate },
-      relations: ['labourEntries', 'materialUsages'],
-    });
+    const updates = await this.dailyUpdateRepo
+      .createQueryBuilder('d')
+      .leftJoinAndSelect('d.labourEntries', 'labourEntries')
+      .leftJoinAndSelect('d.materialUsages', 'materialUsages')
+      .where('d.projectId = :projectId', { projectId })
+      .andWhere('CAST(d.updateDate AS DATE) = CAST(:date AS DATE)', { date })
+      .getMany();
     let totalLabour = 0;
     let totalSpend = 0;
     const tradesUpdated: string[] = [];

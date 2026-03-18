@@ -40,11 +40,20 @@ async function bootstrap() {
   const isProd = process.env.NODE_ENV === 'production';
 
   if (isProd) {
-    const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? '')
+    const envOrigins = (process.env.ALLOWED_ORIGINS ?? '')
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean)
       .map((s) => s.replace(/\/$/, ''));
+
+    const staticLocalOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3001',
+    ];
+
+    const allowedOrigins = [...staticLocalOrigins, ...envOrigins].map((s) =>
+      s.replace(/\/$/, ''),
+    );
 
     app.enableCors({
       origin: (origin, cb) => {
@@ -60,7 +69,15 @@ async function bootstrap() {
       maxAge: 86400,
     });
   } else {
-    app.enableCors({ origin: true, credentials: true });
+    app.enableCors({
+      origin: [
+        'http://localhost:3000',
+        'http://localhost:3001',
+      ],
+      credentials: true,
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    });
   }
 
   app

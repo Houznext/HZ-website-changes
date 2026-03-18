@@ -90,6 +90,18 @@ export class CreateProjectDto {
   @IsOptional()
   @IsString()
   repId?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isHandedOver?: boolean;
+
+  @IsOptional()
+  @IsString()
+  handoverDate?: string;
+
+  @IsOptional()
+  @IsString()
+  status?: string;
 }
 
 export class GenerateDprDto {

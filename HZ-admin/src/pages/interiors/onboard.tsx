@@ -35,6 +35,9 @@ const STYLE_OPTIONS = [
 const PROPERTY_TYPES = ['Flat / Apartment','Villa','Independent house','Plot'];
 const BHK_OPTIONS = ['1 BHK','2 BHK','3 BHK','4 BHK','5 BHK'];
 
+// Toggle this to hide the OTP "Skip" button without changing logic elsewhere
+const ENABLE_OTP_SKIP = true;
+
 interface FormData {
   fullName: string; mobile: string; email: string;
   city: string; locality: string;
@@ -69,7 +72,8 @@ function OnboardPage() {
     paymentPreference: 'Milestone based', specialNotes: '',
   });
 
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') ?? '' : '';
+  // Interiors APIs rely on the same JWT that apiClient already attaches for auth=true.
+  // We don't store a separate "token" key in localStorage, so avoid reading it here.
 
   const set = (key: keyof FormData, value: string) =>
     setForm(f => ({ ...f, [key]: value }));
@@ -144,16 +148,33 @@ function OnboardPage() {
       if (!cId) {
         const cRes = await fetch(`${apiClient.URLS.interiors}/customers`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ fullName: form.fullName, mobile: form.mobile, email: form.email, city: form.city, locality: form.locality }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fullName: form.fullName,
+            mobile: form.mobile,
+            email: form.email,
+            city: form.city,
+            locality: form.locality,
+          }),
         });
-        if (!cRes.ok) throw new Error('Failed to create customer');
+        if (!cRes.ok) {
+          let msg = 'Failed to create customer';
+          try {
+            const body = await cRes.json() as any;
+            if (body?.message) {
+              msg = Array.isArray(body.message) ? body.message.join(', ') : body.message;
+            }
+          } catch {
+            // ignore parse errors
+          }
+          throw new Error(msg);
+        }
         const cData = await cRes.json() as { id: string };
         cId = cData.id;
       }
       const pRes = await fetch(`${apiClient.URLS.interiors}/projects`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           customerId: cId,
           propertyType: form.propertyType,
@@ -174,7 +195,18 @@ function OnboardPage() {
           specialNotes: form.specialNotes,
         }),
       });
-      if (!pRes.ok) throw new Error('Failed to create project');
+      if (!pRes.ok) {
+        let msg = 'Failed to create project';
+        try {
+          const body = await pRes.json() as any;
+          if (body?.message) {
+            msg = Array.isArray(body.message) ? body.message.join(', ') : body.message;
+          }
+        } catch {
+          // ignore parse errors
+        }
+        throw new Error(msg);
+      }
       const pData = await pRes.json() as { id: string };
       setSuccess(`Project created successfully! ID: ${pData.id}`);
       setTimeout(() => router.push(`/interiors/${pData.id}`), 1500);
@@ -298,6 +330,29 @@ function OnboardPage() {
                   sx={{ borderRadius: '8px', textTransform: 'none', fontSize: 12, borderColor: '#e5e7eb', color: '#6b7280' }}>
                   Resend OTP
                 </Button>
+                {ENABLE_OTP_SKIP && (
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                      setVerified(true);
+                      setStep(2);
+                    }}
+                    sx={{
+                      borderRadius: '8px',
+                      textTransform: 'none',
+                      fontSize: 12,
+                      borderColor: '#f97316',
+                      color: '#f97316',
+                      backgroundColor: 'rgba(249,115,22,0.04)',
+                      '&:hover': {
+                        backgroundColor: 'rgba(249,115,22,0.08)',
+                      },
+                    }}
+                  >
+                    Skip for now
+                  </Button>
+                )}
                 <Button variant="contained" onClick={verifyOtp} disabled={sending || otp.join('').length !== 6}
                   sx={{ background: '#1A56DB', borderRadius: '8px', textTransform: 'none', fontSize: 12, boxShadow: 'none' }}>
                   {sending ? <CircularProgress size={14} sx={{ color: '#fff' }} /> : 'Verify OTP'}

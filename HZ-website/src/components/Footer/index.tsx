@@ -113,16 +113,16 @@ const Footer = () => {
           <h2
             className={styles.title_cont}
             onClick={() => {
-              setActive('OneCasa');
-              if (active == 'OneCasa') {
+              setActive('Houznext');
+              if (active == 'Houznext') {
                 setShow(!show);
               } else {
                 setShow(true);
               }
             }}
           >
-            ONECASA{' '}
-            {active === 'OneCasa' && show ? (
+            HOUZNEXT{' '}
+            {active === 'Houznext' && show ? (
               <span className={`${styles.arrow}`}>
                 <KeyboardArrowDownIcon />
               </span>
@@ -142,7 +142,7 @@ const Footer = () => {
             <li>Refer us</li>
             <li>Privacy policy</li>
           </ul>
-          {active === 'OneCasa' && show && (
+          {active === 'Houznext' && show && (
             <ul className={`${styles.mob_list}`}>
               <li>Home</li>
               <li>Properties</li>
@@ -221,10 +221,11 @@ const Footer = () => {
       </div>
       <div className={styles.horiz_line}></div>
       <div className={styles.Copyrights}>
-        ©2023 All Copyrights are Reserved to OneCasa Pvt limited.
+        ©2023 All Copyrights are Reserved to HOUZNEXT Pvt limited.
       </div>
     </div>
   );
 };
 
 export default Footer;
+

@@ -11,8 +11,15 @@ import Chip from '@mui/material/Chip';
 import Alert from '@mui/material/Alert';
 import Skeleton from '@mui/material/Skeleton';
 import Divider from '@mui/material/Divider';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogActions from '@mui/material/DialogActions';
+import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
 import withAdminLayout from '@/src/common/AdminLayout';
-
+import apiClient from '@/src/utils/apiClient';
 interface ITradeTemplate { name: string; iconName: string; slug: string; }
 interface ITrade {
   id: string; customName: string | null; template: ITradeTemplate;
@@ -56,30 +63,127 @@ function ProjectDetailPage() {
   const [loading, setLoading]       = useState(true);
   const [error, setError]           = useState('');
 
-  const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
-  const getToken = () => typeof window !== 'undefined' ? localStorage.getItem('token') ?? '' : '';
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const [tradeDialogOpen, setTradeDialogOpen] = useState(false);
+  const [templates, setTemplates] = useState<ITradeTemplate[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('');
+  const [customTradeName, setCustomTradeName] = useState('');
+  const [addTradeLoading, setAddTradeLoading] = useState(false);
+  const [addTradeError, setAddTradeError] = useState('');
 
   const load = useCallback(async () => {
     if (!projectId || typeof projectId !== 'string') return;
     setLoading(true); setError('');
     try {
-      const h = { Authorization: `Bearer ${getToken()}` };
-      const [pRes, mRes, sRes] = await Promise.all([
-        fetch(`${API}/interiors/projects/${projectId}`, { headers: h }),
-        fetch(`${API}/interiors/projects/${projectId}/milestones`, { headers: h }),
-        fetch(`${API}/interiors/projects/${projectId}/snags?status=open`, { headers: h }),
+      const base = apiClient.URLS.interiors;
+
+      const [projRes, milRes, snagRes] = await Promise.all([
+        apiClient.get(`${base}/projects/${projectId}`, {}, true),
+        apiClient.get(`${base}/projects/${projectId}/milestones`, {}, true),
+        apiClient.get(`${base}/projects/${projectId}/snags`, { status: 'open' }, true),
       ]);
-      if (!pRes.ok) throw new Error(`Project not found (${pRes.status})`);
-      const [p, m, s] = await Promise.all([pRes.json(), mRes.json(), sRes.json()]) as [IProject, IMilestone[], ISnag[]];
-      setProject(p);
-      setMilestones(Array.isArray(m) ? m : []);
-      setSnags(Array.isArray(s) ? s : []);
+
+      const projBody = projRes.body as unknown;
+      const milBody = milRes.body as unknown;
+      const snagBody = snagRes.body as unknown;
+
+      if (!projBody || (projBody as any).id === undefined) {
+        throw new Error('Project not found');
+      }
+
+      setProject(projBody as IProject);
+      setMilestones(Array.isArray(milBody) ? (milBody as IMilestone[]) : []);
+      setSnags(Array.isArray(snagBody) ? (snagBody as ISnag[]) : []);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load project');
     } finally {
       setLoading(false);
     }
-  }, [projectId, API]);
+  }, [projectId]);
+
+  const handleDelete = async () => {
+    if (!project) return;
+    setDeleteLoading(true);
+    setDeleteError('');
+    try {
+      await apiClient.delete(
+        `${apiClient.URLS.interiors}/projects/${project.id}`,
+        {},
+        true,
+      );
+      setDeleteLoading(false);
+      setDeleteOpen(false);
+      router.push('/interiors');
+    } catch (e) {
+      setDeleteError(
+        e instanceof Error ? e.message : 'Failed to delete project',
+      );
+      setDeleteLoading(false);
+    }
+  };
+
+  const openAddTradeDialog = async () => {
+    if (!project) return;
+    setAddTradeError('');
+    setTradeDialogOpen(true);
+    try {
+      if (templates.length === 0) {
+        const { body } = await apiClient.get(
+          `${apiClient.URLS.interiors}/trade-templates`,
+          {},
+          false,
+        );
+        setTemplates(Array.isArray(body) ? (body as ITradeTemplate[]) : []);
+      }
+    } catch (e) {
+      setAddTradeError(
+        e instanceof Error ? e.message : 'Failed to load trade templates',
+      );
+    }
+  };
+
+  const handleAddTrade = async () => {
+    if (!project || !selectedTemplate) {
+      setAddTradeError('Please select a trade');
+      return;
+    }
+    setAddTradeLoading(true);
+    setAddTradeError('');
+    try {
+      const payload: any = {
+        templateId: selectedTemplate,
+      };
+      if (customTradeName.trim()) {
+        payload.overrides = { customName: customTradeName.trim() };
+      }
+      const { body } = await apiClient.post(
+        `${apiClient.URLS.interiors}/projects/${project.id}/trades`,
+        payload,
+        true,
+      );
+      const newTrade = (body as any)?.trade ?? body;
+      setProject((prev) =>
+        prev
+          ? {
+              ...prev,
+              trades: [...(prev.trades ?? []), newTrade],
+            }
+          : prev,
+      );
+      setAddTradeLoading(false);
+      setTradeDialogOpen(false);
+      setSelectedTemplate('');
+      setCustomTradeName('');
+    } catch (e) {
+      setAddTradeError(
+        e instanceof Error ? e.message : 'Failed to add trade',
+      );
+      setAddTradeLoading(false);
+    }
+  };
 
   useEffect(() => { load(); }, [load]);
 
@@ -150,11 +254,79 @@ function ProjectDetailPage() {
             )}
           </Box>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button size="small" onClick={() => router.push(`/interiors/${project.id}/update`)}
+        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <Button
+            size="small"
+            onClick={() => router.push(`/interiors/${project.id}/update`)}
             variant="contained"
-            sx={{ background: '#1A56DB', borderRadius: '8px', textTransform: 'none', fontSize: 12, boxShadow: 'none' }}>
+            sx={{ background: '#1A56DB', borderRadius: '8px', textTransform: 'none', fontSize: 12, boxShadow: 'none' }}
+          >
             Add update
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => router.push(`/interiors/${project.id}/designs`)}
+            sx={{
+              borderRadius: '8px',
+              textTransform: 'none',
+              fontSize: 12,
+              borderColor: '#e5e7eb',
+              color: '#374151',
+            }}
+          >
+            3D Designs
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => router.push(`/interiors/${project.id}/snags`)}
+            sx={{
+              borderRadius: '8px',
+              textTransform: 'none',
+              fontSize: 12,
+              borderColor:
+                snags.length > 0 ? 'rgba(239,68,68,0.4)' : '#e5e7eb',
+              color: snags.length > 0 ? '#991B1B' : '#374151',
+              background: snags.length > 0 ? '#FEF2F2' : 'transparent',
+            }}
+          >
+            Snags {snags.length > 0 ? `(${snags.length})` : ''}
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => router.push(`/interiors/${project.id}/handover`)}
+            sx={{
+              borderRadius: '8px',
+              textTransform: 'none',
+              fontSize: 12,
+              borderColor: '#e5e7eb',
+              color: '#374151',
+            }}
+          >
+            Handover
+          </Button>
+          <Button
+            size="small"
+            color="error"
+            onClick={() => {
+              setDeleteError('');
+              setDeleteOpen(true);
+            }}
+            sx={{
+              textTransform: 'none',
+              fontSize: 12,
+              borderRadius: '8px',
+              border: '1px solid rgba(239,68,68,0.4)',
+              color: '#b91c1c',
+              backgroundColor: 'rgba(248,113,113,0.04)',
+              '&:hover': {
+                backgroundColor: 'rgba(248,113,113,0.08)',
+              },
+            }}
+          >
+            Delete
           </Button>
         </Box>
       </Box>
@@ -167,8 +339,12 @@ function ProjectDetailPage() {
           <Box sx={{ ...cardSx, mb: 2 }}>
             <Box sx={{ p: '12px 16px', borderBottom: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Typography sx={{ fontSize: 13, fontWeight: 500, color: '#111827' }}>Trades</Typography>
-              <Button size="small" variant="outlined"
-                sx={{ fontSize: 11, textTransform: 'none', borderRadius: '6px', borderColor: '#e5e7eb', color: '#374151' }}>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={openAddTradeDialog}
+                sx={{ fontSize: 11, textTransform: 'none', borderRadius: '6px', borderColor: '#e5e7eb', color: '#374151' }}
+              >
                 + Add trade
               </Button>
             </Box>
@@ -310,6 +486,105 @@ function ProjectDetailPage() {
           )}
         </Grid>
       </Grid>
+      {/* Delete confirmation dialog */}
+      <Dialog
+        open={deleteOpen}
+        onClose={() => !deleteLoading && setDeleteOpen(false)}
+      >
+        <DialogTitle>Delete project?</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ fontSize: 14 }}>
+            Are you sure you want to permanently delete this project?
+            This action cannot be undone.
+          </DialogContentText>
+          {deleteError && (
+            <Alert
+              severity="error"
+              sx={{ mt: 2, borderRadius: '8px' }}
+              onClose={() => setDeleteError('')}
+            >
+              {deleteError}
+            </Alert>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setDeleteOpen(false)}
+            disabled={deleteLoading}
+            sx={{ textTransform: 'none' }}
+          >
+            No
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleDelete}
+            disabled={deleteLoading}
+            sx={{ textTransform: 'none' }}
+          >
+            {deleteLoading ? 'Deleting…' : 'Yes, delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add trade dialog */}
+      <Dialog
+        open={tradeDialogOpen}
+        onClose={() => !addTradeLoading && setTradeDialogOpen(false)}
+      >
+        <DialogTitle>Add trade</DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 320 }}>
+            <TextField
+              select
+              size="small"
+              label="Select trade template"
+              value={selectedTemplate}
+              onChange={(e) => setSelectedTemplate(e.target.value)}
+              fullWidth
+            >
+              {templates.map((t) => (
+                <MenuItem key={t.slug} value={t.slug}>
+                  {t.name}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              size="small"
+              label="Custom trade name (optional)"
+              value={customTradeName}
+              onChange={(e) => setCustomTradeName(e.target.value)}
+              fullWidth
+            />
+            {addTradeError && (
+              <Alert
+                severity="error"
+                sx={{ borderRadius: '8px' }}
+                onClose={() => setAddTradeError('')}
+              >
+                {addTradeError}
+              </Alert>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setTradeDialogOpen(false)}
+            disabled={addTradeLoading}
+            sx={{ textTransform: 'none' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleAddTrade}
+            disabled={addTradeLoading}
+            sx={{ textTransform: 'none' }}
+          >
+            {addTradeLoading ? 'Adding…' : 'Add trade'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

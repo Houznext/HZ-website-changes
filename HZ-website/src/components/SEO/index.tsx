@@ -107,7 +107,7 @@ const SEO: React.FC<ISEO> = (props) => {
   const description =
     props.description ||
     props.markdownText ||
-    'OneCasa is India\'s leading platform for Real Estate, Construction, Interiors, Solar, Furniture & More.';
+    'Houznext is India\'s leading platform for Real Estate, Construction, Interiors, Solar, Furniture & More.';
   const rawKw = props.keywords;
   const keywords = rawKw
     ? Array.isArray(rawKw) ? rawKw.filter(Boolean).join(', ') : rawKw
@@ -144,8 +144,8 @@ const SEO: React.FC<ISEO> = (props) => {
         }}
         twitter={{
           cardType: 'summary_large_image',
-          handle: '@onecasa_in',
-          site: '@onecasa_in',
+          handle: '@houznext',
+          site: '@houznext',
         }}
         additionalMetaTags={[
           { name: 'keywords', content: keywords },
@@ -161,8 +161,8 @@ const SEO: React.FC<ISEO> = (props) => {
         type="Corporation"
         id={BASE_DEPLOYMENT_URL}
         logo={PRIMARY_IMAGE_URL}
-        legalName="OneCasa Real Estate"
-        name="OneCasa Real Estate"
+        legalName="Houznext"
+        name="Houznext"
         url={BASE_DEPLOYMENT_URL}
         sameAs={socialProfiles}
         contactPoint={corporateContacts}
@@ -237,7 +237,7 @@ const SEO: React.FC<ISEO> = (props) => {
                 description: props.service.description,
                 provider: {
                   '@type': 'Organization',
-                  name: 'OneCasa',
+                  name: 'Houznext',
                   url: BASE_DEPLOYMENT_URL,
                   logo: PRIMARY_IMAGE_URL,
                 },
@@ -341,7 +341,7 @@ const SEO: React.FC<ISEO> = (props) => {
                     availability: `https://schema.org/${props.product.availability || 'InStock'}`,
                     seller: {
                       '@type': 'Organization',
-                      name: 'OneCasa',
+                      name: 'Houznext',
                     },
                     url: props.product.url || currentUrl,
                   },
@@ -400,7 +400,7 @@ const SEO: React.FC<ISEO> = (props) => {
                 },
                 publisher: {
                   '@type': 'Organization',
-                  name: 'OneCasa',
+                  name: 'Houznext',
                   logo: { '@type': 'ImageObject', url: PRIMARY_IMAGE_URL },
                 },
                 mainEntityOfPage: currentUrl,
@@ -418,7 +418,7 @@ const SEO: React.FC<ISEO> = (props) => {
               '@context': 'https://schema.org',
               '@type': 'RealEstateAgent',
               '@id': `${BASE_DEPLOYMENT_URL}#organization`,
-              name: 'OneCasa',
+              name: 'Houznext',
               description: 'India\'s leading platform for Real Estate, Construction, Interiors, Solar, Furniture & Electronics.',
               url: BASE_DEPLOYMENT_URL,
               telephone: '+918897574909',
@@ -459,3 +459,4 @@ const SEO: React.FC<ISEO> = (props) => {
 };
 
 export default SEO;
+

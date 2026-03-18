@@ -147,27 +147,6 @@ const NavDropDown = ({ item, subLink }: any) => {
     Plot: ["Residential Plot", "Commercial Plot"],
   };
 
-  const [portalHref, setPortalHref] = useState<string>("/portal/login");
-  const [portalLabel, setPortalLabel] = useState<string>("Login / My project");
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const token = localStorage.getItem("hz_customer_token");
-      if (!token) return;
-      const parts = token.split(".");
-      if (parts.length < 2) return;
-      const payloadJson = atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"));
-      const payload: { projectId?: string } = JSON.parse(payloadJson);
-      if (payload.projectId) {
-        setPortalHref(`/portal/${payload.projectId}`);
-        setPortalLabel("My project");
-      }
-    } catch {
-      // ignore parse errors, fall back to login
-    }
-  }, []);
-
   return (
     <Popover
       className="relative"
@@ -327,7 +306,7 @@ const NavDropDown = ({ item, subLink }: any) => {
 
                               <div>
                                 <h1 className=" font-regular md:text-[10px] text-[8px]">
-                                  Email us at support@onecasa.in or Contact us:
+                                  Email us at support@houznext.com or Contact us:
                                   <strong className="text-black">
                                     +918897574909 &nbsp; (9AM - 6PM IST)
                                   </strong>{" "}
@@ -673,9 +652,9 @@ const Navbar = ({ isVisibleItems }: ShowItems) => {
                   <span className="text-nowrap lg:text-[12px] xl:text-[14px]">Get Estimate</span>
                 </span>
               </Button>
-              <Link href={portalHref}>
+              <Link href="/portal/login">
                 <button className="text-sm font-medium px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-                  {portalLabel}
+                  Login / My project
                 </button>
               </Link>
               {!user || !token ? (
@@ -705,7 +684,7 @@ const Navbar = ({ isVisibleItems }: ShowItems) => {
             <span className="relative block h-[40px] w-[40px]">
               <Image
                 src={logo_place_holder.imageUrl}
-                alt="OneCasa"
+                alt="Houznext"
                 fill
                 className="object-contain"
               />

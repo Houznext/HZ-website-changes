@@ -10,6 +10,7 @@ interface PortalLayoutProps {
     | "trades"
     | "gallery"
     | "documents"
+    | "snags"
     | "reports"
     | "rewards";
   projectId: string;
@@ -24,10 +25,11 @@ const NAV_ITEMS: {
   icon: string;
 }[] = [
   { href: (id) => `/portal/${id}`, label: "Dashboard", page: "dashboard", icon: "⊞" },
-  { href: (id) => `/portal/${id}/designs`, label: "3D Designs", page: "designs", icon: "◧" },
-  { href: (id) => `/portal/${id}/trades`, label: "Trades", page: "trades", icon: "⚙" },
-  { href: (id) => `/portal/${id}/gallery`, label: "Gallery", page: "gallery", icon: "⊟" },
+  { href: (id) => `/portal/${id}/designs`, label: "3D Designs", page: "designs", icon: "🖼" },
+  { href: (id) => `/portal/${id}/trades`, label: "Trades", page: "trades", icon: "🔧" },
+  { href: (id) => `/portal/${id}/gallery`, label: "Gallery", page: "gallery", icon: "📷" },
   { href: (id) => `/portal/${id}/documents`, label: "Documents", page: "documents", icon: "📁" },
+  { href: (id) => `/portal/${id}/snags`, label: "Snags", page: "snags", icon: "⚠" },
   { href: (id) => `/portal/${id}/reports`, label: "Reports", page: "reports", icon: "📊" },
 ];
 

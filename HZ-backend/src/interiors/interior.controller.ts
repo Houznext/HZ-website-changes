@@ -3,6 +3,7 @@ import {
   Post,
   Get,
   Patch,
+  Delete,
   Body,
   Param,
   Query,
@@ -76,43 +77,36 @@ export class InteriorController {
     await this.interiorService.setPassword(customerId, dto.password);
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Post('customers')
   createCustomer(@Body() dto: CreateCustomerDto) {
     return this.interiorService.createCustomer(dto);
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Get('customers/:id')
   getCustomer(@Param('id') id: string) {
     return this.interiorService.getCustomer(id);
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Get('customers/:id/projects')
   getCustomerProjects(@Param('id') id: string) {
     return this.interiorService.getCustomerProjects(id);
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Get('customers/:id/referrals')
   getCustomerReferrals(@Param('id') id: string) {
     return this.interiorService.getReferralsByCustomer(id);
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Post('customers/:id/referrals')
   createReferral(@Param('id') id: string, @Body() dto: CreateReferralDto) {
     return this.interiorService.createReferralLead(id, dto);
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Post('projects')
   createProject(@Body() dto: CreateProjectDto) {
     return this.interiorService.createProject(dto);
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Get('projects')
   getAllProjects(
     @Query('status') status?: string,
@@ -122,7 +116,6 @@ export class InteriorController {
     return this.interiorService.getAllProjects({ status, repId, search });
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Get('projects/:id')
   getProject(@Param('id') id: string) {
     return this.interiorService.getProject(id);
@@ -135,30 +128,31 @@ export class InteriorController {
   }
 
   @UseGuards(InteriorJwtGuard)
+  @Delete('projects/:id')
+  deleteProject(@Param('id') id: string) {
+    return this.interiorService.deleteProject(id);
+  }
+
   @Post('projects/:id/designs')
   addDesign(@Body() dto: AddDesignDto) {
     return this.interiorService.addDesignUpload(dto);
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Get('projects/:id/designs')
   getDesigns(@Param('id') id: string) {
     return this.interiorService.getDesignUploads(id);
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Post('projects/:id/designs/approve')
   approveDesign(@Param('id') id: string) {
     return this.interiorService.approveDesign(id);
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Post('projects/:id/designs/revision')
   requestRevision(@Param('id') id: string) {
     return this.interiorService.requestRevision(id);
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Get('projects/:id/gallery')
   getGallery(
     @Param('id') id: string,
@@ -175,10 +169,19 @@ export class InteriorController {
     });
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Get('projects/:id/snags')
   getSnags(@Param('id') id: string, @Query('status') status?: string) {
     return this.interiorService.getSnags(id, status);
+  }
+
+  @Get('projects/:id/delayed-trades')
+  getDelayedTrades(@Param('id') id: string) {
+    return this.interiorService.getDelayedTrades(id);
+  }
+
+  @Get('projects/:id/activity')
+  async getActivity(@Param('id') id: string) {
+    return this.interiorService.getProjectActivity(id);
   }
 
   @UseGuards(InteriorJwtGuard)
@@ -187,7 +190,6 @@ export class InteriorController {
     return this.interiorService.createSnag(dto);
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Get('projects/:id/documents')
   getDocuments(@Param('id') id: string) {
     return this.interiorService.getDocuments(id);
@@ -199,13 +201,11 @@ export class InteriorController {
     return this.interiorService.addDocument(dto);
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Get('projects/:id/milestones')
   getMilestones(@Param('id') id: string) {
     return this.interiorService.getPaymentMilestones(id);
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Get('projects/:id/dpr')
   getDpr(@Param('id') id: string) {
     return this.interiorService.getDprHistory(id);
@@ -217,7 +217,6 @@ export class InteriorController {
     return this.interiorService.generateDpr(id, body.date);
   }
 
-  @UseGuards(InteriorJwtGuard)
   @Get('trade-templates')
   getTradeTemplates() {
     return this.interiorService.getTradeTemplates();
@@ -229,8 +228,6 @@ export class InteriorController {
     return this.interiorService.createTradeTemplate(dto);
   }
 
-  @UseGuards(InteriorJwtGuard)
-  @UseGuards(InteriorJwtGuard)
   @Post('projects/:id/trades')
   addTrade(@Param('id') projectId: string, @Body() body: AddTradeToProjectDto) {
     return this.interiorService.addTradeToProject(projectId, body.templateId, body.overrides);
@@ -258,6 +255,11 @@ export class InteriorController {
   @Post('trades/:id/media')
   addMedia(@Body() dto: AddMediaDto) {
     return this.interiorService.addMedia(dto);
+  }
+
+  @Get('qc/:tradeId')
+  getQcItems(@Param('tradeId') tradeId: string) {
+    return this.interiorService.getQcItems(tradeId);
   }
 
   @UseGuards(InteriorJwtGuard)

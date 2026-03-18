@@ -17,6 +17,11 @@ import Skeleton from '@mui/material/Skeleton';
 import Alert from '@mui/material/Alert';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogActions from '@mui/material/DialogActions';
 import withAdminLayout from '@/src/common/AdminLayout';
 import apiClient from '@/src/utils/apiClient';
 
@@ -63,6 +68,11 @@ function InteriorsPage() {
   const [view, setView]         = useState<string>('cards');
   const [sort, setSort]         = useState('updated');
 
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deletingName, setDeletingName] = useState<string>('');
+  const [deleteError, setDeleteError] = useState<string>('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   const loadProjects = useCallback(async (q: string, status: string) => {
     setLoading(true);
     setError('');
@@ -97,6 +107,34 @@ function InteriorsPage() {
     const t = setTimeout(() => loadProjects(search, filter), 350);
     return () => clearTimeout(t);
   }, [search, filter, loadProjects]);
+
+  const confirmDelete = (project: IProject) => {
+    setDeletingId(project.id);
+    setDeletingName(project.customer?.fullName ?? 'this project');
+    setDeleteError('');
+  };
+
+  const handleDelete = async () => {
+    if (!deletingId) return;
+    setDeleteLoading(true);
+    setDeleteError('');
+    try {
+      await apiClient.delete(
+        `${apiClient.URLS.interiors}/projects/${deletingId}`,
+        {},
+        true,
+      );
+      setProjects(prev => prev.filter(p => p.id !== deletingId));
+      setDeletingId(null);
+      setDeletingName('');
+    } catch (e) {
+      setDeleteError(
+        e instanceof Error ? e.message : 'Failed to delete project',
+      );
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   const sortedProjects = [...projects].sort((a, b) => {
     if (sort === 'name') return (a.customer?.fullName ?? '').localeCompare(b.customer?.fullName ?? '');
@@ -303,6 +341,20 @@ function InteriorsPage() {
                       sx={{ fontSize: 10, textTransform: 'none', borderRadius: '6px', border: '1px solid #e5e7eb', color: '#374151' }}>
                       Call
                     </Button>
+                    <Button
+                      size="small"
+                      onClick={() => confirmDelete(p)}
+                      sx={{
+                        fontSize: 10,
+                        textTransform: 'none',
+                        borderRadius: '6px',
+                        border: '1px solid rgba(239,68,68,0.5)',
+                        color: '#b91c1c',
+                        ml: 'auto',
+                      }}
+                    >
+                      Delete
+                    </Button>
                   </CardActions>
                 </Card>
               </Grid>
@@ -310,6 +362,46 @@ function InteriorsPage() {
           })}
         </Grid>
       )}
+      {/* Delete confirmation dialog */}
+      <Dialog
+        open={Boolean(deletingId)}
+        onClose={() => !deleteLoading && setDeletingId(null)}
+      >
+        <DialogTitle>Delete project?</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ fontSize: 14 }}>
+            Are you sure you want to permanently delete{' '}
+            <strong>{deletingName}</strong>? This action cannot be undone.
+          </DialogContentText>
+          {deleteError && (
+            <Alert
+              severity="error"
+              sx={{ mt: 2, borderRadius: '8px' }}
+              onClose={() => setDeleteError('')}
+            >
+              {deleteError}
+            </Alert>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setDeletingId(null)}
+            disabled={deleteLoading}
+            sx={{ textTransform: 'none' }}
+          >
+            No
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleDelete}
+            disabled={deleteLoading}
+            sx={{ textTransform: 'none' }}
+          >
+            {deleteLoading ? 'Deleting…' : 'Yes, delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
