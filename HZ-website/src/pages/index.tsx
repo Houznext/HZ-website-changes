@@ -6,7 +6,7 @@ import SeoHead from '@/components/SeoHead'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import InteriorCalculator from '@/components/InteriorCalculator'
 import { useQuoteModal } from '@/components/QuoteModal'
-import { localBusinessSchema } from '@/lib/schemas'
+import { localBusinessSchema, pricingFaqSchema } from '@/lib/schemas'
 import {
   AnimatedIconBox,
   IconHome, IconStar, IconClock, IconTag, IconMapPin,
@@ -40,10 +40,11 @@ export default function HomePage() {
   return (
     <>
       <SeoHead
-        title="Home Interiors in Hyderabad"
-        description="Fixed-price interior design for 2BHK, 3BHK and villas in Telangana. 45-day delivery, BuildLive live tracking, 1-year warranty. 500+ homes delivered."
+        title="Home Interiors in Hyderabad | Houznext"
+        description="Fixed-price interior design for 2BHK, 3BHK and villas across Telangana. 45-day delivery, BuildLive live tracking, 1-year warranty. Packages from ₹4.5L. 500+ homes delivered."
         canonical="/"
-        schema={localBusinessSchema}
+        schema={[localBusinessSchema, pricingFaqSchema]}
+        ogImage="https://houznext.com/og-home.jpg"
       />
       <Navbar />
       <main style={{ background: '#f5f7fa' }}>
@@ -864,7 +865,7 @@ function WaBar() {
           Chat with our design advisor on WhatsApp for a free consultation
         </p>
         <a
-          href="https://wa.me/91XXXXXXXXXX?text=Hi%20Houznext%2C%20I%20want%20a%20free%20consultation"
+          href="https://wa.me/918498823043?text=Hi%20Houznext%2C%20I%20want%20a%20free%20consultation"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2.5 px-8 py-4 rounded-xl font-head font-bold text-white text-[15px] transition-all hover:-translate-y-0.5 hover:shadow-xl"

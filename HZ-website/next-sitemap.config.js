@@ -10,6 +10,7 @@ module.exports = {
       { userAgent: '*', allow: '/' },
       { userAgent: '*', disallow: ['/login', '/portal/', '/api/'] },
     ],
+    additionalSitemaps: [],
   },
   additionalPaths: async () => [
     { loc: '/',            changefreq: 'weekly',  priority: 1.0 },

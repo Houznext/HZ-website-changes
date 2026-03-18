@@ -129,8 +129,8 @@ export default function LoginPage() {
   return (
     <>
       <SeoHead
-        title="Login / My Home"
-        description="Log in to track your interior project live with BuildLive."
+        title="Login | My Home Portal | Houznext"
+        description="Login to your Houznext portal. Track your interior project live, approve designs, view payments, and manage snags from your phone."
         canonical="/login"
         noIndex
       />

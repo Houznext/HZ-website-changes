@@ -4,14 +4,16 @@ import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import Reveal from '@/components/ui/Reveal'
+import { buildliveSchema } from '@/lib/schemas'
 
 export default function BuildLivePage() {
   return (
     <>
       <SeoHead
-        title="BuildLive — Track Your Interior Live"
-        description="Room-by-room live tracking, design approvals, milestone payments and snag management. Know exactly what's happening at your site every day."
+        title="BuildLive — Track Your Interior Live Daily | Houznext"
+        description="Room-by-room live photo updates, design approvals, milestone payments and snag management. Know exactly what's happening at your site every day — from your phone."
         canonical="/buildlive"
+        schema={buildliveSchema}
       />
       <Navbar />
       <main style={{ background: '#f5f7fa' }}>
@@ -179,7 +181,7 @@ function WaBar() {
             Login to My Home →
           </button>
           <a
-            href="https://wa.me/91XXXXXXXXXX?text=Hi%20Houznext%2C%20I%20want%20to%20know%20more%20about%20BuildLive"
+            href="https://wa.me/918498823043?text=Hi%20Houznext%2C%20I%20want%20to%20know%20more%20about%20BuildLive"
             target="_blank" rel="noopener noreferrer"
             className="px-8 py-4 rounded-xl font-head font-bold text-white text-[15px] transition-all hover:-translate-y-0.5 inline-flex items-center gap-2"
             style={{ background: '#25D366' }}

@@ -6,6 +6,7 @@ import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import InteriorCalculator from '@/components/InteriorCalculator'
 import { useQuoteModal } from '@/components/QuoteModal'
 import { pricingFaqSchema } from '@/lib/schemas'
+
 import Reveal from '@/components/ui/Reveal'
 
 type BHKType = '2bhk' | '3bhk'
@@ -47,7 +48,7 @@ export default function PricingPage() {
     <>
       <SeoHead
         title="Interior Design Cost in Hyderabad 2025 | Houznext Pricing"
-        description="Fixed-price interior packages: Essential from ₹4.5L, Premium from ₹7.5L, Luxury from ₹13L. All-inclusive — materials, labour, and 1-year warranty."
+        description="Houznext interior packages: Essential from ₹4.5L, Premium from ₹7.5L, Luxury from ₹13L for 2BHK. All-inclusive fixed price — materials, labour, and 1-year warranty included."
         canonical="/pricing"
         schema={pricingFaqSchema}
       />
@@ -235,7 +236,7 @@ function WaBar() {
           Chat with our design advisor — free consultation, no obligation
         </p>
         <a
-          href="https://wa.me/91XXXXXXXXXX?text=Hi%20Houznext%2C%20I%20want%20help%20choosing%20a%20package"
+          href="https://wa.me/918498823043?text=Hi%20Houznext%2C%20I%20want%20help%20choosing%20a%20package"
           target="_blank" rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-head font-bold text-white text-[15px] hover:-translate-y-0.5 transition-all"
           style={{ background: '#25D366' }}

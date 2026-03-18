@@ -7,16 +7,18 @@ import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import InteriorCalculator from '@/components/InteriorCalculator'
 import { useQuoteModal } from '@/components/QuoteModal'
 import { interiorServiceSchema } from '@/lib/schemas'
+
 import Reveal from '@/components/ui/Reveal'
 
 export default function InteriorsPage() {
   return (
     <>
       <SeoHead
-        title="Home Interiors Hyderabad | Fixed-Price Packages"
-        description="Modular kitchen, wardrobes, false ceiling, TV unit — fixed-price interior packages from ₹4.5L. 45-day delivery in Hyderabad, Warangal, Karimnagar."
+        title="Home Interiors Hyderabad | Fixed-Price Packages | Houznext"
+        description="Modular kitchen, wardrobes, false ceiling, TV unit — fixed-price interior packages from ₹4.5L for 2BHK. 45-day delivery in Hyderabad, Warangal, Karimnagar. Free 3D design."
         canonical="/interiors"
         schema={interiorServiceSchema}
+        ogImage="https://houznext.com/og-interiors.jpg"
       />
       <Navbar />
       <main style={{ background: '#f5f7fa' }}>

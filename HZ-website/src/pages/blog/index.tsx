@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
+import Reveal from '@/components/ui/Reveal'
 
 const CATEGORIES = ['All', 'Interiors', 'Construction', 'Real Estate', 'RERA & Legal', 'Cost Guides']
 
@@ -33,8 +34,8 @@ export default function BlogIndex() {
   return (
     <>
       <SeoHead
-        title="Home Design Blog | Interiors, Construction & Real Estate"
-        description="Expert guides on modular kitchens, construction costs, RERA compliance, and interior design for Indian homeowners in Telangana."
+        title="Home Design Blog | Interiors, Construction & Real Estate | Houznext"
+        description="Expert guides on modular kitchens, interior costs, RERA compliance, and home design for Indian homeowners in Telangana. Tips from 500+ delivered projects."
         canonical="/blog"
       />
       <Navbar />
