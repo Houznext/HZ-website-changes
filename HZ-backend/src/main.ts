@@ -39,46 +39,44 @@ async function bootstrap() {
 
   const isProd = process.env.NODE_ENV === 'production';
 
-  if (isProd) {
-    const envOrigins = (process.env.ALLOWED_ORIGINS ?? '')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .map((s) => s.replace(/\/$/, ''));
+  const envOrigins = (process.env.ALLOWED_ORIGINS ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((s) => s.replace(/\/$/, ''));
 
-    const staticLocalOrigins = [
-      'http://localhost:3000',
-      'http://localhost:3001',
-    ];
+  const staticLocalOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+  ];
 
-    const allowedOrigins = [...staticLocalOrigins, ...envOrigins].map((s) =>
-      s.replace(/\/$/, ''),
-    );
+  const allowedOrigins = [...staticLocalOrigins, ...envOrigins].map((s) =>
+    s.replace(/\/$/, ''),
+  );
 
-    app.enableCors({
-      origin: (origin, cb) => {
-        if (!origin) return cb(null, true);
-        if (allowedOrigins.length === 0) return cb(null, true);
-        const normalized = origin.replace(/\/$/, '');
-        if (allowedOrigins.includes(normalized)) return cb(null, true);
-        return cb(new Error(`CORS blocked for origin: ${origin}`), false);
-      },
-      credentials: true,
-      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-      maxAge: 86400,
-    });
-  } else {
-    app.enableCors({
-      origin: [
-        'http://localhost:3000',
-        'http://localhost:3001',
-      ],
-      credentials: true,
-      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-    });
-  }
+  app.enableCors({
+    origin: (origin, cb) => {
+      // Server-to-server (no Origin header) or no restrictions configured → allow
+      if (!origin) return cb(null, true);
+      if (allowedOrigins.length === staticLocalOrigins.length && !isProd) {
+        return cb(null, true);
+      }
+      const normalized = origin.replace(/\/$/, '');
+      // Always allow Vercel preview URLs for this project
+      const isVercelPreview = normalized.endsWith('.vercel.app');
+      if (allowedOrigins.includes(normalized) || isVercelPreview) {
+        return cb(null, true);
+      }
+      // Return null (not an Error) so Express does NOT throw a 500;
+      // the browser will see missing CORS headers and block the request cleanly.
+      console.warn(`[CORS] Blocked origin: ${origin}`);
+      return cb(null, false);
+    },
+    credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    maxAge: 86400,
+  });
 
   app
     .getHttpAdapter()
