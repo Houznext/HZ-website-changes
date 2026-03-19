@@ -58,6 +58,8 @@ const DOC_CATEGORIES = [
 ];
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 const TOKEN_KEY = 'token';
+const getToken = () =>
+  typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) ?? '' : '';
 
 function HandoverPage() {
   const router = useRouter();
