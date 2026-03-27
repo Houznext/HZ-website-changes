@@ -107,6 +107,10 @@ const CostEstimatorForm = ({
   const [OpenAddsectionModal, setOpenAddsectionModal] = useState(false);
   const [openDiscountModal, setOpenDiscountModal] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // GST state — default 18%, off by default
+  const [gstEnabled, setGstEnabled] = useState(false);
+  const [gstPercentage, setGstPercentage] = useState<number>(18);
   const toDecimalString = (value: any) =>
     value === null || value === undefined ? "0" : String(value);
 
@@ -142,6 +146,8 @@ useEffect(() => {
       });
       setLocationDetails({ ...editingEstimation.location });
       setDetails(editingEstimation?.details);
+      setGstEnabled((editingEstimation as any).gstEnabled ?? false);
+      setGstPercentage((editingEstimation as any).gstPercentage ?? 18);
     } else if (userId) {
       // Reset form when opening for new estimation
       const emptyLocation = {
@@ -175,6 +181,8 @@ useEffect(() => {
       });
       setLocationDetails(emptyLocation);
       setDetails(undefined);
+      setGstEnabled(false);
+      setGstPercentage(18);
     }
   }, [editingEstimation, userId]);
 
@@ -558,6 +566,7 @@ useEffect(() => {
     try {
       let response: any = null;
 
+      const pct = Number(gstPercentage);
       const payLoad = {
         ...formValues,
         phone: Number(formValues.phone),
@@ -565,6 +574,8 @@ useEffect(() => {
         details,
         discount: toDecimalString(formValues.discount),
         category: categoryProp ?? (activetab?.category as string) ?? "Interior",
+        gstEnabled: Boolean(gstEnabled),
+        gstPercentage: Number.isFinite(pct) ? pct : 18,
       };
 
       if (editingEstimation) {
@@ -685,401 +696,367 @@ useEffect(() => {
   const proprtyTypes = ["Apartment", "Villas", "Independent House"];
 
   return (
-    <div className="h-full flex flex-col bg-[#f5f6f8]">
-      {/* Header */}
-      <div className="sticky top-0 z-10 px-6 py-5 mb-5 bg-[#f5f6f8]">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
-              <FiFileText className="w-5 h-5 text-[#0C447C]" />
-            </div>
-            <div className="flex flex-col">
-              <h1 className="text-[17px] md:text-[18px] font-medium text-[#1A1A1A]">
-                {editingEstimation ? "Edit Quotation" : "Create Quotation"}
-              </h1>
-              {editingEstimation && (
-                <p className="text-[12px] text-[#6B7280] mt-0.5 flex items-center gap-1">
-                  Customer:{" "}
-                  <span className="font-medium text-[#111827]">
-                    {editingEstimation?.firstname} {editingEstimation?.lastname}
-                  </span>
-                  <ProfileIcon />
-                </p>
-              )}
-            </div>
-          </div>
-          <button
-            onClick={closeDrawer}
-            className="p-2 rounded-[8px] hover:bg-[#E5E7EB] text-[#6B7280] hover:text-[#111827] transition-colors"
+    <div className="h-full flex flex-col" style={{ background: '#f6f8fa', fontFamily: "'Inter', sans-serif" }}>
+      {/* ── Sticky header ── */}
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-9 h-9 rounded-[10px] flex items-center justify-center flex-shrink-0"
+            style={{ background: 'rgba(47,128,237,0.1)' }}
           >
-            <FiX className="w-5 h-5" />
-          </button>
+            <FiFileText className="w-4 h-4 text-[#2f80ed]" />
+          </div>
+          <div>
+            <h1
+              className="text-[15px] font-bold text-gray-800 tracking-tight"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              {editingEstimation ? "Edit Quotation" : "New Quotation"}
+            </h1>
+            {editingEstimation && (
+              <p className="text-[11.5px] text-gray-400 mt-0.5" style={{ fontFamily: "'Inter', sans-serif" }}>
+                {editingEstimation.firstname} {editingEstimation.lastname}
+                {(editingEstimation as any)?.quotationNumber &&
+                  ` · QT-${String((editingEstimation as any).quotationNumber).padStart(4, "0")}`}
+              </p>
+            )}
+          </div>
         </div>
+        <button
+          onClick={closeDrawer}
+          className="w-8 h-8 rounded-[8px] flex items-center justify-center
+                     bg-gray-50 hover:bg-red-50 border border-gray-200
+                     hover:border-red-200 text-gray-400 hover:text-red-500
+                     transition-all duration-150"
+        >
+          <FiX className="w-4 h-4" />
+        </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 pb-6">
-        <div className="w-full flex flex-col gap-5">
-          {/* User Info Section */}
-          <div className="bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] overflow-hidden">
-            <div className="px-5 py-4 border-b border-[rgba(0,0,0,0.06)] bg-[#F9FAFB]">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
-                  <FiUser className="w-4 h-4 text-[#0C447C]" />
-                </div>
-                <div>
-                  <h2 className="text-[14px] font-medium text-[#111827]">User Information</h2>
-                  <p className="text-[11px] text-[#6B7280]">Customer and designer details</p>
-                </div>
-              </div>
+      {/* ── Scroll area ── */}
+      <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4">
+
+        {/* ── User Information ── */}
+        <div className="bg-white rounded-[12px] border border-gray-100 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <div className="px-5 py-3.5 border-b border-gray-100 flex items-center gap-3" style={{ background: '#f9fafb' }}>
+            <div
+              className="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(47,128,237,0.1)' }}
+            >
+              <FiUser className="w-4 h-4 text-[#2f80ed]" />
             </div>
-            <div className="p-5">
-              <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                <CustomInput
-                  type="text"
-                  label="First Name"
-                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                  value={formValues.firstname}
-                  onChange={(e) =>
-                    handleFormChange(e.target.name, e.target.value)
-                  }
-                  required
-                  placeholder="Enter first name"
-                  errorMsg={error?.firstname}
-                  name="firstname"
-                />
-                <CustomInput
-                  type="text"
-                  label="Last Name"
-                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                  value={formValues.lastname}
-                  onChange={(e) =>
-                    handleFormChange(e.target.name, e.target.value)
-                  }
-                  required
-                  placeholder="Enter last name"
-                  errorMsg={error?.lastname}
-                  name="lastname"
-                />
-                <CustomInput
-                  type="text"
-                  rootCls="w-full"
-                  label="Designer Name"
-                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                  value={formValues.designerName}
-                  onChange={(e) =>
-                    handleFormChange("designerName", e.target.value)
-                  }
-                  required
-                  placeholder="Designer name"
-                  errorMsg={error?.designerName}
-                  name="designerName"
-                />
-                <CustomInput
-                  label="Email"
-                  type="email"
-                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                  value={formValues.email}
-                  onChange={(e) =>
-                    handleFormChange(e.target.name, e.target.value)
-                  }
-                  required
-                  placeholder="Enter email"
-                  errorMsg={error?.email}
-                  name="email"
-                />
-                <CustomInput
-                  label="Phone Number"
-                  type="number"
-                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                  value={formValues.phone}
-                  onChange={(e) =>
-                    handleFormChange(e.target.name, +e.target.value)
-                  }
-                  required
-                  placeholder="Phone number"
-                  errorMsg={error?.phone}
-                  name="phone"
-                />
-                <CustomDate
-                  label="Date of Estimation"
-                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                  value={formValues.date}
-                  onChange={(e) =>
-                    handleFormChange(e.target.name, e.target.value)
-                  }
-                  placeholder="Date of estimation"
-                  errorMsg={error?.date}
-                  name="date"
-                />
-              </div>
+            <div>
+              <h2 className="text-[13.5px] font-semibold text-gray-800" style={{ fontFamily: "'Montserrat', sans-serif" }}>User Information</h2>
+              <p className="text-[11px] text-gray-400" style={{ fontFamily: "'Inter', sans-serif" }}>Customer and designer details</p>
             </div>
           </div>
-
-          {/* Property Details Section */}
-          <div className="bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] overflow-hidden">
-            <div className="px-5 py-4 border-b border-[rgba(0,0,0,0.06)] bg-[#F9FAFB]">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-[8px] bg-emerald-50 flex items-center justify-center">
-                  <FiHome className="w-4 h-4 text-emerald-600" />
-                </div>
-                <div>
-                  <h2 className="text-[14px] font-medium text-[#111827]">Property Details</h2>
-                  <p className="text-[11px] text-[#6B7280]">Property information and type</p>
-                </div>
-              </div>
-            </div>
-            <div className="p-5 space-y-5">
-              <div className="grid gap-5 md:grid-cols-2">
-                {/* Left card: Property Name + Property Type */}
-                <div className="bg-slate-50/60 rounded-2xl border border-slate-200/70 p-4 space-y-4">
-                  <CustomInput
-                    type="text"
-                    label="Property Name"
-                    labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                    rootCls="md:max-w-none"
-                    value={formValues.property_name}
-                    onChange={(e) =>
-                      handleFormChange(e.target.name, e.target.value)
-                    }
-                    required
-                    placeholder="Property name"
-                    name="property_name"
-                  />
-
-                  <div className="min-w-0">
-                    <SelectBtnGrp
-                      options={proprtyTypes}
-                      label="Property Type"
-                      labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                      className="md:gap-2 gap-1 flex-wrap"
-                      btnClass="text-[13px] font-medium rounded-lg px-3 py-2 border-2 border-slate-200 hover:border-blue-300 transition-all"
-                      onSelectChange={(v) =>
-                        handleFormChange("property_type", v as string)
-                      }
-                      slant={false}
-                      defaultValue={formValues.property_type}
-                    />
-                  </div>
-                </div>
-
-                {/* Right card: BHK + Work Type */}
-                <div className="bg-slate-50/60 rounded-2xl border border-slate-200/70 p-4 space-y-4">
-                  <div className="min-w-0">
-                    <SelectBtnGrp
-                      options={bhkArray}
-                      label="No of BHK"
-                      labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                      className="flex flex-wrap gap-2"
-                      btnClass="text-[13px] font-medium rounded-lg px-3 py-2 border-2 border-slate-200 hover:border-blue-300 transition-all"
-                      onSelectChange={(v) =>
-                        handleFormChange("bhk", v as string)
-                      }
-                      slant={false}
-                      defaultValue={formValues.bhk}
-                    />
-                  </div>
-
-                  {/* Fallback select for very small screens to ensure all options visible */}
-                  <div className="md:hidden">
-                    <select
-                      className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2f80ed]/30 focus:border-[#2f80ed]"
-                      value={formValues.bhk || ""}
-                      onChange={(e) => handleFormChange("bhk", e.target.value)}
-                    >
-                      <option value="">Select BHK</option>
-                      {bhkArray.map((b) => (
-                        <option key={b} value={b}>
-                          {b}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <CustomInput
-                    type="text"
-                    label="Work Type"
-                    labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                    rootCls="md:max-w-none"
-                    value={formValues.workType || ""}
-                    onChange={(e) =>
-                      handleFormChange(e.target.name, e.target.value)
-                    }
-                    placeholder="e.g. Interior Works"
-                    name="workType"
-                  />
-                </div>
-              </div>
-
-              {/* File Inputs */}
-              <div className="grid md:grid-cols-2 gap-6 pt-2">
-                <FileInput
-                  name="Floor plan"
-                  type="file"
-                  label="Floor Plan"
-                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                  initialFileUrl={formValues.floor_plan}
-                  folderName="cost-estimator"
-                  onFileChange={(url) => handleFormChange("floor_plan", url)}
-                />
-                <FileInput
-                  name="Property image"
-                  type="file"
-                  label="Property Image"
-                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                  initialFileUrl={formValues.property_image}
-                  folderName="cost-estimator"
-                  onFileChange={(url) =>
-                    handleFormChange("property_image", url)
-                  }
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Location Details Section */}
-          <div className="bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] overflow-hidden">
-            <div className="px-5 py-4 border-b border-[rgba(0,0,0,0.06)] bg-[#F9FAFB]">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
-                  <FiMapPin className="w-4 h-4 text-[#0C447C]" />
-                </div>
-                <div>
-                  <h2 className="text-[14px] font-medium text-[#111827]">Location Details</h2>
-                  <p className="text-[11px] text-[#6B7280]">Property address and location</p>
-                </div>
-              </div>
-            </div>
-            <div className="p-5 space-y-5">
-              <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                <CustomInput
-                  type="text"
-                  label="City"
-                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                  value={locationDetails.city}
-                  onChange={(e) =>
-                    handleLocationChange(e.target.name, e.target.value)
-                  }
-                  placeholder="City"
-                  errorMsg={error?.location?.city}
-                  name="city"
-                  required
-                />
-
-                <CustomInput
-                  type="text"
-                  label="State"
-                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                  value={locationDetails.state}
-                  onChange={(e) =>
-                    handleLocationChange(e.target.name, e.target.value)
-                  }
-                  placeholder="State"
-                  errorMsg={error?.location?.state}
-                  name="state"
-                  required
-                />
-
-                <CustomInput
-                  type="text"
-                  label="Locality"
-                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                  value={locationDetails.locality}
-                  onChange={(e) =>
-                    handleLocationChange(e.target.name, e.target.value)
-                  }
-                  placeholder="Locality"
-                  errorMsg={error?.location?.locality}
-                  name="locality"
-                  required
-                />
-
-                <CustomInput
-                  type="text"
-                  label="Pincode"
-                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                  value={locationDetails.pincode}
-                  onChange={(e) =>
-                    handleLocationChange(e.target.name, e.target.value)
-                  }
-                  placeholder="Pincode"
-                  errorMsg={error?.location?.pincode}
-                  name="pincode"
-                  required
-                />
-
-                <CustomInput
-                  type="text"
-                  label="Sub Locality"
-                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                  value={locationDetails.sub_locality}
-                  onChange={(e) =>
-                    handleLocationChange(e.target.name, e.target.value)
-                  }
-                  placeholder="Sub locality"
-                  errorMsg={error?.location?.sub_locality}
-                  name="sub_locality"
-                />
-
-                <CustomInput
-                  type="text"
-                  label="Landmark"
-                  labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                  value={locationDetails.landmark}
-                  onChange={(e) =>
-                    handleLocationChange(e.target.name, e.target.value)
-                  }
-                  placeholder="Landmark"
-                  errorMsg={error?.location?.landmark}
-                  name="landmark"
-                />
-              </div>
-
+          <div className="p-5">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               <CustomInput
-                type="textarea"
-                label="Full Address"
-                labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
-                value={locationDetails.address_line_1}
-                onChange={(e) =>
-                  handleLocationChange(e.target.name, e.target.value)
-                }
-                placeholder="Enter complete address"
-                errorMsg={error?.location?.address_line_1}
-                name="address_line_1"
+                type="text"
+                label="First Name"
+                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                value={formValues.firstname}
+                onChange={(e) => handleFormChange(e.target.name, e.target.value)}
+                required
+                placeholder="Enter first name"
+                errorMsg={error?.firstname}
+                name="firstname"
+              />
+              <CustomInput
+                type="text"
+                label="Last Name"
+                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                value={formValues.lastname}
+                onChange={(e) => handleFormChange(e.target.name, e.target.value)}
+                required
+                placeholder="Enter last name"
+                errorMsg={error?.lastname}
+                name="lastname"
+              />
+              <CustomInput
+                type="text"
+                rootCls="w-full"
+                label="Designer Name"
+                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                value={formValues.designerName}
+                onChange={(e) => handleFormChange("designerName", e.target.value)}
+                required
+                placeholder="Designer name"
+                errorMsg={error?.designerName}
+                name="designerName"
+              />
+              <CustomInput
+                label="Email"
+                type="email"
+                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                value={formValues.email}
+                onChange={(e) => handleFormChange(e.target.name, e.target.value)}
+                required
+                placeholder="Enter email"
+                errorMsg={error?.email}
+                name="email"
+              />
+              <CustomInput
+                label="Phone Number"
+                type="number"
+                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                value={formValues.phone}
+                onChange={(e) => handleFormChange(e.target.name, +e.target.value)}
+                required
+                placeholder="Phone number"
+                errorMsg={error?.phone}
+                name="phone"
+              />
+              <CustomDate
+                label="Date of Estimation"
+                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                value={formValues.date}
+                onChange={(e) => handleFormChange(e.target.name, e.target.value)}
+                placeholder="Date of estimation"
+                errorMsg={error?.date}
+                name="date"
               />
             </div>
           </div>
+        </div>
 
-          {/* Action Buttons for Items */}
-          <div className="flex flex-wrap items-center justify-end gap-3">
-            <Button
-              className="px-4 py-2.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:from-blue-600 hover:to-blue-700 transition-all flex items-center gap-2"
-              onClick={() => setOpenAddsectionModal(true)}
+        {/* ── Property Details ── */}
+        <div className="bg-white rounded-[12px] border border-gray-100 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <div className="px-5 py-3.5 border-b border-gray-100 flex items-center gap-3" style={{ background: '#f9fafb' }}>
+            <div
+              className="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(47,128,237,0.1)' }}
             >
-              <FiLayers className="w-4 h-4" />
-              Add Section
-            </Button>
-            <Button
-              className="px-4 py-2.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:from-emerald-600 hover:to-emerald-700 transition-all flex items-center gap-2"
-              onClick={() => setAddInfoModal(true)}
-            >
-              <FiFileText className="w-4 h-4" />
-              Add Details
-            </Button>
-            <Button
-              className="px-4 py-2.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl hover:from-purple-600 hover:to-purple-700 transition-all flex items-center gap-2"
-              onClick={() => {
-                setDiscountInput(formValues.discount);
-                setOpenDiscountModal(true);
-              }}
-            >
-              <FiPercent className="w-4 h-4" />
-              Set Discount
-            </Button>
+              <FiHome className="w-4 h-4 text-[#2f80ed]" />
+            </div>
+            <div>
+              <h2 className="text-[13.5px] font-semibold text-gray-800" style={{ fontFamily: "'Montserrat', sans-serif" }}>Property Details</h2>
+              <p className="text-[11px] text-gray-400" style={{ fontFamily: "'Inter', sans-serif" }}>Property information and type</p>
+            </div>
           </div>
+          <div className="p-5 space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Left card */}
+              <div className="bg-gray-50 rounded-[10px] border border-gray-100 p-4 space-y-4">
+                <CustomInput
+                  type="text"
+                  label="Property Name"
+                  labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                  rootCls="md:max-w-none"
+                  value={formValues.property_name}
+                  onChange={(e) => handleFormChange(e.target.name, e.target.value)}
+                  required
+                  placeholder="Property name"
+                  name="property_name"
+                />
+                <div className="min-w-0">
+                  <SelectBtnGrp
+                    options={proprtyTypes}
+                    label="Property Type"
+                    labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                    className="md:gap-2 gap-1 flex-wrap"
+                    btnClass="text-[13px] font-medium rounded-[8px] px-3 py-2
+                               border border-gray-200 hover:border-[#2f80ed]
+                               hover:bg-blue-50 hover:text-[#2f80ed]
+                               transition-all duration-150"
+                    onSelectChange={(v) => handleFormChange("property_type", v as string)}
+                    slant={false}
+                    defaultValue={formValues.property_type}
+                  />
+                </div>
+              </div>
 
-          {/* Estimation Table */}
-          {formValues?.itemGroups?.length > 0 && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              {/* Right card */}
+              <div className="bg-gray-50 rounded-[10px] border border-gray-100 p-4 space-y-4">
+                <div className="min-w-0">
+                  <SelectBtnGrp
+                    options={bhkArray}
+                    label="No of BHK"
+                    labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                    className="flex flex-wrap gap-2"
+                    btnClass="text-[13px] font-medium rounded-[8px] px-3 py-2
+                               border border-gray-200 hover:border-[#2f80ed]
+                               hover:bg-blue-50 hover:text-[#2f80ed]
+                               transition-all duration-150"
+                    onSelectChange={(v) => handleFormChange("bhk", v as string)}
+                    slant={false}
+                    defaultValue={formValues.bhk}
+                  />
+                </div>
+                <div className="md:hidden">
+                  <select
+                    className="mt-2 w-full rounded-[8px] border border-[#d0d7de] px-3 py-2 text-[13px] text-[#24292f] focus:outline-none focus:ring-2 focus:ring-[#2f80ed]/20 focus:border-[#2f80ed]"
+                    value={formValues.bhk || ""}
+                    onChange={(e) => handleFormChange("bhk", e.target.value)}
+                  >
+                    <option value="">Select BHK</option>
+                    {bhkArray.map((b) => (
+                      <option key={b} value={b}>{b}</option>
+                    ))}
+                  </select>
+                </div>
+                <CustomInput
+                  type="text"
+                  label="Work Type"
+                  labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                  rootCls="md:max-w-none"
+                  value={formValues.workType || ""}
+                  onChange={(e) => handleFormChange(e.target.name, e.target.value)}
+                  placeholder="e.g. Interior Works"
+                  name="workType"
+                />
+              </div>
+            </div>
+
+            {/* File inputs */}
+            <div className="grid md:grid-cols-2 gap-4 pt-1">
+              <FileInput
+                name="Floor plan"
+                type="file"
+                label="Floor Plan"
+                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                initialFileUrl={formValues.floor_plan}
+                folderName="cost-estimator"
+                onFileChange={(url) => handleFormChange("floor_plan", url)}
+              />
+              <FileInput
+                name="Property image"
+                type="file"
+                label="Property Image"
+                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                initialFileUrl={formValues.property_image}
+                folderName="cost-estimator"
+                onFileChange={(url) => handleFormChange("property_image", url)}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* ── Location Details ── */}
+        <div className="bg-white rounded-[12px] border border-gray-100 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <div className="px-5 py-3.5 border-b border-gray-100 flex items-center gap-3" style={{ background: '#f9fafb' }}>
+            <div
+              className="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(47,128,237,0.1)' }}
+            >
+              <FiMapPin className="w-4 h-4 text-[#2f80ed]" />
+            </div>
+            <div>
+              <h2 className="text-[13.5px] font-semibold text-gray-800" style={{ fontFamily: "'Montserrat', sans-serif" }}>Location Details</h2>
+              <p className="text-[11px] text-gray-400" style={{ fontFamily: "'Inter', sans-serif" }}>Property address and location</p>
+            </div>
+          </div>
+          <div className="p-5 space-y-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <CustomInput
+                type="text"
+                label="City"
+                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                value={locationDetails.city}
+                onChange={(e) => handleLocationChange(e.target.name, e.target.value)}
+                placeholder="City"
+                errorMsg={error?.location?.city}
+                name="city"
+                required
+              />
+              <CustomInput
+                type="text"
+                label="State"
+                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                value={locationDetails.state}
+                onChange={(e) => handleLocationChange(e.target.name, e.target.value)}
+                placeholder="State"
+                errorMsg={error?.location?.state}
+                name="state"
+                required
+              />
+              <CustomInput
+                type="text"
+                label="Locality"
+                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                value={locationDetails.locality}
+                onChange={(e) => handleLocationChange(e.target.name, e.target.value)}
+                placeholder="Locality"
+                errorMsg={error?.location?.locality}
+                name="locality"
+                required
+              />
+              <CustomInput
+                type="text"
+                label="Pincode"
+                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                value={locationDetails.pincode}
+                onChange={(e) => handleLocationChange(e.target.name, e.target.value)}
+                placeholder="Pincode"
+                errorMsg={error?.location?.pincode}
+                name="pincode"
+                required
+              />
+              <CustomInput
+                type="text"
+                label="Sub Locality"
+                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                value={locationDetails.sub_locality}
+                onChange={(e) => handleLocationChange(e.target.name, e.target.value)}
+                placeholder="Sub locality"
+                errorMsg={error?.location?.sub_locality}
+                name="sub_locality"
+              />
+              <CustomInput
+                type="text"
+                label="Landmark"
+                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                value={locationDetails.landmark}
+                onChange={(e) => handleLocationChange(e.target.name, e.target.value)}
+                placeholder="Landmark"
+                errorMsg={error?.location?.landmark}
+                name="landmark"
+              />
+            </div>
+            <CustomInput
+              type="textarea"
+              label="Full Address"
+              labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+              value={locationDetails.address_line_1}
+              onChange={(e) => handleLocationChange(e.target.name, e.target.value)}
+              placeholder="Enter complete address"
+              errorMsg={error?.location?.address_line_1}
+              name="address_line_1"
+            />
+          </div>
+        </div>
+
+        {/* ── Item Groups ── */}
+        <div className="bg-white rounded-[12px] border border-gray-100 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between" style={{ background: '#f9fafb' }}>
+            <div className="flex items-center gap-3">
+              <div
+                className="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(47,128,237,0.1)' }}
+              >
+                <FiLayers className="w-4 h-4 text-[#2f80ed]" />
+              </div>
+              <div>
+                <h2 className="text-[13.5px] font-semibold text-gray-800" style={{ fontFamily: "'Montserrat', sans-serif" }}>Item Groups</h2>
+                <p className="text-[11px] text-gray-400" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  Amount = Quantity × Unit Price × Area
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={AddsectionModal}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px]
+                         border border-gray-200 bg-white hover:bg-gray-50
+                         text-gray-600 hover:text-gray-800 text-[12px] font-medium
+                         transition-all"
+              style={{ fontFamily: "'Inter', sans-serif" }}
+            >
+              <FiPlus className="w-3.5 h-3.5" /> Add Section
+            </button>
+          </div>
+          <div className="p-4">
+            {formValues?.itemGroups?.length > 0 ? (
               <ConstEstimationTable
                 costEstimation={formValues}
                 isInForm={true}
@@ -1091,172 +1068,300 @@ useEffect(() => {
                 openSectionModal={AddsectionModal}
                 editSection={editSection}
               />
-            </div>
-          )}
-
-          {/* Details Section */}
-          {formValues?.details?.length > 0 && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center">
-                    <FiFileText className="w-4 h-4 text-amber-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-base font-semibold text-slate-800">Additional Details</h2>
-                    <p className="text-xs text-slate-500">Extra information and notes</p>
-                  </div>
-                </div>
-                <Button
-                  onClick={EditDetails}
-                  className="px-3 py-2 text-sm font-medium rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all flex items-center gap-1.5"
-                >
-                  <MdEdit className="w-4 h-4" /> Edit
-                </Button>
-              </div>
-              <div className="p-5">
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: formValues?.details,
-                  }}
-                  className=" max-w-none text-slate-700 leading-[22.8px] text-[14px] font-medium"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Totals Summary */}
-          {formValues?.itemGroups?.length > 0 && (
-            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl px-6 py-4  shadow-xl">
-              <div className="flex flex-col items-end gap-3">
-                <div className="flex items-center justify-between w-full max-w-xs">
-                  <span className="text-slate-400 text-sm label-text">Subtotal</span>
-                  <span className="text-white font-semibold text-lg">₹ {Number(formValues?.subTotal || 0).toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex items-center justify-between w-full max-w-xs">
-                  <span className="text-emerald-400 text-sm label-text">Discount</span>
-                  <span className="text-emerald-400 font-semibold text-lg">- ₹ {Number(formValues?.discount || 0).toLocaleString('en-IN')}</span>
-                </div>
-                <div className="h-px w-full max-w-xs bg-slate-600 my-1" />
-                <div className="flex items-center justify-between w-full max-w-xs">
-                  <span className="text-white font-bold text-lg label-text">Grand Total</span>
-                  <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-                    ₹ {(Number(formValues?.subTotal || 0) - Number(formValues?.discount || 0)).toLocaleString('en-IN')}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Footer Actions */}
-      <div className="sticky bottom-0 px-6 py-5 flex items-center justify-between bg-white border-t border-[rgba(0,0,0,0.08)]">
-        <p className="text-[12px] text-[#6B7280] hidden md:block">
-          {editingEstimation
-            ? "Changes will be saved immediately"
-            : "Fill all required fields to create a new quotation"}
-        </p>
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <Button
-            className="flex-1 md:flex-none px-4 py-2 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[13px] font-medium transition-colors"
-            onClick={closeDrawer}
-          >
-            Close
-          </Button>
-          <Button
-            className="flex-1 md:flex-none px-4 py-2 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            type="submit"
-            onClick={handleSubmit}
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <CgSpinner className="w-4 h-4 animate-spin" />
-                Saving...
-              </>
             ) : (
-              <>
-                <FiSave className="w-4 h-4" />
-                {editingEstimation ? "Update" : "Save"}
-              </>
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <div className="w-10 h-10 rounded-[10px] bg-[#f6f8fa] border border-[#eaeef2] flex items-center justify-center mb-3">
+                  <FiLayers className="w-5 h-5 text-[#8c959f]" />
+                </div>
+                <p className="text-[13px] font-medium text-[#57606a]">No sections yet</p>
+                <p className="text-[11.5px] text-[#8c959f] mt-0.5">
+                  Save the quotation first, then add sections
+                </p>
+              </div>
             )}
-          </Button>
+          </div>
         </div>
+
+        {/* ── Details preview ── */}
+        {formValues?.details?.length > 0 && (
+          <div className="bg-white rounded-[12px] border border-gray-100 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between" style={{ background: '#f9fafb' }}>
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(47,128,237,0.1)' }}
+                >
+                  <FiFileText className="w-4 h-4 text-[#2f80ed]" />
+                </div>
+                <div>
+                  <h2 className="text-[13.5px] font-semibold text-gray-800" style={{ fontFamily: "'Montserrat', sans-serif" }}>Additional Details</h2>
+                  <p className="text-[11px] text-gray-400" style={{ fontFamily: "'Inter', sans-serif" }}>Extra information and notes</p>
+                </div>
+              </div>
+              <button
+                onClick={EditDetails}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[8px]
+                           border border-[#d0d7de] bg-white hover:bg-[#f6f8fa]
+                           text-[#57606a] hover:text-[#24292f] text-[12px] font-medium
+                           transition-all duration-150"
+              >
+                <MdEdit className="w-3.5 h-3.5" /> Edit
+              </button>
+            </div>
+            <div className="p-5">
+              <div
+                dangerouslySetInnerHTML={{ __html: formValues?.details }}
+                className="text-[13.5px] text-[#57606a] leading-relaxed"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* ── Totals summary ── */}
+        {formValues?.itemGroups?.length > 0 && (
+          <div className="bg-white rounded-[12px] border border-gray-100 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <div className="p-5">
+              <div className="flex flex-col gap-2">
+
+                {/* GST toggle row */}
+                <div className="flex items-center gap-3 pb-3 border-b border-[#eaeef2]">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={gstEnabled}
+                      onChange={(e) => setGstEnabled(e.target.checked)}
+                      className="w-4 h-4 rounded border-gray-300 text-[#2f80ed] accent-[#2f80ed] cursor-pointer"
+                    />
+                    <span className="text-[13px] font-semibold text-[#24292f]" style={{ fontFamily: "'Inter', sans-serif" }}>
+                      Include GST
+                    </span>
+                  </label>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      step={0.1}
+                      value={gstPercentage}
+                      onChange={(e) => setGstPercentage(Number(e.target.value) || 0)}
+                      className="w-16 px-2 py-1 text-[13px] font-semibold text-[#24292f] border border-[#d0d7de] rounded-[6px] text-right focus:outline-none focus:border-[#2f80ed] focus:ring-1 focus:ring-[#2f80ed]"
+                      style={{ fontFamily: "'Inter', sans-serif" }}
+                    />
+                    <span className="text-[13px] text-[#8c959f]">%</span>
+                  </div>
+                  {gstEnabled && (
+                    <span className="text-[11px] text-[#8c959f] ml-auto" style={{ fontFamily: "'Inter', sans-serif" }}>
+                      GST on after-discount total
+                    </span>
+                  )}
+                </div>
+
+                {/* Amounts */}
+                <div className="flex flex-col items-end gap-2 max-w-xs ml-auto w-full">
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-[12.5px] text-[#8c959f]">Subtotal</span>
+                    <span className="text-[14px] font-semibold text-[#24292f] tabular-nums">
+                      ₹ {Number(formValues?.subTotal || 0).toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                  {Number(formValues?.discount) > 0 && (
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-[12.5px] text-[#16a34a]">Discount</span>
+                      <span className="text-[14px] font-semibold text-[#16a34a] tabular-nums">
+                        − ₹ {Number(formValues?.discount || 0).toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  )}
+                  {gstEnabled && (() => {
+                    const base = Number(formValues?.subTotal || 0) - Number(formValues?.discount || 0);
+                    const gstAmt = base * (gstPercentage / 100);
+                    return (
+                      <div className="flex items-center justify-between w-full">
+                        <span className="text-[12.5px] text-[#d97706]">GST ({gstPercentage}%)</span>
+                        <span className="text-[14px] font-semibold text-[#d97706] tabular-nums">
+                          + ₹ {gstAmt.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                    );
+                  })()}
+                  <div className="h-px w-full bg-[#eaeef2] my-1" />
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-[13px] font-bold text-[#24292f]">Grand Total</span>
+                    <span className="text-[18px] font-bold text-[#2f80ed] tabular-nums">
+                      {(() => {
+                        const base = Number(formValues?.subTotal || 0) - Number(formValues?.discount || 0);
+                        const grand = gstEnabled ? base + base * (gstPercentage / 100) : base;
+                        return `₹ ${grand.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                      })()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Add Section Modal */}
+      {/* ── Sticky footer actions ── */}
+      <div className="sticky bottom-0 bg-white border-t border-gray-100 px-5 py-4 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          {/* Add Details */}
+          <button
+            onClick={EditDetails}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[8px]
+                       border border-gray-200 bg-white hover:bg-gray-50
+                       text-gray-600 text-[12.5px] font-medium transition-all"
+            style={{ fontFamily: "'Inter', sans-serif" }}
+          >
+            <FiFileText className="w-3.5 h-3.5" /> Add Details
+          </button>
+
+          {/* Discount */}
+          <button
+            onClick={() => setOpenDiscountModal(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[8px]
+                       border border-purple-200 bg-purple-50 hover:bg-purple-100
+                       text-purple-600 text-[12.5px] font-medium transition-all"
+            style={{ fontFamily: "'Inter', sans-serif" }}
+          >
+            <FiPercent className="w-3.5 h-3.5" />
+            Discount
+            {Number(formValues.discount) > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 rounded-full bg-purple-600 text-white text-[10px] font-bold">
+                ₹{Number(formValues.discount).toLocaleString("en-IN")}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* Estimated total */}
+        {formValues.subTotal > 0 && (
+          <div className="text-center hidden md:block">
+            <div className="text-[10.5px] font-medium text-gray-400" style={{ fontFamily: "'Inter', sans-serif" }}>
+              {gstEnabled ? `Estimated total (incl. GST ${gstPercentage}%)` : 'Estimated total'}
+            </div>
+            <div
+              className="text-[18px] font-black text-[#2f80ed] tracking-tight tabular-nums"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              {(() => {
+                const base = (Number(formValues.subTotal) || 0) - (Number(formValues.discount) || 0);
+                const grand = gstEnabled ? base + base * (gstPercentage / 100) : base;
+                return `₹${grand.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+              })()}
+            </div>
+          </div>
+        )}
+
+        {/* Save button */}
+        <button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[8px]
+                     font-bold text-white text-[13px]
+                     shadow-[0_1px_3px_rgba(47,128,237,0.3)]
+                     hover:shadow-[0_4px_14px_rgba(47,128,237,0.4)]
+                     hover:-translate-y-px active:translate-y-0
+                     transition-all duration-150
+                     disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+          style={{ background: '#2f80ed', fontFamily: "'Montserrat', sans-serif" }}
+          onMouseEnter={(e) => !loading && (e.currentTarget.style.background = '#1a6dd6')}
+          onMouseLeave={(e) => !loading && (e.currentTarget.style.background = '#2f80ed')}
+        >
+          {loading ? (
+            <>
+              <CgSpinner className="w-4 h-4 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <FiSave className="w-4 h-4" />
+              {editingEstimation ? "Update Quotation" : "Save Quotation"}
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* ── Add Section Modal ── */}
       <Modal
         isOpen={OpenAddsectionModal}
         closeModal={() => setOpenAddsectionModal(false)}
         title=""
         isCloseRequired={false}
-        className="md:w-[500px] w-[340px] md:ml-[0px] ml-[10px] rounded-[12px] border border-[rgba(0,0,0,0.08)]"
+        className="md:w-[500px] w-[340px] md:ml-[0px] ml-[10px] rounded-[16px] shadow-[0_24px_80px_rgba(0,0,0,0.18)]"
         rootCls="z-[99999]"
       >
-        <div className="flex flex-col gap-5 w-full">
-          <div className="flex items-center gap-3 pb-4 border-b border-[rgba(0,0,0,0.08)]">
-            <div className="w-10 h-10 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
-              <FiLayers className="w-5 h-5 text-[#0C447C]" />
+        <div className="flex flex-col gap-4 w-full">
+          <div className="flex items-center gap-3 pb-3.5 border-b border-gray-100">
+            <div
+              className="w-9 h-9 rounded-[8px] flex items-center justify-center"
+              style={{ background: 'rgba(47,128,237,0.1)' }}
+            >
+              <FiLayers className="w-4 h-4 text-[#2f80ed]" />
             </div>
             <div>
-              <h3 className="text-[16px] font-medium text-[#1A1A1A]">
+              <h3 className="text-[15px] font-bold text-gray-800" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                 {isEditingSection ? "Edit Section" : "Add New Section"}
               </h3>
-              <p className="text-[12px] text-[#6B7280]">Create a category for your items</p>
+              <p className="text-[11.5px] text-gray-500" style={{ fontFamily: "'Inter', sans-serif" }}>Create a category for your items</p>
             </div>
           </div>
           <CustomInput
             name="title"
             label="Section Title"
             placeholder="Enter section name"
-            labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
+            labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
             onChange={(e) => setSectionTitle(e.target.value)}
             type="text"
             required
             value={sectionTitle}
             errorMsg={errors?.item_name}
           />
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <Button
-              className="px-4 py-2 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[13px] font-medium transition-colors"
-              onClick={() => {
-                setSectionTitle("");
-                setOpenAddsectionModal(false);
-              }}
+          <div className="flex items-center justify-end gap-2.5 pt-1">
+            <button
+              onClick={() => { setSectionTitle(""); setOpenAddsectionModal(false); }}
+              className="px-4 py-2 rounded-[8px] bg-gray-50 hover:bg-gray-100 border border-gray-200
+                         text-gray-600 text-[13px] font-medium transition-all"
+              style={{ fontFamily: "'Inter', sans-serif" }}
             >
               Cancel
-            </Button>
-            <Button
-              className="px-4 py-2 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors flex items-center gap-2"
+            </button>
+            <button
               onClick={addSection}
+              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-[8px]
+                         bg-[#2f80ed] hover:bg-[#1a6dd6] text-white text-[13px] font-semibold
+                         shadow-[0_1px_3px_rgba(47,128,237,0.3)] transition-all"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              <FiPlus className="w-4 h-4" />
+              <FiPlus className="w-3.5 h-3.5" />
               {isEditingSection ? "Update" : "Add"} Section
-            </Button>
+            </button>
           </div>
         </div>
       </Modal>
 
-      {/* Add Item Modal */}
+      {/* ── Add Item Modal ── */}
       <Modal
         isOpen={openAddItemModal}
         closeModal={closeAddItemModal}
         title=""
         isCloseRequired={false}
-        className="md:w-[700px] w-[360px] md:ml-[0px] ml-[10px] rounded-[12px] border border-[rgba(0,0,0,0.08)]"
+        className="md:w-[700px] w-[360px] md:ml-[0px] ml-[10px] rounded-[16px] shadow-[0_24px_80px_rgba(0,0,0,0.18)]"
         rootCls="z-[99999]"
       >
-        <div className="flex flex-col gap-5 w-full">
-          <div className="flex items-center gap-3 pb-4 border-b border-[rgba(0,0,0,0.08)]">
-            <div className="w-10 h-10 rounded-[8px] bg-emerald-50 flex items-center justify-center">
-              <FiPlus className="w-5 h-5 text-emerald-600" />
+        <div className="flex flex-col gap-4 w-full">
+          <div className="flex items-center gap-3 pb-3.5 border-b border-gray-100">
+            <div
+              className="w-9 h-9 rounded-[8px] flex items-center justify-center"
+              style={{ background: 'rgba(47,128,237,0.1)' }}
+            >
+              <FiPlus className="w-4 h-4 text-[#2f80ed]" />
             </div>
             <div>
-              <h3 className="text-[16px] font-medium text-[#1A1A1A]">
+              <h3 className="text-[15px] font-bold text-gray-800" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                 {isEditing ? "Edit Item" : "Add New Item"}
               </h3>
-              <p className="text-[12px] text-[#6B7280]">Add item details to the section</p>
+              <p className="text-[11.5px] text-gray-500" style={{ fontFamily: "'Inter', sans-serif" }}>Add item details to the section</p>
             </div>
           </div>
 
@@ -1265,7 +1370,7 @@ useEffect(() => {
               name="item_name"
               label="Item Name"
               placeholder="Enter item name"
-              labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
+              labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
               onChange={(e) => handleItemChange("item_name", e.target.value)}
               type="text"
               required
@@ -1276,7 +1381,7 @@ useEffect(() => {
               name="quantity"
               label="Quantity"
               placeholder="Enter quantity"
-              labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
+              labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
               onChange={(e) => handleItemChange("quantity", e.target.value)}
               type="number"
               required
@@ -1288,7 +1393,7 @@ useEffect(() => {
           <CustomInput
             name="description"
             label="Item Description"
-            labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
+            labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
             placeholder="Enter a detailed description of the item"
             onChange={(e) => handleItemChange("description", e.target.value)}
             type="textarea"
@@ -1302,7 +1407,7 @@ useEffect(() => {
               name="area"
               label="Area (sft/Box)"
               placeholder="Enter area"
-              labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
+              labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
               onChange={(e) => handleItemChange("area", e.target.value)}
               type="number"
               required
@@ -1311,7 +1416,7 @@ useEffect(() => {
             <CustomInput
               name="unit_price"
               label="Unit/Box Price (₹)"
-              labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
+              labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
               placeholder="Enter unit price"
               onChange={(e) => handleItemChange("unit_price", e.target.value)}
               type="number"
@@ -1321,59 +1426,70 @@ useEffect(() => {
             />
           </div>
 
-          {/* Calculated Amount Preview */}
+          {/* Calculated amount preview */}
           {(itemInformation?.amount ?? 0) > 0 && (
-            <div className="bg-slate-50 rounded-xl p-4 flex items-center justify-between">
-              <span className="text-sm text-slate-600">Calculated Amount</span>
-              <span className="text-lg font-bold text-slate-800">₹ {itemInformation.amount?.toLocaleString()}</span>
+            <div className="bg-gray-50 rounded-[10px] border border-gray-100 p-4 flex items-center justify-between">
+              <span className="text-[12.5px] text-[#57606a] font-medium">Calculated Amount</span>
+              <span className="text-[16px] font-bold text-[#2f80ed] tabular-nums">
+                ₹ {itemInformation.amount?.toLocaleString("en-IN")}
+              </span>
             </div>
           )}
 
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <Button
-              className="px-4 py-2 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[13px] font-medium transition-colors"
+          <div className="flex items-center justify-end gap-2.5 pt-1">
+            <button
               onClick={closeAddItemModal}
+              className="px-4 py-2 rounded-[8px] bg-gray-50 hover:bg-gray-100 border border-gray-200
+                         text-gray-600 text-[13px] font-medium transition-all"
+              style={{ fontFamily: "'Inter', sans-serif" }}
             >
               Cancel
-            </Button>
-            <Button
-              className="px-4 py-2 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+            </button>
+            <button
               onClick={addItem}
               disabled={loading}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-[8px]
+                         bg-[#2f80ed] hover:bg-[#1a6dd6] text-white text-[13px] font-semibold
+                         shadow-[0_1px_3px_rgba(47,128,237,0.3)] transition-all
+                         disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
               {loading ? (
                 <>
-                  <CgSpinner className="w-4 h-4 animate-spin" />
+                  <CgSpinner className="w-3.5 h-3.5 animate-spin" />
                   Saving...
                 </>
               ) : (
                 <>
-                  <FiPlus className="w-4 h-4" />
+                  <FiPlus className="w-3.5 h-3.5" />
                   {isEditing ? "Update" : "Add"} Item
                 </>
               )}
-            </Button>
+            </button>
           </div>
         </div>
       </Modal>
 
-      {/* Add Details Modal */}
+      {/* ── Add Details Modal ── */}
       <Modal
         isOpen={addInfoModal}
         closeModal={() => setAddInfoModal(false)}
         title=""
         rootCls="w-full overflow-y-auto z-[99999]"
         isCloseRequired={false}
-        className="md:max-w-[800px] max-w-[360px] md:ml-[0px] ml-[10px] rounded-2xl"
+        className="md:max-w-[800px] max-w-[360px] md:ml-[0px] ml-[10px] rounded-[16px] shadow-[0_24px_80px_rgba(0,0,0,0.18)]"
       >
-        <div className="flex flex-col gap-5 w-full">
-          <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-              <FiFileText className="w-5 h-5 text-amber-600" />
+        <div className="flex flex-col gap-4 w-full">
+          <div className="flex items-center gap-3 pb-3.5 border-b border-gray-100">
+            <div
+              className="w-9 h-9 rounded-[8px] flex items-center justify-center"
+              style={{ background: 'rgba(47,128,237,0.1)' }}
+            >
+              <FiFileText className="w-4 h-4 text-[#2f80ed]" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-800">Add Extra Details</h3>
-              <p className="text-xs text-slate-500">Add notes or additional information</p>
+              <h3 className="text-[15px] font-bold text-gray-800" style={{ fontFamily: "'Montserrat', sans-serif" }}>Add Extra Details</h3>
+              <p className="text-[11.5px] text-gray-500" style={{ fontFamily: "'Inter', sans-serif" }}>Add notes or additional information</p>
             </div>
           </div>
 
@@ -1385,51 +1501,53 @@ useEffect(() => {
             onChange={(e) => setDetails(e)}
           />
 
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <Button
-              className="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold transition-all"
-              onClick={() => {
-                setDetails(" ");
-                setAddInfoModal(false);
-              }}
+          <div className="flex items-center justify-end gap-2.5 pt-1">
+            <button
+              onClick={() => { setDetails(" "); setAddInfoModal(false); }}
+              className="px-4 py-2 rounded-[8px] bg-gray-50 hover:bg-gray-100 border border-gray-200
+                         text-gray-600 text-[13px] font-medium transition-all"
+              style={{ fontFamily: "'Inter', sans-serif" }}
             >
               Cancel
-            </Button>
-            <Button
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold shadow-lg shadow-amber-500/30 hover:shadow-xl transition-all flex items-center gap-2"
+            </button>
+            <button
               onClick={saveDetails}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-[8px]
+                         bg-[#2f80ed] hover:bg-[#1a6dd6] text-white text-[13px] font-semibold
+                         shadow-[0_1px_3px_rgba(47,128,237,0.3)] transition-all"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              <FiSave className="w-4 h-4" />
+              <FiSave className="w-3.5 h-3.5" />
               Save Details
-            </Button>
+            </button>
           </div>
         </div>
       </Modal>
 
-      {/* Discount Modal */}
+      {/* ── Discount Modal ── */}
       <Modal
         isOpen={openDiscountModal}
         closeModal={() => setOpenDiscountModal(false)}
         title=""
         isCloseRequired={false}
-        className="md:w-[450px] w-[340px] md:ml-[0px] ml-[10px] rounded-2xl"
+        className="md:w-[450px] w-[340px] md:ml-[0px] ml-[10px] rounded-[16px] shadow-[0_24px_80px_rgba(0,0,0,0.18)]"
         rootCls="z-[99999]"
       >
-        <div className="flex flex-col gap-5 w-full">
-          <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-            <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
-              <FiPercent className="w-5 h-5 text-purple-600" />
+        <div className="flex flex-col gap-4 w-full">
+          <div className="flex items-center gap-3 pb-3.5 border-b border-gray-100">
+            <div className="w-9 h-9 rounded-[8px] bg-purple-50 flex items-center justify-center">
+              <FiPercent className="w-4 h-4 text-purple-600" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-800">Set Discount</h3>
-              <p className="text-xs text-slate-500">Apply discount to the total</p>
+              <h3 className="text-[15px] font-bold text-gray-800" style={{ fontFamily: "'Montserrat', sans-serif" }}>Set Discount</h3>
+              <p className="text-[11.5px] text-gray-500" style={{ fontFamily: "'Inter', sans-serif" }}>Apply discount to the total</p>
             </div>
           </div>
 
           <CustomInput
             name="discount"
             label="Discount Amount (₹)"
-            labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
+            labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
             placeholder="Enter discount amount"
             type="number"
             value={discountInput}
@@ -1438,37 +1556,48 @@ useEffect(() => {
 
           {/* Preview */}
           {formValues?.subTotal > 0 ? (
-            <div className="bg-slate-50 rounded-xl p-4 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Subtotal</span>
-                <span className="text-slate-700">₹ {formValues.subTotal?.toLocaleString()}</span>
+            <div className="bg-gray-50 rounded-[10px] border border-gray-100 p-4 space-y-2">
+              <div className="flex justify-between text-[13px]">
+                <span className="text-[#8c959f]">Subtotal</span>
+                <span className="text-[#57606a] font-medium tabular-nums">
+                  ₹ {formValues.subTotal?.toLocaleString("en-IN")}
+                </span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-purple-500">Discount</span>
-                <span className="text-purple-500">- ₹ {discountInput?.toLocaleString()}</span>
+              <div className="flex justify-between text-[13px]">
+                <span className="text-[#7c3aed]">Discount</span>
+                <span className="text-[#7c3aed] font-medium tabular-nums">
+                  − ₹ {discountInput?.toLocaleString("en-IN")}
+                </span>
               </div>
-              <div className="h-px bg-slate-200 my-1" />
-              <div className="flex justify-between font-semibold">
-                <span className="text-slate-700">Final Total</span>
-                <span className="text-slate-800">₹ {(formValues.subTotal - discountInput)?.toLocaleString()}</span>
+              <div className="h-px bg-[#eaeef2] my-1" />
+              <div className="flex justify-between">
+                <span className="text-[13px] font-semibold text-[#24292f]">Final Total</span>
+                <span className="text-[14px] font-bold text-[#2f80ed] tabular-nums">
+                  ₹ {(formValues.subTotal - discountInput)?.toLocaleString("en-IN")}
+                </span>
               </div>
             </div>
           ) : null}
 
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <Button
-              className="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold transition-all"
+          <div className="flex items-center justify-end gap-2.5 pt-1">
+            <button
               onClick={() => setOpenDiscountModal(false)}
+              className="px-4 py-2 rounded-[8px] bg-gray-50 hover:bg-gray-100 border border-gray-200
+                         text-gray-600 text-[13px] font-medium transition-all"
+              style={{ fontFamily: "'Inter', sans-serif" }}
             >
               Cancel
-            </Button>
-            <Button
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold shadow-lg shadow-purple-500/30 hover:shadow-xl transition-all flex items-center gap-2"
+            </button>
+            <button
               onClick={saveDiscount}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-[8px]
+                         bg-[#2f80ed] hover:bg-[#1a6dd6] text-white text-[13px] font-semibold
+                         shadow-[0_1px_3px_rgba(47,128,237,0.3)] transition-all"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              <FiSave className="w-4 h-4" />
+              <FiSave className="w-3.5 h-3.5" />
               Save Discount
-            </Button>
+            </button>
           </div>
         </div>
       </Modal>

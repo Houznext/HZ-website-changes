@@ -38,6 +38,8 @@ export interface CEformValues {
     address_line_1: string;
   };
   discount: number;
+  gstEnabled?: boolean;
+  gstPercentage?: number;
 }
 
 export interface CostEstimator extends CEformValues {

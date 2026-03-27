@@ -192,7 +192,10 @@ export class CostEstimatorService {
         .getManyAndCount();
 
       return {
-        data: costEstimators,
+        data: costEstimators.map((e) => ({
+          ...e,
+          displayQuotationNumber: this.formatQuotationNumber(e.quotationNumber),
+        })),
         total,
         page,
         limit,
@@ -217,7 +220,12 @@ export class CostEstimatorService {
         throw new NotFoundException(`CostEstimator with ID ${id} not found`);
       }
 
-      return costEstimator;
+      return {
+        ...costEstimator,
+        displayQuotationNumber: this.formatQuotationNumber(
+          costEstimator.quotationNumber,
+        ),
+      } as any;
     } catch (error) {
       console.error(`Error retrieving CostEstimator with ID ${id}:`, error);
       throw error;
@@ -502,5 +510,10 @@ export class CostEstimatorService {
       page,
       limit,
     };
+  }
+
+  private formatQuotationNumber(num: number | null): string | null {
+    if (!num) return null;
+    return `QT-${String(num).padStart(4, '0')}`;
   }
 }

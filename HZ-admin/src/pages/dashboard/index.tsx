@@ -1,12 +1,8 @@
 import withAdminLayout from "@/src/common/AdminLayout";
-import Admindashboard from "@/src/components/AdminDashBoard";
+import GA4AnalyticsView from "@/src/components/GA4AnalyticsView";
 
-function dashboard() {
-  return (
-    <>
-      <Admindashboard />
-    </>
-  );
+function DashboardPage() {
+  return <GA4AnalyticsView />;
 }
 
-export default withAdminLayout(dashboard);
+export default withAdminLayout(DashboardPage);

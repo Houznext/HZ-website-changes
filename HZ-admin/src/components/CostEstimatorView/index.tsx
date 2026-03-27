@@ -31,6 +31,8 @@ export interface CEcardProps {
   key?: number;
   data: CostEstimator;
   onDuplicate: (data: CostEstimator) => void;
+  onEdit: (data: CostEstimator) => void;
+  onDelete: (id: string | number) => Promise<void>;
   activeTab: string;
 }
 /* ---------------- Types ---------------- */
@@ -177,8 +179,6 @@ const CostEstimatorView: React.FC = () => {
   /* ---------------- Data ---------------- */
 
   /* ---------------- Helpers ---------------- */
-  // const isEmpty = (o: Record<string, boolean>) =>
-  //   Object.values(o).every((v) => !v);
   const isEmpty = (filters?: Record<string, boolean> | null) =>
     !filters ||
     Object.keys(filters).length === 0 ||
@@ -317,85 +317,188 @@ const CostEstimatorView: React.FC = () => {
     setEditingEstimation(null);
   };
 
-  const tabIcons: Record<string, React.ReactNode> = {
-    Interior: <FiPenTool className="w-4 h-4" />,
-    CustomBuilder: <FiHome className="w-4 h-4" />,
-    Solar: <FiSun className="w-4 h-4" />,
+  const handleEditProxy = async (estimation: CostEstimator) => {
+    // The list response omits itemGroups — fetch the full record first so the
+    // form can pre-populate the existing item table correctly.
+    try {
+      const response = await apiClient.get(
+        `${apiClient.URLS.cost_estimator}/${estimation.id}`,
+        {},
+        true
+      );
+      if (response.status === 200) {
+        setEditingEstimation(response.body);
+      } else {
+        setEditingEstimation(estimation);
+      }
+    } catch (err) {
+      console.error("Failed to fetch full estimation for edit:", err);
+      setEditingEstimation(estimation); // fallback — form opens without item table
+    }
+    setOpenModal(true);
   };
+
+  const handleDeleteProxy = async (id: string | number) => {
+    try {
+      const response = await apiClient.delete(
+        `${apiClient.URLS.cost_estimator}/${id}`,
+        { data: { userId } },
+      );
+      if (response.status === 200) {
+        toast.success("Quotation deleted");
+        setCostEstimators(costEstimators.filter((e) => e.id !== id));
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to delete quotation");
+      throw error;
+    }
+  };
+
+  const tabIcons: Record<string, React.ReactNode> = {
+    Interior: <FiPenTool className="w-3.5 h-3.5" />,
+    CustomBuilder: <FiHome className="w-3.5 h-3.5" />,
+    Solar: <FiSun className="w-3.5 h-3.5" />,
+  };
+
+  // Stat computations
+  const totalValue = filtered.reduce(
+    (s, e) => (Number(e.subTotal) || 0) - (Number(e.discount) || 0) + s,
+    0,
+  );
+  const avgValue = filtered.length > 0 ? totalValue / filtered.length : 0;
 
   if (isLoading) return <Loader />;
 
   return (
-    <div className="w-full max-w-full overflow-hidden px-2 md:px-0 bg-[#f5f6f8]">
-      {/* Topbar / Header */}
-      <div className="mb-5">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-[rgba(0,0,0,0.08)] rounded-[12px] px-7 py-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
-              <Calculator className="w-5 h-5 text-[#0C447C]" />
-            </div>
-            <div className="flex flex-col">
-              <h1 className="text-[17px] font-medium text-[#1A1A1A]">
-                Quotations
-              </h1>
-              <p className="text-[12px] text-[#6B7280]">
-                {filtered.length} quotations found
-              </p>
-            </div>
-          </div>
+    <div className="w-full max-w-full bg-[#f6f8fa] min-h-full">
+      {/* ── Page header ── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between px-5 pt-5 pb-0 mb-4 gap-3">
+        <div>
+          <h1 className="text-[18px] font-bold text-[#24292f] tracking-tight">
+            Quotations
+          </h1>
+          <p className="text-[12px] text-[#8c959f] mt-0.5">
+            {filtered.length} quotation{filtered.length !== 1 ? "s" : ""} found
+          </p>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Tab (Interiors) kept for logic, styled as outlined */}
-            <div className="flex items-center">
-              {TABS.map((t) => (
-                <button
-                  key={t.key}
-                  onClick={() => {
-                    setActiveTab(t.key);
-                    router.push(
-                      {
-                        pathname: router.pathname,
-                        query: { ...router.query, category: t.key },
-                      },
-                      undefined,
-                      { shallow: true },
-                    );
-                  }}
-                  className={`flex items-center gap-2 px-3 py-[7px] rounded-[8px] border border-[rgba(0,0,0,0.12)] text-[13px] ${
-                    activeTab === t.key
-                      ? "bg-[#E6F1FB] text-[#0C447C]"
-                      : "bg-white text-[#6B7280]"
-                  }`}
-                >
-                  {tabIcons[t.key]}
-                  <span className="hidden md:inline">{t.label}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* New Quotation button */}
-            <CustomTooltip
-              label="Access Restricted"
-              position="bottom"
-              tooltipBg="bg-black/60 backdrop-blur-md"
-              tooltipTextColor="text-white py-2 px-4 font-medium"
-              labelCls="text-[10px] font-medium"
-              showTooltip={!hasPermission("cost_estimator", "create")}
-            >
-              <Button
-                onClick={() => setOpenModal(true)}
-                className="flex items-center gap-2 px-4 py-[7px] rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors"
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Category tabs */}
+          <div className="flex border border-[#d0d7de] rounded-lg overflow-hidden text-[12px] font-semibold bg-white">
+            {TABS.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => {
+                  setActiveTab(t.key);
+                  router.push(
+                    {
+                      pathname: router.pathname,
+                      query: { ...router.query, category: t.key },
+                    },
+                    undefined,
+                    { shallow: true },
+                  );
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 transition-colors ${
+                  activeTab === t.key
+                    ? "bg-[#2f80ed] text-white"
+                    : "text-[#57606a] hover:bg-[#f6f8fa]"
+                }`}
               >
-                <Plus className="w-4 h-4" />
-                <span className="hidden md:inline">New Quotation</span>
-              </Button>
-            </CustomTooltip>
+                {tabIcons[t.key]}
+                {t.label}
+              </button>
+            ))}
           </div>
+
+          {/* Export CSV */}
+          <button
+            onClick={exportCSV}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-[#d0d7de] rounded-lg
+                       bg-white text-[#57606a] hover:text-[#24292f] hover:bg-[#f6f8fa] text-[12px] font-medium
+                       transition-all"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Export CSV
+          </button>
+
+          {/* New Quotation */}
+          <CustomTooltip
+            label="Access Restricted"
+            position="bottom"
+            tooltipBg="bg-black/60 backdrop-blur-md"
+            tooltipTextColor="text-white py-2 px-4 font-medium"
+            labelCls="text-[10px] font-medium"
+            showTooltip={!hasPermission("cost_estimator", "create")}
+          >
+            <button
+              onClick={() => setOpenModal(true)}
+              disabled={!hasPermission("cost_estimator", "create")}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2f80ed] hover:bg-[#1a6dd6]
+                         text-white text-[12px] font-semibold
+                         shadow-[0_1px_3px_rgba(47,128,237,0.3)] hover:shadow-[0_4px_12px_rgba(47,128,237,0.4)]
+                         hover:-translate-y-px transition-all
+                         disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              New Quotation
+            </button>
+          </CustomTooltip>
         </div>
       </div>
 
-      {/* Toolbar */}
-      <div className="w-full bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] px-4 py-3 mb-5">
+      {/* ── Stat strip ── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 px-5 mb-4">
+        {/* Total count */}
+        <div className="bg-white border border-[#eaeef2] rounded-[10px] p-3.5 hover:border-[#d0d7de] hover:-translate-y-px transition-all duration-150">
+          <div className="text-[10.5px] font-semibold text-[#8c959f] uppercase tracking-wider mb-1.5">
+            Total
+          </div>
+          <div className="text-[22px] font-bold text-[#24292f] tracking-tight">
+            {filtered.length}
+          </div>
+          <div className="text-[11px] text-[#8c959f] mt-1">quotations</div>
+        </div>
+
+        {/* Total value */}
+        <div className="bg-white border border-[#eaeef2] rounded-[10px] p-3.5 hover:border-[#d0d7de] hover:-translate-y-px transition-all duration-150">
+          <div className="text-[10.5px] font-semibold text-[#8c959f] uppercase tracking-wider mb-1.5">
+            Total value
+          </div>
+          <div className="text-[22px] font-bold text-[#2f80ed] tracking-tight">
+            ₹{(totalValue / 100000).toFixed(1)}L
+          </div>
+          <div className="text-[11px] text-[#8c959f] mt-1">
+            across all quotations
+          </div>
+        </div>
+
+        {/* Average */}
+        <div className="bg-white border border-[#eaeef2] rounded-[10px] p-3.5 hover:border-[#d0d7de] hover:-translate-y-px transition-all duration-150">
+          <div className="text-[10.5px] font-semibold text-[#8c959f] uppercase tracking-wider mb-1.5">
+            Average
+          </div>
+          <div className="text-[22px] font-bold text-[#24292f] tracking-tight">
+            ₹{(avgValue / 100000).toFixed(1)}L
+          </div>
+          <div className="text-[11px] text-[#8c959f] mt-1">per quotation</div>
+        </div>
+
+        {/* Category */}
+        <div className="bg-white border border-[#eaeef2] rounded-[10px] p-3.5 hover:border-[#d0d7de] hover:-translate-y-px transition-all duration-150">
+          <div className="text-[10.5px] font-semibold text-[#8c959f] uppercase tracking-wider mb-1.5">
+            Category
+          </div>
+          <div className="text-[22px] font-bold text-[#24292f] tracking-tight capitalize">
+            {activeTab}
+          </div>
+          <div className="text-[11px] text-[#8c959f] mt-1">active filter</div>
+        </div>
+      </div>
+
+      {/* ── Toolbar ── */}
+      <div className="mx-5 mb-4 bg-white border border-[#eaeef2] rounded-[10px] px-4 py-3">
         <div className="flex flex-col lg:flex-row lg:items-center gap-3">
           <div className="flex-1">
             <ReusableSearchFilter
@@ -427,19 +530,11 @@ const CostEstimatorView: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Export Button */}
+            {/* Sort */}
             <button
-              className="flex items-center gap-2 px-3 py-2 rounded-[8px] bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-[13px] font-medium transition-colors"
-              onClick={exportCSV}
-              title="Export filtered list"
-            >
-              <Download className="w-4 h-4" />
-              <span className="hidden md:inline">Export</span>
-            </button>
-
-            {/* Sort Button styled as dropdown trigger (logic unchanged) */}
-            <button
-              className="flex items-center gap-2 px-3 py-2 rounded-[8px] border border-[rgba(0,0,0,0.12)] bg-white hover:border-[#2563EB] text-[13px] text-[#4B5563] transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-[#d0d7de]
+                         bg-white hover:bg-[#f6f8fa] text-[12px] font-medium text-[#57606a]
+                         hover:text-[#24292f] transition-all"
               onClick={() =>
                 setSort((s) =>
                   s === "recent" ? "name" : s === "name" ? "total" : "recent",
@@ -447,60 +542,97 @@ const CostEstimatorView: React.FC = () => {
               }
               title={`Sort: ${sort}`}
             >
-              <ArrowUpDown className="w-4 h-4 text-[#9CA3AF]" />
-              <span>
-                Sort: <span className="capitalize">{sort}</span>
+              <ArrowUpDown className="w-3.5 h-3.5 text-[#8c959f]" />
+              Sort:{" "}
+              <span className="capitalize text-[#24292f] font-semibold">
+                {sort}
               </span>
             </button>
 
-            {/* View Toggle */}
-            <div className="flex items-center rounded-[8px] border border-[rgba(0,0,0,0.12)] overflow-hidden">
+            {/* View toggle */}
+            <div className="flex border border-[#d0d7de] rounded-lg overflow-hidden">
               <button
-                className={`px-2.5 py-2 flex items-center justify-center ${
-                  view === "cards"
-                    ? "bg-[#E5E7EB] text-[#111827]"
-                    : "bg-white text-[#9CA3AF]"
-                }`}
                 onClick={() => setView("cards")}
+                className={`px-2.5 py-1.5 flex items-center justify-center transition-colors ${
+                  view === "cards"
+                    ? "bg-[#2f80ed] text-white"
+                    : "bg-white text-[#8c959f] hover:bg-[#f6f8fa]"
+                }`}
                 title="Cards view"
               >
-                <LayoutGrid className="w-4 h-4" />
+                <LayoutGrid className="w-3.5 h-3.5" />
               </button>
               <button
-                className={`px-2.5 py-2 flex items-center justify-center ${
-                  view === "compact"
-                    ? "bg-[#E5E7EB] text-[#111827]"
-                    : "bg-white text-[#9CA3AF]"
-                }`}
                 onClick={() => setView("compact")}
+                className={`px-2.5 py-1.5 flex items-center justify-center transition-colors ${
+                  view === "compact"
+                    ? "bg-[#2f80ed] text-white"
+                    : "bg-white text-[#8c959f] hover:bg-[#f6f8fa]"
+                }`}
                 title="Compact view"
               >
-                <Rows className="w-4 h-4" />
+                <Rows className="w-3.5 h-3.5" />
               </button>
             </div>
+
+            {/* Export */}
+            <button
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-[#2f80ed] hover:bg-[#1a6dd6]
+                         text-white text-[12px] font-semibold
+                         shadow-[0_1px_3px_rgba(47,128,237,0.3)] transition-all"
+              onClick={exportCSV}
+              title="Export filtered list"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Export</span>
+            </button>
           </div>
         </div>
       </div>
 
-      {paginatedData?.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-slate-200/80">
-          <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-            <Calculator className="w-10 h-10 text-slate-300" />
+      {/* ── Empty state ── */}
+      {paginatedData?.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-16 mx-5 bg-white rounded-[10px] border border-[#eaeef2]">
+          <div className="w-12 h-12 rounded-[12px] bg-[#f6f8fa] border border-[#eaeef2] flex items-center justify-center mb-3">
+            <Calculator className="w-6 h-6 text-[#8c959f]" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-700 mb-1">
-            No estimations found
+          <h3 className="text-[14px] font-semibold text-[#57606a] mb-1">
+            No quotations found
           </h3>
-          <p className="text-sm text-slate-500">
-            No {activeTab} estimations match your criteria
+          <p className="text-[12px] text-[#8c959f]">
+            No {activeTab} quotations match your search criteria
           </p>
         </div>
-      ) : view === "compact" ? (
-        <div className="bg-white rounded-[16px] border border-[rgba(0,0,0,0.08)] overflow-hidden">
-          <div className="divide-y divide-[rgba(0,0,0,0.04)]">
-            {paginatedData?.map((e) => (
-              <CompactRow
-                key={e.id}
-                item={e}
+      )}
+
+      {/* ── List / compact ── */}
+      {paginatedData?.length > 0 &&
+        (view === "compact" ? (
+          <div className="mx-5 bg-white rounded-[10px] border border-[#eaeef2] overflow-hidden">
+            <div className="divide-y divide-[#eaeef2]">
+              {paginatedData?.map((e) => (
+                <CompactRow
+                  key={e.id}
+                  item={e}
+                  activeTab={activeTab}
+                  onDuplicate={async (d) => {
+                    try {
+                      await handleDuplicateProxy(d);
+                      await fetchCostEstimators(userId!, activeTab);
+                    } catch {}
+                  }}
+                  onEdit={handleEditProxy}
+                  onDelete={handleDeleteProxy}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="px-5 flex flex-col gap-2 pb-4">
+            {paginatedData.map((item, idx) => (
+              <CostEstimationCard
+                key={idx}
+                data={item}
                 activeTab={activeTab}
                 onDuplicate={async (d) => {
                   try {
@@ -508,47 +640,30 @@ const CostEstimatorView: React.FC = () => {
                     await fetchCostEstimators(userId!, activeTab);
                   } catch {}
                 }}
+                onEdit={handleEditProxy}
+                onDelete={handleDeleteProxy}
               />
             ))}
           </div>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-5 pb-8">
-          {paginatedData.map((item, idx) => (
-            <CostEstimationCard
-              key={idx}
-              data={item}
-              activeTab={activeTab}
-              onDuplicate={async (d) => {
-                try {
-                  await handleDuplicateProxy(d);
-                  await fetchCostEstimators(userId!, activeTab);
-                } catch {}
-              }}
-            />
-          ))}
-        </div>
-      )}
+        ))}
 
-      {/* Pagination */}
+      {/* ── Pagination ── */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center mt-6 mb-8">
-          <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm p-4">
-            <PaginationControls
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-              pageSize={pageSize}
-              onPageSizeChange={(size) => {
-                setPageSize(size);
-                setCurrentPage(1);
-              }}
-            />
-          </div>
+        <div className="px-5 py-4">
+          <PaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            pageSize={pageSize}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+          />
         </div>
       )}
 
-      {/* Form Modal */}
+      {/* ── Form Modal — 100% unchanged ── */}
       <Modal
         isOpen={openModal}
         closeModal={closeDrawer}
@@ -639,25 +754,31 @@ const CostEstimatorView: React.FC = () => {
 
 export default CostEstimatorView;
 
-/* ---------------- Compact Row ---------------- */
+/* ---------------- Compact Row ── */
 const CompactRow = ({
   item,
   activeTab,
   onDuplicate,
+  onEdit,
+  onDelete,
 }: {
   item: CostEstimator;
   activeTab: string;
   onDuplicate: (data: CostEstimator) => Promise<void>;
+  onEdit: (data: CostEstimator) => void;
+  onDelete: (id: string | number) => Promise<void>;
 }) => {
   const router = useRouter();
+  const { hasPermission } = usePermissionStore((s) => s);
   const total = (Number(item.subTotal) || 0) - (Number(item.discount) || 0);
   const [duplicateModal, setDuplicateModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const handleConfirm = async () => {
     if (isLoading) return;
-
     setIsLoading(true);
-
     try {
       await onDuplicate(item);
       setDuplicateModal(false);
@@ -668,142 +789,229 @@ const CompactRow = ({
     }
   };
 
+  const handleDeleteConfirm = async () => {
+    if (isDeleting) return;
+    setIsDeleting(true);
+    try {
+      await onDelete(item.id);
+      setDeleteModal(false);
+    } catch {
+      toast.error("Failed to delete");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const displayQN = (item as any)?.quotationNumber
+    ? `QT-${String((item as any).quotationNumber).padStart(4, "0")}`
+    : (item as any)?.displayQuotationNumber ?? null;
+
   return (
-    <div className="px-5 py-4 flex flex-col md:flex-row md:items-center gap-4 hover:bg-[#F9FAFB] transition-colors">
-      <div className="flex-1 min-w-0">
-        <div className="flex flex-wrap items-center gap-4">
-          {/* Avatar */}
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E6F1FB] to-[#EFF6FF] flex items-center justify-center flex-shrink-0">
-            <span className="text-[#0C447C] font-semibold text-sm">
-              {item.firstname?.charAt(0)}
-              {item.lastname?.charAt(0)}
+    <div className="px-4 py-3.5 flex flex-col md:flex-row md:items-center gap-3
+                    hover:bg-[#fafbfc] transition-colors">
+      {/* Left: avatar + info */}
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className="w-9 h-9 rounded-[10px] bg-[#dbeafe] flex items-center justify-center flex-shrink-0">
+          <span className="text-[#2f80ed] font-bold text-[13px]">
+            {item.firstname?.charAt(0)}{item.lastname?.charAt(0)}
+          </span>
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5">
+            <span className="text-[13.5px] font-semibold text-[#24292f] truncate">
+              {item.firstname} {item.lastname}
+            </span>
+            {displayQN && (
+              <span className="text-[10px] font-mono text-[#8c959f] bg-[#f6f8fa] border border-[#eaeef2] px-1.5 py-0.5 rounded-[5px]">
+                {displayQN}
+              </span>
+            )}
+            <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#f6f8fa] border border-[#eaeef2] text-[#57606a]">
+              {new Date(item.date).toLocaleDateString("en-IN", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
             </span>
           </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span className="text-[14px] font-medium text-[#111827]">
-                {item.firstname} {item.lastname}
-              </span>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#F3F4F6] text-[#6B7280]">
-                {new Date(item.date).toLocaleDateString("en-IN", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
-              </span>
-            </div>
-            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span className="text-[12px] text-[#6B7280]">
-                {item.location?.city}, {item.location?.state}
-              </span>
-              {item.bhk && (
-                <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#E6F1FB] text-[#0C447C] font-medium">
-                  {item.bhk}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Total */}
-          <div className="text-right ml-auto">
-            <span className="text-[15px] font-semibold text-[#1D4E7A]">
-              ₹ {total.toLocaleString("en-IN")}
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-2.5 gap-y-0.5">
+            <span className="text-[12px] text-[#57606a]">
+              {item.location?.city}{item.location?.state ? `, ${item.location.state}` : ""}
             </span>
-            {Number(item.discount) > 0 && (
-              <p className="text-[11px] text-[#059669]">
-                -₹{Number(item.discount).toLocaleString("en-IN")} discount
-              </p>
+            {item.bhk && (
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#dbeafe] text-[#2f80ed] font-medium border border-[#93c5fd]">
+                {item.bhk}
+              </span>
             )}
           </div>
         </div>
-      </div>
 
-      <div className="flex items-center gap-2 md:ml-4">
-        <button
-          className="px-3 py-1.5 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[12px] font-medium transition-colors flex items-center gap-1.5"
-          onClick={() => router.push(`/cost-estimator/${activeTab}/${item.id}`)}
-        >
-          <Eye className="w-4 h-4" />
-          <span>View</span>
-        </button>
-        <button
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[12px] font-medium transition-colors"
-          onClick={() => setDuplicateModal(true)}
-        >
-          <Copy className="w-4 h-4" />
-          <span>Duplicate</span>
-        </button>
-        <Modal
-          isOpen={duplicateModal}
-          closeModal={() => setDuplicateModal(false)}
-          title=""
-          className="md:max-w-[420px] max-w-[340px] rounded-2xl shadow-2xl"
-          rootCls="fixed inset-0 flex items-center justify-center z-[9999] bg-black/40 backdrop-blur-sm"
-          isCloseRequired={false}
-        >
-          <div className="p-6 flex flex-col items-center text-center gap-3 z-20">
-            {/* Icon */}
-            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
-              <Copy className="w-6 h-6 text-blue-600" />
-            </div>
-
-            {/* Title */}
-            <h3 className="text-lg md:text-xl font-semibold text-blue-600">
-              Confirm Duplication
-            </h3>
-
-            {/* Message */}
-            <p className="text-sm text-slate-500 leading-relaxed max-w-[280px]">
-              Are you sure you want to duplicate this estimation? A new copy
-              will be created with the same details.
+        {/* Total */}
+        <div className="text-right flex-shrink-0 ml-2">
+          <span className="text-[14px] font-bold text-[#2f80ed] tabular-nums">
+            ₹{total.toLocaleString("en-IN")}
+          </span>
+          {Number(item.discount) > 0 && (
+            <p className="text-[10.5px] text-[#16a34a]">
+              −₹{Number(item.discount).toLocaleString("en-IN")} off
             </p>
-
-            {/* Actions */}
-            <div className="mt-5 flex w-full gap-3">
-              <Button
-                onClick={() => setDuplicateModal(false)}
-                disabled={isLoading}
-                className="flex-1 py-2 rounded-lg
-                   border border-slate-200
-                   bg-white text-slate-700
-                   hover:bg-slate-50
-                   transition-all"
-              >
-                Cancel
-              </Button>
-
-              <Button
-                onClick={handleConfirm}
-                disabled={isLoading}
-                className="flex-1 py-2 rounded-lg
-                   bg-blue-600 text-white
-                   hover:bg-blue-700
-                   flex items-center justify-center gap-2
-                   transition-all
-                   disabled:opacity-60"
-              >
-                {isLoading && <LoaderIcon className="w-4 h-4 animate-spin" />}
-                {isLoading ? "Duplicating..." : "Continue"}
-              </Button>
-            </div>
-          </div>
-        </Modal>
-
-        {/* <button
-          className="px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition-all flex items-center gap-1.5"
-          onClick={() =>
-            window.open(
-              `/cost-estimator/${activeTab}/${item.id}?download=1`,
-              "_blank",
-            )
-          }
-          title="Download PDF"
-        >
-          <FileDown className="w-4 h-4" />
-          PDF
-        </button> */}
+          )}
+        </div>
       </div>
+
+      {/* Actions */}
+      <div className="flex items-center gap-1.5 flex-shrink-0">
+        {/* View */}
+        <button
+          onClick={() => router.push(`/cost-estimator/${activeTab}/${item.id}`)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px]
+                     bg-[#2f80ed] hover:bg-[#1a6dd6] text-white text-[12px] font-semibold
+                     shadow-[0_1px_3px_rgba(47,128,237,0.3)] hover:shadow-[0_4px_12px_rgba(47,128,237,0.4)]
+                     transition-all duration-150"
+        >
+          <Eye className="w-3.5 h-3.5" />
+          View
+        </button>
+
+        {/* Edit */}
+        <button
+          onClick={() => onEdit(item)}
+          disabled={!hasPermission("cost_estimator", "edit")}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px]
+                     bg-white hover:bg-[#f6f8fa] border border-[#d0d7de]
+                     text-[#57606a] hover:text-[#24292f] text-[12px] font-medium
+                     transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+          title="Edit quotation"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+          </svg>
+          Edit
+        </button>
+
+        {/* Duplicate */}
+        <button
+          onClick={() => setDuplicateModal(true)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px]
+                     bg-white hover:bg-[#f6f8fa] border border-[#d0d7de]
+                     text-[#57606a] hover:text-[#24292f] text-[12px] font-medium
+                     transition-all duration-150"
+        >
+          <Copy className="w-3.5 h-3.5" />
+          Duplicate
+        </button>
+
+        {/* Delete */}
+        <button
+          onClick={() => setDeleteModal(true)}
+          disabled={!hasPermission("cost_estimator", "delete")}
+          className="w-[30px] h-[30px] rounded-[8px] border border-[#fca5a5] bg-[#fee2e2] hover:bg-[#fecaca]
+                     flex items-center justify-center text-[#dc2626] transition-all
+                     disabled:opacity-40 disabled:cursor-not-allowed"
+          title="Delete quotation"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+            <path d="M10 11v6M14 11v6" />
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Duplicate Modal */}
+      <Modal
+        isOpen={duplicateModal}
+        closeModal={() => setDuplicateModal(false)}
+        title=""
+        className="md:max-w-[420px] max-w-[340px] rounded-[14px] shadow-2xl"
+        rootCls="fixed inset-0 flex items-center justify-center z-[9999] bg-black/40 backdrop-blur-sm"
+        isCloseRequired={false}
+      >
+        <div className="p-6 flex flex-col items-center text-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-[#dbeafe] flex items-center justify-center">
+            <Copy className="w-5 h-5 text-[#2f80ed]" />
+          </div>
+          <h3 className="text-[17px] font-bold text-[#24292f]">Confirm Duplication</h3>
+          <p className="text-[12.5px] text-[#57606a] leading-relaxed max-w-[280px]">
+            Are you sure you want to duplicate this estimation? A new copy will be created with the same details.
+          </p>
+          <div className="mt-2 flex w-full gap-2.5">
+            <button
+              onClick={() => setDuplicateModal(false)}
+              disabled={isLoading}
+              className="flex-1 py-2 rounded-[8px] border border-[#d0d7de] bg-white
+                         text-[13px] font-medium text-[#57606a] hover:bg-[#f6f8fa]
+                         transition-all disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirm}
+              disabled={isLoading}
+              className="flex-1 py-2 rounded-[8px] bg-[#2f80ed] hover:bg-[#1a6dd6]
+                         text-[13px] font-semibold text-white
+                         flex items-center justify-center gap-2
+                         transition-all disabled:opacity-60"
+            >
+              {isLoading && <LoaderIcon />}
+              {isLoading ? "Duplicating…" : "Continue"}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete Modal */}
+      <Modal
+        isOpen={deleteModal}
+        closeModal={() => setDeleteModal(false)}
+        title=""
+        className="md:max-w-[400px] max-w-[340px] rounded-[14px] shadow-2xl"
+        rootCls="fixed inset-0 flex items-center justify-center z-[9999] bg-black/40 backdrop-blur-sm"
+        isCloseRequired={false}
+      >
+        <div className="p-6 flex flex-col items-center text-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-[#fee2e2] flex items-center justify-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+              <path d="M10 11v6M14 11v6" />
+              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+            </svg>
+          </div>
+          <h3 className="text-[17px] font-bold text-[#24292f]">Confirm Deletion</h3>
+          <p className="text-[12.5px] text-[#57606a] leading-relaxed max-w-[280px]">
+            Are you sure you want to delete this quotation? This action cannot be undone.
+          </p>
+          <div className="mt-2 flex w-full gap-2.5">
+            <button
+              onClick={() => setDeleteModal(false)}
+              disabled={isDeleting}
+              className="flex-1 py-2 rounded-[8px] border border-[#d0d7de] bg-white
+                         text-[13px] font-medium text-[#57606a] hover:bg-[#f6f8fa]
+                         transition-all disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              className="flex-1 py-2 rounded-[8px] bg-[#fee2e2] hover:bg-[#fecaca] border border-[#fca5a5]
+                         text-[13px] font-semibold text-[#dc2626]
+                         flex items-center justify-center gap-2
+                         transition-all disabled:opacity-60"
+            >
+              {isDeleting && <LoaderIcon />}
+              {isDeleting ? "Deleting…" : "Delete"}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

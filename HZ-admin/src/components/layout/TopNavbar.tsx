@@ -35,7 +35,7 @@ export default function TopNavbar() {
   };
 
   return (
-    <header className="h-16 flex items-center justify-between px-6 bg-white shadow-sm relative">
+    <header className="h-14 flex items-center justify-between px-6 bg-white shadow-sm relative">
       <form onSubmit={handleSearchSubmit} className="flex items-center gap-3 text-sm text-slate-500">
         <SearchBar
           value={query}

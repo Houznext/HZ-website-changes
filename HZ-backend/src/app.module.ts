@@ -79,6 +79,8 @@ import { FloorplansModule } from './floorplans/floorplans.module';
 import { ShiprocketModule } from './shiprocket/shiprocket.module';
 import { AuditLogModule } from './audit-log/audit-log.module';
 import { InteriorModule } from './interiors/interior.module';
+import { BranchModule } from './branch/branch.module';
+import { BranchRoleModule } from './branchRole/branch-role.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditLogInterceptor } from './audit-log/audit-log.interceptor';
 
@@ -175,6 +177,8 @@ import { AuditLogInterceptor } from './audit-log/audit-log.interceptor';
     ShiprocketModule,
     AuditLogModule,
     InteriorModule,
+    BranchModule,
+    BranchRoleModule,
   ],
   controllers: [AppController],
   providers: [

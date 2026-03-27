@@ -11,7 +11,7 @@ const BranchesPage: React.FC = () => {
   if (isLoading && !initialized) return null;
 
   const hasAccess = hasPermission("branches", "view");
-  if (hasAccess) return <AccessDenied resource="Branches" />;
+  if (!hasAccess) return <AccessDenied resource="Branches" />;
 
   return (
     <div className="flex flex-col w-full justify-center">

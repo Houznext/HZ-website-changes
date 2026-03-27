@@ -39,11 +39,11 @@ export class MailerService {
   constructor() {
     this.transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
-      port: 587, // or 465 for secure
-      secure: false, // true for 465, false for other ports
+      port: 587,
+      secure: false,
       auth: {
-        user: 'lavudyasachinchavan@gmail.com', // add default from email
-        pass: 'zohoswdsdpowjagl', //add pw
+        user: process.env.SMTP_USER || 'business@houznext.com',
+        pass: process.env.SMTP_PASS || '',
       },
     });
   }
@@ -54,7 +54,7 @@ export class MailerService {
 
   async sendMail(to: string, subject: string, text: string, html: string) {
     const mailOptions = {
-      from: 'lavudyasachinchavan@gmail.com', // add default from email
+      from: process.env.SMTP_USER || 'business@houznext.com',
       to,
       subject,
       text,
@@ -151,11 +151,7 @@ export class MailerService {
     );
 
     const adminEmails = [
-      // 'propertylistingadmin@dreamcasa.com',
-      // 'furnitureadmin@dreamcasa.com',
-      // 'interiorsadmin@dreamcasa.com',
-      // 'remainingadmins@dreamcasa.com',
-      ' dreamcasarealestates@gmail.com',
+      'business@houznext.com',
     ];
 
     for (const email of adminEmails) {
@@ -181,7 +177,7 @@ export class MailerService {
       },
     );
 
-    const adminEmails = ['dreamcasarealestates@gmail.com'];
+    const adminEmails = ['business@houznext.com'];
     if (lead.assignedTo?.email) {
       adminEmails.push(lead.assignedTo.email);
     }
@@ -211,7 +207,7 @@ export class MailerService {
       },
     );
 
-    const adminEmails = ['dreamcasarealestates@gmail.com'];
+    const adminEmails = ['business@houznext.com'];
     if (lead.assignedTo?.email) {
       adminEmails.push(lead.assignedTo.email);
     }
@@ -242,7 +238,7 @@ export class MailerService {
       },
     );
 
-    const adminEmails = ['dreamcasarealestates@gmail.com'];
+    const adminEmails = ['business@houznext.com'];
     if (contact.assignedTo?.email) {
       adminEmails.push(contact.assignedTo.email);
     }
@@ -277,7 +273,7 @@ export class MailerService {
       },
     );
 
-    const adminEmails = ['dreamcasarealestates@gmail.com'];
+    const adminEmails = ['business@houznext.com'];
 
     const uniqueEmails = Array.from(new Set(adminEmails));
 
@@ -310,8 +306,7 @@ export class MailerService {
   `;
 
     const adminEmails = [
-      'dreamcasarealestates@gmail.com',
-      'superadmin@gmail.com',
+      'business@houznext.com',
     ];
     for (const email of adminEmails) {
       await this.sendMail(

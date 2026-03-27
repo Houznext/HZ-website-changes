@@ -328,11 +328,12 @@ export default function BranchesView() {
       setLoadingRoles(true);
       const res = await apiClient.get(
         `${apiClient.URLS.branchroles}?branchId=${branchId}&_=${Date.now()}`,
+        {},
+        true,
       );
-      console.log("res", res);
-      setBranchRoles(res.body);
-      const hasHeadRole = res.body.some((r: any) => r.isBranchHead === true);
-      setBranchHasHead(hasHeadRole);
+      const roles = Array.isArray(res.body) ? res.body : [];
+      setBranchRoles(roles);
+      setBranchHasHead(roles.some((r: any) => r.isBranchHead === true));
     } catch (error) {
       console.error("Error fetching branch roles:", error);
       toast.error("Failed to load branch roles");
@@ -347,11 +348,13 @@ export default function BranchesView() {
     try {
       setIsLoading(true);
       const res = await apiClient.get(
-        `${apiClient.URLS.user}/by-branch/${branchId}/admin-users`,{},true
+        `${apiClient.URLS.user}/by-branch/${branchId}/admin-users`,
+        {},
+        true,
       );
-      setBranchUsers(res.body);
-      const hasHead = res.body.some((u: any) => u.isBranchHead === true);
-      setBranchHasHead(hasHead);
+      const users = Array.isArray(res.body) ? res.body : [];
+      setBranchUsers(users);
+      setBranchHasHead(users.some((u: any) => u.isBranchHead === true));
     } catch (error) {
       console.error("Error fetching users:", error);
       toast.error("Failed to load users");

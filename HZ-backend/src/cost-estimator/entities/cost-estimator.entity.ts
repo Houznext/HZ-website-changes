@@ -18,6 +18,14 @@ export class CostEstimator {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({
+    type: 'int',
+    generated: 'increment',
+    nullable: true,
+    unique: true,
+  })
+  quotationNumber: number | null;
+
   @Column('text')
   firstname: string;
 
@@ -73,6 +81,12 @@ export class CostEstimator {
 
   @Column('decimal', { precision: 15, scale: 2, default: 0 })
   discount: number;
+
+  @Column({ type: 'boolean', default: false, nullable: true })
+  gstEnabled: boolean;
+
+  @Column('decimal', { precision: 5, scale: 2, default: 18, nullable: true })
+  gstPercentage: number;
 
   @Column('jsonb')
   location: {

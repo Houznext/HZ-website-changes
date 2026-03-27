@@ -8,8 +8,9 @@ import {
   IsEmail,
   IsEnum,
   IsUUID,
+  IsBoolean,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { PropertyType } from '../../Custombuilder/custom-property/enum/custom-property.enum';
 import { EstimationCategory } from '../Enum/cost-estimator.enum';
@@ -17,6 +18,7 @@ import { EstimationCategory } from '../Enum/cost-estimator.enum';
 class ItemDto {
   @ApiProperty({ required: false })
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   id?: number; // Optional for new items
 
@@ -29,18 +31,22 @@ class ItemDto {
   description: string;
 
   @ApiProperty()
+  @Type(() => Number)
   @IsNumber()
   quantity: number;
 
   @ApiProperty()
+  @Type(() => Number)
   @IsNumber()
   unit_price: number;
 
   @ApiProperty()
+  @Type(() => Number)
   @IsNumber()
   amount: number;
 
   @ApiProperty()
+  @Type(() => Number)
   @IsNumber()
   area: number;
 }
@@ -48,6 +54,7 @@ class ItemDto {
 export class ItemGroupDto {
   @ApiProperty({ required: false })
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   id?: number; // Optional for new groups
 
@@ -56,6 +63,7 @@ export class ItemGroupDto {
   title: string;
 
   @ApiProperty()
+  @Type(() => Number)
   @IsNumber()
   order: number;
 
@@ -119,8 +127,9 @@ export class CreateCostEstimatorDto {
   email: string;
 
   @ApiProperty()
-  @IsNumber()
   @IsOptional()
+  @Type(() => Number)
+  @IsNumber({ allowNaN: false })
   phone?: number;
 
   @ApiProperty()
@@ -161,7 +170,8 @@ export class CreateCostEstimatorDto {
   property_type: PropertyType;
 
   @ApiProperty()
-  @IsNumber()
+  @Type(() => Number)
+  @IsNumber({ allowNaN: false })
   subTotal: number;
 
   @ApiProperty()
@@ -184,6 +194,24 @@ export class CreateCostEstimatorDto {
   @IsString()
   @IsOptional()
   discount?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    if (typeof value === 'boolean') return value;
+    if (value === 'true' || value === 1 || value === '1') return true;
+    if (value === 'false' || value === 0 || value === '0') return false;
+    return Boolean(value);
+  })
+  @IsBoolean()
+  gstEnabled?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber({ allowNaN: false, maxDecimalPlaces: 4 })
+  gstPercentage?: number;
 }
 
 export class UpdateCostEstimatorDto {
@@ -196,6 +224,12 @@ export class UpdateCostEstimatorDto {
   @IsOptional()
   @IsString()
   lastname?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  designerName?: string;
+
   @ApiProperty()
   @IsEnum(EstimationCategory)
   @IsOptional()
@@ -212,8 +246,9 @@ export class UpdateCostEstimatorDto {
   email?: string;
 
   @ApiProperty()
-  @IsNumber()
   @IsOptional()
+  @Type(() => Number)
+  @IsNumber({ allowNaN: false })
   phone?: number;
 
   @ApiProperty()
@@ -246,7 +281,8 @@ export class UpdateCostEstimatorDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsNumber()
+  @Type(() => Number)
+  @IsNumber({ allowNaN: false })
   subTotal?: number;
 
   @ApiProperty()
@@ -271,4 +307,22 @@ export class UpdateCostEstimatorDto {
   @IsString()
   @IsOptional()
   discount?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    if (typeof value === 'boolean') return value;
+    if (value === 'true' || value === 1 || value === '1') return true;
+    if (value === 'false' || value === 0 || value === '0') return false;
+    return Boolean(value);
+  })
+  @IsBoolean()
+  gstEnabled?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber({ allowNaN: false, maxDecimalPlaces: 4 })
+  gstPercentage?: number;
 }

@@ -22,7 +22,7 @@ export default async function handler(
     }
 
     const [response] = await analyticsDataClient.runReport({
-      property: "properties/465093464", 
+      property: "properties/529425140",
       dateRanges: [{ startDate: "30 daysAgo", endDate: "today" }],
       dimensions: [
         { name: "pageTitle" },
