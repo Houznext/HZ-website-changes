@@ -95,7 +95,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="hidden md:flex flex-col w-[224px] bg-[#0f2a44] text-slate-100 h-screen sticky top-0 overflow-hidden">
+    <aside className="hidden md:flex flex-col w-[256px] bg-[#0f2a44] text-slate-100 h-screen sticky top-0 overflow-hidden">
 
       {/* Decorative radial glow */}
       <div
