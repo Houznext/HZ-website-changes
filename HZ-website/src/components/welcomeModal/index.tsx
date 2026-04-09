@@ -39,7 +39,7 @@ const WelcomeModal = () => {
                         </div>
 
                         <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
-                            Welcome to <span className="text-[#3586FF]">OneCasa</span>
+                            Welcome to <span className="text-[#3586FF]">Houznext</span>
                         </h2>
                         <p className="mt-2 text-sm label-text md:text-base text-slate-600 max-w-[300px] mx-auto leading-relaxed">
                             The only platform you need for your dream home.
@@ -49,7 +49,7 @@ const WelcomeModal = () => {
                             <div className="relative flex h-20 w-20 md:h-24 md:w-24 items-center justify-center rounded-xl bg-white shadow-lg ">
                                 <Image
                                     src="/images/logobb.png"
-                                    alt="OneCasa"
+                                    alt="Houznext"
                                     width={96}
                                     height={96}
                                     className="object-contain p-1.5"

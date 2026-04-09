@@ -151,8 +151,8 @@ const PackageBroker = () => {
 
             <p className="mt-6 text-[#3586FF] underline">
               To apply for this job, email your resume at{" "}
-              <Link href="mailto:sales@onecasa.in">
-                sales@onecasa.in
+              <Link href="mailto:business@houznext.com">
+                business@houznext.com
               </Link>
             </p>
 
@@ -185,8 +185,8 @@ const PackageBroker = () => {
 
             <p className="mt-6 text-[#3586FF] underline">
               To apply for this job, email your resume at{" "}
-              <Link href="mailto:sales@onecasa.in">
-                sales@onecasa.in
+              <Link href="mailto:business@houznext.com">
+                business@houznext.com
               </Link>
             </p>
 

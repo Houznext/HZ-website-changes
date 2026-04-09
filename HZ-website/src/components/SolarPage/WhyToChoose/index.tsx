@@ -72,7 +72,7 @@ const WhyToChoose = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-[18px] lg:text-[24px] font-bold text-[#3586FF] tracking-wide mb-2">
-            WHY TO CHOOSE ONECASA?
+            WHY TO CHOOSE HOUZNEXT?
           </h1>
           <h2 className="text-[#1C2436] font-regular md:text-[16px] text-[14px] opacity-80">
             Powering the Future One Ray at a Time

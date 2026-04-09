@@ -116,7 +116,7 @@ export const CompanyProjectCard = ({
       project?.location?.city || "N/A"
     }`;
     const image = project?.mediaDetails?.propertyImages?.[0] || "/fallback.jpg";
-    const title = project?.name || project?.company?.name || "OneCasa Project";
+    const title = project?.name || project?.company?.name || "Houznext Project";
     const bhk = project?.units?.[0]?.BHK || "N/A";
     const price = project?.minPrice
       ? `₹${(project.minPrice / 100000).toFixed(1)} L`
@@ -231,13 +231,13 @@ export const CompanyProjectCard = ({
             />
             <Image
               src="/images/logo.png"
-              alt="OneCasa Logo"
+              alt="Houznext Logo"
               width={60}
               height={40}
               className="absolute  opacity-60 mix-blend-multiply"
             />
             <p className="text-[24px] text-white opacity-50 font-medium  absolute top-[84%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              OneCasa
+              Houznext
             </p>
 
             <Button
@@ -289,13 +289,13 @@ export const CompanyProjectCard = ({
 
                 <Image
                   src="/images/logo.png"
-                  alt="OneCasa Logo"
+                  alt="Houznext Logo"
                   width={30}
                   height={30}
                   className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-60 mix-blend-multiply"
                 />
                 <p className="text-[10px] text-white opacity-40 font-medium  absolute top-[84%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  OneCasa
+                  Houznext
                 </p>
               </div>
             ))}

@@ -9,11 +9,10 @@ const LegalServices = () => {
     return (
         <div>
             <SEO
-                title="Legal Services | Expert Real Estate Legal Assistance | OneCasa"
-                description="Get professional legal assistance for real estate transactions, property disputes, and documentation. OneCasa provides expert legal services to ensure a smooth and secure property experience."
-                keywords="Real Estate Legal Services,Property Law Assistance,Legal Consultation for Real Estate,Property Dispute Resolution,Real Estate Documentation,Title Deed Verification,OneCasa Legal Services"
-                imageUrl="https://www.onecasa.in/images/logobb.png"
-            />
+                title="Legal Services | Expert Real Estate Legal Assistance | Houznext"
+                description="Get professional legal assistance for real estate transactions, property disputes, and documentation. Houznext provides expert legal services to ensure a smooth and secure property experience."
+                keywords="Real Estate Legal Services,Property Law Assistance,Legal Consultation for Real Estate,Property Dispute Resolution,Real Estate Documentation,Title Deed Verification,Houznext Legal Services"
+/>
             <LegalServicesComponent />
         </div>
     )

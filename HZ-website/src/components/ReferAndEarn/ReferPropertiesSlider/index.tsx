@@ -253,7 +253,7 @@ const ReferPropertiesSlider = () => {
                         .share({
                           title,
                           url: fullUrl,
-                          text: `Check out ${title} on OneCasa`,
+                          text: `Check out ${title} on Houznext`,
                         })
                         .catch(() => {});
                     } else {
@@ -337,7 +337,7 @@ const ReferPropertiesSlider = () => {
                             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 p-4">
                               <Image
                                 src="/images/logobb.png"
-                                alt="OneCasa"
+                                alt="Houznext"
                                 width={120}
                                 height={48}
                                 className="object-contain opacity-80"

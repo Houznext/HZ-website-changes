@@ -7,9 +7,9 @@ const PaymentsPage = () => {
   return (
     <div className="flex w-full">
       <SEO
-        title="Payment Tracking | Custom Builder | OneCasa"
+        title="Payment Tracking | Custom Builder | Houznext"
         description="Track all payments for your custom builder project including milestones, advances, and settlements."
-        keywords="Payment Tracking, Construction Payments, Milestone Payments, OneCasa Builder Payments"
+        keywords="Payment Tracking, Construction Payments, Milestone Payments, Houznext Builder Payments"
       />
       <PaymentTrackingView />
     </div>

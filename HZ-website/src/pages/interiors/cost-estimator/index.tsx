@@ -9,9 +9,8 @@ const CostEstimator = () => {
             <SEO
                 title="Interiors Cost Estimator | Calculate Interior Design Costs for Your Home & Office"
                 description="Estimate the cost of your interior design projects with our Interiors Cost Estimator. Get a detailed budget breakdown for home and office interiors."
-                keywords="Interiors Cost Estimator, Interior Design Budget, Home Interior Cost, Office Interior Estimate, OneCasa Interiors, Interior Renovation Cost, Calculate Interior Costs"
-                imageUrl="https://www.onecasa.in/images/logobb.png"
-            />
+                keywords="Interiors Cost Estimator, Interior Design Budget, Home Interior Cost, Office Interior Estimate, Houznext Interiors, Interior Renovation Cost, Calculate Interior Costs"
+/>
 
             <InteriorsCostEstimator />
         </div>

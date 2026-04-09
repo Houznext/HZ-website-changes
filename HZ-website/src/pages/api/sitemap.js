@@ -1,4 +1,4 @@
-const BASE_URL = "https://www.onecasa.in";
+const BASE_URL = "https://houznext.com";
 const API_BASE = process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT;
 
 const CITIES = ["hyderabad", "bangalore", "mumbai", "delhi", "chennai", "pune"];
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
   urls.push(urlEntry(`${BASE_URL}/properties`, { changefreq: "daily", priority: "0.9", lastmod: today }));
   urls.push(urlEntry(`${BASE_URL}/about-us`, { changefreq: "monthly", priority: "0.6", lastmod: today }));
   urls.push(urlEntry(`${BASE_URL}/contact-us`, { changefreq: "monthly", priority: "0.6", lastmod: today }));
-  urls.push(urlEntry(`${BASE_URL}/blogs`, { changefreq: "daily", priority: "0.7", lastmod: today }));
+  urls.push(urlEntry(`${BASE_URL}/blog`, { changefreq: "daily", priority: "0.7", lastmod: today }));
   urls.push(urlEntry(`${BASE_URL}/referandearn`, { changefreq: "monthly", priority: "0.5", lastmod: today }));
   urls.push(urlEntry(`${BASE_URL}/post-property`, { changefreq: "monthly", priority: "0.6", lastmod: today }));
 

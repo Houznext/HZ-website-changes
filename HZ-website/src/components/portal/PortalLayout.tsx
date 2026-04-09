@@ -18,19 +18,27 @@ interface PortalLayoutProps {
   customerName?: string;
 }
 
+/** Avoid `/portal//segment` when id is missing (breaks Next.js router during SSG/hydration). */
+function portalHref(projectId: string, ...segments: string[]): string {
+  const id = projectId?.trim();
+  if (!id) return "#";
+  if (segments.length === 0) return `/portal/${id}`;
+  return `/portal/${id}/${segments.join("/")}`;
+}
+
 const NAV_ITEMS: {
   href: (id: string) => string;
   label: string;
   page: PortalLayoutProps["activePage"];
   icon: string;
 }[] = [
-  { href: (id) => `/portal/${id}`, label: "Dashboard", page: "dashboard", icon: "⊞" },
-  { href: (id) => `/portal/${id}/designs`, label: "3D Designs", page: "designs", icon: "🖼" },
-  { href: (id) => `/portal/${id}/trades`, label: "Trades", page: "trades", icon: "🔧" },
-  { href: (id) => `/portal/${id}/gallery`, label: "Gallery", page: "gallery", icon: "📷" },
-  { href: (id) => `/portal/${id}/documents`, label: "Documents", page: "documents", icon: "📁" },
-  { href: (id) => `/portal/${id}/snags`, label: "Snags", page: "snags", icon: "⚠" },
-  { href: (id) => `/portal/${id}/reports`, label: "Reports", page: "reports", icon: "📊" },
+  { href: (id) => portalHref(id), label: "Dashboard", page: "dashboard", icon: "⊞" },
+  { href: (id) => portalHref(id, "designs"), label: "3D Designs", page: "designs", icon: "🖼" },
+  { href: (id) => portalHref(id, "trades"), label: "Trades", page: "trades", icon: "🔧" },
+  { href: (id) => portalHref(id, "gallery"), label: "Gallery", page: "gallery", icon: "📷" },
+  { href: (id) => portalHref(id, "documents"), label: "Documents", page: "documents", icon: "📁" },
+  { href: (id) => portalHref(id, "snags"), label: "Snags", page: "snags", icon: "⚠" },
+  { href: (id) => portalHref(id, "reports"), label: "Reports", page: "reports", icon: "📊" },
 ];
 
 export default function PortalLayout(props: PortalLayoutProps) {
@@ -72,8 +80,16 @@ export default function PortalLayout(props: PortalLayoutProps) {
           </p>
           {NAV_ITEMS.map((item) => {
             const isActive = activePage === item.page;
+            const href = item.href(projectId);
             return (
-              <Link key={item.page} href={item.href(projectId)}>
+              <Link
+                key={item.page}
+                href={href}
+                prefetch={!!projectId?.trim()}
+                onClick={(e) => {
+                  if (href === "#") e.preventDefault();
+                }}
+              >
                 <div
                   className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer mb-0.5 transition-colors ${
                     isActive
@@ -98,7 +114,13 @@ export default function PortalLayout(props: PortalLayoutProps) {
             <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider px-2 mb-2">
               Account
             </p>
-            <Link href={`/portal/${projectId}/rewards`}>
+            <Link
+              href={portalHref(projectId, "rewards")}
+              prefetch={!!projectId?.trim()}
+              onClick={(e) => {
+                if (!projectId?.trim()) e.preventDefault();
+              }}
+            >
               <div
                 className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer mb-0.5 transition-colors ${
                   activePage === "rewards"

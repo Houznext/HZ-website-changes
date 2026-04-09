@@ -171,7 +171,7 @@ const VerifyOtpView = () => {
                 Excellent Property are Sales Now
               </p>
               <p className="hidden md:block">
-                One Casa includes listings for various types of properties
+                Houznext includes listings for various types of properties
                 such as apartments, houses, villas, offices, and retail spaces.
               </p>
             </div>

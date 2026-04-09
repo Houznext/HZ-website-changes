@@ -120,7 +120,7 @@ export default function PackersAndMoversView() {
     ],
   };
   const WhyPackaresAndMoversData: IWhyPackersAndMoversProps = {
-    heading: "Why OneCasa Packers and Movers in Chennai?",
+    heading: "Why Houznext Packers and Movers in Chennai?",
     arrowicon: "/images/packersandmovers/whypackarsandmovers/arrowline.png",
     listItems: [
       {
@@ -165,7 +165,7 @@ export default function PackersAndMoversView() {
   };
   const ServicesBetterThanOthersData: IServicesBetterThanOthersProps = {
     heading: "Our customers services better than others",
-    title1: "OneCasa",
+    title1: "Houznext",
     title2: "Others",
     closeIcon: "/images/packersandmovers/servicesbetterthanothers/Close.png",
     listItems: [

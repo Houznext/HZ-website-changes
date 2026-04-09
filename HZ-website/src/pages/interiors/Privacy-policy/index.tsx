@@ -9,9 +9,9 @@ const interiorsPrivacyPolicy = () => {
   return (
     <div className="">
       <SEO
-        title="Privacy Policy | Your Data Protection & Security | OneCasa"
-        description="Read our Privacy Policy to understand how OneCasa collects, uses, and protects your personal information. We prioritize your data security and transparency in real estate transactions."
-        keywords="Privacy Policy,Data Protection,User Privacy,Information Security,Personal Data Collection,Cookies Policy,User Rights,OneCasa Privacy,Real estate privacy"
+        title="Privacy Policy | Your Data Protection & Security | Houznext"
+        description="Read our Privacy Policy to understand how Houznext collects, uses, and protects your personal information. We prioritize your data security and transparency in real estate transactions."
+        keywords="Privacy Policy,Data Protection,User Privacy,Information Security,Personal Data Collection,Cookies Policy,User Rights,Houznext Privacy,Real estate privacy"
       />
       <InteriorsPrivacyPolicy />
     </div>

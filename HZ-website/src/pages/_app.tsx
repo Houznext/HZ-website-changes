@@ -47,10 +47,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
 
   useEffect(() => {
     const handleRouteChange = (url: string) => {
-      if (typeof (window as any).gtag === "function") {
-        (window as any).gtag("config", NEXT_PUBLIC_GA4_ID, { page_path: url });
-      } else {
-        console.error("gtag is not a function");
+      const g = (window as unknown as { gtag?: (...a: unknown[]) => void }).gtag;
+      if (typeof g === "function") {
+        g("config", NEXT_PUBLIC_GA4_ID, { page_path: url });
       }
     };
 

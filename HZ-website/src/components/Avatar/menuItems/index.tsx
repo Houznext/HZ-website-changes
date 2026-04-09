@@ -38,7 +38,7 @@ type ServiceGroup = {
 
 const SERVICE_GROUPS: ServiceGroup[] = [
     {
-        title: "Explore OneCasa",
+        title: "Explore Houznext",
         items: [
             {
                 label: "Properties",
@@ -235,7 +235,7 @@ const ServicesMenu = () => {
                                             </p>
                                             <p className="text-[11px] text-slate-500 ">
                                                 Construction, interiors, legal, finance and more with
-                                                OneCasa.
+                                                Houznext.
                                             </p>
                                         </div>
                                         <Button

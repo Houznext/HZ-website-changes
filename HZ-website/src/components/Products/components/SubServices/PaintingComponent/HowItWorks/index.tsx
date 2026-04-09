@@ -57,7 +57,7 @@ export default function HowItWorks() {
         </div>
         <div className="flex flex-col md:flex-row items-center justify-between w-full gap-4">
           <p className="flex-1 font-medium md:text-[18px] text-[12px] text-gray-500">
-            OneCasa will help renovate your house in{" "}
+            Houznext will help renovate your house in{" "}
             <span className="font-bold text-gray-800">
               6 simple steps Book your inspection today!
             </span>

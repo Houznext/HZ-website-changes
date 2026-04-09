@@ -85,7 +85,7 @@ function QuoteModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[300] flex items-center justify-center p-4"
       style={{ backdropFilter: 'blur(4px)', background: 'rgba(10,20,35,0.75)' }}
       onClick={onClose}
     >

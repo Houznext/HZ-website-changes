@@ -10,11 +10,10 @@ const CustomBuilderUserProfile = () => {
   return (
     <div className="w-full">
       <SEO
-        title="Custom Builder Details | OneCasa"
+        title="Custom Builder Details | Houznext"
         description="Explore detailed information about custom builders, including property details, construction progress, and contact information."
-        keywords="Custom Builder Details, Home Construction, Builder Profile, OneCasa Construction, Property Development, Construction Progress"
-        imageUrl="https://www.onecasa.in/images/onecasa-logo.png"
-      />
+        keywords="Custom Builder Details, Home Construction, Builder Profile, Houznext Construction, Property Development, Construction Progress"
+/>
 
       <CustomBuilderUserProfileView />
     </div>

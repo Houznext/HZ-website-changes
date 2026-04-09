@@ -12,7 +12,7 @@ const TIMELINE: Milestone[] = [
     { year: "2022", text: "Founded with a simple idea: make home decisions confident and fast." },
     { year: "2023", text: "Expanded to multi-city ops, added curated builder & project network." },
     { year: "2024", text: "Launched interiors + custom builder flows with transparent estimates." },
-    { year: "2025", text: "Unified listings, legal desk, and e-commerce pilots under OneCasa.", cta: "See what’s new", href: "/" },
+    { year: "2025", text: "Unified listings, legal desk, and e-commerce pilots under Houznext.", cta: "See what’s new", href: "/" },
 ];
 
 export default function OurJourney() {
@@ -52,7 +52,7 @@ export default function OurJourney() {
                         Our Journey
                     </p>
                     <p className="mt-2 text-sm md:text-base text-[#5E6470] dark:text-[#B9C1D0] font-medium">
-                        Milestones that brought OneCasa to today.
+                        Milestones that brought Houznext to today.
                     </p>
                 </div>
 

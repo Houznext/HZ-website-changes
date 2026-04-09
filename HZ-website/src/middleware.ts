@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { isProtectedPath } from "@/lib/protected-routes";
 
-export const PROTECTED_PREFIXES = ["/user", "/post-property/details"] as const;
-
-export const isProtectedPath = (pathname: string) =>
-  PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
+export { PROTECTED_PREFIXES } from "@/lib/protected-routes";
 
 function decodeJwtPayload(token: string): { exp?: number } | null {
   const payloadPart = token.split(".")[1];

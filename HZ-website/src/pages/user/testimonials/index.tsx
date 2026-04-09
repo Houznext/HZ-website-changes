@@ -8,11 +8,10 @@ const Testimonials = () => {
   return (
     <div className="flex w-full min-h-full">
       <SEO
-        title="Customer Testimonials | OneCasa"
-        description="Read authentic customer testimonials about OneCasa's real estate services. See how our clients rate us and share their experiences."
-        keywords="Customer Reviews, OneCasa Testimonials, Real Estate Feedback, Homeowner Experiences, Client Stories, Property Reviews, OneCasa Ratings"
-        imageUrl="https://www.onecasa.in/images/onecasa-logo.png"
-      />
+        title="Customer Testimonials | Houznext"
+        description="Read authentic customer testimonials about Houznext's real estate services. See how our clients rate us and share their experiences."
+        keywords="Customer Reviews, Houznext Testimonials, Real Estate Feedback, Homeowner Experiences, Client Stories, Property Reviews, Houznext Ratings"
+/>
       <TestimonialsView />
     </div>
   );

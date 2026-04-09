@@ -25,27 +25,27 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className="fixed top-0 left-0 right-0 z-50"
+        className="fixed top-0 left-0 right-0 z-[200] isolate"
         style={{ background: '#0f2a44', height: 60 }}
       >
-        {/* Main nav row */}
-        <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between gap-6">
+        {/* Main nav row — plain <a href> = full navigation; works even if client router is stuck */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 h-full flex items-center justify-between gap-6">
           {/* Logo */}
-          <button
-            onClick={() => router.push('/')}
-            className="flex-shrink-0 font-head font-extrabold text-[22px] leading-none"
+          <a
+            href="/"
+            className="flex-shrink-0 font-head font-extrabold text-[22px] leading-none text-left cursor-pointer no-underline"
           >
             <span className="text-white">Houz</span>
             <span style={{ color: '#f2994a' }}>next</span>
-          </button>
+          </a>
 
           {/* Desktop nav links */}
           <div className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map((link) => (
-              <button
+              <a
                 key={link.href}
-                onClick={() => router.push(link.href)}
-                className="relative px-3 py-1.5 rounded text-[13px] font-[500] transition-colors duration-150"
+                href={link.href}
+                className="relative px-3 py-1.5 rounded text-[13px] font-[500] transition-colors duration-150 cursor-pointer no-underline inline-block"
                 style={{
                   color: isActive(link.href) ? '#fff' : 'rgba(255,255,255,0.75)',
                   background: 'transparent',
@@ -62,24 +62,25 @@ export default function Navbar() {
                 {link.label}
                 {isActive(link.href) && (
                   <span
-                    className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full"
+                    className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full pointer-events-none"
                     style={{ background: '#2f80ed' }}
                   />
                 )}
-              </button>
+              </a>
             ))}
           </div>
 
           {/* Right side actions */}
           <div className="hidden md:flex items-center gap-3">
-            <button
-              onClick={() => router.push('/login')}
-              className="px-4 py-1.5 rounded-lg text-[13px] font-[500] text-white transition-colors duration-150 hover:bg-white/10"
+            <a
+              href="/login"
+              className="px-4 py-1.5 rounded-lg text-[13px] font-[500] text-white transition-colors duration-150 hover:bg-white/10 inline-block cursor-pointer no-underline"
               style={{ border: '1px solid rgba(255,255,255,0.25)' }}
             >
               Login / My Home
-            </button>
+            </a>
             <button
+              type="button"
               onClick={openModal}
               className="px-4 py-1.5 rounded-lg text-[13px] font-head font-bold text-white transition-all duration-200 hover:-translate-y-px hover:shadow-lg"
               style={{ background: '#2f80ed' }}
@@ -92,6 +93,7 @@ export default function Navbar() {
 
           {/* Mobile hamburger */}
           <button
+            type="button"
             className="md:hidden text-white p-2"
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="Toggle menu"
@@ -110,9 +112,9 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Bottom gradient line */}
+        {/* Bottom gradient line — must not steal clicks from row above */}
         <div
-          className="absolute bottom-0 left-0 right-0 h-[2px]"
+          className="pointer-events-none absolute bottom-0 left-0 right-0 z-0 h-[2px]"
           style={{
             background:
               'linear-gradient(90deg, transparent 0%, #2f80ed 30%, #f2994a 50%, #2f80ed 70%, transparent 100%)',
@@ -123,37 +125,40 @@ export default function Navbar() {
       {/* Mobile menu drawer */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 md:hidden"
+          className="fixed inset-0 z-[190] md:hidden"
           style={{ paddingTop: 60 }}
           onClick={() => setMobileOpen(false)}
         >
           <div
-            className="absolute top-[60px] left-0 right-0 shadow-2xl"
+            className="absolute top-[60px] left-0 right-0 shadow-2xl z-10"
             style={{ background: '#0f2a44' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col py-3">
               {NAV_LINKS.map((link) => (
-                <button
+                <a
                   key={link.href}
-                  onClick={() => { router.push(link.href); setMobileOpen(false) }}
-                  className="text-left px-6 py-3 text-[14px] font-[500] transition-colors"
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="text-left px-6 py-3 text-[14px] font-[500] transition-colors block w-full cursor-pointer no-underline"
                   style={{
                     color: isActive(link.href) ? '#2f80ed' : 'rgba(255,255,255,0.8)',
                     background: isActive(link.href) ? 'rgba(47,128,237,0.1)' : 'transparent',
                   }}
                 >
                   {link.label}
-                </button>
+                </a>
               ))}
               <div className="flex gap-3 px-6 py-4 border-t border-white/10 mt-2">
-                <button
-                  onClick={() => { router.push('/login'); setMobileOpen(false) }}
-                  className="flex-1 py-2 text-[13px] font-[500] text-white rounded-lg border border-white/25"
+                <a
+                  href="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex-1 py-2 text-[13px] font-[500] text-white rounded-lg border border-white/25 text-center cursor-pointer no-underline"
                 >
                   Login
-                </button>
+                </a>
                 <button
+                  type="button"
                   onClick={() => { openModal(); setMobileOpen(false) }}
                   className="flex-1 py-2 text-[13px] font-head font-bold text-white rounded-lg"
                   style={{ background: '#2f80ed' }}

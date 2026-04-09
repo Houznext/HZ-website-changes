@@ -17,6 +17,10 @@ export class Blog {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  /** Public URL segment for /blog/:slug (lowercase kebab-case). */
+  @Column({ nullable: true, unique: true })
+  slug: string | null;
+
   @Column({ nullable: false })
   title: string;
 

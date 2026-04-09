@@ -27,8 +27,14 @@ export function tryParseJSON(json) {
     throw new Error(`Failed to parse unexpected JSON response: ${json}`);
   }
 }
-const base_url =
+/** Ensure trailing slash so `${base_url}otp` resolves to `/otp`, not `hostotp`. */
+const rawApiBase =
   process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT;
+const base_url = rawApiBase
+  ? rawApiBase.endsWith("/")
+    ? rawApiBase
+    : `${rawApiBase}/`
+  : "";
 
 const strapi_url = process.env.NEXT_PUBLIC_STRAPI_API;
 

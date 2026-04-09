@@ -257,8 +257,8 @@ export const CostBreakdown = ({ formData, setShowResults }: { formData: FormData
             <br />
             <div className="text-black">
               You can also call us at : <MdPhone className="inline" />
-              <Link href="tel:+918897574909" className="underline text-[#3586FF] hover:text-blue-800 ml-2 transition">
-                8897574909
+              <Link href="tel:+918498823043" className="underline text-[#3586FF] hover:text-blue-800 ml-2 transition">
+                8498823043
               </Link>
               ,{" "}
               <Link href="tel:+918106120099" className="underline text-[#3586FF] hover:text-blue-800 transition">
@@ -266,7 +266,7 @@ export const CostBreakdown = ({ formData, setShowResults }: { formData: FormData
               </Link>{" "}
               or mail us at{" "}<MdEmail className="inline" />
               <Link href="mailto:dreama@example.com" className="underline text-[#3586FF] hover:text-blue-800 transition">
-                sales@onecasa.in
+                business@houznext.com
               </Link>.
             </div>
           </p>

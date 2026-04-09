@@ -56,7 +56,11 @@ export class BlogController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a blog by ID' })
+  @ApiOperation({
+    summary: 'Get a blog by UUID or public slug',
+    description:
+      'Use a UUID (CMS /blogs/:id) or a URL slug (marketing /blog/:slug).',
+  })
   @ApiResponse({
     status: 200,
     description: 'Details of the blog.',

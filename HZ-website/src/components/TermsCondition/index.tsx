@@ -22,19 +22,19 @@ const TermsAndConditions = () => {
 
       <h2 className="text-2xl font-medium mb-2">3. License</h2>
       <p className="mb-4 text-gray-600">
-        Unless otherwise stated, OneCasa and/or its licensors own the intellectual property rights for all material on OneCasa. All intellectual property rights are reserved. You may access this from OneCasa for your personal use subject to restrictions set in these terms and conditions.
+        Unless otherwise stated, Houznext and/or its licensors own the intellectual property rights for all material on Houznext. All intellectual property rights are reserved. You may access this from Houznext for your personal use subject to restrictions set in these terms and conditions.
       </p>
 
       <ul className="list-disc pl-6 mb-4 text-gray-600">
-        <li>You must not republish material from OneCasa</li>
-        <li>You must not sell, rent, or sub-license material from OneCasa</li>
-        <li>You must not reproduce, duplicate or copy material from OneCasa</li>
-        <li>You must not redistribute content from OneCasa</li>
+        <li>You must not republish material from Houznext</li>
+        <li>You must not sell, rent, or sub-license material from Houznext</li>
+        <li>You must not reproduce, duplicate or copy material from Houznext</li>
+        <li>You must not redistribute content from Houznext</li>
       </ul>
 
       <h2 className="text-2xl font-medium mb-2">4. Hyperlinking to Our Content</h2>
       <p className="mb-4 text-gray-600">
-        Certain parts of this website offer the opportunity for users to post and exchange opinions and information in certain areas. OneCasa does not filter, edit, publish, or review Comments prior to their presence on the website. Comments do not reflect the views and opinions of OneCasa, its agents, or affiliates. Comments reflect the views and opinions of the person who posts their views and opinions.
+        Certain parts of this website offer the opportunity for users to post and exchange opinions and information in certain areas. Houznext does not filter, edit, publish, or review Comments prior to their presence on the website. Comments do not reflect the views and opinions of Houznext, its agents, or affiliates. Comments reflect the views and opinions of the person who posts their views and opinions.
       </p>
 
       <h2 className="text-2xl font-medium mb-2">5. Governing Law</h2>

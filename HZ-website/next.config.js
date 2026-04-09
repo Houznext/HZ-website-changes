@@ -47,6 +47,9 @@ const nextConfig = {
         destination: '/user/custom-builder/user/:id*',
         permanent: false,
       },
+      // Houznext blog listing lives at /blog; /blogs was legacy OneCasa listing (CMS). Keep /blogs/:id for API articles.
+      { source: '/blogs', destination: '/blog', permanent: true },
+      { source: '/blogs/', destination: '/blog', permanent: true },
     ]
   },
   webpack: (config, { isServer }) => {

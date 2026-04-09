@@ -365,7 +365,7 @@ const AdminChatPage = () => {
   if (status !== "authenticated") {
     return (
       <div className="w-full p-6">
-        <SEO title="Chat with Admin | OneCasa" />
+        <SEO title="Chat with Admin | Houznext" />
         <div className="bg-white rounded-lg border p-6 text-center text-gray-600">
           Please log in to chat with the admin.
         </div>
@@ -375,7 +375,7 @@ const AdminChatPage = () => {
 
   return (
     <div className="w-full h-[calc(100vh-theme(spacing.16))]">
-      <SEO title="Chat with Admin | OneCasa" />
+      <SEO title="Chat with Admin | Houznext" />
       {error && (
         <div className="px-4 py-2 text-sm text-red-600 bg-red-50 border-b border-red-100">
           {error}

@@ -5,10 +5,10 @@ export default function InteriorsPrivacyPolicy() {
     <>
         <div className="privacy-policy max-w-6xl mx-auto py-10 px-5">
         <h1 className="md:text-3xl text-[18px] font-bold md:mb-4 mb-2">
-          OneCasa Privacy Policy
+          Houznext Privacy Policy
         </h1>
-        <p className='md:text-[16px] text-[14px] font-regular'>OneCasa Private Limited and its affiliates (collectively, "OneCasa", "we", "our" or "us") are engaged inter alia in the business of property listings, construction, interior design, décor services, and allied services, as described in our Terms and Conditions available at https://www.onecasa.in/terms ("Terms"). This Policy outlines our practices regarding the collection, storage, usage, processing, and disclosure of personal data that you choose to share with us when you access or use our website at www.onecasa.in or our mobile application (collectively, "Platform"), avail products or services that OneCasa offers, or partner with us to provide services to customers ("Services").</p>
-        <p className='md:text-[16px] text-[14px] font-regular'>At OneCasa, we respect your privacy and are committed to protecting your personal data. This Policy explains how we process and use your personal data.</p>
+        <p className='md:text-[16px] text-[14px] font-regular'>Houznext Private Limited and its affiliates (collectively, "Houznext", "we", "our" or "us") are engaged inter alia in the business of property listings, construction, interior design, décor services, and allied services, as described in our Terms and Conditions available at https://houznext.com/terms ("Terms"). This Policy outlines our practices regarding the collection, storage, usage, processing, and disclosure of personal data that you choose to share with us when you access or use our website at www.houznext.in or our mobile application (collectively, "Platform"), avail products or services that Houznext offers, or partner with us to provide services to customers ("Services").</p>
+        <p className='md:text-[16px] text-[14px] font-regular'>At Houznext, we respect your privacy and are committed to protecting your personal data. This Policy explains how we process and use your personal data.</p>
         <p className='md:text-[16px] text-[14px] font-regular'>By using our Services, you confirm that you have read and agreed to be bound by this Policy and consent to the processing activities described herein.</p>
         <section className="mb-8 mt-4">
           <h2 className="md:text-2xl text-[16px] font-medium mb-4">
@@ -17,9 +17,9 @@ export default function InteriorsPrivacyPolicy() {
           <div className='md:text-[16px] text-[14px] font-regular'>
             <h1 className='md:text-[16px] text-[14px] font-medium'>(a) About Us</h1>
             <p>
-              The Services are provided by OneCasa. If you have questions about
+              The Services are provided by Houznext. If you have questions about
               this Policy, how we handle your personal data, or any concerns,
-              you may reach us at care@onecasa.in or contact our grievance
+              you may reach us at care@houznext.in or contact our grievance
               officer below.
             </p>
             <h1>
@@ -194,7 +194,7 @@ export default function InteriorsPrivacyPolicy() {
           </h2>
          <p className='md:text-[16px] text-[14px] font-regular'>We may share your data with:</p>
           <ul className="list-disc list-inside md:text-[16px] text-[14px] font-regular">
-            <li>Other companies within the OneCasa group.</li>
+            <li>Other companies within the Houznext group.</li>
             <li>
               Trusted partners (hosting, marketing, analytics, payment
               processing, etc.).

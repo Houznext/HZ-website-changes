@@ -51,6 +51,15 @@ export class CreateBlogDto {
   @IsString()
   @IsNotEmpty()
   content: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'URL slug (optional). Generated from title if omitted.',
+  })
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  slug?: string;
 }
 
 export class UpdateBlogDto {
@@ -95,6 +104,12 @@ export class UpdateBlogDto {
   @IsString()
   @IsOptional()
   content?: string;
+
+  @ApiProperty({ required: false, description: 'URL slug (kebab-case)' })
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  slug?: string;
 }
 
 export class GetAllBlogDto {

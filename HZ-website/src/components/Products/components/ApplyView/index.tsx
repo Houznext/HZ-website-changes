@@ -214,7 +214,7 @@ const ApplyCareerView = () => {
                 <div className="">
                     <h1 className="text-[24px] font-medium mb-4">Apply for Job</h1>
                     <h2 className="text-[#7f8793] mb-6">
-                        To apply for this job, email your resume at hiring@onecasa.in
+                        To apply for this job, email your resume at hiring@houznext.in
                     </h2>
                     <form onSubmit={handleSubmit}>
                         <div className="flex flex-col gap-3 w-full">

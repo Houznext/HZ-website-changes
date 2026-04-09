@@ -173,7 +173,7 @@ export default function SignUpComponent() {
                 Excellent Property Sales Now
               </p>
               <p className="text-white text-center">
-                One Casa includes listings for various types of properties
+                Houznext includes listings for various types of properties
                 such as apartments, houses, villas, offices, and retail spaces.
               </p>
             </div>

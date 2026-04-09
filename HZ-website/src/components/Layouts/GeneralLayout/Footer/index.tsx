@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 const GeneralFooter = () => {
   const contactDetails = [
-    "Phone :8897574909,  8639820425",
+    "Phone :8498823043,  8639820425",
     "Monday to Sunday ( 9:00 AM - 9:00 PM IST )",
     "Email : support@houznext.com",
   ];
@@ -67,7 +67,7 @@ const GeneralFooter = () => {
         },
         {
           label: "Blogs",
-          url: "/blogs",
+          url: "/blog",
         },
         {
           label: "Testimonials",
@@ -105,7 +105,7 @@ const GeneralFooter = () => {
       },
       {
         imageLink: "/icons/social-links/whatsapp.svg",
-        url: "https://wa.me/918897574909",
+        url: "https://wa.me/918498823043",
       },
       {
         imageLink: "/icons/social-links/instagram.svg",

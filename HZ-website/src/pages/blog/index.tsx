@@ -1,35 +1,89 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
+import Image from 'next/image'
+import type { GetServerSideProps } from 'next'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
-import Reveal from '@/components/ui/Reveal'
+import apiClient from '@/utils/apiClient'
 
-const CATEGORIES = ['All', 'Interiors', 'Construction', 'Real Estate', 'RERA & Legal', 'Cost Guides']
+export interface ApiBlogRow {
+  id: number | string
+  title?: string
+  previewDescription?: string
+  blogType?: string
+  blogStatus?: string
+  createdAt?: string
+  updatedAt?: string
+  CoverImageUrl?: string
+  thumbnailImageUrl?: string
+  content?: string
+}
 
-const POSTS = [
-  { slug: 'modular-kitchen-cost-hyderabad', category: 'Cost Guides', title: 'Modular Kitchen Cost in Hyderabad 2025', excerpt: 'A complete breakdown of modular kitchen costs — materials, finishes, and what to expect at every budget level.', date: '2025-01-15', readTime: '8 min' },
-  { slug: 'false-ceiling-cost-guide', category: 'Interiors', title: 'False Ceiling Cost Guide: POP vs Gypsum', excerpt: 'POP or gypsum? We break down the pros, cons, and cost per sq ft for both types of false ceilings.', date: '2025-01-10', readTime: '6 min' },
-  { slug: 'rera-compliance-telangana', category: 'RERA & Legal', title: 'RERA Compliance in Telangana: What Buyers Need to Know', excerpt: 'A step-by-step guide to verifying RERA registration and protecting your investment when buying property in Telangana.', date: '2025-01-05', readTime: '10 min' },
-  { slug: '2bhk-interior-cost-warangal', category: 'Cost Guides', title: '2BHK Interior Cost in Warangal 2025', excerpt: 'Real numbers, real projects. How much does a 2BHK interior cost in Warangal across Essential, Premium and Luxury tiers?', date: '2024-12-28', readTime: '7 min' },
-  { slug: 'home-construction-stages', category: 'Construction', title: 'The 7 Stages of Home Construction — Explained', excerpt: 'From foundation to finishing — understand every stage of home construction and what to expect from your contractor.', date: '2024-12-20', readTime: '12 min' },
-  { slug: 'wardrobe-design-ideas', category: 'Interiors', title: '10 Wardrobe Design Ideas for Indian Homes', excerpt: 'Sliding vs hinged, loft storage, mirror panels — explore wardrobe designs that work perfectly for Indian homes.', date: '2024-12-15', readTime: '5 min' },
-]
+interface BlogIndexProps {
+  initialBlogs: ApiBlogRow[]
+}
 
-export default function BlogIndex() {
+function estimateReadMin(b: ApiBlogRow): string {
+  const len = (b.content?.length || 0) + (b.previewDescription?.length || 0)
+  const mins = Math.max(3, Math.min(20, Math.ceil(len / 1200)))
+  return `${mins} min`
+}
+
+function formatDate(iso?: string): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+export default function BlogIndex({ initialBlogs }: BlogIndexProps) {
   const router = useRouter()
   const [activeCategory, setActiveCategory] = useState('All')
   const [search, setSearch] = useState('')
 
-  const filtered = POSTS.filter((p) => {
-    const matchCat = activeCategory === 'All' || p.category === activeCategory
-    const matchSearch = p.title.toLowerCase().includes(search.toLowerCase()) || p.excerpt.toLowerCase().includes(search.toLowerCase())
-    return matchCat && matchSearch
-  })
+  const categories = useMemo(() => {
+    const types = new Set<string>()
+    initialBlogs.forEach((b) => {
+      if (b.blogType?.trim()) types.add(b.blogType.trim())
+    })
+    return ['All', ...Array.from(types).sort((a, b) => a.localeCompare(b))]
+  }, [initialBlogs])
 
-  const featured = filtered[0]
-  const rest = filtered.slice(1)
+  const filtered = useMemo(() => {
+    return initialBlogs.filter((b) => {
+      const catOk =
+        activeCategory === 'All' || (b.blogType || '').trim() === activeCategory
+      const q = search.toLowerCase().trim()
+      const text = `${b.title || ''} ${b.previewDescription || ''}`.toLowerCase()
+      const searchOk = !q || text.includes(q)
+      return catOk && searchOk
+    })
+  }, [initialBlogs, activeCategory, search])
+
+  const featured = useMemo(() => {
+    if (filtered.length === 0) return null
+    const feat = filtered.find((b) => b.blogStatus === 'Featured')
+    if (feat) return feat
+    const trend = filtered.find((b) => b.blogStatus === 'Trending')
+    if (trend) return trend
+    return filtered[0]
+  }, [filtered])
+
+  const rest = useMemo(() => {
+    if (!featured) return filtered
+    return filtered.filter((b) => String(b.id) !== String(featured.id))
+  }, [filtered, featured])
+
+  const sidebarPosts = rest.slice(0, 3)
+  const gridPosts = rest.slice(3)
+
+  const goToPost = (id: number | string) => {
+    void router.push(`/blogs/${id}`)
+  }
+
+  const cover = (b: ApiBlogRow) => b.CoverImageUrl || b.thumbnailImageUrl || ''
 
   return (
     <>
@@ -40,7 +94,6 @@ export default function BlogIndex() {
       />
       <Navbar />
       <main style={{ background: '#f5f7fa' }}>
-        {/* Hero */}
         <section className="py-16 px-4" style={{ background: '#0f2a44' }}>
           <div className="max-w-7xl mx-auto text-center">
             <EyebrowLabel className="justify-center mb-4">Houznext Blog</EyebrowLabel>
@@ -51,7 +104,6 @@ export default function BlogIndex() {
             <p className="text-[15px] mb-8 max-w-lg mx-auto" style={{ color: 'rgba(255,255,255,0.65)' }}>
               Interior design tips, construction guides, and real estate insights for homeowners across Telangana.
             </p>
-            {/* Search */}
             <div className="max-w-lg mx-auto relative">
               <input
                 value={search}
@@ -59,27 +111,43 @@ export default function BlogIndex() {
                 placeholder="Search articles…"
                 className="w-full bg-white rounded-xl px-5 py-3.5 text-sm outline-none pr-12"
                 style={{ border: '2px solid transparent' }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = '#2f80ed' }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = 'transparent' }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#2f80ed'
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'transparent'
+                }}
               />
-              <svg className="absolute right-4 top-1/2 -translate-y-1/2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5a6a7e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
+              <svg
+                className="absolute right-4 top-1/2 -translate-y-1/2"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#5a6a7e"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" />
               </svg>
             </div>
           </div>
         </section>
 
         <div className="max-w-7xl mx-auto px-4 py-12">
-          {/* Category tabs */}
           <div className="flex flex-wrap gap-2 mb-10">
-            {CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <button
                 key={cat}
+                type="button"
                 onClick={() => setActiveCategory(cat)}
                 className="px-4 py-1.5 rounded-full text-[12px] font-head font-bold transition-all"
-                style={activeCategory === cat
-                  ? { background: '#2f80ed', color: '#fff' }
-                  : { background: '#e8f1fd', color: '#2f80ed' }
+                style={
+                  activeCategory === cat
+                    ? { background: '#2f80ed', color: '#fff' }
+                    : { background: '#e8f1fd', color: '#2f80ed' }
                 }
               >
                 {cat}
@@ -87,77 +155,133 @@ export default function BlogIndex() {
             ))}
           </div>
 
-          {/* Featured + sidebar */}
-          {featured && (
+          {initialBlogs.length === 0 && (
+            <div className="text-center py-16">
+              <p className="text-muted mb-2">No articles published yet.</p>
+              <p className="text-sm text-muted">New posts will appear here once they are added in the admin.</p>
+            </div>
+          )}
+
+          {featured && initialBlogs.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-              {/* Featured */}
               <div
                 className="md:col-span-2 rounded-2xl overflow-hidden bg-white border cursor-pointer transition-shadow hover:shadow-lg"
                 style={{ borderColor: '#dde8f5' }}
-                onClick={() => router.push(`/blog/${featured.slug}`)}
+                onClick={() => goToPost(featured.id)}
+                onKeyDown={(e) => e.key === 'Enter' && goToPost(featured.id)}
+                role="link"
+                tabIndex={0}
               >
-                <div className="h-56 flex items-end p-5" style={{ background: 'linear-gradient(135deg, #1a3a5c, #0f2a44)' }}>
-                  <span className="text-[11px] font-head font-bold px-3 py-1 rounded-full text-white" style={{ background: 'rgba(47,128,237,0.6)' }}>
-                    {featured.category}
-                  </span>
+                <div className="relative h-56 w-full" style={{ background: 'linear-gradient(135deg, #1a3a5c, #0f2a44)' }}>
+                  {cover(featured) ? (
+                    <Image
+                      src={cover(featured)}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 66vw"
+                    />
+                  ) : null}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0f2a44]/90 to-transparent" />
+                  <div className="absolute bottom-5 left-5 right-5 flex flex-wrap gap-2">
+                    {(featured.blogType || featured.blogStatus) && (
+                      <span
+                        className="text-[11px] font-head font-bold px-3 py-1 rounded-full text-white"
+                        style={{ background: 'rgba(47,128,237,0.85)' }}
+                      >
+                        {featured.blogType || featured.blogStatus}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="p-6">
                   <h2 className="font-head font-bold text-[20px] text-charcoal mb-2">{featured.title}</h2>
-                  <p className="text-[13px] leading-relaxed mb-4" style={{ color: '#5a6a7e' }}>{featured.excerpt}</p>
+                  <p className="text-[13px] leading-relaxed mb-4" style={{ color: '#5a6a7e' }}>
+                    {featured.previewDescription}
+                  </p>
                   <div className="flex items-center gap-3 text-[11px]" style={{ color: '#5a6a7e' }}>
-                    <span>{featured.date}</span>
+                    <span>{formatDate(featured.createdAt || featured.updatedAt)}</span>
                     <span>·</span>
-                    <span>{featured.readTime} read</span>
+                    <span>{estimateReadMin(featured)} read</span>
                   </div>
                 </div>
               </div>
 
-              {/* Sidebar cards */}
               <div className="space-y-4">
-                {rest.slice(0, 3).map((post) => (
+                {sidebarPosts.map((post) => (
                   <div
-                    key={post.slug}
+                    key={post.id}
                     className="bg-white rounded-xl border p-4 cursor-pointer transition-shadow hover:shadow-md"
                     style={{ borderColor: '#dde8f5' }}
-                    onClick={() => router.push(`/blog/${post.slug}`)}
+                    onClick={() => goToPost(post.id)}
+                    onKeyDown={(e) => e.key === 'Enter' && goToPost(post.id)}
+                    role="link"
+                    tabIndex={0}
                   >
-                    <span className="text-[10px] font-head font-bold" style={{ color: '#2f80ed' }}>{post.category}</span>
+                    <span className="text-[10px] font-head font-bold" style={{ color: '#2f80ed' }}>
+                      {post.blogType || post.blogStatus || 'Article'}
+                    </span>
                     <h3 className="font-head font-bold text-[13px] text-charcoal mt-1 mb-1">{post.title}</h3>
-                    <p className="text-[11px]" style={{ color: '#5a6a7e' }}>{post.readTime} read</p>
+                    <p className="text-[11px]" style={{ color: '#5a6a7e' }}>
+                      {estimateReadMin(post)} read
+                    </p>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Article grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-            {rest.map((post) => (
-              <div
-                key={post.slug}
-                className="bg-white rounded-2xl border overflow-hidden cursor-pointer transition-shadow hover:shadow-lg"
-                style={{ borderColor: '#dde8f5' }}
-                onClick={() => router.push(`/blog/${post.slug}`)}
-              >
-                <div className="h-36 flex items-end p-4" style={{ background: 'linear-gradient(135deg, #1a3a5c, #0f2a44)' }}>
-                  <span className="text-[10px] font-head font-bold px-2 py-0.5 rounded-full text-white" style={{ background: 'rgba(47,128,237,0.5)' }}>
-                    {post.category}
-                  </span>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-head font-bold text-[14px] text-charcoal mb-2">{post.title}</h3>
-                  <p className="text-[12px] leading-relaxed mb-3" style={{ color: '#5a6a7e' }}>{post.excerpt}</p>
-                  <div className="flex items-center gap-2 text-[11px]" style={{ color: '#5a6a7e' }}>
-                    <span>{post.date}</span><span>·</span><span>{post.readTime} read</span>
+          {gridPosts.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+              {gridPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="bg-white rounded-2xl border overflow-hidden cursor-pointer transition-shadow hover:shadow-lg"
+                  style={{ borderColor: '#dde8f5' }}
+                  onClick={() => goToPost(post.id)}
+                  onKeyDown={(e) => e.key === 'Enter' && goToPost(post.id)}
+                  role="link"
+                  tabIndex={0}
+                >
+                  <div className="relative h-36 w-full" style={{ background: 'linear-gradient(135deg, #1a3a5c, #0f2a44)' }}>
+                    {cover(post) ? (
+                      <Image
+                        src={cover(post)}
+                        alt=""
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 100vw, 33vw"
+                      />
+                    ) : null}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0f2a44]/80 to-transparent" />
+                    <div className="absolute bottom-3 left-3">
+                      <span
+                        className="text-[10px] font-head font-bold px-2 py-0.5 rounded-full text-white"
+                        style={{ background: 'rgba(47,128,237,0.65)' }}
+                      >
+                        {post.blogType || post.blogStatus || 'Article'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-head font-bold text-[14px] text-charcoal mb-2">{post.title}</h3>
+                    <p className="text-[12px] leading-relaxed mb-3 line-clamp-3" style={{ color: '#5a6a7e' }}>
+                      {post.previewDescription}
+                    </p>
+                    <div className="flex items-center gap-2 text-[11px]" style={{ color: '#5a6a7e' }}>
+                      <span>{formatDate(post.createdAt || post.updatedAt)}</span>
+                      <span>·</span>
+                      <span>{estimateReadMin(post)} read</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
-          {filtered.length === 0 && (
+          {initialBlogs.length > 0 && filtered.length === 0 && (
             <div className="text-center py-16">
-              <p className="text-muted">No articles found for &quot;{search}&quot;</p>
+              <p className="text-muted">No articles match your filters.</p>
             </div>
           )}
         </div>
@@ -165,4 +289,20 @@ export default function BlogIndex() {
       <Footer />
     </>
   )
+}
+
+export const getServerSideProps: GetServerSideProps<BlogIndexProps> = async () => {
+  try {
+    const res = await apiClient.get(apiClient.URLS.blogs, {
+      sortBy: 'createdAt',
+      sortOrder: 'DESC',
+    })
+    const raw = Array.isArray(res.body) ? res.body : res.body?.blogs || []
+    const initialBlogs: ApiBlogRow[] = (raw as ApiBlogRow[]).filter((b) => b?.id != null)
+
+    return { props: { initialBlogs } }
+  } catch (e) {
+    console.error('[blog index] fetch failed', e)
+    return { props: { initialBlogs: [] } }
+  }
 }

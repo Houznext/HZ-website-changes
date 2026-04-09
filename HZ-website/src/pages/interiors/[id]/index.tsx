@@ -87,7 +87,7 @@ const InteriorsId = () => {
           } Get expert recommendations and inspiration for your dream home.`}
         keywords={`Interior Design, ${selectedData?.title || "Home Interiors"
           }, ${item} Design Ideas, Modern Interiors, Home Renovation, Stylish Interiors, Custom Interiors`}
-        imageUrl={`https://www.onecasa.in/interiors/${id}`}
+        imageUrl={`https://houznext.com/interiors/${id}`}
       />
       <InteriorsList {...selectedData} />
       <InteriorCalc />

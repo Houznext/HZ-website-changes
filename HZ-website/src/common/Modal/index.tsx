@@ -7,7 +7,7 @@ const Modal = ({ isOpen, closeModal, title, titleCls, children, className, isClo
 
   return (
     <Transition appear show={Boolean(isOpen)} as={Fragment}>
-      <Dialog as="div" className={twMerge('relative z-[100]', rootCls)} onClose={closeModal}>
+      <Dialog as="div" className={twMerge('relative z-[300]', rootCls)} onClose={closeModal}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"

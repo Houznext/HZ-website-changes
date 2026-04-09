@@ -26,7 +26,7 @@ const EmptyCart = ({ title }: EmptyCart) => {
                     Explore our products and services to get started.
                 </p>
                 <div className="mt-4 label-text text-[#3586FF] font-medium">
-                    OneCasa • One stop solution for all your home needs
+                    Houznext • One stop solution for all your home needs
                 </div>
                 <div className="mt-6 flex flex-col items-center justify-center w-full  mx-auto gap-3">
                     <Button

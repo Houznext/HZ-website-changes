@@ -1,4 +1,4 @@
-import { useRouter } from 'next/router'
+import Link from 'next/link'
 
 const SERVICES = [
   { label: 'Home Interiors',   href: '/interiors' },
@@ -25,22 +25,23 @@ const COMPANY = [
   { label: 'Terms of Service', href: '/terms-and-condition' },
 ]
 
-export default function Footer() {
-  const router = useRouter()
+const footerLinkClass =
+  'text-[13px] transition-colors text-left cursor-pointer no-underline block w-fit text-[#5a6a7e] hover:text-white'
 
+export default function Footer() {
   return (
-    <footer style={{ background: '#0f2a44' }}>
+    <footer style={{ background: '#0f2a44' }} className="relative z-10">
       <div className="max-w-7xl mx-auto px-6 py-14">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand column */}
           <div className="md:col-span-1">
-            <button
-              onClick={() => router.push('/')}
-              className="font-head font-extrabold text-[26px] leading-none mb-3"
+            <Link
+              href="/"
+              className="font-head font-extrabold text-[26px] leading-none mb-3 inline-block cursor-pointer no-underline bg-transparent border-0 p-0 text-left"
             >
               <span className="text-white">Houz</span>
               <span style={{ color: '#f2994a' }}>next</span>
-            </button>
+            </Link>
             <p className="text-sm italic mt-2" style={{ color: '#5a6a7e' }}>
               Buy Right. Build Strong. Design Beautiful.
             </p>
@@ -88,15 +89,9 @@ export default function Footer() {
             <ul className="space-y-2.5">
               {SERVICES.map((item) => (
                 <li key={item.label}>
-                  <button
-                    onClick={() => router.push(item.href)}
-                    className="text-[13px] transition-colors text-left"
-                    style={{ color: '#5a6a7e' }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#fff' }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#5a6a7e' }}
-                  >
+                  <Link href={item.href} className={footerLinkClass}>
                     {item.label}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -110,15 +105,9 @@ export default function Footer() {
             <ul className="space-y-2.5">
               {BUILDLIVE.map((item) => (
                 <li key={item.label}>
-                  <button
-                    onClick={() => router.push(item.href)}
-                    className="text-[13px] transition-colors text-left"
-                    style={{ color: '#5a6a7e' }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#fff' }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#5a6a7e' }}
-                  >
+                  <Link href={item.href} className={footerLinkClass}>
                     {item.label}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -132,15 +121,9 @@ export default function Footer() {
             <ul className="space-y-2.5">
               {COMPANY.map((item) => (
                 <li key={item.label}>
-                  <button
-                    onClick={() => router.push(item.href)}
-                    className="text-[13px] transition-colors text-left"
-                    style={{ color: '#5a6a7e' }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#fff' }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#5a6a7e' }}
-                  >
+                  <Link href={item.href} className={footerLinkClass}>
                     {item.label}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>

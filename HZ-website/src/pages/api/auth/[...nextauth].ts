@@ -74,7 +74,7 @@ const authOptions: NextAuthOptions = {
           } = body || {};
           const userData = user || existingUser;
 
-          if (res?.status === 201 && token) {
+          if ((res?.status === 201 || res?.status === 200) && token) {
             const decoded = decodeJwt(token) as any;
 
             if (userData) {
@@ -139,7 +139,7 @@ const authOptions: NextAuthOptions = {
           const { body } = res || {};
           const { user, token, branchMemberships } = body || {};
 
-          if (res?.status === 201 && user && token) {
+          if ((res?.status === 201 || res?.status === 200) && user && token) {
             const decoded = decodeJwt(token) as any;
             return {
               ...user,

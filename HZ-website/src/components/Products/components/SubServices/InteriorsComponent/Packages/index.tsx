@@ -467,10 +467,10 @@ const PackageCard: React.FC<Package> = ({
                   <p className="text-xs text-gray-500">
                     Or call us at{" "}
                     <a
-                      href="tel:+918897574909"
+                      href="tel:+918498823043"
                       className="text-[#3586FF] font-medium"
                     >
-                      +91 8897574909
+                      +91 84988 23043
                     </a>
                   </p>
                 </div>

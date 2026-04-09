@@ -10,6 +10,7 @@ import {
 } from './dto/blog.dto';
 import { S3Service } from 'src/common/s3/s3.service';
 import { SEED_BLOGS } from './blog-seed-data';
+import { isBlogUuid, slugifyTitle } from './blog-slug.util';
 
 @Injectable()
 export class BlogService {
@@ -19,8 +20,30 @@ export class BlogService {
     private readonly s3Service: S3Service,
   ) {}
 
+  /** Unique slug; if `excludeBlogId` set, that row is ignored (for updates). */
+  private async resolveUniqueSlug(
+    base: string,
+    excludeBlogId?: string,
+  ): Promise<string> {
+    let slug = slugifyTitle(base);
+    let n = 0;
+    for (;;) {
+      const existing = await this.blogRepository.findOne({ where: { slug } });
+      if (!existing || existing.id === excludeBlogId) {
+        return slug;
+      }
+      n += 1;
+      slug = `${slugifyTitle(base)}-${n}`;
+    }
+  }
+
   async create(createBlogDto: CreateBlogDto): Promise<Blog> {
-    const blog = this.blogRepository.create(createBlogDto);
+    const raw =
+      createBlogDto.slug && createBlogDto.slug.length > 0
+        ? createBlogDto.slug
+        : createBlogDto.title;
+    const slug = await this.resolveUniqueSlug(raw);
+    const blog = this.blogRepository.create({ ...createBlogDto, slug });
     return this.blogRepository.save(blog);
   }
 
@@ -57,16 +80,25 @@ export class BlogService {
     return { blogs, total };
   }
 
-  async findOne(id: string, query: GetByIdBlogDto): Promise<Blog> {
-    const blog = await this.blogRepository.findOne({
-      where: { id },
-      relations: query.includeCreatedUser || query.includeUpdatedUser
+  async findOne(idOrSlug: string, query: GetByIdBlogDto): Promise<Blog> {
+    const relations =
+      query.includeCreatedUser || query.includeUpdatedUser
         ? ['createdUser', 'updatedUser']
-        : [],
+        : [];
+
+    const where = isBlogUuid(idOrSlug)
+      ? { id: idOrSlug.trim() }
+      : { slug: slugifyTitle(idOrSlug) };
+
+    const blog = await this.blogRepository.findOne({
+      where,
+      relations,
     });
 
     if (!blog) {
-      throw new NotFoundException(`Blog with ID ${id} not found`);
+      throw new NotFoundException(
+        `Blog with ${isBlogUuid(idOrSlug) ? 'ID' : 'slug'} "${idOrSlug}" not found`,
+      );
     }
 
     return blog;
@@ -94,9 +126,18 @@ export class BlogService {
       }
     }
 
+    const { slug: incomingSlug, ...restUpdate } = updateBlogDto;
+    let slugPatch: { slug: string } | undefined;
+    if (incomingSlug !== undefined && incomingSlug !== '') {
+      slugPatch = {
+        slug: await this.resolveUniqueSlug(incomingSlug, id),
+      };
+    }
+
     const blog = await this.blogRepository.preload({
       id,
-      ...updateBlogDto,
+      ...restUpdate,
+      ...slugPatch,
     });
     return this.blogRepository.save(blog);
   }
@@ -107,8 +148,7 @@ export class BlogService {
 
     for (const dto of SEED_BLOGS) {
       try {
-        const blog = this.blogRepository.create(dto);
-        await this.blogRepository.save(blog);
+        await this.create(dto);
         created++;
       } catch {
         failed++;

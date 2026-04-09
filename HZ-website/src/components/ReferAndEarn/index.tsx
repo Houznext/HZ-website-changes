@@ -266,7 +266,7 @@ const ReferandEarnView = () => {
         <Refersteps {...referStepsData} />
       </div>
       <Link
-        href="https://wa.me/918897574909"
+        href="https://wa.me/918498823043"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat with us on WhatsApp"

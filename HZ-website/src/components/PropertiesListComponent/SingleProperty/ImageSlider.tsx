@@ -58,13 +58,13 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
                 />
                 <Image
                     src="/images/logo.png"
-                    alt="OneCasa Logo"
+                    alt="Houznext Logo"
                     width={80}
                     height={60}
                     className="absolute md:top-1/4 top-1/4 left-1/2 transform -translate-x-1/2 md:translate-y-1 -translate-y-1/2 opacity-60 mix-blend-multiply"
                 />
                 <p className="text-[34px] text-white opacity-10  font-medium  absolute top-[84%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    ONECASA
+                    HOUZNEXT
                 </p>
 
                 {showArrows && (

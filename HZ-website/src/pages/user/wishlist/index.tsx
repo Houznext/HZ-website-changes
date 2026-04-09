@@ -8,11 +8,10 @@ const Wishlist = () => {
   return (
     <div className="w-full">
       <SEO
-        title="Wishlist | OneCasa"
-        description="Save your favorite properties with OneCasa's Wishlist. Easily track, manage, and revisit your saved real estate listings anytime."
-        keywords="Wishlist, Saved Properties, Favorite Listings, OneCasa Wishlist, Real Estate Favorites, Property Tracking, Home Listings"
-        imageUrl="https://www.onecasa.in/images/logobb.png"
-      />
+        title="Wishlist | Houznext"
+        description="Save your favorite properties with Houznext's Wishlist. Easily track, manage, and revisit your saved real estate listings anytime."
+        keywords="Wishlist, Saved Properties, Favorite Listings, Houznext Wishlist, Real Estate Favorites, Property Tracking, Home Listings"
+/>
 
       <WishListComponent />
     </div>

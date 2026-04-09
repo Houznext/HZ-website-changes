@@ -10,11 +10,10 @@ const Compare = () => {
   return (
     <div>
       <SEO
-        title="Compare Furniture, Home Decor & Electronics | Prices, Features & Reviews | OneCasa"
-        description="Compare furniture, home decor, and electronics on OneCasa. View prices, features, specifications, and customer ratings side by side to choose the best products for your home."
-        keywords="Compare Furniture, Furniture Comparison, Home Decor Comparison, Electronics Comparison, Product Comparison, Furniture Prices, Electronics Features, OneCasa Compare"
-        imageUrl="https://www.onecasa.in/images/logobb.png"
-      />
+        title="Compare Furniture, Home Decor & Electronics | Prices, Features & Reviews | Houznext"
+        description="Compare furniture, home decor, and electronics on Houznext. View prices, features, specifications, and customer ratings side by side to choose the best products for your home."
+        keywords="Compare Furniture, Furniture Comparison, Home Decor Comparison, Electronics Comparison, Product Comparison, Furniture Prices, Electronics Features, Houznext Compare"
+/>
 
       <CompareView />
     </div>

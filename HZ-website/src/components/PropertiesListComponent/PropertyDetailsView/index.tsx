@@ -55,17 +55,17 @@ const PropertyDetailsView = () => {
 
     const seoTags = data?.type === 'property' && (
         <SEO
-            title={`${data.details.propertyDetails?.propertyName} | OneCasa`}
+            title={`${data.details.propertyDetails?.propertyName} | Houznext`}
             description={`BHK: ${data.details.propertyDetails?.residentialAttributes?.bhk} | ${data.details.locationDetails?.locality}, ${data.details.locationDetails?.city} | Price: ₹${data.details.propertyDetails?.pricingDetails?.expectedPrice}`}
             imageUrl={data.details.mediaDetails?.propertyImages?.[0] || "/fallback.jpg"}   // ✅ Correct prop
-            keywords="apartments, villas, rent, buy, OneCasa, real estate, property listing, residential homes"
+            keywords="apartments, villas, rent, buy, Houznext, real estate, property listing, residential homes"
             favicon="/images/logobb.png"
             breadcrumbs={[
-                { name: "Home", item: "https://www.onecasa.in" },
-                { name: "Properties", item: "https://www.onecasa.in/properties" },
+                { name: "Home", item: "https://houznext.com" },
+                { name: "Properties", item: "https://houznext.com/properties" },
                 {
                     name: data.details.propertyDetails?.propertyName || "Property Details",
-                    item: `https://www.onecasa.in/properties/${data.details.id}`,
+                    item: `https://houznext.com/properties/${data.details.id}`,
                 },
             ]}
         />

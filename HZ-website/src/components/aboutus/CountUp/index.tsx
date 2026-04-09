@@ -91,7 +91,7 @@ export function ImpactStrip() {
             <div className="text-center md:mb-6 mb-4">
                 <h2 className="font-bold text-2xl md:text-[28px] text-[#3586FF]">Our Impact</h2>
                 <p className="md:text-sm md:text-[12px] text-[#5E6470]">
-                    OneCasa by the numbers.
+                    Houznext by the numbers.
                 </p>
             </div>
             <div className="rounded-2xl bg-white border border-[#E9EEF7] overflow-hidden">

@@ -36,7 +36,7 @@ const BlogCard = ({ data }: { data: BlogCardData }) => {
       case "Featured":
         return "bg-gradient-to-r from-amber-500 to-yellow-500";
       default:
-        return "bg-[#3586FF]";
+        return "bg-[#2f80ed]";
     }
   };
 
@@ -44,8 +44,11 @@ const BlogCard = ({ data }: { data: BlogCardData }) => {
 
   return (
    <Link href={`/blogs/${id}`} className="flex h-full w-full">
-      <div className="group h-full bg-white rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl w-full   ">
-        <div className="relative h-44 w-full overflow-hidden bg-gray-100">
+      <div
+        className="group h-full bg-white rounded-2xl border overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg w-full"
+        style={{ borderColor: "#dde8f5" }}
+      >
+        <div className="relative h-44 w-full overflow-hidden bg-[#f5f7fa]">
           {thumbnailImageUrl ? (
             <Image
               src={thumbnailImageUrl}
@@ -55,8 +58,8 @@ const BlogCard = ({ data }: { data: BlogCardData }) => {
               className="group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-              <span className="text-gray-400">No image</span>
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#1a3a5c] to-[#0f2a44]">
+              <span className="text-white/40 text-sm">No image</span>
             </div>
           )}
           
@@ -85,25 +88,25 @@ const BlogCard = ({ data }: { data: BlogCardData }) => {
         {/* Content */}
         <div className="flex-1 p-4 flex flex-col">
           {/* Title */}
-          <h3 className="text-base font-semibold text-gray-900 line-clamp-2 group-hover:text-[#3586FF] transition-colors duration-200 mb-2">
+          <h3 className="text-base font-head font-bold text-charcoal line-clamp-2 group-hover:text-[#2f80ed] transition-colors duration-200 mb-2">
             {title}
           </h3>
 
           {/* Description */}
-          <p className="text-sm text-gray-500 line-clamp-3 flex-1 mb-4">
+          <p className="text-sm line-clamp-3 flex-1 mb-4" style={{ color: "#5a6a7e" }}>
             {previewDescription}
           </p>
 
           {/* Footer */}
-          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+          <div className="flex items-center justify-between pt-3 border-t" style={{ borderColor: "#dde8f5" }}>
             {/* Date */}
-            <div className="flex items-center gap-1.5 text-gray-400">
+            <div className="flex items-center gap-1.5" style={{ color: "#94a3b8" }}>
               <HiOutlineCalendar className="w-4 h-4" />
               <span className="text-xs font-medium">{formattedDate}</span>
             </div>
 
             {/* Read More */}
-            <div className="flex items-center gap-1.5 text-[#3586FF] font-medium text-sm group-hover:gap-2 transition-all duration-200">
+            <div className="flex items-center gap-1.5 text-[#2f80ed] font-head font-bold text-sm group-hover:gap-2 transition-all duration-200">
               <span>Read</span>
               <HiArrowRight className="w-4 h-4" />
             </div>

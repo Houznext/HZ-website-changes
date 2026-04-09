@@ -67,7 +67,7 @@ const Custom404 = () => {
                                         <Link href="/custom-builder" className="text-[#3586FF] hover:underline">
                                             Custom Builder
                                         </Link>
-                                        <Link href="/blogs" className="text-[#3586FF] hover:underline">
+                                        <Link href="/blog" className="text-[#3586FF] hover:underline">
                                             Blogs
                                         </Link>
                                         <Link href="/contact-us" className="text-[#3586FF] hover:underline">
@@ -106,7 +106,7 @@ const Custom404 = () => {
                                 </div>
 
                                 <div className="pt-8 border-t border-white/15 text-xs text-white/60 font-regular">
-                                    © {new Date().getFullYear()} ONE CASA • One Roof Every Solution
+                                    © {new Date().getFullYear()} Houznext • One Roof Every Solution
                                 </div>
                             </div>
                         </div>

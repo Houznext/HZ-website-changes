@@ -7,16 +7,16 @@ const CustomBuilder = () => {
     return (
         <div>
             <SEO
-                title="Home Construction Services | Custom Home Building | OneCasa"
-                description="Build your dream home with OneCasa's end-to-end construction services. From architectural design to turnkey construction, we deliver quality homes across India with transparent pricing and timely completion."
+                title="Home Construction Services | Custom Home Building | Houznext"
+                description="Build your dream home with Houznext's end-to-end construction services. From architectural design to turnkey construction, we deliver quality homes across India with transparent pricing and timely completion."
                 keywords="home construction, custom home building, construction company, residential construction, architectural design, turnkey construction, house construction services, construction management, building contractors"
                 breadcrumbs={[
-                    { name: "Home", item: "https://www.onecasa.in" },
-                    { name: "Construction Services", item: "https://www.onecasa.in/custom-builder" },
+                    { name: "Home", item: "https://houznext.com" },
+                    { name: "Construction Services", item: "https://houznext.com/custom-builder" },
                 ]}
                 faq={[
                     {
-                        question: "What types of construction projects does OneCasa handle?",
+                        question: "What types of construction projects does Houznext handle?",
                         answer: "We specialize in residential construction including individual homes, apartments, villas, and also undertake commercial projects with end-to-end services from design to execution."
                     },
                     {

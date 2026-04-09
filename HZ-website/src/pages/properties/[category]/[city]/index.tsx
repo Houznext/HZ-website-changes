@@ -62,12 +62,12 @@ const PropertyList = () => {
   const getDynamicSEOContent = () => {
     if (!isReady) {
       return {
-        title: "Property Listings | OneCasa",
-        description: "Find your ideal property on OneCasa",
-        keywords: "property, real estate, OneCasa",
+        title: "Property Listings | Houznext",
+        description: "Find your ideal property on Houznext",
+        keywords: "property, real estate, Houznext",
         breadcrumbs: [
-          { name: "Home", item: "https://www.onecasa.in/" },
-          { name: "Properties", item: "https://www.onecasa.in/properties" },
+          { name: "Home", item: "https://houznext.com/" },
+          { name: "Properties", item: "https://houznext.com/properties" },
         ],
         displayCity: "",
         displayCategory: "",
@@ -85,7 +85,7 @@ const PropertyList = () => {
     const displayCity = CITY_DATA[cityName]?.name || cityName;
     const displayState = CITY_DATA[cityName]?.state || '';
 
-    let title = `${transactionType.charAt(0).toUpperCase() + transactionType.slice(1)} ${displayCategory} in ${displayCity} | ${propertyPurpose} Properties | OneCasa`;
+    let title = `${transactionType.charAt(0).toUpperCase() + transactionType.slice(1)} ${displayCategory} in ${displayCity} | ${propertyPurpose} Properties | Houznext`;
 
     if (pageNumber > 1) {
       title = `${title} - Page ${pageNumber}`;
@@ -103,14 +103,14 @@ const PropertyList = () => {
       `real estate ${displayCity}`,
       `${displayCategory} for ${transactionType} ${displayCity}`,
       `${displayCity} property listings`,
-      `OneCasa ${displayCity}`
+      `Houznext ${displayCity}`
     ].join(', ');
 
     const breadcrumbs = [
-      { name: "Home", item: "https://www.onecasa.in/" },
-      { name: "Properties", item: "https://www.onecasa.in/properties" },
-      { name: `${displayCity} Properties`, item: `https://www.onecasa.in/properties/${displayCity.toLowerCase()}` },
-      { name: `${transactionType} ${displayCategory}`, item: `https://www.onecasa.in/properties/${propertyCategory}/${cityName}` },
+      { name: "Home", item: "https://houznext.com/" },
+      { name: "Properties", item: "https://houznext.com/properties" },
+      { name: `${displayCity} Properties`, item: `https://houznext.com/properties/${displayCity.toLowerCase()}` },
+      { name: `${transactionType} ${displayCategory}`, item: `https://houznext.com/properties/${propertyCategory}/${cityName}` },
     ];
 
     if (pageNumber > 1) {

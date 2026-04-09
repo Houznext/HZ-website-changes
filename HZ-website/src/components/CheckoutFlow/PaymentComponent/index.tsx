@@ -347,7 +347,7 @@ const PaymentPage = () => {
         key: keyId,
         amount: amountPaise,
         currency: ps.currency || "INR",
-        name: "OneCasa",
+        name: "Houznext",
         description: `Order ${order?.orderNo ?? orderId}`,
         order_id: razorpayOrderId,
 
@@ -496,7 +496,7 @@ const PaymentPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Thank you for trusting OneCasa</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Thank you for trusting Houznext</h2>
               <p className="text-sm text-gray-600 mb-5">
                 Thank you for shopping with us. Your payment was successful and your order has been placed.
               </p>
@@ -658,7 +658,7 @@ const PaymentPage = () => {
               </div>
 
               <div className="mt-4 text-[11px] text-gray-500">
-                By continuing, you agree to OneCasa’s terms. Payments are securely processed by Razorpay.
+                By continuing, you agree to Houznext’s terms. Payments are securely processed by Razorpay.
               </div>
             </div>
           </div>
@@ -734,7 +734,7 @@ const PaymentPage = () => {
 
           {/* Small trust box */}
           <div className="mt-4 rounded-2xl border border-gray-200 bg-white shadow-sm p-5">
-            <div className="text-[13px] font-semibold text-gray-900">Why OneCasa?</div>
+            <div className="text-[13px] font-semibold text-gray-900">Why Houznext?</div>
             <ul className="mt-2 space-y-2 text-[12px] text-gray-600">
               <li className="flex gap-2">
                 <span className="mt-[2px] h-1.5 w-1.5 rounded-full bg-green-600" />

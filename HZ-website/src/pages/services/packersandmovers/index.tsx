@@ -9,9 +9,9 @@ const PackersAndMovers = () => {
   return (
     <div>
       <SEO
-        title="Reliable Packers and Movers | Safe & Hassle-Free Relocation Services | OneCasa"
+        title="Reliable Packers and Movers | Safe & Hassle-Free Relocation Services | Houznext"
         description="Move with ease using our expert packers and movers. Get safe, efficient, and affordable relocation services for homes and businesses. Book now for a stress-free moving experience!"
-        keywords="Packers and Movers, Home Relocation, Office Shifting, Moving Services, Safe Packing, Reliable Movers, Moving Company, Local Packers, Interstate Moving, OneCasa Relocation"
+        keywords="Packers and Movers, Home Relocation, Office Shifting, Moving Services, Safe Packing, Reliable Movers, Moving Company, Local Packers, Interstate Moving, Houznext Relocation"
       />
 
       <PackersAndMoversView />

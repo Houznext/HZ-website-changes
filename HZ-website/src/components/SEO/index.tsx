@@ -421,7 +421,7 @@ const SEO: React.FC<ISEO> = (props) => {
               name: 'Houznext',
               description: 'India\'s leading platform for Real Estate, Construction, Interiors, Solar, Furniture & Electronics.',
               url: BASE_DEPLOYMENT_URL,
-              telephone: '+918897574909',
+              telephone: '+918498823043',
               address,
               openingHours: props.openingHours || 'Mo-Su 09:00-18:00',
               sameAs: socialProfiles,

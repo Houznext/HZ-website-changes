@@ -275,7 +275,7 @@ const SupportInboxPage = () => {
   if (status !== "authenticated") {
     return (
       <div className="w-full p-6">
-        <SEO title="Support Inbox | OneCasa" />
+        <SEO title="Support Inbox | Houznext" />
         <div className="bg-white rounded-lg border p-6 text-center text-gray-600">
           Please log in to access the support inbox.
         </div>
@@ -286,7 +286,7 @@ const SupportInboxPage = () => {
   if (!isSupportUser) {
     return (
       <div className="w-full p-6">
-        <SEO title="Support Inbox | OneCasa" />
+        <SEO title="Support Inbox | Houznext" />
         <div className=" rounded-lg border border-amber-200 p-6 text-center text-amber-800 bg-amber-50">
           Access restricted. Only support staff can view this page.
         </div>
@@ -296,7 +296,7 @@ const SupportInboxPage = () => {
 
   return (
     <div className="w-full h-[calc(100vh-theme(spacing.16))] flex flex-col md:flex-row">
-      <SEO title="Support Inbox | OneCasa" />
+      <SEO title="Support Inbox | Houznext" />
       {error && (
         <div className="px-4 py-2 text-sm text-red-600 bg-red-50 border-b border-red-100 flex-shrink-0">{error}</div>
       )}

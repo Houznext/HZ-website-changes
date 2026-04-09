@@ -210,7 +210,7 @@ export default function ContactSellerForm({
                     </div>
                     <CheckboxInput
                       type="checkbox"
-                      label="I agree to be contacted by OneCasa and agents via WhatsApp, SMS, phone, email etc"
+                      label="I agree to be contacted by Houznext and agents via WhatsApp, SMS, phone, email etc"
                       labelCls="text-black md:text-[12px] !text-gray-500 text-[10px] font-regular "
                       name="agreeToContact"
                       checked={contactdata.agreeToContact}

@@ -12,11 +12,10 @@ const Viewleads = () => {
   return (
     <div className="flex w-full min-h-full">
       <SEO
-        title="Project Leads | OneCasa"
-        description="Monitor and manage your Project leads efficiently with OneCasa. Gain valuable insights into buyer interest, lead sources, and engagement metrics for each Project."
-        keywords="Project Leads, Real Estate Leads, OneCasa Leads, Buyer Interest, Lead Management, Project Engagement, Real Estate Analytics, Track Leads, OneCasa Project Leads"
-        imageUrl="https://www.onecasa.in/images/logobb.png"
-      />
+        title="Project Leads | Houznext"
+        description="Monitor and manage your Project leads efficiently with Houznext. Gain valuable insights into buyer interest, lead sources, and engagement metrics for each Project."
+        keywords="Project Leads, Real Estate Leads, Houznext Leads, Buyer Interest, Lead Management, Project Engagement, Real Estate Analytics, Track Leads, Houznext Project Leads"
+/>
       <ViewLeadsComponent />
     </div>
   );

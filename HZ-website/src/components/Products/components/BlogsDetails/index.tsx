@@ -1,130 +1,202 @@
 import React, { useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { AiOutlineCalendar } from "react-icons/ai";
-import { HiArrowLeft } from "react-icons/hi";
-import BlogCard from "@/components/BlogCard";
 
-const BlogDetails = ({ blog, similarBlogs = [] }: { blog: any; similarBlogs?: any[] }) => {
-  const router = useRouter();
+function estimateReadMin(content: string, preview: string): string {
+  const len = (content?.length || 0) + (preview?.length || 0);
+  const mins = Math.max(3, Math.min(25, Math.ceil(len / 1200)));
+  return `${mins} min`;
+}
 
-  const updateAt = useMemo(() => {
-    if (blog?.updatedAt) {
-      return new Date(blog.updatedAt).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      });
-    }
-    return "";
-  }, [blog]);
+function formatBlogDate(iso?: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
-  const similarForCards = useMemo(() => {
-    return similarBlogs.map((b: any) => ({
-      id: b.id,
-      title: b.title ?? "",
-      previewDescription: b.previewDescription ?? b.title ?? "",
-      thumbnailImageUrl: b.thumbnailImageUrl ?? b.CoverImageUrl ?? "",
-      blogType: b.blogType,
-      blogStatus: b.blogStatus,
-      updatedAt: b.updatedAt ?? b.createdAt ?? "",
-    }));
-  }, [similarBlogs]);
+const BlogsDetails = ({ blog, similarBlogs = [] }: { blog: any; similarBlogs?: any[] }) => {
+  const dateLine = useMemo(
+    () => formatBlogDate(blog?.updatedAt || blog?.createdAt),
+    [blog]
+  );
+
+  const readTime = useMemo(
+    () => estimateReadMin(blog?.content || "", blog?.previewDescription || ""),
+    [blog]
+  );
+
+  const cover = blog?.CoverImageUrl || blog?.thumbnailImageUrl || "";
 
   return (
-    <div className="min-h-screen bg-gray-50/60">
-      <article className="max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-8">
-        {/* Back + breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="inline-flex items-center gap-1.5 font-medium text-gray-700 hover:text-[#3586FF] transition-colors"
+    <main style={{ background: "#f5f7fa" }}>
+      <section className="py-12 px-4 md:py-14" style={{ background: "#0f2a44" }}>
+        <div className="max-w-3xl mx-auto">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-1.5 text-[13px] font-[500] mb-6 transition-colors no-underline"
+            style={{ color: "rgba(255,255,255,0.75)" }}
           >
-            <HiArrowLeft className="w-4 h-4" />
-            Back to blogs
-          </button>
-          {blog?.blogType && (
-            <>
-              <span className="text-gray-300">/</span>
-              <span className="text-[#3586FF] font-medium">{blog.blogType}</span>
-            </>
+            <span aria-hidden>←</span> Back to blog
+          </Link>
+          {(blog?.blogType || blog?.blogStatus) && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {blog?.blogType && (
+                <span
+                  className="text-[11px] font-head font-bold px-3 py-1 rounded-full"
+                  style={{ background: "rgba(47,128,237,0.25)", color: "#2f80ed" }}
+                >
+                  {blog.blogType}
+                </span>
+              )}
+              {blog?.blogStatus && (
+                <span
+                  className="text-[11px] font-head font-bold px-3 py-1 rounded-full text-white/90"
+                  style={{ background: "rgba(255,255,255,0.12)" }}
+                >
+                  {blog.blogStatus}
+                </span>
+              )}
+            </div>
           )}
-        </div>
-
-        {/* Cover image – reduced height */}
-        <div className="relative w-full aspect-[21/9] max-h-[260px] md:max-h-[300px] rounded-xl overflow-hidden bg-gray-200 shadow-md mb-6">
-          <Image
-            src={blog?.CoverImageUrl || "/images/blogs/blog1.jpg"}
-            alt={blog?.title || "Blog cover"}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 896px"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-          <div className="absolute bottom-3 left-3 right-3 flex flex-wrap items-center gap-2">
-            {blog?.blogType && (
-              <span className="px-2.5 py-1 rounded-lg bg-[#3586FF] text-white text-xs font-medium shadow">
-                {blog.blogType}
-              </span>
-            )}
-            {blog?.blogStatus && (
-              <span className="px-2.5 py-1 rounded-lg bg-white/95 text-gray-700 text-xs font-medium shadow">
-                {blog.blogStatus}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Title + date */}
-        <header className="mb-6">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-900 leading-tight mb-3">
+          <h1 className="font-head font-black text-[28px] md:text-[40px] leading-[1.15] text-white mb-4">
             {blog?.title || ""}
           </h1>
-          <div className="flex items-center gap-2 text-gray-500 text-sm">
-            <AiOutlineCalendar className="w-4 h-4 shrink-0" />
-            <time dateTime={blog?.updatedAt}>{updateAt}</time>
+          <div
+            className="flex flex-wrap items-center gap-2 text-[12px]"
+            style={{ color: "rgba(255,255,255,0.55)" }}
+          >
+            {dateLine && <span>{dateLine}</span>}
+            {dateLine && <span>·</span>}
+            <span>{readTime} read</span>
+            <span>·</span>
+            <span>By Houznext</span>
           </div>
-        </header>
+        </div>
+      </section>
 
-        {/* Content */}
-        <div
-          className="rich-text-container prose prose-gray max-w-none text-gray-700 text-[15px] leading-relaxed
-            prose-headings:font-semibold prose-headings:text-gray-900
-            prose-a:text-[#3586FF] prose-a:no-underline hover:prose-a:underline
-            prose-img:rounded-lg prose-img:shadow-md"
-          dangerouslySetInnerHTML={{ __html: blog?.content ?? "" }}
-        />
-      </article>
-
-      {/* Similar blogs */}
-      {similarForCards.length > 0 && (
-        <section className="border-t border-gray-200 bg-white mt-10 py-8 md:py-10">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
-            <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-5">
-              Similar in {blog?.blogType ?? "this category"}
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-              {similarForCards.map((item) => (
-                <BlogCard key={item.id} data={item} />
-              ))}
+      <div className="max-w-3xl mx-auto px-4 py-10 md:py-12">
+        <article
+          className="bg-white rounded-2xl border overflow-hidden shadow-sm"
+          style={{ borderColor: "#dde8f5" }}
+        >
+          {cover ? (
+            <div className="relative w-full aspect-[21/9] max-h-[280px] bg-[#0f2a44]">
+              <Image
+                src={cover}
+                alt=""
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 768px"
+                priority
+              />
             </div>
-            <div className="mt-6 text-center">
+          ) : null}
+          <div className="p-6 md:p-8">
+            {blog?.previewDescription ? (
+              <p className="text-[15px] leading-relaxed font-[500] text-charcoal mb-6">
+                {blog.previewDescription}
+              </p>
+            ) : null}
+            <div
+              className="prose prose-sm max-w-none text-[14px] leading-relaxed"
+              style={{ color: "#1f2933" }}
+              dangerouslySetInnerHTML={{ __html: blog?.content ?? "" }}
+            />
+          </div>
+        </article>
+
+        <div
+          className="mt-8 p-6 md:p-8 rounded-2xl text-center"
+          style={{ background: "#0f2a44" }}
+        >
+          <h3 className="font-head font-bold text-white text-[18px] mb-2">
+            Ready to start your project?
+          </h3>
+          <p className="text-[13px] mb-5" style={{ color: "rgba(255,255,255,0.65)" }}>
+            Get a free personalised estimate from our design team
+          </p>
+          <a
+            href="https://wa.me/918498823043?text=Hi%20Houznext%2C%20I%20read%20your%20blog%20and%20want%20a%20free%20estimate"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-head font-bold text-white text-[13px] no-underline"
+            style={{ background: "#2f80ed" }}
+          >
+            Get free estimate →
+          </a>
+        </div>
+      </div>
+
+      {similarBlogs.length > 0 && (
+        <section className="border-t border-[#dde8f5] bg-white py-10 md:py-12">
+          <div className="max-w-6xl mx-auto px-4">
+            <h2 className="font-head font-bold text-[20px] md:text-[22px] text-charcoal mb-6">
+              More in {blog?.blogType ?? "this category"}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {similarBlogs.map((b: any) => {
+                const img = b.thumbnailImageUrl || b.CoverImageUrl;
+                return (
+                  <Link
+                    key={b.id}
+                    href={`/blogs/${b.id}`}
+                    className="group bg-white rounded-2xl border overflow-hidden transition-shadow hover:shadow-lg no-underline"
+                    style={{ borderColor: "#dde8f5" }}
+                  >
+                    <div
+                      className="relative h-36 w-full"
+                      style={{ background: "linear-gradient(135deg, #1a3a5c, #0f2a44)" }}
+                    >
+                      {img ? (
+                        <Image
+                          src={img}
+                          alt=""
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 640px) 100vw, 25vw"
+                        />
+                      ) : null}
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0f2a44]/85 to-transparent" />
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <span
+                          className="text-[10px] font-head font-bold px-2 py-0.5 rounded-full text-white"
+                          style={{ background: "rgba(47,128,237,0.75)" }}
+                        >
+                          {b.blogType || "Article"}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-head font-bold text-[14px] text-charcoal line-clamp-2 group-hover:text-[#2f80ed] transition-colors">
+                        {b.title}
+                      </h3>
+                      <p className="text-[12px] mt-2 line-clamp-2" style={{ color: "#5a6a7e" }}>
+                        {b.previewDescription}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+            <div className="mt-8 text-center">
               <Link
-                href="/blogs"
-                className="inline-flex items-center gap-2 text-[#3586FF] font-medium text-sm hover:underline"
+                href="/blog"
+                className="inline-flex items-center gap-2 font-head font-bold text-[13px] text-[#2f80ed] hover:underline"
               >
-                View all blogs
-                <HiArrowLeft className="w-4 h-4 rotate-180" />
+                View all articles
+                <span aria-hidden>→</span>
               </Link>
             </div>
           </div>
         </section>
       )}
-    </div>
+    </main>
   );
 };
 
-export default BlogDetails;
+export default BlogsDetails;

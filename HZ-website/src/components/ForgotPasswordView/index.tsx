@@ -59,7 +59,7 @@ const ForgotPasswordView = () => {
             </h2>
             <div className="flex flex-row gap-1 items-center ">
               <p className="text-[#3586FF] text-[13px] font-regular leading-5">
-                (onecasa@gmail.com)
+                (houznext@gmail.com)
               </p>
               <EditIcon />
             </div>

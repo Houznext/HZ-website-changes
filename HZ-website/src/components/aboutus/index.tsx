@@ -70,15 +70,15 @@ const values = [
 const team = [
   {
     name: "SACHIN CHAVAN",
-    role: "FOUNDER — OneCasa Pvt Limited",
+    role: "FOUNDER — Houznext Pvt Limited",
     img: "/images/team/founder.jpg",
-    bio: `As the Founder & CEO of OneCasa, I bring over four years of entrepreneurial and hands-on real estate experience. My journey began with a simple vision—to simplify property ownership and make real estate more transparent, accessible, and rewarding for every individual. Over the years, I have worked closely with property buyers, sellers, and developers, gaining deep insights into the challenges faced in the industry. At OneCasa, my focus is on leveraging technology, data, and innovation to bridge these gaps, offering clients a seamless platform for buying, selling, and managing properties. Beyond transactions, I am committed to creating a trustworthy ecosystem where clients feel empowered and confident in their investment decisions.`,
+    bio: `As the Founder & CEO of Houznext, I bring over four years of entrepreneurial and hands-on real estate experience. My journey began with a simple vision—to simplify property ownership and make real estate more transparent, accessible, and rewarding for every individual. Over the years, I have worked closely with property buyers, sellers, and developers, gaining deep insights into the challenges faced in the industry. At Houznext, my focus is on leveraging technology, data, and innovation to bridge these gaps, offering clients a seamless platform for buying, selling, and managing properties. Beyond transactions, I am committed to creating a trustworthy ecosystem where clients feel empowered and confident in their investment decisions.`,
   },
   {
     name: "RAMANA REDDY",
-    role: "PROMOTER — OneCasa Pvt Limited",
+    role: "PROMOTER — Houznext Pvt Limited",
     img: "/images/team/promoter.png",
-    bio: `As a Promoter & Strategic Investor at OneCasa, I bring both financial backing and a strong belief in the company’s mission to transform the real estate landscape. My role goes beyond investment—I actively contribute to shaping strategies that ensure long-term growth, innovation, and sustainability. With a focus on creating value for both clients and stakeholders, I support initiatives that make property investment simpler, smarter, and more efficient. I believe in driving a customer-first approach, ensuring that OneCasa not only scales as a business but also builds lasting trust within the community. By aligning vision with execution, I aim to help OneCasa become a leader in providing transparent, future-ready real estate solutions.`,
+    bio: `As a Promoter & Strategic Investor at Houznext, I bring both financial backing and a strong belief in the company’s mission to transform the real estate landscape. My role goes beyond investment—I actively contribute to shaping strategies that ensure long-term growth, innovation, and sustainability. With a focus on creating value for both clients and stakeholders, I support initiatives that make property investment simpler, smarter, and more efficient. I believe in driving a customer-first approach, ensuring that Houznext not only scales as a business but also builds lasting trust within the community. By aligning vision with execution, I aim to help Houznext become a leader in providing transparent, future-ready real estate solutions.`,
   },
 ];
 
@@ -88,7 +88,7 @@ const fadeIn = {
   show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
-export default function AboutOneCasa() {
+export default function AboutHouznext() {
   const [form, setForm] = useState({ name: "", phone: "", email: "", about: "" });
   const [errors, setErrors] = useState<{ [k: string]: string }>({});
   const [submitting, setSubmitting] = useState(false);
@@ -147,7 +147,7 @@ export default function AboutOneCasa() {
         <div className="relative h-[140px] md:h-[180px] w-full overflow-hidden">
           <Image
             src="/images/background/aboutus_bg.jpg"
-            alt="About OneCasa background"
+            alt="About Houznext background"
             fill
             className="object-cover"
             priority
@@ -188,7 +188,7 @@ export default function AboutOneCasa() {
         <div className="relative md:aspect-[4/3] h-[200px] w-full rounded-2xl overflow-hidden shadow-sm">
           <Image
             src="/images/background/aboutus.png"
-            alt="OneCasa team at work"
+            alt="Houznext team at work"
             fill
             className="object-cover"
           />
@@ -308,7 +308,7 @@ export default function AboutOneCasa() {
           <div className="flex-1">
             <h3 className="text-2xl md:text-3xl font-bold">Ready to find your place?</h3>
             <p className="mt-2 text-white/90 max-w-prose font-regular md:text-[14px] text-[12px]">
-              Talk to a OneCasa specialist for a personalized shortlist, visit planning, and negotiation support.
+              Talk to a Houznext specialist for a personalized shortlist, visit planning, and negotiation support.
             </p>
           </div>
           <div className="flex gap-3">

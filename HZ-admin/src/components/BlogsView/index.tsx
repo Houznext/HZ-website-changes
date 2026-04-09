@@ -23,6 +23,13 @@ export interface TableColumn {
   status: boolean;
 }
 
+/** Public marketing blog (Houznext); posts from this admin appear here after publish. */
+const PUBLIC_BLOG_URL = `${(
+  process.env.NEXT_PUBLIC_WEBSITE_URL ||
+  process.env.NEXT_PUBLIC_MARKETING_SITE_URL ||
+  "https://houznext.com"
+).replace(/\/$/, "")}/blog`;
+
 const BlogsView = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [viewModal, setViewModal] = useState<boolean>(false);
@@ -285,13 +292,13 @@ const BlogsView = () => {
   };
 
   return (
-    <div className="min-w-full flex flex-col md:px-6 px-3 gap-y-5 bg-[#f5f6f8] min-h-screen py-4">
+    <div className="min-w-full flex flex-col md:px-6 px-3 gap-y-5 bg-[#f5f7fa] min-h-screen py-4">
       {/* Header Section */}
       <div className="mb-5">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-[rgba(0,0,0,0.08)] rounded-[12px] px-6 py-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-[#dde8f5] rounded-2xl px-6 py-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
-              <FaBloggerB className="w-5 h-5 text-[#0C447C]" />
+            <div className="h-10 w-10 rounded-[8px] bg-[#e8f1fd] flex items-center justify-center">
+              <FaBloggerB className="w-5 h-5 text-[#0f2a44]" />
             </div>
             <div className="flex flex-col">
               <h1 className="text-[17px] font-medium text-[#1A1A1A]">Blogs</h1>
@@ -300,27 +307,38 @@ const BlogsView = () => {
               </p>
             </div>
           </div>
-          <CustomTooltip
-            label="Access Restricted Contact Admin"
-            position="bottom"
-            tooltipBg="bg-black/60 backdrop-blur-md"
-            tooltipTextColor="text-white py-2 px-4 font-medium"
-            labelCls="text-[10px] font-medium"
-            showTooltip={!hasPermission("blog", "create")}
-          >
-            <Button
-              className="flex items-center gap-2 px-4 py-[7px] rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors"
-              onClick={handleAddNew}
-              disabled={!hasPermission("blog", "create")}
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href={PUBLIC_BLOG_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-[7px] rounded-[8px] border border-[#2f80ed] text-[#2f80ed] text-[13px] font-medium hover:bg-[#e8f1fd] transition-colors"
             >
-              <FaPlus className="w-4 h-4" />
-              Add New Blog
-            </Button>
-          </CustomTooltip>
+              <FaExternalLinkAlt className="w-3.5 h-3.5" />
+              View live blog
+            </a>
+            <CustomTooltip
+              label="Access Restricted Contact Admin"
+              position="bottom"
+              tooltipBg="bg-black/60 backdrop-blur-md"
+              tooltipTextColor="text-white py-2 px-4 font-medium"
+              labelCls="text-[10px] font-medium"
+              showTooltip={!hasPermission("blog", "create")}
+            >
+              <Button
+                className="flex items-center gap-2 px-4 py-[7px] rounded-[8px] bg-[#2f80ed] hover:bg-[#2568c4] text-white text-[13px] font-medium transition-colors"
+                onClick={handleAddNew}
+                disabled={!hasPermission("blog", "create")}
+              >
+                <FaPlus className="w-4 h-4" />
+                Add New Blog
+              </Button>
+            </CustomTooltip>
+          </div>
         </div>
       </div>
 
-      <div className="w-full bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] px-4 py-3 mb-1">
+      <div className="w-full bg-white rounded-2xl border border-[#dde8f5] px-4 py-3 mb-1 shadow-sm">
         <ReusableSearchFilter
           searchText={searchQuery}
           onSearchChange={setSearchQuery}
@@ -334,16 +352,16 @@ const BlogsView = () => {
       </div>
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
-            <FaBloggerB className="w-5 h-5 text-[#0C447C]" />
+        <div className="bg-white rounded-2xl border border-[#dde8f5] p-4 flex items-center gap-3 shadow-sm">
+          <div className="w-10 h-10 rounded-[8px] bg-[#e8f1fd] flex items-center justify-center">
+            <FaBloggerB className="w-5 h-5 text-[#0f2a44]" />
           </div>
           <div>
             <p className="text-[18px] font-semibold text-[#111827]">{allData?.length}</p>
             <p className="text-[11px] text-[#6B7280]">Total Blogs</p>
           </div>
         </div>
-        <div className="bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] p-4 flex items-center gap-3">
+        <div className="bg-white rounded-2xl border border-[#dde8f5] p-4 flex items-center gap-3 shadow-sm">
           <div className="w-10 h-10 rounded-[8px] bg-amber-50 flex items-center justify-center">
             <span className="text-amber-600 text-lg">🔥</span>
           </div>
@@ -352,7 +370,7 @@ const BlogsView = () => {
             <p className="text-[11px] text-[#6B7280]">Trending</p>
           </div>
         </div>
-        <div className="bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] p-4 flex items-center gap-3">
+        <div className="bg-white rounded-2xl border border-[#dde8f5] p-4 flex items-center gap-3 shadow-sm">
           <div className="w-10 h-10 rounded-[8px] bg-emerald-50 flex items-center justify-center">
             <span className="text-emerald-600 text-lg">⭐</span>
           </div>
@@ -361,7 +379,7 @@ const BlogsView = () => {
             <p className="text-[11px] text-[#6B7280]">Featured</p>
           </div>
         </div>
-        <div className="bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] p-4 flex items-center gap-3">
+        <div className="bg-white rounded-2xl border border-[#dde8f5] p-4 flex items-center gap-3 shadow-sm">
           <div className="w-10 h-10 rounded-[8px] bg-[#F3F4F6] flex items-center justify-center">
             <span className="text-[#6B7280] text-lg">📄</span>
           </div>
@@ -375,7 +393,7 @@ const BlogsView = () => {
 
       {/* Blog Cards Grid */}
       {displayedData?.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)]">
+        <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-[#dde8f5] shadow-sm">
           <div className="w-20 h-20 rounded-full bg-[#F3F4F6] flex items-center justify-center mb-4">
             <FaBloggerB className="w-10 h-10 text-[#9CA3AF]" />
           </div>
@@ -387,7 +405,7 @@ const BlogsView = () => {
           {displayedData.map((b: any, index: number) => (
             <div
               key={index}
-              className="group bg-white border border-[rgba(0,0,0,0.08)] hover:border-[#1D4E7A] rounded-[12px] transition-colors overflow-hidden"
+              className="group bg-white border border-[#dde8f5] hover:border-[#2f80ed] rounded-2xl transition-colors overflow-hidden shadow-sm"
             >
               {/* Image Section */}
               <div className="relative w-full h-[160px] md:h-[180px] overflow-hidden">
@@ -411,7 +429,7 @@ const BlogsView = () => {
                 {/* Quick View Button */}
                 <Button
                   onClick={() => handleView(b)}
-                  className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-[#6B7280] hover:bg-white hover:text-[#0C447C] opacity-0 group-hover:opacity-100 transition-all duration-200 border border-[rgba(0,0,0,0.08)]"
+                  className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-[#6B7280] hover:bg-white hover:text-[#0f2a44] opacity-0 group-hover:opacity-100 transition-all duration-200 border border-[rgba(0,0,0,0.08)]"
                 >
                   <FaEye className="w-3.5 h-3.5" />
                 </Button>
@@ -420,7 +438,7 @@ const BlogsView = () => {
               {/* Content Section */}
               <div className="p-4 flex flex-col gap-3">
                 <div>
-                  <h2 className="text-[15px] font-medium text-[#111827] line-clamp-2 leading-snug group-hover:text-[#0C447C] transition-colors duration-200">
+                  <h2 className="text-[15px] font-semibold text-[#0f2a44] line-clamp-2 leading-snug group-hover:text-[#2f80ed] transition-colors duration-200">
                     {b?.title}
                   </h2>
                   <p className="text-[#6B7280] text-[13px] line-clamp-2 mt-1.5 leading-relaxed">
@@ -438,7 +456,7 @@ const BlogsView = () => {
                       href={b.externalResourceLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[10px] font-medium px-2.5 py-1 rounded-full bg-[#F3F4F6] text-[#6B7280] hover:bg-[#E6F1FB] hover:text-[#0C447C] transition-colors flex items-center gap-1"
+                      className="text-[10px] font-medium px-2.5 py-1 rounded-full bg-[#F3F4F6] text-[#6B7280] hover:bg-[#e8f1fd] hover:text-[#0f2a44] transition-colors flex items-center gap-1"
                     >
                       <FiLink className="w-3 h-3" />
                       Link
@@ -453,7 +471,7 @@ const BlogsView = () => {
                 <div className="flex items-center justify-between gap-2">
                   <Button
                     onClick={() => handleView(b)}
-                    className="flex-1 px-3 py-2 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5"
+                    className="flex-1 px-3 py-2 rounded-[8px] bg-[#2f80ed] hover:bg-[#2568c4] text-white text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5"
                   >
                     <FaEye className="w-3 h-3" />
                     View
@@ -469,7 +487,7 @@ const BlogsView = () => {
                     <Button
                       onClick={() => handleEdit(b)}
                       disabled={!hasPermission("blog", "edit")}
-                      className="flex-1 px-3 py-2 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 px-3 py-2 rounded-[8px] border border-[#2f80ed] text-[#2f80ed] bg-white hover:bg-[#e8f1fd] text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <FaEdit className="w-3 h-3" />
                       Edit
@@ -500,7 +518,7 @@ const BlogsView = () => {
 
       {/* Pagination */}
       {filteredData?.length > pageSize && (
-        <div className="flex items-center justify-center mx-auto mb-6 bg-white rounded-[12px] border border-[rgba(0,0,0,0.08)] p-4">
+        <div className="flex items-center justify-center mx-auto mb-6 bg-white rounded-2xl border border-[#dde8f5] p-4 shadow-sm">
           <PaginationControls
             currentPage={currentpage}
             totalPages={totalPages}
@@ -529,8 +547,8 @@ const BlogsView = () => {
             <div className="sticky top-0 bg-white z-10 border-b border-[rgba(0,0,0,0.08)] px-6 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
-                    <FaBloggerB className="w-4 h-4 text-[#0C447C]" />
+                  <div className="h-10 w-10 rounded-[8px] bg-[#e8f1fd] flex items-center justify-center">
+                    <FaBloggerB className="w-4 h-4 text-[#0f2a44]" />
                   </div>
                   <div>
                     <h2 className="text-[17px] font-medium text-[#1A1A1A]">Blog Preview</h2>
@@ -575,7 +593,7 @@ const BlogsView = () => {
               </div>
 
               {/* Title */}
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-4 leading-tight">
+              <h1 className="text-2xl md:text-3xl font-bold text-[#0f2a44] mb-4 leading-tight">
                 {viewBlog.title}
               </h1>
 
@@ -592,7 +610,7 @@ const BlogsView = () => {
                     href={viewBlog.externalResourceLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-blue-500 hover:text-blue-600 text-sm font-medium transition-colors"
+                    className="flex items-center gap-2 text-[#2f80ed] hover:text-[#2568c4] text-sm font-medium transition-colors"
                   >
                     <FaExternalLinkAlt className="w-3 h-3" />
                     External Resource
@@ -601,19 +619,19 @@ const BlogsView = () => {
               </div>
 
               {/* Description Preview */}
-              <div className="bg-slate-50 rounded-xl p-4 mb-6 border border-slate-100">
-                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Preview Description</h3>
-                <p className="text-slate-700 text-[15px] leading-relaxed">
+              <div className="bg-[#f5f7fa] rounded-2xl p-4 mb-6 border border-[#dde8f5]">
+                <h3 className="text-xs font-semibold text-[#5a6a7e] uppercase tracking-wider mb-2">Preview Description</h3>
+                <p className="text-[#1f2933] text-[15px] leading-relaxed">
                   {viewBlog.previewDescription}
                 </p>
               </div>
 
               {/* Content */}
               {viewBlog.content && (
-                <div className="prose prose-slate max-w-none">
-                  <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Content</h3>
+                <div className="prose prose-sm max-w-none">
+                  <h3 className="text-xs font-semibold text-[#5a6a7e] uppercase tracking-wider mb-3">Content</h3>
                   <div
-                    className="text-slate-700 text-[15px] leading-relaxed bg-white rounded-xl p-4 border border-slate-100"
+                    className="text-[#1f2933] text-[15px] leading-relaxed bg-white rounded-2xl p-4 border border-[#dde8f5]"
                     dangerouslySetInnerHTML={{ __html: viewBlog.content }}
                   />
                 </div>
@@ -627,7 +645,7 @@ const BlogsView = () => {
                   setViewModal(false);
                   setViewBlog(null);
                 }}
-                className="px-4 py-2 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[13px] font-medium transition-colors"
+                className="px-4 py-2 rounded-[8px] border border-[#2f80ed] text-[#2f80ed] bg-white hover:bg-[#e8f1fd] text-[13px] font-medium transition-colors"
               >
                 Close
               </Button>
@@ -637,7 +655,7 @@ const BlogsView = () => {
                     setViewModal(false);
                     handleEdit(viewBlog);
                   }}
-                  className="px-4 py-2 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors flex items-center gap-2"
+                  className="px-4 py-2 rounded-[8px] bg-[#2f80ed] hover:bg-[#2568c4] text-white text-[13px] font-medium transition-colors flex items-center gap-2"
                 >
                   <FaEdit className="w-3.5 h-3.5" />
                   Edit Blog
@@ -664,8 +682,8 @@ const BlogsView = () => {
             <div className="sticky top-0 bg-white z-10 border-b border-[rgba(0,0,0,0.08)] px-6 md:px-10 py-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-[8px] bg-[#E6F1FB] flex items-center justify-center">
-                    <FaBloggerB className="w-5 h-5 text-[#0C447C]" />
+                  <div className="h-10 w-10 rounded-[8px] bg-[#e8f1fd] flex items-center justify-center">
+                    <FaBloggerB className="w-5 h-5 text-[#0f2a44]" />
                   </div>
                   <div>
                     <h1 className="text-[17px] md:text-[18px] font-medium text-[#1A1A1A]">
@@ -855,14 +873,14 @@ const BlogsView = () => {
                 <div className="flex items-center gap-3 w-full md:w-auto">
                   <Button
                     key={"cancelButton"}
-                    className="flex-1 md:flex-none px-4 py-2 rounded-[8px] border border-[#1D4E7A] text-[#1D4E7A] bg-white hover:bg-[#E6F1FB] text-[13px] font-medium transition-colors"
+                    className="flex-1 md:flex-none px-4 py-2 rounded-[8px] border border-[#2f80ed] text-[#2f80ed] bg-white hover:bg-[#e8f1fd] text-[13px] font-medium transition-colors"
                     onClick={handleReset}
                   >
                     Cancel
                   </Button>
                   <Button
                     key={"submitbutton"}
-                    className="flex-1 md:flex-none px-4 py-2 rounded-[8px] bg-[#1D4E7A] hover:bg-[#16375a] text-white text-[13px] font-medium transition-colors flex items-center justify-center gap-2"
+                    className="flex-1 md:flex-none px-4 py-2 rounded-[8px] bg-[#2f80ed] hover:bg-[#2568c4] text-white text-[13px] font-medium transition-colors flex items-center justify-center gap-2"
                     onClick={handleSubmit}
                   >
                     {updateBlogId ? (

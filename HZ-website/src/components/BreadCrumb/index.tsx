@@ -13,13 +13,13 @@ const Breadcrumbs = ({ url }: any) => (
                             "@type": "ListItem",
                             "position": 1,
                             "name": "Home",
-                            "item": "https://www.onecasa.in/"
+                            "item": "https://houznext.com/"
                         },
                         {
                             "@type": "ListItem",
                             "position": 2,
                             "name": "Properties",
-                            "item": `https://www.onecasa.in/${url}`
+                            "item": `https://houznext.com/${url}`
                         }
                     ]
                 })

@@ -12,13 +12,13 @@ const TestimonalBuilder = () => {
 
   const data = [
     {
-      desc: "OneCasa Pvt Limited is your premier partner in turning dreams into reality when it comes to finding your perfect home. With a commitment to excellence and a passion for creating spaces that inspire",
+      desc: "Houznext Pvt Limited is your premier partner in turning dreams into reality when it comes to finding your perfect home. With a commitment to excellence and a passion for creating spaces that inspire",
       author: "Mahesh",
       location: "Madhapur, Hyderabad",
     },
     {
       author: "Sachin",
-      desc: "Exceptional service! I had the pleasure of working with OneCasa Pvt Limited, and their attention to detail exceeded my expectations.",
+      desc: "Exceptional service! I had the pleasure of working with Houznext Pvt Limited, and their attention to detail exceeded my expectations.",
       location: "Rajaji Nagar, Bengaluru",
     },
     // ...rest of your testimonials

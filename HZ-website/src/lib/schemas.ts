@@ -218,30 +218,36 @@ export const articleSchema = (post: {
   datePublished: string
   dateModified?: string
   imageUrl?: string
-}) => ({
-  '@context': 'https://schema.org',
-  '@type': 'Article',
-  headline: post.title,
-  description: post.description,
-  url: `https://houznext.com/blog/${post.slug}`,
-  image: post.imageUrl ?? 'https://houznext.com/og-default.jpg',
-  datePublished: post.datePublished,
-  dateModified: post.dateModified ?? post.datePublished,
-  author: {
-    '@type': 'Organization',
-    name: 'Houznext',
-    url: 'https://houznext.com',
-  },
-  publisher: {
-    '@type': 'Organization',
-    name: 'Houznext',
-    logo: {
-      '@type': 'ImageObject',
-      url: 'https://houznext.com/logo.png',
+  /** Canonical path without leading slash, e.g. `blogs/42` for CMS posts */
+  urlPath?: string
+}) => {
+  const path = post.urlPath ?? `blog/${post.slug}`
+  const base = `https://houznext.com/${path}`
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.description,
+    url: base,
+    image: post.imageUrl ?? 'https://houznext.com/og-default.jpg',
+    datePublished: post.datePublished,
+    dateModified: post.dateModified ?? post.datePublished,
+    author: {
+      '@type': 'Organization',
+      name: 'Houznext',
+      url: 'https://houznext.com',
     },
-  },
-  mainEntityOfPage: {
-    '@type': 'WebPage',
-    '@id': `https://houznext.com/blog/${post.slug}`,
-  },
-})
+    publisher: {
+      '@type': 'Organization',
+      name: 'Houznext',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://houznext.com/logo.png',
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': base,
+    },
+  }
+}

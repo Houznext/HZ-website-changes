@@ -22,7 +22,7 @@ const InteriorDetails = () => {
           } Get inspired for your home or office interiors.`}
         keywords={`Interior Design, ${parsedDetails?.title || "Interior Details"
           }, Home Interiors, Modern Designs, Custom Interiors, Interior Decor`}
-        imageUrl={`https://www.onecasa.in/interiors/${details}`}
+        imageUrl={`https://houznext.com/interiors/${details}`}
       />
       <div className="md:p-6 p-3">
         {parsedDetails && (

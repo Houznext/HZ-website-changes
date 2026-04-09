@@ -17,6 +17,44 @@ function img(i: number) {
 }
 
 export const SEED_BLOGS: CreateBlogDto[] = [
+  // ── Marketing / ISR paths (match HZ-website /blog/[slug] fallbacks) ──
+  {
+    slug: 'modular-kitchen-cost-hyderabad',
+    title: 'Modular Kitchen Cost in Hyderabad: 2025 Price Guide',
+    previewDescription:
+      'Per-square-foot rates, cabinet finishes, appliances, and what actually moves the needle on your modular kitchen budget in Hyderabad.',
+    content: `<h2>Typical price bands</h2><p>Most 2BHK modular kitchens in Hyderabad fall between ₹1.8 lakh and ₹4.5 lakh depending on layout, finish (laminate vs acrylic), and hardware brand. A straight 8–10 ft counter with overhead cabinets costs less than an L- or U-shaped layout with tall units.</p><h2>What increases cost</h2><p>Soft-close hinges, tandem drawers, quartz counters, and built-in appliances each add 10–25%. Skimping on core carcass material (marine ply vs commercial ply) saves money upfront but rarely lasts past five monsoons.</p><p>Always ask for an itemised BOQ—structure, shutters, hardware, appliances, and installation should be listed separately.</p>`,
+    blogType: BlogType.Interiors,
+    blogStatus: BlogStatus.Featured,
+    thumbnailImageUrl: img(0),
+    CoverImageUrl: img(1),
+    externalResourceLink: null,
+  },
+  {
+    slug: 'false-ceiling-cost-guide',
+    title: 'False Ceiling Cost Guide for Indian Homes',
+    previewDescription:
+      'POP vs gypsum, per-sqft rates, design complexity, and how lighting plans affect your false ceiling budget.',
+    content: `<h2>POP vs gypsum</h2><p>Plain POP false ceilings in Indian metros often land around ₹80–140 per sq ft installed, while gypsum board systems with metal framing run ₹120–200+ depending on city labour rates. Complex coffers, curves, or bulkheads add 20–40%.</p><h2>Lighting and services</h2><p>Cove lighting needs extra depth and wiring; factor ₹200–400 per linear foot for LED profiles and drivers. Always coordinate AC vents, sprinklers, and downlight positions before the framework goes up.</p><p>Get a site measurement—not carpet area—to avoid disputes on billed area.</p>`,
+    blogType: BlogType.Interiors,
+    blogStatus: BlogStatus.Trending,
+    thumbnailImageUrl: img(2),
+    CoverImageUrl: img(3),
+    externalResourceLink: null,
+  },
+  {
+    slug: 'rera-compliance-telangana',
+    title: 'RERA Compliance in Telangana: What Home Buyers Should Verify',
+    previewDescription:
+      'How to check project registration, quarterly filings, escrow rules, and what to do if a builder is non-compliant.',
+    content: `<h2>Check registration</h2><p>Every marketed apartment or villa project in Telangana should display a valid RERA registration number. Cross-check the exact project name and phase on the official TSRERA portal—developers sometimes advertise a parent registration that does not cover your tower or block.</p><h2>Escrow and timelines</h2><p>RERA requires that a large share of collections stays in a project escrow account, tied to construction progress. Ask for the latest quarterly compliance upload; delays in filing often correlate with cash-flow stress.</p><p>If you find a mismatch between brochure promises and registered carpet areas or amenities, flag it before you pay the next milestone.</p>`,
+    blogType: BlogType.RealEstate,
+    blogStatus: BlogStatus.Featured,
+    thumbnailImageUrl: img(4),
+    CoverImageUrl: img(0),
+    externalResourceLink: null,
+  },
+
   // ── Furniture (2) ──
   {
     title: 'How to Pick the Perfect Sofa for Your Living Room',

@@ -601,11 +601,11 @@ const ProductItemDetails = () => {
       : item.images?.map((img) => img.url) || [];
   const seoTags = (
     <SEO
-      title={`${item.name}${item.brand ? ` by ${item.brand}` : ''} | Buy Online | OneCasa`}
+      title={`${item.name}${item.brand ? ` by ${item.brand}` : ''} | Buy Online | Houznext`}
       description={
         item?.description
           ? `${item.description.slice(0, 150)}${item.description.length > 150 ? '...' : ''}`
-          : `Buy ${item.name} online at the best price on OneCasa. ${item.category ? `Category: ${item.category}.` : ''} Fast delivery & easy returns.`
+          : `Buy ${item.name} online at the best price on Houznext. ${item.category ? `Category: ${item.category}.` : ''} Fast delivery & easy returns.`
       }
       imageUrl={seoImage}
       keywords={[
@@ -615,16 +615,16 @@ const ProductItemDetails = () => {
         item.subCategory,
         `buy ${item.name?.toLowerCase()} online`,
         `${item.category?.toLowerCase()} online India`,
-        'OneCasa',
+        'Houznext',
       ].filter(Boolean).join(', ')}
       product={{
         name: item.name,
-        description: item.description || `${item.name} available on OneCasa`,
+        description: item.description || `${item.name} available on Houznext`,
         image: seoImages.length > 0 ? seoImages : seoImage,
         price: sellingPrice,
         priceCurrency: 'INR',
         availability: (selectedVariant?.stockQty ?? 1) > 0 ? 'InStock' : 'OutOfStock',
-        brand: item.brand || 'OneCasa',
+        brand: item.brand || 'Houznext',
         category: item.category,
         sku: selectedVariant?.sku || String(item.id),
         ratingValue: item.averageRating || undefined,

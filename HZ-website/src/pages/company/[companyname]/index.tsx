@@ -12,11 +12,10 @@ const CompanyView = () => {
   return (
     <div>
       <SEO
-        title={`Explore Projects by ${companyname} | OneCasa`}
+        title={`Explore Projects by ${companyname} | Houznext`}
         description={`Discover premium residential and commercial projects by ${companyname}. Explore verified builder profiles and their top real estate developments.`}
-        keywords="Builders, Projects, Real Estate, OneCasa, Company View, Developers"
-        imageUrl="https://www.onecasa.in/images/logobb.png"
-      />
+        keywords="Builders, Projects, Real Estate, Houznext, Company View, Developers"
+/>
 
       <CompanyProjectsView companyId={id as string} />
     </div>

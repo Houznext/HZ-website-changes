@@ -7,9 +7,9 @@ const PhasesPage = () => {
   return (
     <div className="flex w-full">
       <SEO
-        title="Project Phases | Custom Builder | OneCasa"
+        title="Project Phases | Custom Builder | Houznext"
         description="View and track construction phases, timelines, and budget for your custom builder project."
-        keywords="Construction Phases, Project Timeline, Phase Tracking, OneCasa Builder"
+        keywords="Construction Phases, Project Timeline, Phase Tracking, Houznext Builder"
       />
       <PhasesView />
     </div>

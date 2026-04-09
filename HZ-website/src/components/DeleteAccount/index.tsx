@@ -49,7 +49,7 @@ const points = [
     "All ongoing orders (e.g., furniture, services) and service requests will be canceled.",
     "Custom Builder projects and quote requests will be closed.",
     "Messages and conversations with agents, builders, or service providers will be closed.",
-    "You can still browse OneCasa! but won’t be able to use your dashboard or make new transactions."
+    "You can still browse Houznext! but won’t be able to use your dashboard or make new transactions."
 ];
 const DeleteAccount = () => {
     const [step, setStep] = useState(1);
@@ -115,13 +115,13 @@ const DeleteAccount = () => {
                         <div className="p-6 flex flex-col items-center md:gap-20  text-center ">
                             <div className='flex flex-col items-center justify-center space-y-5'>
                                 <h2 className="text-[18px] md:text-[22px] font-bold leading-tight">
-                                    Are you sure you want to deactivate your OneCasa! account?
+                                    Are you sure you want to deactivate your Houznext! account?
                                 </h2>
                                 <div className="w-20 h-20 bg-blue-300 rounded-full flex items-center justify-center">
                                     <IoMdEye size={30} />
                                 </div>
                                 <p className="text-sm text-gray-600 leading-relaxed max-w-md">
-                                    By deactivating your OneCasa! account, your profile and all related information will be hidden.
+                                    By deactivating your Houznext! account, your profile and all related information will be hidden.
                                     You will lose access to key features such as property listings, orders, custom builder tools, and your dashboard until you choose to reactivate your
                                     account by logging back in.
                                 </p>
@@ -144,7 +144,7 @@ const DeleteAccount = () => {
                     )}
                     {step === 2 && (
                         <div className="p-6 flex flex-col items-center text-center space-y-5">
-                            <h2 className="md:text-[22px] text-[18px] font-bold leading-tight">Are you sure you want to deactivate your OneCasa! account?</h2>
+                            <h2 className="md:text-[22px] text-[18px] font-bold leading-tight">Are you sure you want to deactivate your Houznext! account?</h2>
                             <div className="w-20 h-20 bg-blue-300 rounded-full flex items-center justify-center">
                                 <IoMdEye size={30} />
                             </div>
@@ -182,7 +182,7 @@ const DeleteAccount = () => {
                                 <select value={reason} onChange={(e) => setReason(e.target.value)} className="w-full border p-[10px] border-gray-400 rounded-md">
                                     <option value="">Select reason</option>
                                     <option value="privacy">Privacy concerns</option>
-                                    <option value="not-using">No longer using OneCasa</option>
+                                    <option value="not-using">No longer using Houznext</option>
                                     <option value="other">Other</option>
                                 </select>
 

@@ -8,10 +8,8 @@ const ApplyCareer = () => {
   return (
     <div>
       <SEO
-        title="Apply Now | Start Your Career at OneCasa"
-        description="Take the next step in your career with OneCasa. Apply now for exciting job opportunities in real estate, sales, and property management. Join our dynamic team today!"
-        keywords="Apply for Real Estate Jobs,OneCasa Careers,Real Estate Job Openings,Property Management Jobs,Real Estate Sales Careers,Work at OneCasa"
-        imageUrl="https://www.onecasa.in/images/logobb.png"
+        title="Apply Now | Start Your Career at Houznext"
+        description="Apply for exciting roles at Houznext — Hyderabad's home interiors and real estate company. Join our growing team."
       />
       <ApplyCareerView />
     </div>

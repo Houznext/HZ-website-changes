@@ -52,7 +52,7 @@ const Homepage = ({ initialBlogs }: HomepageProps) => {
       <section className="mx-auto max-w-7xl px-4 pb-12">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-2xl font-semibold text-slate-900">Latest Blogs</h2>
-          <Link href="/blogs" className="text-sm font-medium text-[#3586FF]">View all</Link>
+          <Link href="/blog" className="text-sm font-medium text-[#3586FF]">View all</Link>
         </div>
         <div className="hidden md:grid grid-cols-3 gap-5">
           {blogList.length > 0 ? (

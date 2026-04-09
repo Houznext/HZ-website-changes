@@ -21,7 +21,7 @@ import { getLookingTypePath } from "@/components/Property/PropertyDetails/Proper
 import { useAuthModal } from "@/common/auth/AuthProvider";
 import { Disclosure } from "@headlessui/react";
 import { ChevronDown } from "lucide-react";
-import { PROTECTED_PREFIXES } from "@/middleware";
+import { PROTECTED_PREFIXES } from "@/lib/protected-routes";
 import ServicesMenu from "@/components/Avatar/menuItems";
 
 type MobileMenuProps = {
@@ -248,7 +248,7 @@ const NavDropDown = ({ item, subLink }: any) => {
                               <div className="md:text-[12px] text-[10px] mt-4 text-gray-500">
                                 Contact us: <br />
                                 <strong className="text-black">
-                                  +918897574909 &nbsp; (9AM - 6PM IST)
+                                  +918498823043 &nbsp; (9AM - 6PM IST)
                                 </strong>
                               </div>
                             </div>
@@ -308,7 +308,7 @@ const NavDropDown = ({ item, subLink }: any) => {
                                 <h1 className=" font-regular md:text-[10px] text-[8px]">
                                   Email us at support@houznext.com or Contact us:
                                   <strong className="text-black">
-                                    +918897574909 &nbsp; (9AM - 6PM IST)
+                                    +918498823043 &nbsp; (9AM - 6PM IST)
                                   </strong>{" "}
                                 </h1>
                               </div>
@@ -569,8 +569,11 @@ const Navbar = ({ isVisibleItems }: ShowItems) => {
     },
     {
       name: "Blogs",
-      link: "/blogs",
-      isActive: router.pathname === "/blogs",
+      link: "/blog",
+      isActive:
+        router.pathname === "/blog" ||
+        router.pathname.startsWith("/blog/") ||
+        router.pathname.startsWith("/blogs/"),
     },
     {
       name: "Gallery",

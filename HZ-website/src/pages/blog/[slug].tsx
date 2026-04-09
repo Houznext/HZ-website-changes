@@ -19,6 +19,50 @@ interface Props {
   post: BlogPost
 }
 
+function formatBlogDate(iso?: string): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  return d.toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+function estimateReadMin(content: string, preview: string): string {
+  const len = (content?.length || 0) + (preview?.length || 0)
+  const mins = Math.max(3, Math.min(25, Math.ceil(len / 1200)))
+  return `${mins} min`
+}
+
+/** Map Nest `Blog` JSON to page props */
+function mapApiBlogToPost(raw: Record<string, unknown>, fallbackSlug: string): BlogPost {
+  const slug =
+    (typeof raw.slug === 'string' && raw.slug) ? raw.slug : fallbackSlug
+  const title = typeof raw.title === 'string' ? raw.title : 'Blog'
+  const preview =
+    typeof raw.previewDescription === 'string' ? raw.previewDescription : ''
+  const content = typeof raw.content === 'string' ? raw.content : ''
+  const category =
+    typeof raw.blogType === 'string' ? raw.blogType : 'General'
+  const createdAt =
+    typeof raw.createdAt === 'string' ? raw.createdAt : undefined
+  const updatedAt =
+    typeof raw.updatedAt === 'string' ? raw.updatedAt : undefined
+
+  return {
+    slug,
+    title,
+    excerpt: preview,
+    content,
+    category,
+    datePublished: formatBlogDate(createdAt) || formatBlogDate(updatedAt),
+    dateModified: formatBlogDate(updatedAt) || formatBlogDate(createdAt),
+    readTime: estimateReadMin(content, preview),
+  }
+}
+
 export default function BlogPost({ post }: Props) {
   if (!post) return null
 
@@ -101,19 +145,24 @@ export default function BlogPost({ post }: Props) {
 
 export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
   const slug = params?.slug as string
+  const apiBase =
+    process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT
 
-  try {
-    // Fetch from backend API with ISR
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/blog/${slug}`)
-    if (res.ok) {
-      const post = await res.json()
-      return { props: { post }, revalidate: 3600 }
+  if (apiBase) {
+    try {
+      const res = await fetch(`${apiBase.replace(/\/$/, '')}/blog/${encodeURIComponent(slug)}`)
+      if (res.ok) {
+        const raw = (await res.json()) as Record<string, unknown>
+        return {
+          props: { post: mapApiBlogToPost(raw, slug) },
+          revalidate: 3600,
+        }
+      }
+    } catch {
+      // fallthrough to static fallback
     }
-  } catch {
-    // fallthrough to static fallback
   }
 
-  // Static fallback while backend isn't ready
   const fallbackPost: BlogPost = {
     slug,
     title: `Article: ${slug.replace(/-/g, ' ')}`,
@@ -129,17 +178,26 @@ export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/blog?limit=50`)
-    if (res.ok) {
-      const posts = await res.json() as Array<{ slug: string }>
-      return {
-        paths: posts.map((p) => ({ params: { slug: p.slug } })),
-        fallback: 'blocking',
+  const apiBase =
+    process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT
+
+  if (apiBase) {
+    try {
+      const res = await fetch(`${apiBase.replace(/\/$/, '')}/blog?take=100`)
+      if (res.ok) {
+        const data = (await res.json()) as { blogs?: Array<{ slug?: string | null }> }
+        const blogs = Array.isArray(data?.blogs) ? data.blogs : []
+        const paths = blogs
+          .filter((p) => typeof p.slug === 'string' && p.slug.length > 0)
+          .map((p) => ({ params: { slug: p.slug as string } }))
+        return {
+          paths,
+          fallback: 'blocking',
+        }
       }
+    } catch {
+      // fallthrough
     }
-  } catch {
-    // fallthrough to empty paths
   }
 
   return {

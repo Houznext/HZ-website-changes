@@ -11,9 +11,9 @@ const viewanalytics = () => {
   return (
     <div className="flex w-full min-h-full">
       <SEO
-        title="Property View Analytics | OneCasa"
-        description="Track and analyze property views with OneCasa's GA4 analytics. Get insights on user engagement, popular listings, and audience behavior."
-        keywords="Property Analytics, Real Estate Insights, GA4 Analytics, Property Views, User Engagement, OneCasa Analytics, Real Estate Data, Property Trends"
+        title="Property View Analytics | Houznext"
+        description="Track and analyze property views with Houznext's GA4 analytics. Get insights on user engagement, popular listings, and audience behavior."
+        keywords="Property Analytics, Real Estate Insights, GA4 Analytics, Property Views, User Engagement, Houznext Analytics, Real Estate Data, Property Trends"
       />
 
       <ViewAnalyticsComponent />

@@ -205,35 +205,35 @@ const PropertySteps = () => {
       {
         id: 1,
         question:
-          "What type of property i can post on OneCasa for selling/renting ?",
+          "What type of property i can post on Houznext for selling/renting ?",
         answer:
-          "On OneCasa, you can post various types of properties for selling or renting, including residential properties like apartments, villas, and penthouses. You can also list commercial properties such as office spaces, retail shops, and warehouses, along with land and plots for residential, commercial, or agricultural use.  Whether you're an owner, builder, or agent, OneCasa makes it easy to connect with potential buyers or tenants. ",
+          "On Houznext, you can post various types of properties for selling or renting, including residential properties like apartments, villas, and penthouses. You can also list commercial properties such as office spaces, retail shops, and warehouses, along with land and plots for residential, commercial, or agricultural use.  Whether you're an owner, builder, or agent, Houznext makes it easy to connect with potential buyers or tenants. ",
       },
       {
         id: 2,
         question:
           "can i sell/rent out my property on my own without paying brokerage?",
         answer:
-          "Yes, on OneCasa, you can sell or rent out your property on your own without paying any brokerage. The platform allows property owners to list their properties directly, connect with potential buyers or tenants, and complete the transaction without involving middlemen. This ensures a cost-effective and hassle-free experience while giving you full control over the process",
+          "Yes, on Houznext, you can sell or rent out your property on your own without paying any brokerage. The platform allows property owners to list their properties directly, connect with potential buyers or tenants, and complete the transaction without involving middlemen. This ensures a cost-effective and hassle-free experience while giving you full control over the process",
       },
       {
         id: 3,
-        question: "How can i rent/sell my property faster on OneCasa ?",
+        question: "How can i rent/sell my property faster on Houznext ?",
         answer:
-          "To rent or sell your property faster on OneCasa, make sure to provide detailed and accurate information about your property, including location, amenities, and pricing. Upload high-quality photos and videos to attract more interest. Setting a competitive price based on market trends can also help. Additionally, promoting your listing through social media and real estate networks increases visibility. Responding quickly to inquiries and offering flexible viewing options can further speed up the process.",
+          "To rent or sell your property faster on Houznext, make sure to provide detailed and accurate information about your property, including location, amenities, and pricing. Upload high-quality photos and videos to attract more interest. Setting a competitive price based on market trends can also help. Additionally, promoting your listing through social media and real estate networks increases visibility. Responding quickly to inquiries and offering flexible viewing options can further speed up the process.",
       },
       {
         id: 4,
         question:
           " What should I include in my property listing for better response?",
         answer:
-          "To get a better response on OneCasa, include detailed and accurate property information, such as location, size, price, and key amenities. Upload high-quality photos and videos to attract more interest. Highlight unique selling points like nearby schools, markets, or transport links. Setting a competitive price and responding quickly to inquiries can also improve your chances of finding buyers or tenants faster.",
+          "To get a better response on Houznext, include detailed and accurate property information, such as location, size, price, and key amenities. Upload high-quality photos and videos to attract more interest. Highlight unique selling points like nearby schools, markets, or transport links. Setting a competitive price and responding quickly to inquiries can also improve your chances of finding buyers or tenants faster.",
       },
       {
         id: 5,
-        question: "Can I post multiple properties on OneCasa?",
+        question: "Can I post multiple properties on Houznext?",
         answer:
-          "Yes, you can post multiple properties on OneCasa without any restrictions. Each property listing should include complete and accurate details, such as location, price, and amenities, to attract potential buyers or tenants. Managing multiple listings is easy through your OneCasa account, where you can update or modify property details anytime.",
+          "Yes, you can post multiple properties on Houznext without any restrictions. Each property listing should include complete and accurate details, such as location, price, and amenities, to attract potential buyers or tenants. Managing multiple listings is easy through your Houznext account, where you can update or modify property details anytime.",
       },
     ],
   };

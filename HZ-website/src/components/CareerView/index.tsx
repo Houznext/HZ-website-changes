@@ -126,8 +126,8 @@ const JobCard = ({ data }: any) => {
             )}
             <p className="mt-6 text-[#3586FF] underline">
               To apply for this job, email your resume at{" "}
-              <Link href="mailto:OneCasarealestates@gmail.com">
-                OneCasarealestates@gmail.com
+              <Link href="mailto:Houznextrealestates@gmail.com">
+                Houznextrealestates@gmail.com
               </Link>
             </p>
             <Button
@@ -208,10 +208,10 @@ const CareerView = () => {
         <div className="md:w-[70%] w-full h-full">
           <div className="flex flex-col gap-4 md:mt-[72px] mt-[50px]">
             <h1 className="md:text-[24px] text-[20px]font-medium">
-              Why OneCasa ?
+              Why Houznext ?
             </h1>
             <h2 className="md:text-[16px] text-[14px] leading-6 font-regular text-[#7B7C83] ">
-              At OneCasa, we take pride in offering a comprehensive suite of
+              At Houznext, we take pride in offering a comprehensive suite of
               real estate services, including property marketing, personalized
               property search, expert negotiation, seamless closing, and more.
               Our mission is to simplify and streamline the real estate process,
