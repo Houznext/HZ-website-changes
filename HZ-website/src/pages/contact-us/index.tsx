@@ -79,9 +79,9 @@ export default function ContactUs() {
                 </p>
                 <div className="space-y-3">
                   {[
-                    { icon: '📞', label: '+91 84988 23043', href: 'tel:+918498823043' },
+                    { icon: '📞', label: '+91 97597 50770', href: 'tel:+919759750770' },
                     { icon: '✉️', label: 'business@houznext.com', href: 'mailto:business@houznext.com' },
-                    { icon: '💬', label: 'WhatsApp us', href: 'https://wa.me/918498823043' },
+                    { icon: '💬', label: 'WhatsApp us', href: 'https://wa.me/919759750770' },
                     { icon: '📍', label: 'Hyderabad, Telangana, India', href: null },
                   ].map((c) => (
                     <div key={c.label} className="flex items-center gap-3">
@@ -226,8 +226,8 @@ export default function ContactUs() {
             </Reveal>
             <div className="grid md:grid-cols-3 gap-5">
               {[
-                { icon: '📞', title: 'Call us', detail: '+91 84988 23043', sub: 'Mon–Sat, 9 AM – 7 PM', href: 'tel:+918498823043' },
-                { icon: '💬', title: 'WhatsApp', detail: 'Chat with our team', sub: 'Typically replies in 30 min', href: 'https://wa.me/918498823043' },
+                { icon: '📞', title: 'Call us', detail: '+91 97597 50770', sub: 'Mon–Sat, 9 AM – 7 PM', href: 'tel:+919759750770' },
+                { icon: '💬', title: 'WhatsApp', detail: 'Chat with our team', sub: 'Typically replies in 30 min', href: 'https://wa.me/919759750770' },
                 { icon: '✉️', title: 'Email', detail: 'business@houznext.com', sub: 'We reply within 24 hours', href: 'mailto:business@houznext.com' },
               ].map((c, i) => (
                 <Reveal key={c.title} delay={i * 100} variant="up">

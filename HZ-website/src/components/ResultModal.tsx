@@ -204,7 +204,7 @@ export default function ResultModal({ state, onClose }: ResultModalProps) {
           {/* CTAs */}
           <div className="grid grid-cols-2 gap-3 pt-1">
             <a
-              href={`https://wa.me/918498823043?text=${waMsg}`}
+              href={`https://wa.me/919759750770?text=${waMsg}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 py-3 rounded-xl text-[13px] font-head font-bold text-white transition-all hover:-translate-y-px"

@@ -248,7 +248,7 @@ const NavDropDown = ({ item, subLink }: any) => {
                               <div className="md:text-[12px] text-[10px] mt-4 text-gray-500">
                                 Contact us: <br />
                                 <strong className="text-black">
-                                  +918498823043 &nbsp; (9AM - 6PM IST)
+                                  +919759750770 &nbsp; (9AM - 6PM IST)
                                 </strong>
                               </div>
                             </div>
@@ -308,7 +308,7 @@ const NavDropDown = ({ item, subLink }: any) => {
                                 <h1 className=" font-regular md:text-[10px] text-[8px]">
                                   Email us at support@houznext.com or Contact us:
                                   <strong className="text-black">
-                                    +918498823043 &nbsp; (9AM - 6PM IST)
+                                    +919759750770 &nbsp; (9AM - 6PM IST)
                                   </strong>{" "}
                                 </h1>
                               </div>

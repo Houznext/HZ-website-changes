@@ -21,8 +21,8 @@ const CostEstimationHeader = () => {
             className="flex md:justify-end whitespace-nowrap leading-none"
             style={{ fontVariantNumeric: "tabular-nums" }}
           >
-            <a href="tel:+918498823043" className="hover:underline">
-              +91&nbsp;84988&nbsp;23043
+            <a href="tel:+919759750770" className="hover:underline">
+              +91&nbsp;97597&nbsp;50770
             </a>
           </div>
           <div className="flex md:justify-end whitespace-nowrap leading-none">

@@ -121,7 +121,7 @@ const BlogsDetails = ({ blog, similarBlogs = [] }: { blog: any; similarBlogs?: a
             Get a free personalised estimate from our design team
           </p>
           <a
-            href="https://wa.me/918498823043?text=Hi%20Houznext%2C%20I%20read%20your%20blog%20and%20want%20a%20free%20estimate"
+            href="https://wa.me/919759750770?text=Hi%20Houznext%2C%20I%20read%20your%20blog%20and%20want%20a%20free%20estimate"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-head font-bold text-white text-[13px] no-underline"

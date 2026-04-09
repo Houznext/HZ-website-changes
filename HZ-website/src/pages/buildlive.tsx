@@ -181,7 +181,7 @@ function WaBar() {
             Login to My Home →
           </button>
           <a
-            href="https://wa.me/918498823043?text=Hi%20Houznext%2C%20I%20want%20to%20know%20more%20about%20BuildLive"
+            href="https://wa.me/919759750770?text=Hi%20Houznext%2C%20I%20want%20to%20know%20more%20about%20BuildLive"
             target="_blank" rel="noopener noreferrer"
             className="px-8 py-4 rounded-xl font-head font-bold text-white text-[15px] transition-all hover:-translate-y-0.5 inline-flex items-center gap-2"
             style={{ background: '#25D366' }}

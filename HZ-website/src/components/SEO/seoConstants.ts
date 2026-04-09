@@ -4,7 +4,7 @@
 export const BASE_DEPLOYMENT_URL = "https://www.houznext.com";
 export const PROJECT_NAME = "Houznext Real Estate";
 export const PRIMARY_IMAGE_URL = `${BASE_DEPLOYMENT_URL}/images/logobb.png`;
-export const PRIMARY_PHONE = "+918498823043";
+export const PRIMARY_PHONE = "+919759750770";
 
 // Corporate contact information (shared across all pages)
 export const CORPORATE_CONTACTS = [

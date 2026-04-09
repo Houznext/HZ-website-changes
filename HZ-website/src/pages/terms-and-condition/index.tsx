@@ -59,7 +59,7 @@ jurisdiction of the courts in Hyderabad, Telangana, India.`,
   },
   {
     title: '10. Contact',
-    body: `For questions about these terms: Email: business@houznext.com | Phone: +91 84988 23043`,
+    body: `For questions about these terms: Email: business@houznext.com | Phone: +91 97597 50770`,
   },
 ]
 

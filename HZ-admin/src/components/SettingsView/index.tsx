@@ -87,11 +87,11 @@ const DocumentationModal = ({ isOpen, onClose }: DocumentationModalProps) => {
   };
 
   const handlePhoneClick = () => {
-    window.location.href = "tel:+918498823043";
+    window.location.href = "tel:+919759750770";
   };
 
   const handleWhatsAppClick = () => {
-    window.open("https://wa.me/918498823043", "_blank");
+    window.open("https://wa.me/919759750770", "_blank");
   };
 
   return (
@@ -194,7 +194,7 @@ const DocumentationModal = ({ isOpen, onClose }: DocumentationModalProps) => {
                     <MdPhone className="text-2xl text-slate-600 group-hover:text-white" />
                   </div>
                   <p className="text-xs font-semibold text-gray-800 group-hover:text-white transition-colors duration-300 text-center">
-                    +91 84988 23043
+                    +91 97597 50770
                   </p>
                 </div>
               </Button>

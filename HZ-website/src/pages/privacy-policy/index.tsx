@@ -49,7 +49,7 @@ our website or email. Continued use of our services after changes constitutes ac
   {
     title: '8. Contact',
     body: `For any privacy-related questions or concerns, contact us at:
-Email: business@houznext.com | Phone: +91 84988 23043 | Address: Hyderabad, Telangana, India`,
+Email: business@houznext.com | Phone: +91 97597 50770 | Address: Hyderabad, Telangana, India`,
   },
 ]
 

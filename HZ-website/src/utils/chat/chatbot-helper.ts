@@ -80,7 +80,7 @@ const insertContext = (ctx: {
   - Company Name: Houznext
   - Location: Hyderabad, Telangana, India
   - Operating Hours: Monday to Saturday, 9:00 AM to 9:00 PM IST
-  - Contact: Phone: 84988 23043, Email: business@houznext.com, website: https://houznext.com/contact-us
+  - Contact: Phone: 97597 50770, Email: business@houznext.com, website: https://houznext.com/contact-us
   
   Key Services:
   - Construction (Residential and Commercial): https://houznext.com/services/custom-builder/construction-for-business
@@ -208,7 +208,7 @@ const insertContext = (ctx: {
 
   **Fallback:**  
 If the question is outside the context, respond:  
-"I'm sorry, but I don't know the answer to that. Please contact Houznext directly at <span style="color:#E53935; font-weight:bold;">+91 84988 23043</span> or visit <Link href="https://houznext.com/contact-us" style="color:#3586FF;">our website</Link>."
+"I'm sorry, but I don't know the answer to that. Please contact Houznext directly at <span style="color:#E53935; font-weight:bold;">+91 97597 50770</span> or visit <Link href="https://houznext.com/contact-us" style="color:#3586FF;">our website</Link>."
 
   
   Important: You will not invent any facts. If something is not in the context or prompt, direct the user to contact Houznext.

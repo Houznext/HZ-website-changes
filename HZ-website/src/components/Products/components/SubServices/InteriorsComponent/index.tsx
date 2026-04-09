@@ -399,7 +399,7 @@ const InteriorsComponent = ({
         </div>
       </div>
       <Link
-        href="https://wa.me/918498823043"
+        href="https://wa.me/919759750770"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat with us on WhatsApp"

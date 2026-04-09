@@ -292,7 +292,7 @@ const CostEstimatorDetailsView = () => {
                     Buy Right · Build Strong · Design Beautiful
                   </div>
                   <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                    <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', fontFamily: "'Inter', sans-serif" }}>+91 84988 23043</span>
+                    <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', fontFamily: "'Inter', sans-serif" }}>+91 97597 50770</span>
                     <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', fontFamily: "'Inter', sans-serif" }}>business@houznext.com</span>
                   </div>
                 </div>
@@ -578,7 +578,7 @@ const CostEstimatorDetailsView = () => {
                   Houznext
                 </p>
                 <p style={{ fontSize: '13px', color: '#9ca3af', marginTop: '4px', fontFamily: "'Inter', sans-serif" }}>
-                  +91 84988 23043 · business@houznext.com
+                  +91 97597 50770 · business@houznext.com
                 </p>
               </div>
               <div style={{ textAlign: 'right' }}>

@@ -236,7 +236,7 @@ function WaBar() {
           Chat with our design advisor — free consultation, no obligation
         </p>
         <a
-          href="https://wa.me/918498823043?text=Hi%20Houznext%2C%20I%20want%20help%20choosing%20a%20package"
+          href="https://wa.me/919759750770?text=Hi%20Houznext%2C%20I%20want%20help%20choosing%20a%20package"
           target="_blank" rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-head font-bold text-white text-[15px] hover:-translate-y-0.5 transition-all"
           style={{ background: '#25D366' }}

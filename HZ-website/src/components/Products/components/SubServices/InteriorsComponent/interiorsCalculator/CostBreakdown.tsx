@@ -257,8 +257,8 @@ export const CostBreakdown = ({ formData, setShowResults }: { formData: FormData
             <br />
             <div className="text-black">
               You can also call us at : <MdPhone className="inline" />
-              <Link href="tel:+918498823043" className="underline text-[#3586FF] hover:text-blue-800 ml-2 transition">
-                8498823043
+              <Link href="tel:+919759750770" className="underline text-[#3586FF] hover:text-blue-800 ml-2 transition">
+                9759750770
               </Link>
               ,{" "}
               <Link href="tel:+918106120099" className="underline text-[#3586FF] hover:text-blue-800 transition">

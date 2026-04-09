@@ -47,14 +47,14 @@ const Footer = () => {
               <span className="">
                 <LocalPhoneIcon /> Between 9AM to 9PM :
               </span>
-              <p className={styles.bold}>+918498823043</p>
+              <p className={styles.bold}>+919759750770</p>
             </div>
             <div className={''}>
               <div>
                 <span className="">
                   <WhatsAppIcon /> Whatsapp Message at :
                 </span>
-                <p className={styles.bold}>+918498823043</p>
+                <p className={styles.bold}>+919759750770</p>
               </div>
             </div>
             <div className="">
@@ -80,14 +80,14 @@ const Footer = () => {
                 <span className="">
                   <LocalPhoneIcon /> Between 9AM to 9PM :
                 </span>
-                <p className={styles.bold}>+918498823043</p>
+                <p className={styles.bold}>+919759750770</p>
               </div>
               <div className={''}>
                 <div>
                   <span className="">
                     <WhatsAppIcon /> Whatsapp Message at :
                   </span>
-                  <p className={styles.bold}>+918498823043</p>
+                  <p className={styles.bold}>+919759750770</p>
                 </div>
               </div>
               <div className="">

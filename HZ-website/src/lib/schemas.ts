@@ -30,10 +30,10 @@ export const localBusinessSchema = {
     latitude: 17.385,
     longitude: 78.4867,
   },
-  telephone: '+918498823043',
+  telephone: '+919759750770',
   contactPoint: {
     '@type': 'ContactPoint',
-    telephone: '+918498823043',
+    telephone: '+919759750770',
     contactType: 'customer service',
     availableLanguage: ['English', 'Telugu', 'Hindi'],
     contactOption: 'TollFree',
@@ -43,7 +43,7 @@ export const localBusinessSchema = {
   sameAs: [
     'https://instagram.com/houznext',
     'https://facebook.com/houznext',
-    'https://wa.me/918498823043',
+    'https://wa.me/919759750770',
   ],
   aggregateRating: {
     '@type': 'AggregateRating',
@@ -170,7 +170,7 @@ export const realEstateAgentSchema = {
   '@type': 'RealEstateAgent',
   name: 'Houznext Real Estate',
   url: 'https://houznext.com/real-estate',
-  telephone: '+918498823043',
+  telephone: '+919759750770',
   description:
     'RERA-verified plots, flats and villas in Hyderabad, Warangal, Karimnagar and across Telangana. Free legal due diligence and bank loan assistance.',
   address: {

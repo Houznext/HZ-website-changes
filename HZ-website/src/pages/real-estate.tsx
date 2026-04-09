@@ -218,7 +218,7 @@ function WaBar() {
           Chat with our property advisor on WhatsApp for a free site visit
         </p>
         <a
-          href="https://wa.me/918498823043?text=Hi%20Houznext%2C%20I%20am%20looking%20for%20a%20property"
+          href="https://wa.me/919759750770?text=Hi%20Houznext%2C%20I%20am%20looking%20for%20a%20property"
           target="_blank" rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-head font-bold text-white text-[15px] hover:-translate-y-0.5 transition-all"
           style={{ background: '#25D366' }}
