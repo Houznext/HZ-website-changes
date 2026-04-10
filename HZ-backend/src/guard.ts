@@ -138,7 +138,7 @@ export class ControllerAuthGuard implements CanActivate {
     );
     if (isAdminPortal && user.kind === 'CUSTOMER' && user.role !== UserRole.ADMIN) {
       throw new ForbiddenException(
-        'Customers cannot access the admin portal. Please use onecasa.in',
+        `Customers cannot access the admin portal. Use ${process.env.ADMIN_APP_URL?.trim() || 'https://houznext.com'}`,
       );
     }
 

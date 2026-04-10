@@ -16,7 +16,7 @@ export enum BrokerageModel {
 
 export enum ContactRouting {
   OWNER = 'OWNER',
-  ONECASA_INTERNAL = 'ONECASA_INTERNAL',
+  HOUZNEXT_INTERNAL = 'HOUZNEXT_INTERNAL',
 }
 
 export enum ReferralCaseStatus {

@@ -17,6 +17,7 @@ import {
   CreateServiceCustomLeadDto,
   UpdateServiceCustomLeadstatusDto,
 } from './dto/servicecustomlead.dto';
+import { HOUZNEXT_COMPANY_NAME } from 'src/common/houznext-public-contact';
 @Injectable()
 export class ServiceCustomLeadService {
   constructor(
@@ -62,7 +63,7 @@ export class ServiceCustomLeadService {
       if (createdLead.assignedTo) {
         await this.mailerService.sendUserNotification(
           createdLead.assignedTo,
-          'Welcome to OneCasa!',
+          `Welcome to ${HOUZNEXT_COMPANY_NAME}!`,
           USER_NOTIFICATION_TEMPLATE,
         );
       }

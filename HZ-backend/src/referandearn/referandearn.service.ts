@@ -125,7 +125,7 @@ export class ReferAndEarnService {
       // ✅ toggle property flags based on agreement status
       if (dto.status === ReferAndEarnStatus.ACTIVE) {
         agreement.property.isReferAndEarnEnabled = true;
-        agreement.property.contactRouting = ContactRouting.ONECASA_INTERNAL;
+        agreement.property.contactRouting = ContactRouting.HOUZNEXT_INTERNAL;
       } else if (
         dto.status === ReferAndEarnStatus.PAUSED ||
         dto.status === ReferAndEarnStatus.REJECTED ||
@@ -214,7 +214,7 @@ export class ReferAndEarnService {
     const safe = data.map((p: any) => ({
       ...p,
       postedByUser: undefined,
-      ownerContactHidden: p.contactRouting === ContactRouting.ONECASA_INTERNAL,
+      ownerContactHidden: p.contactRouting === ContactRouting.HOUZNEXT_INTERNAL,
     }));
 
     return {
@@ -299,10 +299,10 @@ Your referral has been created successfully.
 Property: ${property.propertyDetails?.propertyName ?? 'N/A'}
 
 
-Thank you for referring with OneCasa. We will keep you updated as the referral progresses.
+Thank you for referring with Houznext. We will keep you updated as the referral progresses.
 
 Best regards,
-OneCasa Team
+Houznext Team
 `;
 
         await this.notificationService.sendEmailNotification({
@@ -326,7 +326,7 @@ OneCasa Team
 //         } has been created successfully .
 
 // You can track the progress from your dashboard.
-// Thank you for referring with OneCasa.`;
+// Thank you for referring with Houznext.`;
 
 //         await this.whatsAppMsgService.sendMessage(referrer.phone, message);
 //       } 
@@ -355,7 +355,7 @@ Referred By: ${referrer.fullName ?? 'A user'}
 Please log in to your dashboard to review the referral details.
 
 Best regards,
-OneCasa Team
+Houznext Team
 `;
 
         await this.notificationService.sendEmailNotification({
@@ -373,7 +373,7 @@ OneCasa Team
 
       // Please check your dashboard for more details.
 
-      // – OneCasa Team`;
+      // – Houznext Team`;
 
       //         await this.whatsAppMsgService.sendMessage(
       //           propertyOwner.phone,
@@ -545,12 +545,12 @@ Property: ${propertyName}
 Current Step: ${stepName}
 Last Updated On: ${formattedDate}
 
-Thank you for trusting OneCasa with your referral. We will continue to keep you informed as the process moves forward.
+Thank you for trusting Houznext with your referral. We will continue to keep you informed as the process moves forward.
 
 If you have any questions, feel free to reach out to our support team.
 
 Best regards,
-OneCasa Team
+Houznext Team
 `;
 
           await this.notificationService.sendEmailNotification({
@@ -560,7 +560,7 @@ OneCasa Team
         }
 
         // if (referrer.phone) {
-        //   const message = `Hello ${referrer.fullName ?? ''},Your referral for ${propertyName} has moved to the next stage. Current Step: ${stepName} Updated On: ${formattedDate} Please log in to your dashboard to view the latest updates.Thank you for referring with OneCasa.`;
+        //   const message = `Hello ${referrer.fullName ?? ''},Your referral for ${propertyName} has moved to the next stage. Current Step: ${stepName} Updated On: ${formattedDate} Please log in to your dashboard to view the latest updates.Thank you for referring with Houznext.`;
 
         //   await this.whatsAppMsgService.sendMessage(referrer.phone, message);
         // }

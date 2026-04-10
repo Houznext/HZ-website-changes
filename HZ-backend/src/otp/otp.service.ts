@@ -32,7 +32,7 @@ export const DLT_TEMPLATES = {
     text: (otp: string) =>
       `Dear User, Your login verification OTP Code is ${otp}. Please do not share this OTP with anyone. Houznext`,
   },
-  ONECASA_OTP: {
+  HOUZNEXT_SMS_OTP: {
     id: '1707176050746186677',
     text: (otp: string) =>
       `Dear User, Your Houznext verification OTP Code is ${otp}. Please do not share this OTP with anyone.`,
@@ -98,8 +98,8 @@ export class OtpService {
       }
       await this.otpRepository.save(existingOtp);
 
-      const smsMessage = DLT_TEMPLATES.ONECASA_OTP.text(otp);
-      const templateId = DLT_TEMPLATES.ONECASA_OTP.id;
+      const smsMessage = DLT_TEMPLATES.HOUZNEXT_SMS_OTP.text(otp);
+      const templateId = DLT_TEMPLATES.HOUZNEXT_SMS_OTP.id;
       await this.smsService.sendSms(phone, smsMessage, templateId);
 
       return { phone, message: 'OTP sent successfully via SMS' };
@@ -172,8 +172,8 @@ export class OtpService {
       }
       await this.otpRepository.save(existingOtp);
 
-      const smsMessage = DLT_TEMPLATES.ONECASA_OTP.text(otp);
-      const templateId = DLT_TEMPLATES.ONECASA_OTP.id;
+      const smsMessage = DLT_TEMPLATES.HOUZNEXT_SMS_OTP.text(otp);
+      const templateId = DLT_TEMPLATES.HOUZNEXT_SMS_OTP.id;
       await this.smsService.sendSms(phone, smsMessage, templateId);
 
       return { phone, message: 'OTP resent successfully via SMS' };

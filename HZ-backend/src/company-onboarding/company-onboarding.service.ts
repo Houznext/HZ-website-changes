@@ -1577,7 +1577,7 @@ export class CompanyOnboardingService {
     // Send notification
     if (company.developerInformation) {
       const message = isApproved
-        ? `Great news! ${company.companyName} has been approved and is now live on OneCasa.`
+        ? `Great news! ${company.companyName} has been approved and is now live on Houznext.`
         : `${company.companyName} was not approved. ${rejectionReason || 'Please contact support.'}`;
 
       try {
@@ -1624,7 +1624,7 @@ export class CompanyOnboardingService {
     // Send notification
     if (project.company?.developerInformation) {
       const message = isApproved
-        ? `Great news! ${project.Name} has been approved and is now live on OneCasa.`
+        ? `Great news! ${project.Name} has been approved and is now live on Houznext.`
         : `${project.Name} was not approved. ${rejectionReason || 'Please contact support.'}`;
 
       try {

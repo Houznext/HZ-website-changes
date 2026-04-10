@@ -6,7 +6,7 @@ on:
       - master
 env:
   AWS_REGION: ap-south-1
-  ECR_REPOSITORY: onecasa-api
+  ECR_REPOSITORY: houznext-api
   ECS_CLUSTER: prod-cluster
   ECS_SERVICE: backend
   CONTAINER_NAME: backend

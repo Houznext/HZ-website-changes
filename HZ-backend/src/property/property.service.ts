@@ -1642,7 +1642,7 @@ async adminUpdateProperty(propertyId: string, updatePropertyDto: CreatePropertyD
     if (property.postedByUser) {
       const propertyName = property.propertyDetails?.propertyName || 'Your property';
       const message = isApproved
-        ? `Great news! ${propertyName} has been approved and is now live on OneCasa.`
+        ? `Great news! ${propertyName} has been approved and is now live on Houznext.`
         : `${propertyName} was not approved. ${rejectionReason ? `Reason: ${rejectionReason}` : 'Please contact support for more details.'}`;
 
       await this.notificationService.createNotification({

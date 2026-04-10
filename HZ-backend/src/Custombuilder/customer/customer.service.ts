@@ -293,10 +293,10 @@ export class CustomerService {
   //       template: `
   //         <div style="font-family: Arial, sans-serif; font-size: 14px;">
   //           <p>Dear ${existingUser.fullName},</p>
-  //           <p>Your customer account has been successfully created on OneCasa.</p>
+  //           <p>Your customer account has been successfully created on Houznext.</p>
   //           <p>Welcome aboard!</p>
   //           <br/>
-  //           <p>Thank you,<br/>OneCasa Team</p>
+  //           <p>Thank you,<br/>Houznext Team</p>
   //         </div>
   //       `,
   //     });
@@ -479,10 +479,10 @@ export class CustomerService {
       template: `
         <div style="font-family: Arial, sans-serif; font-size: 14px;">
           <p>Dear ${existingUser.fullName},</p>
-          <p>Your customer account has been successfully created on OneCasa.</p>
+          <p>Your customer account has been successfully created on Houznext.</p>
           <p>Welcome aboard!</p>
           <br/>
-          <p>Thank you,<br/>OneCasa Team</p>
+          <p>Thank you,<br/>Houznext Team</p>
         </div>
       `,
     });

@@ -667,7 +667,7 @@ async getAdminUsersOverview(
               <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">This link will expire in <strong>1 hour</strong>.</p>
               <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">If you didn't request this password reset, please ignore this email or contact support if you have concerns.</p>
               <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;" />
-              <p style="color: #9ca3af; font-size: 12px; text-align: center;">OneCasa - One Roof Every Solution</p>
+              <p style="color: #9ca3af; font-size: 12px; text-align: center;">Houznext</p>
             </div>
           </div>
         </body>
@@ -677,7 +677,7 @@ async getAdminUsersOverview(
     try {
       await this.mailerService.sendMail(
         user.email,
-        'Password Reset - OneCasa',
+        'Password Reset - Houznext',
         `Reset your password using this link: ${resetUrl}`,
         emailHtml,
       );
@@ -1138,7 +1138,7 @@ async findByEmailOrPhone(
     phone: string;
     orgName?: string;
   }): Promise<{ message: string; userId: string; branchId: string }> {
-    const orgName = dto.orgName || 'OneCasa';
+    const orgName = dto.orgName || 'Houznext';
 
     return this.userRepository.manager.transaction(async (manager) => {
       const userRepo = manager.getRepository(User);

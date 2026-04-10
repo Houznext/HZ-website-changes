@@ -585,7 +585,7 @@ export class GetUsersFilterDto {
 }
 
 export class SeedAdminDto {
-  @ApiProperty({ example: 'admin@onecasa.in' })
+  @ApiProperty({ example: 'business@houznext.com' })
   @IsNotEmpty()
   @IsEmail()
   email: string;
@@ -595,12 +595,12 @@ export class SeedAdminDto {
   @IsString()
   password: string;
 
-  @ApiProperty({ example: 'Sachin' })
+  @ApiProperty({ example: 'Houznext' })
   @IsNotEmpty()
   @IsString()
   firstName: string;
 
-  @ApiProperty({ example: 'Chavan' })
+  @ApiProperty({ example: 'Admin' })
   @IsNotEmpty()
   @IsString()
   lastName: string;
@@ -610,7 +610,7 @@ export class SeedAdminDto {
   @IsString()
   phone: string;
 
-  @ApiPropertyOptional({ example: 'OneCasa', default: 'OneCasa' })
+  @ApiPropertyOptional({ example: 'Houznext', default: 'Houznext' })
   @IsOptional()
   @IsString()
   orgName?: string;

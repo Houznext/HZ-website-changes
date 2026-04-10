@@ -98,7 +98,7 @@ export class InteriorService {
         await client.messages.create({
           to: mobile.startsWith('+') ? mobile : `+91${mobile}`,
           from: TWILIO_PHONE,
-          body: `Your OTP is ${code}. Valid for 3 minutes.`,
+          body: `Your Houznext verification code is ${code}. Valid for 3 minutes.`,
         });
       } catch {
         // fallback to console in dev

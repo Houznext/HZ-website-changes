@@ -91,7 +91,7 @@ export class Furniture {
   warranty?: string; // "3 years on structure"
 
   @Column({ type: 'varchar', length: 200, nullable: true })
-  assembly?: string; // "Carpenter assembly provided by OneCasa"
+  assembly?: string; // e.g. carpenter assembly provided by platform partner
 
   @Column({ type: 'varchar', length: 200, nullable: true })
   returnPolicy?: string;

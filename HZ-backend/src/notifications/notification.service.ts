@@ -13,6 +13,12 @@ import {
   sendEmailNotificationDto,
   sendSmsNotificationDto,
 } from './dto/notification.dto';
+import {
+  HOUZNEXT_COMPANY_NAME,
+  HOUZNEXT_LOGO_URL,
+  HOUZNEXT_PUBLIC_EMAIL,
+  HOUZNEXT_PUBLIC_PHONE_DISPLAY,
+} from 'src/common/houznext-public-contact';
 
 const notificationEmailTemplate = (
   message: string,
@@ -22,30 +28,30 @@ const notificationEmailTemplate = (
   <body style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #434343;">
     <div style="max-width: 680px; margin: 0 auto; padding: 45px 30px 60px; background: #f4f7ff;">
       <header style="display: flex; justify-content: space-between; align-items: center;">
-        <img alt="OneCasa Real Estate" src="https://dreamcasa-web-gofv.vercel.app/_next/image?url=%2Fimages%2Flogomain.png&w=1920&q=75" height="30px" />
+        <img alt="${HOUZNEXT_COMPANY_NAME}" src="${HOUZNEXT_LOGO_URL}" height="30px" />
         <span style="color: #434343; font-size: 12px;">${date}</span>
       </header>
       <main style="margin-top: 20px;">
-        <h1 style="font-size: 24px; color: #333;">Notification from OneCasa</h1>
+        <h1 style="font-size: 24px; color: #333;">Notification from ${HOUZNEXT_COMPANY_NAME}</h1>
        <p style="font-size: 16px; color: #666;">
           Hello, <br><br>
-          We’re excited to update you on the progress of your project with <strong>OneCasa Builders</strong>. Here’s the latest update:
+          Here’s an update on your project with <strong>${HOUZNEXT_COMPANY_NAME}</strong>:
         </p>
         <p>${message}</p>
-        <p>If you have any questions, feel free to contact our support team.</p>
+        <p>If you have any questions, reply to this email or use the contact details below.</p>
       </main>
       <div style="margin-top: 25px; text-align: center;">
           <a href="#" style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: #ffffff; font-size: 16px; font-weight: bold; text-decoration: none; border-radius: 5px;">
             Track Progress
           </a>
-          <a href="mailto:support@dreamcasa.com" style="display: inline-block; margin-left: 10px; padding: 12px 24px; background-color: #28a745; color: #ffffff; font-size: 16px; font-weight: bold; text-decoration: none; border-radius: 5px;">
+          <a href="mailto:${HOUZNEXT_PUBLIC_EMAIL}" style="display: inline-block; margin-left: 10px; padding: 12px 24px; background-color: #28a745; color: #ffffff; font-size: 16px; font-weight: bold; text-decoration: none; border-radius: 5px;">
             Contact Support
           </a>
         </div>
       <footer style="text-align: center; margin-top: 40px; font-size: 12px; color: #666;">
-        <p>📞 Need assistance? Contact us at <a href="mailto:support@dreamcasa.com" style="color: #007bff; text-decoration: none;">support@dreamcasa.com</a> or call (123) 456-7890</p>
-        <p style="margin-top: 10px;">OneCasa Real Estate, 1234 Elm Street, City, State, ZIP</p>
-        <p style="color: #999;">OneCasa &copy; ${new Date().getFullYear()} - All Rights Reserved</p>
+        <p>📞 Need assistance? <a href="mailto:${HOUZNEXT_PUBLIC_EMAIL}" style="color: #007bff; text-decoration: none;">${HOUZNEXT_PUBLIC_EMAIL}</a> · ${HOUZNEXT_PUBLIC_PHONE_DISPLAY}</p>
+        <p style="margin-top: 10px;">${HOUZNEXT_COMPANY_NAME}</p>
+        <p style="color: #999;">${HOUZNEXT_COMPANY_NAME} &copy; ${new Date().getFullYear()} - All Rights Reserved</p>
       </footer>
     </div>
   </body>
@@ -99,7 +105,7 @@ export class NotificationService {
       const mailResponse = await this.mailerService.sendMail(
         email,
         'Notification',
-        'New notification from DreamCasa',
+        `New notification from ${HOUZNEXT_COMPANY_NAME}`,
         emailTemplate,
       );
 
@@ -116,7 +122,7 @@ export class NotificationService {
     try {
       const { message, phone } = sendSmsNotificationDto;
 
-      const smsMessage = `New notification from DreamCasa: ${message}`;
+      const smsMessage = `New notification from ${HOUZNEXT_COMPANY_NAME}: ${message}`;
 
       await this.smsService.sendSms(phone, smsMessage);
     } catch (error) {

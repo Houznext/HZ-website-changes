@@ -60,7 +60,7 @@ export class PropertyPremiumPlansController {
     summary: 'Admin: apply free promotion to a property',
     description:
       'Apply a premium plan to a property without payment (e.g. collabs, partnerships). ' +
-      'Requires admin auth. Used by dreamcasaadmin. Provide either planId or planSlug.',
+      'Requires admin auth. Provide either planId or planSlug.',
   })
   @ApiBody({ type: ApplyFreePromotionDto })
   async applyFreePromotion(

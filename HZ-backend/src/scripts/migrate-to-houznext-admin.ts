@@ -1,6 +1,6 @@
 /**
- * Migrate admin user: Remove lavudyasachinchavan@gmail.com permanently.
- * Create/ensure business@houznext.com exists with full admin (Cost Estimator, Invoice, all actions).
+ * Migrate admin: optionally remove a legacy admin account (MIGRATE_LEGACY_ADMIN_EMAIL),
+ * create/ensure business@houznext.com with full admin (Cost Estimator, Invoice, all actions).
  * Run: npm run migrate:houznext-admin
  */
 import * as dotenv from 'dotenv';
@@ -31,7 +31,7 @@ import {
 } from '../permission/enum/permission.enum';
 import * as bcrypt from 'bcrypt';
 
-const OLD_ADMIN_EMAIL = 'lavudyasachinchavan@gmail.com';
+const OLD_ADMIN_EMAIL = process.env.MIGRATE_LEGACY_ADMIN_EMAIL?.trim() ?? '';
 const NEW_ADMIN_EMAIL = 'business@houznext.com';
 const NEW_ADMIN_PASSWORD = 'Houznext@758';
 const NEW_ADMIN_FIRST_NAME = 'Houznext';
@@ -173,10 +173,18 @@ async function run() {
     }
   }
 
-  // 5. Find old user and reassign their data to new user, then delete
-  const oldUser = await userRepo.findOne({
-    where: { email: OLD_ADMIN_EMAIL },
-  });
+  // 5. Optionally find legacy admin, reassign their data, then delete
+  if (!OLD_ADMIN_EMAIL) {
+    console.log(
+      'MIGRATE_LEGACY_ADMIN_EMAIL not set; skipping legacy admin removal.',
+    );
+  }
+
+  const oldUser = OLD_ADMIN_EMAIL
+    ? await userRepo.findOne({
+        where: { email: OLD_ADMIN_EMAIL },
+      })
+    : null;
 
   if (oldUser) {
     // Reassign cost estimators to new user (so data is not lost)
@@ -208,8 +216,10 @@ async function run() {
     // Delete old user (other relations may cascade or need handling per your schema)
     await userRepo.remove(oldUser);
     console.log(`Permanently removed user: ${OLD_ADMIN_EMAIL}`);
-  } else {
-    console.log(`User ${OLD_ADMIN_EMAIL} not found in DB (already removed or never existed).`);
+  } else if (OLD_ADMIN_EMAIL) {
+    console.log(
+      `Legacy admin ${OLD_ADMIN_EMAIL} not found in DB (already removed or never existed).`,
+    );
   }
 
   console.log('\n--- Migration complete ---');

@@ -53,6 +53,14 @@ export class MailerService {
   }
 
   async sendMail(to: string, subject: string, text: string, html: string) {
+    const pass = process.env.SMTP_PASS?.trim();
+    if (!pass) {
+      console.warn(
+        `[Mailer] SMTP_PASS is not set; skipping email to ${to}. Set SMTP_USER + SMTP_PASS (e.g. Gmail app password) to enable outbound mail.`,
+      );
+      return;
+    }
+
     const mailOptions = {
       from: process.env.SMTP_USER || 'business@houznext.com',
       to,
@@ -178,13 +186,8 @@ export class MailerService {
     );
 
     const adminEmails = ['business@houznext.com'];
-    if (lead.assignedTo?.email) {
-      adminEmails.push(lead.assignedTo.email);
-    }
 
-    const uniqueEmails = Array.from(new Set(adminEmails));
-
-    for (const email of uniqueEmails) {
+    for (const email of adminEmails) {
       await this.sendMail(
         email,
         'New Lead Created',
@@ -208,13 +211,8 @@ export class MailerService {
     );
 
     const adminEmails = ['business@houznext.com'];
-    if (lead.assignedTo?.email) {
-      adminEmails.push(lead.assignedTo.email);
-    }
 
-    const uniqueEmails = Array.from(new Set(adminEmails));
-
-    for (const email of uniqueEmails) {
+    for (const email of adminEmails) {
       await this.sendMail(
         email,
         'New Lead Created',
@@ -239,13 +237,8 @@ export class MailerService {
     );
 
     const adminEmails = ['business@houznext.com'];
-    if (contact.assignedTo?.email) {
-      adminEmails.push(contact.assignedTo.email);
-    }
 
-    const uniqueEmails = Array.from(new Set(adminEmails));
-
-    for (const email of uniqueEmails) {
+    for (const email of adminEmails) {
       await this.sendMail(
         email,
         'New Contact Us Submission',

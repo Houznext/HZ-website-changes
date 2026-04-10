@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import {
+  HOUZNEXT_COMPANY_NAME,
+  HOUZNEXT_PORTFOLIO_PDF_URL,
+  HOUZNEXT_PUBLIC_EMAIL,
+  HOUZNEXT_PUBLIC_PHONE_DISPLAY,
+} from 'src/common/houznext-public-contact';
 
 @Injectable()
 export class WhatsAppMsgService {
@@ -7,8 +13,20 @@ export class WhatsAppMsgService {
   private readonly token = process.env.ULTRAMSG_TOKEN;
   private readonly baseURL = 'https://api.ultramsg.com';
 
+  /** True when UltraMsg env vars are present (API may still reject bad token). */
+  isConfigured(): boolean {
+    return Boolean(this.instanceId?.trim() && this.token?.trim());
+  }
+
   // Send regular chat/text message
   async sendMessage(to: string, message: string) {
+    if (!this.isConfigured()) {
+      console.warn(
+        'WhatsApp (UltraMsg): set ULTRAMSG_INSTANCE_ID and ULTRAMSG_TOKEN in .env to send messages.',
+      );
+      return;
+    }
+
     const url = `${this.baseURL}/${this.instanceId}/messages/chat`;
     const payload = {
       token: this.token,
@@ -30,6 +48,10 @@ export class WhatsAppMsgService {
 
   // Send a PDF document
   async sendPdf(to: string, pdfUrl: string, fileName: string) {
+    if (!this.isConfigured()) {
+      console.warn('WhatsApp sendPdf skipped: UltraMsg not configured.');
+      return;
+    }
     const url = `${this.baseURL}/${this.instanceId}/messages/document`;
     const payload = {
       token: this.token,
@@ -53,31 +75,35 @@ export class WhatsAppMsgService {
   async sendMessageWithPdf(to: string, name: string) {
     const message = `Hello ${name} 👋,
 
-Thanks for showing interest in OneCasa Interiors! 🏡✨
+Thanks for showing interest in ${HOUZNEXT_COMPANY_NAME} Interiors! 🏡✨
 
-🛠️ We're your one-stop solution for everything your dream home needs – from design to execution – now proudly serving Andhra Pradesh, Telangana, and Maharashtra.
+🛠️ We're your one-stop solution for everything your dream home needs – from design to execution.
 
-🎁 Bonus Services You Get: 🔹 Real-time updates via our online tracking system
-🎁 Free home decor items worth ₹10,000
-🧱 A 3D interior design after MoU signing
+🎁 Bonus services may include: real-time updates via our tracking system, curated offers, and design milestones after agreement — details shared when you connect with our team.
 
 📞 Contact us:
-📱 +91 86398 20425, +91 87902 90948
-📧 dreamcasarealestate@gmail.com
+📱 ${HOUZNEXT_PUBLIC_PHONE_DISPLAY}
+📧 ${HOUZNEXT_PUBLIC_EMAIL}
 
 We’d love to bring your dream home to life!
 
-– OneCasa Interiors Team 🌿
+– ${HOUZNEXT_COMPANY_NAME} Interiors Team 🌿
 
 Take a look at our latest portfolio to see how we’ve transformed homes:`;
 
-
     await this.sendMessage(to, message);
+
+    if (!HOUZNEXT_PORTFOLIO_PDF_URL) {
+      console.warn(
+        'HOUZNEXT_PORTFOLIO_PDF_URL is not set; WhatsApp text sent without portfolio PDF.',
+      );
+      return;
+    }
 
     return await this.sendPdf(
       to,
-      'https://dreamcasaimages.s3.ap-south-1.amazonaws.com/Portfoliopresenatation_compressed.pdf',
-      'DreamCasa_Interior_Portfolio.pdf',
+      HOUZNEXT_PORTFOLIO_PDF_URL,
+      'Houznext_Interior_Portfolio.pdf',
     );
   }
 }
