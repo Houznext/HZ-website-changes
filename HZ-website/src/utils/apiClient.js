@@ -82,6 +82,7 @@ const URLS = {
   payments: `${base_url}payments`,
   referandearn: `${base_url}refer-and-earn`,
   referAndEarnProperties: `${base_url}refer-and-earn/properties`,
+  interior_packages: `${base_url}interior-packages`,
   chat: `${base_url}chat`,
   chatDm: `${base_url}chat/dm`,
   chatThreads: `${base_url}chat/threads`,

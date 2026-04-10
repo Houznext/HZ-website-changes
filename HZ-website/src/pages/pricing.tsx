@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
@@ -8,6 +8,7 @@ import { useQuoteModal } from '@/components/QuoteModal'
 import { pricingFaqSchema } from '@/lib/schemas'
 
 import Reveal from '@/components/ui/Reveal'
+import apiClient from '@/utils/apiClient'
 
 type BHKType = '2bhk' | '3bhk'
 
@@ -107,7 +108,28 @@ export default function PricingPage() {
 
 function PricingGrid({ bhk }: { bhk: BHKType }) {
   const { openModal } = useQuoteModal()
-  const pkgs = PACKAGES[bhk]
+  const [apiPackages, setApiPackages] = useState<any[]>([])
+  const [apiLoaded, setApiLoaded] = useState(false)
+
+  useEffect(() => {
+    apiClient.get(apiClient.URLS.interior_packages, { activeOnly: 'true' })
+      .then((res) => {
+        const data = Array.isArray(res.body) ? res.body : []
+        setApiPackages(data)
+      })
+      .catch(() => { setApiPackages([]) })
+      .finally(() => setApiLoaded(true))
+  }, [])
+
+  const pkgs = apiLoaded && apiPackages.length > 0
+    ? apiPackages.map((p: any) => ({
+        name: p.name,
+        lo: PACKAGES[bhk].find((h) => h.name === p.name)?.lo ?? 0,
+        hi: PACKAGES[bhk].find((h) => h.name === p.name)?.hi ?? 0,
+        color: p.color,
+        popular: p.highlighted,
+      }))
+    : PACKAGES[bhk]
 
   return (
     <section className="py-16 px-4 bg-white">

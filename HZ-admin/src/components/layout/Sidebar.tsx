@@ -18,6 +18,9 @@ import {
   LogOut,
   User,
   ChevronDown,
+  LayoutTemplate,
+  Package,
+  LayoutGrid,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useSidebarBadges } from "@/src/hooks/useSidebarBadges";
@@ -41,6 +44,9 @@ const NAV_STRUCTURE: NavItem[] = [
   { href: "/invoice",            label: "Invoices",      icon: Receipt },
   { section: "Content" },
   { href: "/interiors",          label: "BuildLive",     icon: Home,            badgeKey: "buildlive" },
+  { href: "/packages",           label: "Int. Packages", icon: LayoutGrid },
+  { href: "/interiors/templates", label: "Trade templates", icon: LayoutTemplate },
+  { href: "/custom-builder/packages", label: "Builder packages", icon: Package },
   { href: "/blogs",              label: "Blog",          icon: FileText,        badgeKey: "blog"      },
   { href: "/property",           label: "Properties",    icon: Building2 },
   { href: "/projects",           label: "Projects",      icon: Layers },

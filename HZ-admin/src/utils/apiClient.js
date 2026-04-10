@@ -110,6 +110,7 @@ const URLS = {
   s3bucket: `${base_url}s3bucket`,
   property_leads: `${base_url}property-leads`,
   packages: `${base_url}packages`,
+  interior_packages: `${base_url}interior-packages`,
   towns: `${base_url}towns`,
   states: `${base_url}states`,
   referrals: `${base_url}referrals`,

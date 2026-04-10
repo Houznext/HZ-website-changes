@@ -83,6 +83,7 @@ import { BranchModule } from './branch/branch.module';
 import { BranchRoleModule } from './branchRole/branch-role.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditLogInterceptor } from './audit-log/audit-log.interceptor';
+import { InteriorPackagesModule } from './interior-packages/interior-packages.module';
 
 @Module({
   imports: [
@@ -177,6 +178,7 @@ import { AuditLogInterceptor } from './audit-log/audit-log.interceptor';
     ShiprocketModule,
     AuditLogModule,
     InteriorModule,
+    InteriorPackagesModule,
     BranchModule,
     BranchRoleModule,
   ],

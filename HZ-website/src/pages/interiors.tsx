@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
@@ -7,8 +7,54 @@ import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import InteriorCalculator from '@/components/InteriorCalculator'
 import { useQuoteModal } from '@/components/QuoteModal'
 import { interiorServiceSchema } from '@/lib/schemas'
+import apiClient from '@/utils/apiClient'
 
 import Reveal from '@/components/ui/Reveal'
+
+interface ApiPackage {
+  id?: string;
+  name: string;
+  price: string;
+  suffix: string;
+  color: string;
+  features: string[];
+  highlighted: boolean;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+const HARDCODED_PACKAGES: ApiPackage[] = [
+  {
+    name: 'Essential',
+    price: '₹4.5L',
+    suffix: 'onwards',
+    color: '#5a6a7e',
+    features: ['Modular kitchen', 'Wardrobes', 'False ceiling', 'TV unit', '1-yr warranty'],
+    highlighted: false,
+    sortOrder: 0,
+    isActive: true,
+  },
+  {
+    name: 'Premium',
+    price: '₹7.5L',
+    suffix: 'onwards',
+    color: '#2f80ed',
+    features: ['Everything in Essential', 'Wall panelling', 'Study unit', 'Crockery unit', 'BuildLive tracking'],
+    highlighted: true,
+    sortOrder: 1,
+    isActive: true,
+  },
+  {
+    name: 'Luxury',
+    price: '₹13L',
+    suffix: 'onwards',
+    color: '#f2994a',
+    features: ['Italian lacquer finishes', 'Walk-in wardrobe', 'Smart lighting', 'Full furniture package', '2-yr warranty'],
+    highlighted: false,
+    sortOrder: 2,
+    isActive: true,
+  },
+]
 
 export default function InteriorsPage() {
   return (
@@ -24,6 +70,7 @@ export default function InteriorsPage() {
       <main style={{ background: '#f5f7fa' }}>
         <InteriorsHero />
         <WhyChooseUs />
+        <PackagesSection />
         <RoomCategories />
         <ProcessTimeline />
         <ServiceBanner />
@@ -136,6 +183,108 @@ function WhyChooseUs() {
                 <span className="text-3xl mb-4 block">{c.icon}</span>
                 <h3 className="font-head font-bold text-[15px] text-charcoal mb-2">{c.title}</h3>
                 <p className="text-[13px] leading-relaxed" style={{ color: '#5a6a7e' }}>{c.desc}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function PackagesSection() {
+  const { openModal } = useQuoteModal()
+  const [packages, setPackages] = useState<ApiPackage[]>([])
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    apiClient.get(apiClient.URLS.interior_packages, { activeOnly: 'true' })
+      .then((res) => {
+        const data = Array.isArray(res.body) ? res.body : []
+        if (data.length > 0) {
+          setPackages(data as ApiPackage[])
+        } else {
+          setPackages(HARDCODED_PACKAGES)
+        }
+      })
+      .catch(() => {
+        setPackages(HARDCODED_PACKAGES)
+      })
+      .finally(() => setLoaded(true))
+  }, [])
+
+  const display = loaded ? packages : HARDCODED_PACKAGES
+
+  return (
+    <section className="py-16 px-4" style={{ background: '#f5f7fa' }}>
+      <div className="max-w-7xl mx-auto">
+        <Reveal variant="fade" className="text-center mb-12">
+          <EyebrowLabel className="justify-center mb-3">Packages</EyebrowLabel>
+          <h2 className="font-head font-bold text-[28px] md:text-[36px] text-charcoal">
+            Pick the right package
+          </h2>
+          <p className="text-muted mt-2 text-sm">
+            All packages are fixed-price with no hidden costs
+          </p>
+        </Reveal>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          {display.map((pkg, i) => (
+            <Reveal key={pkg.id || pkg.name} delay={i * 120} variant="zoom">
+              <div
+                className="relative rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
+                style={{
+                  border: pkg.highlighted ? `2px solid ${pkg.color}` : '1px solid #dde8f5',
+                  background: '#fff',
+                  boxShadow: pkg.highlighted ? '0 8px 40px rgba(47,128,237,0.15)' : undefined,
+                  transform: pkg.highlighted ? 'scale(1.03)' : 'scale(1)',
+                }}
+              >
+                {pkg.highlighted && (
+                  <div className="absolute top-3 right-3">
+                    <span
+                      className="text-[10px] font-head font-bold px-2 py-0.5 rounded-full text-white"
+                      style={{ background: '#f2994a' }}
+                    >
+                      Most Popular
+                    </span>
+                  </div>
+                )}
+                <div className="p-6 pb-4" style={{ borderBottom: '1px solid #f5f7fa' }}>
+                  <p className="font-head font-bold text-[13px] uppercase tracking-wider mb-2" style={{ color: pkg.color }}>
+                    {pkg.name}
+                  </p>
+                  <p className="font-head font-black text-[32px]" style={{ color: '#1f2933' }}>
+                    {pkg.price}
+                  </p>
+                  <p className="text-[12px]" style={{ color: '#5a6a7e' }}>
+                    {pkg.suffix} for 2BHK
+                  </p>
+                </div>
+                <div className="p-6">
+                  <ul className="space-y-2.5 mb-5">
+                    {pkg.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2 text-[13px]" style={{ color: '#1f2933' }}>
+                        <svg className="mt-0.5 flex-shrink-0" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                          <circle cx="7" cy="7" r="7" fill={`${pkg.color}20`} />
+                          <path d="M4 7l2 2 4-4" stroke={pkg.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={openModal}
+                    className="w-full py-2.5 rounded-xl text-[13px] font-head font-bold
+                               transition-all hover:-translate-y-px"
+                    style={
+                      pkg.highlighted
+                        ? { background: '#2f80ed', color: '#fff' }
+                        : { background: '#f5f7fa', color: '#2f80ed', border: '1px solid #dde8f5' }
+                    }
+                  >
+                    Get {pkg.name} quote →
+                  </button>
+                </div>
               </div>
             </Reveal>
           ))}

@@ -33,10 +33,14 @@ export default function Navbar() {
           {/* Logo */}
           <a
             href="/"
-            className="flex-shrink-0 font-head font-extrabold text-[22px] leading-none text-left cursor-pointer no-underline"
+            className="flex-shrink-0 cursor-pointer no-underline flex items-center"
+            aria-label="Houznext home"
           >
-            <span className="text-white">Houz</span>
-            <span style={{ color: '#f2994a' }}>next</span>
+            <img
+              src="/images/Houznext Logo.png"
+              alt="Houznext"
+              style={{ height: '32px', width: 'auto', objectFit: 'contain' }}
+            />
           </a>
 
           {/* Desktop nav links */}
