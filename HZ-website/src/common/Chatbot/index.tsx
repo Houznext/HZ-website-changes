@@ -12,9 +12,9 @@ import toast from "react-hot-toast";
 import apiClient from "@/utils/apiClient";
 import Link from "next/link";
 
-const STORAGE_KEY_SESSION = "onecasa_chat_session_id_v1";
-const STORAGE_KEY_ACTIVE = "onecasa_chat_active_id_v1";
-const STORAGE_KEY_MESSAGES = "onecasa_chat_messages_v2";
+const STORAGE_KEY_SESSION = "houznext_chat_session_id_v1";
+const STORAGE_KEY_ACTIVE = "houznext_chat_active_id_v1";
+const STORAGE_KEY_MESSAGES = "houznext_chat_messages_v2";
 
 function generateClientConversationId() {
   return `conv_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
@@ -57,7 +57,7 @@ const SUGGESTIONS = [
   "What is interiors Service? Tell me in short",
   "Give Vastu tips for a 2BHK flat",
   "Properties for rent in Bangalore",
-  "What services does Onecasa provide?",
+  "What services does Houznext provide?",
   "Painting cost estimate for 3BHK",
   "What’s the difference between carpet, built-up & super area?",
 ];
@@ -95,7 +95,7 @@ const Chatbot = () => {
     reload,
     append,
   } = useChat({
-    id: `onecasa-chat-${conversationId || "new"}`,
+    id: `houznext-chat-${conversationId || "new"}`,
     api: "/api/chat",
     initialInput: "",
     keepLastMessageOnError: true,
@@ -483,7 +483,7 @@ const Chatbot = () => {
       <div className="bg-gradient-to-r from-[#3586FF] to-blue-700 p-4 rounded-t-xl flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-[#212227] backdrop-blur-sm rounded-full flex items-center justify-center">
-            <Image src="/images/logobw.png" alt="logo" width={24} height={24} />
+            <Image src="/images/logobw.png" alt="Houznext logo" width={24} height={24} />
           </div>
           <div className="text-white">
             <p className="font-medium label-text text-white">Hi, how can I help you today?</p>
@@ -616,7 +616,7 @@ const Chatbot = () => {
                         <FiUser className="w-4 h-4 text-[#3586FF]" />
                       ) : (
                         <div className="w-[30px] h-[30px] bg-[#212227] backdrop-blur-sm rounded-full flex items-center justify-center">
-                          <Image src="/images/logobw.png" alt="logo" width={24} height={24} />
+                          <Image src="/images/logobw.png" alt="Houznext logo" width={24} height={24} />
                         </div>
                       )}
                     </div>

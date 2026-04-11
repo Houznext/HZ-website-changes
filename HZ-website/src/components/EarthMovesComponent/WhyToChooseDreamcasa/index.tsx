@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-export interface IWhyToChooseDreamcasaprops {
+export interface IWhyToChooseHouznextprops {
   heading: string;
   icon: string;
   listItems: Array<{
@@ -11,11 +11,11 @@ export interface IWhyToChooseDreamcasaprops {
   }>;
 }
 
-export default function WhyToChooseDreamcasa({
+export default function WhyToChooseHouznext({
   heading,
   icon,
   listItems,
-}: IWhyToChooseDreamcasaprops) {
+}: IWhyToChooseHouznextprops) {
   return (
     <>
       <div className="max-w-[1440px] min-h-[421px] flex flex-col items-center mx-auto gap-y-[48px]">

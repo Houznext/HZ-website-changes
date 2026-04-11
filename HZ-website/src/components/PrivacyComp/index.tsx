@@ -994,7 +994,7 @@ const PrivacyComp = () => {
                                     </Link>
 
                                     <Link
-                                        href="tel:+918639820425"
+                                        href="tel:+919759750770"
                                         className="group bg-gradient-to-br from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-xl p-6 border-2 border-green-100 hover:border-green-400 transition-all duration-300 hover:shadow-md"
                                     >
                                         <div className="flex flex-col items-center text-center">
@@ -1003,7 +1003,7 @@ const PrivacyComp = () => {
                                             </div>
                                             <h4 className="font-bold text-slate-800 mb-2">Call Us</h4>
                                             <p className="text-sm text-green-700 font-bold">
-                                                +91 86398 20425
+                                                +91 97597 50770
                                             </p>
                                         </div>
                                     </Link>

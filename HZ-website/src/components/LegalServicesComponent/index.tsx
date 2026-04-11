@@ -2,8 +2,8 @@ import React from "react";
 import LegalServicesHeroSection, {
   ILegalServicesHerosectionProps,
 } from "./LegalServicesHeroSection";
-import WhyChooseDreamcasa, {
-  IWhyChooseDreamcasaprops,
+import WhyChooseHouznextLegal, {
+  IWhyChooseHouznextLegalprops,
 } from "./WhyChooseDreamcasa";
 import HowItWorks, { IHowitWorksprops } from "./HowItWorks";
 import WorkWithExpertLawyers, {
@@ -247,8 +247,8 @@ export default function LegalServicesComponent() {
     },
   };
 
-  const WhyChooseDreamcasData: IWhyChooseDreamcasaprops = {
-    heading: "Why Choose Dreamcasa Legal Services?",
+  const WhyChooseHouznextData: IWhyChooseHouznextLegalprops = {
+    heading: "Why Choose Houznext Legal Services?",
     listItems: [
       {
         id: 1,
@@ -396,7 +396,7 @@ export default function LegalServicesComponent() {
     words: [
       {
         name: "Rajesh Kumar",
-        desc: "Dreamcasa's legal team handled my property verification smoothly. The lawyer was very knowledgeable and explained everything clearly. Worth every rupee!",
+        desc: "Houznext's legal team handled my property verification smoothly. The lawyer was very knowledgeable and explained everything clearly. Worth every rupee!",
         rating: 5,
       },
       {
@@ -493,7 +493,7 @@ export default function LegalServicesComponent() {
         <LegalServicesHeroSection {...LegalServicesHeroSectionData} />
       </div>
       <div className="mb-[45px] md:mb-[64px] md:mt-[0px] mt-[600px]">
-        <WhyChooseDreamcasa {...WhyChooseDreamcasData} />
+        <WhyChooseHouznextLegal {...WhyChooseHouznextData} />
       </div>
       <div className="mb-[45px] md:mb-[64px]">
         <ConsultLegalExpert {...ConsultLegalExpertData} />

@@ -1,8 +1,8 @@
 import React from "react";
 import { useRef } from "react";
 import HeroSection, { IHerosectionprops } from "../SolarPage/HeroSection";
-import WhyToChooseDreamcasa, {
-  IWhyToChooseDreamcasaprops,
+import WhyToChooseHouznext, {
+  IWhyToChooseHouznextprops,
 } from "./WhyToChooseDreamcasa";
 import WhyChooseUs, { IWhyChooseUSprops } from "./WhyChooseUs";
 
@@ -124,8 +124,8 @@ export default function EarthMovesComponent() {
       },
     ],
   };
-  const WhyToChooseDreamcasaData: IWhyToChooseDreamcasaprops = {
-    heading: "Why to choose Dreamcasa?",
+  const WhyToChooseHouznextData: IWhyToChooseHouznextprops = {
+    heading: "Why choose Houznext?",
     icon: "/images/earthmoves/whytochoosedreamcasa/arrowline.png",
     listItems: [
       {
@@ -294,7 +294,7 @@ export default function EarthMovesComponent() {
         <PackagesAndServices {...PackagesAndServicesData} />
       </div>
       <div className="mb-[45px] md:mb-[64px]">
-        <WhyToChooseDreamcasa {...WhyToChooseDreamcasaData} />
+        <WhyToChooseHouznext {...WhyToChooseHouznextData} />
       </div>
       <div className="md:px-8 px-3 mb-[45px] max-w-[98%] mx-auto md:mb-[64px] flex flex-col items-center gap-4">
 

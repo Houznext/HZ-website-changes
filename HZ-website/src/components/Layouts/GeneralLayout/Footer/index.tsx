@@ -2,12 +2,12 @@ import Link from "next/link";
 import Image from "next/image";
 const GeneralFooter = () => {
   const contactDetails = [
-    "Phone :9759750770,  8639820425",
+    "Phone: +91 97597 50770",
     "Monday to Sunday ( 9:00 AM - 9:00 PM IST )",
-    "Email : support@houznext.com",
+    "Email : business@houznext.com",
   ];
 
-  const CompanyDreamCasaLinks = [
+  const CompanyHouznextLinks = [
     {
       heading: "PROPERTY SERVICES", // ← CHANGED
       links: [
@@ -177,7 +177,7 @@ const GeneralFooter = () => {
           </div>
         </div>
       </div>
-      {CompanyDreamCasaLinks.map((section, index: number) => {
+      {CompanyHouznextLinks.map((section, index: number) => {
         return (
           <div
             key={`index-links-${section?.heading}-${index}`}

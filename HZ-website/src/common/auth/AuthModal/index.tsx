@@ -335,7 +335,7 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
             <div className="relative w-9 h-9">
               <Image
                 src="/images/logobb.png"
-                alt="OneCasa logo"
+                alt="Houznext logo"
                 fill
                 className="object-contain"
               />
@@ -343,7 +343,7 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
             <div className="leading-tight">
               <h2 className="text-[18px] md:text-[20px]  font-bold text-gray-900">
                 Welcome to{" "}
-                <span className="text-[#3586FF] font-bold">OneCasa</span>
+                <span className="text-[#3586FF] font-bold">Houznext</span>
               </h2>
               <p className="text-[10px] md:text-[12px] font-regular text-gray-500 tracking-wide">
                 One Roof Every Solution
@@ -647,7 +647,7 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
                 </svg>
               </div>
               <h3 className="text-2xl uppercase font-bold text-gray-900 mb-1">
-                Welcome to OneCasa!
+                Welcome to Houznext!
               </h3>
               <p className="text-gray-600">
                 Your account is ready. Redirecting…

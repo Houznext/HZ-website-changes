@@ -3,7 +3,7 @@ export function getBaseUrl(fallback?: string): string {
   if (typeof process !== "undefined" && process.env?.NEXTAUTH_URL) {
     return process.env.NEXTAUTH_URL.replace(/\/$/, "");
   }
-  return fallback ?? "https://www.onecasa.in";
+  return fallback ?? "https://www.houznext.com";
 }
 
 export interface PropertySearchParams {
@@ -49,7 +49,7 @@ export const buildPropertyLink = (
   const query = search.toString();
   const base =
     baseUrl ??
-    (typeof window !== "undefined" ? window.location.origin : "https://www.onecasa.in");
+    (typeof window !== "undefined" ? window.location.origin : "https://www.houznext.com");
   return `${base}/properties/${category}/${city}${query ? `?${query}` : ""}`;
 };
 

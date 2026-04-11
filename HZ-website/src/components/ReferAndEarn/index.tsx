@@ -28,7 +28,7 @@ const AdCard = () => {
       />
       <div className="absolute md:top-[50%] top-[75%] left-[50%] md:translate-x-[-110%] translate-x-[-90%] translate-y-[-110%]">
         <h1 className="md:text-[36px] text-[24px] leading-11 font-semibold text-[#FFFFFF]">
-          Dream Casa Apartments
+          Houznext Apartments
         </h1>
         <h2 className="md:text-[24px] text-[20px] leading-6 font-semibold text-[#FFFFFF]">
           Experience the Luxury of living.

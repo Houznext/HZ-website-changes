@@ -106,7 +106,7 @@ const Custom404 = () => {
                                 </div>
 
                                 <div className="pt-8 border-t border-white/15 text-xs text-white/60 font-regular">
-                                    © {new Date().getFullYear()} ONE CASA • One Roof Every Solution
+                                    © {new Date().getFullYear()} Houznext • One Roof Every Solution
                                 </div>
                             </div>
                         </div>

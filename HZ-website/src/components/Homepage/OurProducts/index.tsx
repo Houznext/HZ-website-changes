@@ -4,7 +4,7 @@ const OurProducts = () => {
   return (
     <div>
       <p className="my-[20px] md:my-[50px] text-center font-medium uppercase text-[28px] leading-[44.17px] text-[#000000]">
-        Discover Our Two Premium Services at DreamCasa
+        Discover Our Two Premium Services at Houznext
       </p>
       <div className="shadow-md mb-8 border-t md:px-[85px] py-[10px] md:py-[40px] grid grid-cols-1 md:grid-cols-2 gap-[35px] md:gap-[70px]">
         <div className="flex flex-col items-center">
@@ -26,7 +26,7 @@ const OurProducts = () => {
             Custom Builder
           </p>
           <p className="text-center text-[#7B7C83] text-base leading-[28px]">
-            At DreamCasa, our Custom Builder service empowers you to create a
+            At Houznext, our Custom Builder service empowers you to create a
             home that truly reflects your unique style and preferences. With an
             array of customizable options, we make it easy for you to design the
             perfect living space. From selecting materials to choosing the
@@ -53,7 +53,7 @@ const OurProducts = () => {
             Invest In Land
           </p>
           <p className="text-center text-[#7B7C83] text-base leading-[28px]">
-            Secure your future with DreamCasa's land investment opportunities.
+            Secure your future with Houznext's land investment opportunities.
             Whether you're looking to build your dream home or expand your
             portfolio, our carefully selected plots offer both value and
             potential. Our team provides expert guidance to help you make

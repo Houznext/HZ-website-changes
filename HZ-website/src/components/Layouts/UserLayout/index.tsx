@@ -200,7 +200,7 @@ function UserLayout({
           <span className="relative block w-[40px] h-[40px] md:min-h-[40px] min-h-[30px]">
             <Image
               src={logo_place_holder.imageUrl}
-              alt="dreamcasa-logo"
+              alt="houznext-logo"
               fill
               className="absolute object-cover"
             />
@@ -419,7 +419,7 @@ function UserLayout({
                               <span className="text-[#3586FF] font-semibold text-xs uppercase">
                                 {user?.firstName?.[0] && user?.lastName?.[0]
                                   ? `${user.firstName[0]}${user.lastName[0]}`
-                                  : "DC"}
+                                  : "HN"}
                               </span>
                               {!notification.isRead && (
                                 <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#3586FF] border-2 border-white" />

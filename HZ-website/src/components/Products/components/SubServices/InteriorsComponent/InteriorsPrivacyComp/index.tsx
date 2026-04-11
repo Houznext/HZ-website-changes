@@ -29,7 +29,7 @@ export default function InteriorsPrivacyPolicy() {
               <strong>Designation:</strong>Grievance Officer
             </h1>
             <h1>
-              <strong>Email:</strong>dreamcasarealestate@gmail.com
+              <strong>Email:</strong>business@houznext.com
             </h1>
           </div>
           <div>
@@ -253,7 +253,7 @@ export default function InteriorsPrivacyPolicy() {
         <section className="mb-8">
          <h2 className="md:text-2xl text-[16px] font-medium mb-4">12. OPT-OUT</h2>
          <p className='md:text-[16px] text-[14px] font-regular'>
-            To opt out of marketing calls, email dreamcasarealestate@gmail.com
+            To opt out of marketing communications, email business@houznext.com
             from your registered email with your contact number. Your number
             will be removed from our lists within 15 working days.
           </p>
@@ -275,10 +275,10 @@ export default function InteriorsPrivacyPolicy() {
             our data practices, please contact us at:
           </p>
           <h1 className='md:text-[16px] text-[14px] font-regular'>
-            <strong>Phone:</strong>+91 84389 50245
+            <strong>Phone:</strong>+91 97597 50770
           </h1>
           <h1 className='md:text-[16px] text-[14px] font-regular'>
-            <strong>Email:</strong>dreamcasarealestate@gmail.com
+            <strong>Email:</strong>business@houznext.com
           </h1>
         </section>
       </div>

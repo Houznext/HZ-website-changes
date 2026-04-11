@@ -105,13 +105,13 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
                                 />
                                 <Image
                                     src="/images/logo.png"
-                                    alt="DreamCasa Logo"
+                                    alt="Houznext Logo"
                                     width={30}
                                     height={30}
                                     className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-60 mix-blend-multiply"
                                 />
                                 <p className="text-[10px] text-white opacity-40 font-medium  absolute top-[84%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                                    DREAMCASA
+                                    HOUZNEXT
                                 </p>
                             </div>
                         </button>

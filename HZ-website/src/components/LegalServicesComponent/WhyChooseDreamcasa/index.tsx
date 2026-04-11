@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 
-export interface IWhyChooseDreamcasaprops {
+export interface IWhyChooseHouznextLegalprops {
   heading: string;
   listItems: Array<{
     id: number;
@@ -11,10 +11,10 @@ export interface IWhyChooseDreamcasaprops {
   }>;
 }
 
-export default function WhyChooseDreamcasa({
+export default function WhyChooseHouznextLegal({
   heading,
   listItems,
-}: IWhyChooseDreamcasaprops) {
+}: IWhyChooseHouznextLegalprops) {
   return (
     <section className="max-w-[1440px] mx-auto px-4 md:px-6">
       <div className="flex flex-col items-center gap-8 md:gap-10">

@@ -24,15 +24,15 @@ const ForgotPasswordView = () => {
             <div className="relative w-[82px] h-[82px]">
               <Image
                 src="/images/logobb.png"
-                alt="logo"
+                alt="Houznext logo"
                 className="absolute"
                 layout="fill"
               />
             </div>
             <div className="flex flex-col relative">
               <p className="font-bold text-[32px] text-[#3586FF]">
-                ONE
-                <span className="text-white">CASA</span>
+                Houz
+                <span className="text-white">next</span>
               </p>
               <p className="text-[12px]  mt-[-10px] text-center text-white">
                 One Roof Every Solution
@@ -43,7 +43,7 @@ const ForgotPasswordView = () => {
             Excellent Property are Sales Now
           </p>
           <p className="text-center">
-            Dream Casa includes listings for various types of properties such as
+            Houznext includes listings for various types of properties such as
             apartments, houses, villas, offices, and retail spaces.
           </p>
         </div>
@@ -59,7 +59,7 @@ const ForgotPasswordView = () => {
             </h2>
             <div className="flex flex-row gap-1 items-center ">
               <p className="text-[#3586FF] text-[13px] font-regular leading-5">
-                (houznext@gmail.com)
+                (business@houznext.com)
               </p>
               <EditIcon />
             </div>

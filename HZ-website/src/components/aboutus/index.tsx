@@ -69,14 +69,14 @@ const values = [
 
 const team = [
   {
-    name: "SACHIN CHAVAN",
-    role: "FOUNDER — Houznext Pvt Limited",
+    name: "HOUZNEXT TEAM",
+    role: "FOUNDER — Houznext Group Pvt Ltd",
     img: "/images/team/founder.jpg",
     bio: `As the Founder & CEO of Houznext, I bring over four years of entrepreneurial and hands-on real estate experience. My journey began with a simple vision—to simplify property ownership and make real estate more transparent, accessible, and rewarding for every individual. Over the years, I have worked closely with property buyers, sellers, and developers, gaining deep insights into the challenges faced in the industry. At Houznext, my focus is on leveraging technology, data, and innovation to bridge these gaps, offering clients a seamless platform for buying, selling, and managing properties. Beyond transactions, I am committed to creating a trustworthy ecosystem where clients feel empowered and confident in their investment decisions.`,
   },
   {
-    name: "RAMANA REDDY",
-    role: "PROMOTER — Houznext Pvt Limited",
+    name: "HOUZNEXT TEAM",
+    role: "PROMOTER — Houznext Group Pvt Ltd",
     img: "/images/team/promoter.png",
     bio: `As a Promoter & Strategic Investor at Houznext, I bring both financial backing and a strong belief in the company’s mission to transform the real estate landscape. My role goes beyond investment—I actively contribute to shaping strategies that ensure long-term growth, innovation, and sustainability. With a focus on creating value for both clients and stakeholders, I support initiatives that make property investment simpler, smarter, and more efficient. I believe in driving a customer-first approach, ensuring that Houznext not only scales as a business but also builds lasting trust within the community. By aligning vision with execution, I aim to help Houznext become a leader in providing transparent, future-ready real estate solutions.`,
   },
@@ -160,9 +160,7 @@ export default function AboutHouznext() {
               animate="show"
               className="text-3xl md:text-4xl font-bold text-white "
             >
-              About One<span className="text-[#3586FF]">
-                Casa
-              </span>
+              About <span className="text-[#3586FF]">Houznext</span>
             </motion.h1>
             <motion.div variants={fadeIn} initial="hidden" animate="show" className="mt-2">
               {crumb}
@@ -247,7 +245,7 @@ export default function AboutHouznext() {
 
         <div className="grid md:grid-cols-2 gap-6">
           {team.map((m) => (
-            <article key={m.name} className={`${H.card} p-6 md:p-7 flex gap-6 items-start`}>
+            <article key={m.img} className={`${H.card} p-6 md:p-7 flex gap-6 items-start`}>
               <div className="relative h-[120px] w-[120px] rounded-full overflow-hidden shrink-0">
                 <Image src={m.img} alt={m.name} fill className="object-cover" />
               </div>
