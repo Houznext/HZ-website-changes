@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
@@ -8,9 +8,20 @@ import { useQuoteModal } from '@/components/QuoteModal'
 import { pricingFaqSchema } from '@/lib/schemas'
 
 import Reveal from '@/components/ui/Reveal'
-import apiClient from '@/utils/apiClient'
 
 type BHKType = '2bhk' | '3bhk'
+
+type CmsInteriorPackage = {
+  name: string
+  price: string
+  suffix?: string
+  color?: string
+  features?: string[]
+  highlighted?: boolean
+  sortOrder?: number
+  isActive?: boolean
+  bhkType?: string | null
+}
 
 const PACKAGES = {
   '2bhk': [
@@ -26,7 +37,7 @@ const PACKAGES = {
 }
 
 const FEATURES: Record<string, string[]> = {
-  Essential: ['Modular kitchen (acrylic)', 'Wardrobes all bedrooms', 'False ceiling (2 rooms)', 'TV unit & shoe rack', 'BuildLive tracking', '1-year warranty'],
+  Essential: ['Modular kitchen (acrylic)', 'Wardrobes all bedrooms', 'False ceiling (2 rooms)', 'TV unit & shoe rack', 'LiveBuild tracking', '1-year warranty'],
   Premium:   ['Modular kitchen (lacquered)', 'Wardrobes + lofts + drawers', 'False ceiling all rooms', 'TV unit + study + crockery', 'Wall panelling', '1-year warranty'],
   Luxury:    ['Italian lacquer / veneer kitchen', 'Walk-in wardrobe with lighting', 'POP false ceiling cove lights', 'Full furniture package', 'Imported fittings', '2-year warranty'],
 }
@@ -38,11 +49,66 @@ const COMPARISON_ROWS = [
   { feature: 'Study / crockery unit', essential: '—',         premium: 'Yes',                 luxury: 'Yes' },
   { feature: 'Wall panelling',        essential: '—',         premium: '1 wall',              luxury: 'Multiple rooms' },
   { feature: 'Warranty',              essential: '1 year',    premium: '1 year',              luxury: '2 years' },
-  { feature: 'BuildLive tracking',    essential: 'Yes',       premium: 'Yes',                 luxury: 'Yes' },
+  { feature: 'LiveBuild tracking',    essential: 'Yes',       premium: 'Yes',                 luxury: 'Yes' },
   { feature: 'Delivery guarantee',    essential: '45 days',   premium: '45 days',             luxury: '50 days' },
 ]
 
-export default function PricingPage() {
+function parseLakhRange(price: string, loFallback: number, hiFallback: number) {
+  const cleaned = price.replace(/[₹,\s]/gi, '')
+  const range = cleaned.match(/([\d.]+)\s*[-–]\s*([\d.]+)\s*l/i)
+  if (range) {
+    const lo = parseFloat(range[1])
+    const hi = parseFloat(range[2])
+    if (Number.isFinite(lo) && Number.isFinite(hi)) return { lo, hi }
+  }
+  const single = cleaned.match(/([\d.]+)\s*l/i)
+  if (single) {
+    const v = parseFloat(single[1])
+    if (Number.isFinite(v)) return { lo: v, hi: v }
+  }
+  return { lo: loFallback, hi: hiFallback }
+}
+
+function mergePricingForBhk(
+  bhk: BHKType,
+  cms: CmsInteriorPackage[] | null,
+  basePackages: typeof PACKAGES,
+  baseFeatures: typeof FEATURES,
+) {
+  const features = { ...baseFeatures }
+  const rows = (cms || []).filter((r) => r.isActive !== false)
+  const byName = new Map(rows.map((r) => [r.name.trim(), r]))
+
+  const pkgs = basePackages[bhk].map((pkg) => {
+    const row = byName.get(pkg.name)
+    if (!row) return pkg
+    if (row.bhkType && row.bhkType !== bhk) return pkg
+    const { lo, hi } = parseLakhRange(row.price, pkg.lo, pkg.hi)
+    return {
+      ...pkg,
+      lo,
+      hi,
+      color: row.color || pkg.color,
+      popular: typeof row.highlighted === 'boolean' ? row.highlighted : pkg.popular,
+    }
+  })
+
+  rows.forEach((row) => {
+    if (!row.name) return
+    if (row.bhkType && row.bhkType !== bhk) return
+    if (row.features && row.features.length > 0) {
+      features[row.name] = row.features
+    }
+  })
+
+  return { pkgs, features }
+}
+
+type PricingPageProps = {
+  cmsPackages: CmsInteriorPackage[] | null
+}
+
+export default function PricingPage({ cmsPackages }: PricingPageProps) {
   const [bhk, setBhk] = useState<BHKType>('2bhk')
 
   return (
@@ -97,7 +163,7 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <PricingGrid bhk={bhk} />
+        <PricingGrid bhk={bhk} cmsPackages={cmsPackages} />
         <ComparisonTable />
         <WaBar />
       </main>
@@ -106,30 +172,15 @@ export default function PricingPage() {
   )
 }
 
-function PricingGrid({ bhk }: { bhk: BHKType }) {
+function PricingGrid({
+  bhk,
+  cmsPackages,
+}: {
+  bhk: BHKType
+  cmsPackages: CmsInteriorPackage[] | null
+}) {
   const { openModal } = useQuoteModal()
-  const [apiPackages, setApiPackages] = useState<any[]>([])
-  const [apiLoaded, setApiLoaded] = useState(false)
-
-  useEffect(() => {
-    apiClient.get(apiClient.URLS.interior_packages, { activeOnly: 'true' })
-      .then((res) => {
-        const data = Array.isArray(res.body) ? res.body : []
-        setApiPackages(data)
-      })
-      .catch(() => { setApiPackages([]) })
-      .finally(() => setApiLoaded(true))
-  }, [])
-
-  const pkgs = apiLoaded && apiPackages.length > 0
-    ? apiPackages.map((p: any) => ({
-        name: p.name,
-        lo: PACKAGES[bhk].find((h) => h.name === p.name)?.lo ?? 0,
-        hi: PACKAGES[bhk].find((h) => h.name === p.name)?.hi ?? 0,
-        color: p.color,
-        popular: p.highlighted,
-      }))
-    : PACKAGES[bhk]
+  const { pkgs, features } = mergePricingForBhk(bhk, cmsPackages, PACKAGES, FEATURES)
 
   return (
     <section className="py-16 px-4 bg-white">
@@ -170,7 +221,7 @@ function PricingGrid({ bhk }: { bhk: BHKType }) {
                 </div>
                 <div className="p-6">
                   <ul className="space-y-2.5 mb-5">
-                    {FEATURES[pkg.name].map((f) => (
+                    {(features[pkg.name] ?? FEATURES[pkg.name]).map((f) => (
                       <li key={f} className="flex items-start gap-2 text-[13px]" style={{ color: '#1f2933' }}>
                         <svg className="mt-0.5 flex-shrink-0" width="14" height="14" viewBox="0 0 14 14" fill="none">
                           <circle cx="7" cy="7" r="7" fill={`${pkg.color}20`} />
@@ -268,4 +319,25 @@ function WaBar() {
       </Reveal>
     </section>
   )
+}
+
+export async function getStaticProps() {
+  const raw =
+    process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT
+  let cmsPackages: CmsInteriorPackage[] | null = null
+  if (raw) {
+    const base = String(raw).replace(/\/$/, '')
+    try {
+      const res = await fetch(`${base}/interior-packages?activeOnly=true`)
+      if (res.ok) {
+        cmsPackages = await res.json()
+      }
+    } catch {
+      cmsPackages = null
+    }
+  }
+  return {
+    props: { cmsPackages },
+    revalidate: 30,
+  }
 }

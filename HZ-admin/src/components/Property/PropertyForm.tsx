@@ -1869,17 +1869,17 @@ const setReferAndEarnData = usePostPropertyStore((s) => s.setReferAndEarnData);
           <UploadImage />
         </div>
       </section>
-      {/* Refer & Earn Section */}
+      {/* Houznext Rewards section */}
       {isEdit && (
         <section className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
           <div className="bg-gradient-to-r from-[#3586FF]/5 to-transparent px-5 py-4 border-b border-gray-100">
             <h2 className="sub-heading text-[#3586FF] font-semibold">
-              Refer & Earn Settings
+              Houznext Rewards settings
             </h2>
           </div>
           <div className="p-4 md:p-6">
             <SelectBtnGrp
-              label="Enable Refer & Earn"
+              label="Enable Houznext Rewards"
               options={["Yes", "No"]}
               btnClass="btn-text rounded-lg px-5 py-2 shadow-sm border-gray-200 hover:border-[#3586FF] transition-all"
               labelCls="label-text text-gray-700"
@@ -1914,7 +1914,7 @@ const setReferAndEarnData = usePostPropertyStore((s) => s.setReferAndEarnData);
         <Modal
           isOpen={OpenReferModal}
           closeModal={onClose}
-          title="Refer & Earn Agreement"
+          title="Houznext Rewards agreement"
           isCloseRequired={false}
           titleCls="font-medium uppercase md:text-[18px] text-[12px] text-center text-[#5297FF]"
           className="md:max-w-[800px] max-w-[300px] "

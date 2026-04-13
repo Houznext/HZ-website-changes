@@ -43,7 +43,7 @@ export default function HomePage() {
     <>
       <SeoHead
         title="Home Interiors in Hyderabad | Houznext"
-        description="Fixed-price interior design for 2BHK, 3BHK and villas across Telangana. 45-day delivery, BuildLive live tracking, 1-year warranty. Packages from ₹4.5L. 500+ homes delivered."
+        description="Fixed-price interior design for 2BHK, 3BHK and villas across Telangana. 45-day delivery, LiveBuild live tracking, 1-year warranty. Packages from ₹4.5L. 500+ homes delivered."
         canonical="/"
         schema={[localBusinessSchema, pricingFaqSchema]}
         ogImage="https://houznext.com/og-home.jpg"
@@ -1087,7 +1087,7 @@ function Hero() {
                     el.style.transform = 'translateY(0)'
                   }}
                 >
-                  See BuildLive
+                  See LiveBuild
                 </button>
               </div>
 
@@ -1409,7 +1409,7 @@ function Hero() {
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full animate-pulse-dot flex-shrink-0" style={{ background: '#f2994a' }} />
                       <span className="text-[10px] font-extrabold uppercase tracking-[0.1em]" style={{ color: '#f2994a' }}>
-                        BuildLive
+                        LiveBuild
                       </span>
                     </div>
                     <span
@@ -1674,7 +1674,7 @@ const STEPS: StepDef[] = [
   { step: '01', title: 'Free Consultation', desc: 'Call or WhatsApp us. We discuss your vision, space, and budget.', Icon: IconPhone, color: '#2f80ed' },
   { step: '02', title: '3D Design',          desc: 'Our designers create a photorealistic 3D design for every room.', Icon: IconLayers, color: '#2f80ed' },
   { step: '03', title: 'Approval',            desc: 'Review and approve designs online. Revisions are free.',          Icon: IconCheckCircle, color: '#2f80ed' },
-  { step: '04', title: 'Execution',           desc: 'Our team begins work. BuildLive gives you daily updates.',         Icon: IconTool, color: '#2f80ed' },
+  { step: '04', title: 'Execution',           desc: 'Our team begins work. LiveBuild gives you daily updates.',         Icon: IconTool, color: '#2f80ed' },
 ]
 
 function HowItWorks() {
@@ -1755,7 +1755,7 @@ const PACKAGES = [
     price: '₹7.5L',
     suffix: 'onwards',
     color: '#2f80ed',
-    features: ['Everything in Essential', 'Wall panelling', 'Study unit', 'Crockery unit', 'BuildLive tracking'],
+    features: ['Everything in Essential', 'Wall panelling', 'Study unit', 'Crockery unit', 'LiveBuild tracking'],
     highlighted: true,
   },
   {
@@ -1835,7 +1835,7 @@ function PackagesSection() {
   )
 }
 
-// ─── BuildLive Preview ────────────────────────────────────────────────────────
+// ─── LiveBuild Preview ────────────────────────────────────────────────────────
 
 const BUILDLIVE_FEATURES = [
   { Icon: IconCamera,       label: 'Daily photo updates by room' },
@@ -1857,7 +1857,7 @@ function BuildLivePreview() {
               Know exactly what&apos;s happening at your site — every day
             </h2>
             <p className="text-[15px] leading-relaxed mb-6" style={{ color: 'rgba(255,255,255,0.65)' }}>
-              BuildLive is Houznext&apos;s proprietary project tracking system. See room-by-room
+              LiveBuild is Houznext&apos;s proprietary project tracking system. See room-by-room
               progress, approve 3D designs, track milestone payments, and raise snags
               — all from your phone.
             </p>
@@ -1881,7 +1881,7 @@ function BuildLivePreview() {
               onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#1a6dd6' }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#2f80ed' }}
             >
-              Explore BuildLive →
+              Explore LiveBuild →
             </button>
           </div>
           </Reveal>
@@ -1993,7 +1993,7 @@ const WHY: WhyDef[] = [
   { Icon: IconLayers,     color: '#2f80ed', title: '3D design first',       desc: 'See your room before a single nail is hammered. Revisions are always free.' },
   { Icon: IconLock,       color: '#2f80ed', title: 'Fixed pricing',          desc: 'Quote = Invoice. No surprises, no escalations, ever.' },
   { Icon: IconZap,        color: '#f2994a', title: '45-day delivery',        desc: 'We commit to delivery dates and stick to them — guaranteed.' },
-  { Icon: IconSmartphone, color: '#2f80ed', title: 'BuildLive tracking',     desc: 'Daily photos and progress updates from your site.' },
+  { Icon: IconSmartphone, color: '#2f80ed', title: 'LiveBuild tracking',     desc: 'Daily photos and progress updates from your site.' },
   { Icon: IconShield,     color: '#2f80ed', title: '1-year warranty',        desc: 'All work is covered for 12 months with no questions asked.' },
   { Icon: IconCreditCard, color: '#f2994a', title: 'EMI options available',  desc: 'Zero-cost EMI plans through leading banks and NBFCs.' },
 ]
@@ -2044,7 +2044,7 @@ function WhyHouznext() {
 // ─── Reviews ──────────────────────────────────────────────────────────────────
 
 const REVIEWS = [
-  { name: 'Priya Reddy',    location: 'Hyderabad',  rating: 5, text: 'Absolutely loved the experience. Our 3BHK looked stunning and was delivered in exactly 44 days. BuildLive kept us in the loop every single day.', package: 'Premium Package' },
+  { name: 'Priya Reddy',    location: 'Hyderabad',  rating: 5, text: 'Absolutely loved the experience. Our 3BHK looked stunning and was delivered in exactly 44 days. LiveBuild kept us in the loop every single day.', package: 'Premium Package' },
   { name: 'Suresh Naidu',   location: 'Warangal',   rating: 5, text: 'The fixed pricing was the main reason we chose Houznext. No hidden charges, no last-minute surprises. Exactly what we paid at the start.', package: 'Essential Package' },
   { name: 'Kavitha Sharma', location: 'Karimnagar', rating: 5, text: 'The 3D designs were photorealistic — I could visualise the space before work started. The kitchen came out even better than I imagined.', package: 'Luxury Package' },
 ]
@@ -2105,10 +2105,10 @@ function ReviewsSection() {
 
 const FAQS = [
   { q: 'What is the cost of 2BHK interiors in Hyderabad?',  a: 'Houznext 2BHK interior packages start from ₹4.5 lakhs (Essential) and go up to ₹18 lakhs (Luxury) — fixed price, all-inclusive.' },
-  { q: 'How long does a 2BHK interior take?',               a: 'Most 2BHK projects are completed within 42–48 working days with our BuildLive daily tracking system.' },
+  { q: 'How long does a 2BHK interior take?',               a: 'Most 2BHK projects are completed within 42–48 working days with our LiveBuild daily tracking system.' },
   { q: 'Does Houznext charge anything extra after quoting?', a: 'No. We guarantee fixed pricing — what is quoted before project start is exactly what you pay at the end.' },
   { q: 'What areas do you serve?',                           a: 'We currently serve Hyderabad, Warangal, Karimnagar, Nizamabad, Khammam and surrounding areas across Telangana.' },
-  { q: 'What is BuildLive?',                                 a: 'BuildLive is our proprietary progress tracking platform. You get daily photo updates by room, design approvals, milestone payment tracking and snag management — all on your phone.' },
+  { q: 'What is LiveBuild?',                                 a: 'LiveBuild is our proprietary progress tracking platform. You get daily photo updates by room, design approvals, milestone payment tracking and snag management — all on your phone.' },
 ]
 
 function FaqSection() {

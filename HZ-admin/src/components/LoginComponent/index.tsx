@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import { object, string } from "yup";
 import clsx from "clsx";
 import Loader from "@/src/common/Loader";
@@ -65,12 +65,13 @@ export default function LoginComponent() {
         redirect: false,
         email: loginFormValues.email,
         password: loginFormValues.password,
-        callbackUrl: "/cost-estimator",
+        callbackUrl: "/dashboard",
       });
 
       if (result?.ok) {
         toast.success("Login successful");
-        router.push("/cost-estimator");
+        setLoading(false);
+        await router.push("/dashboard");
       } else {
         toast.error("Invalid credentials");
         setLoading(false);

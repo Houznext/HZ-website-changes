@@ -167,7 +167,7 @@ function InteriorsPage() {
           </Box>
           <Box>
             <Typography sx={{ fontSize: 16, fontWeight: 500, color: '#111827' }}>
-              BuildLive Interiors
+              LiveBuild Interiors
             </Typography>
             <Typography sx={{ fontSize: 11, color: '#9ca3af' }}>
               {projects.length} project{projects.length !== 1 ? 's' : ''} total

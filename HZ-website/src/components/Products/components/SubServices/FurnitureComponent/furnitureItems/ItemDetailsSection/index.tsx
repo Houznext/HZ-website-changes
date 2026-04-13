@@ -15,8 +15,6 @@ import SEO from "@/components/SEO";
 import { CartItem, useCartStore } from "@/store/cart";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
-import { mapElectronicsToProduct } from "@/utils/electronicsMapper";
-
 interface FurnitureImage {
   id: number | string;
   url: string;
@@ -98,74 +96,6 @@ interface Product {
 interface ViewedItem {
   id: string | number;
   name: string;
-}
-
-/** Raw home decor API response shape */
-interface HomeDecorProductResponse {
-  id: string;
-  name: string;
-  slug?: string | null;
-  price?: string;
-  prodDetails?: string;
-  discount?: string;
-  category?: string;
-  images?: string[];
-  design?: string;
-  color?: string;
-  shape?: string;
-  otherProperties?: Record<string, string | number>;
-  deliveryTime?: string;
-  assembly?: string;
-  warranty?: string;
-  brand?: string;
-  returnPolicy?: string | null;
-  offers?: Offer[] | null;
-  applicableCouponCodes?: string[] | null;
-  rating?: number;
-}
-
-function mapHomeDecorToProduct(raw: HomeDecorProductResponse): Product {
-  const priceNum = parseFloat(raw.price ?? "0") || 0;
-  const discountNum = parseFloat(raw.discount ?? "0") || 0;
-  const mrpNum =
-    discountNum > 0 && discountNum <= 100
-      ? Math.round(priceNum / (1 - discountNum / 100))
-      : priceNum;
-  const images: FurnitureImage[] = (raw.images ?? []).map((url, i) => ({
-    id: i + 1,
-    url,
-    alt: null,
-    sortOrder: i,
-    isPrimary: i === 0,
-    colorHex: null,
-    angle: null,
-    viewType: null,
-  }));
-  const otherProps = { ...(raw.otherProperties || {}) };
-  if (raw.color) otherProps.color = raw.color;
-  if (raw.shape) otherProps.shape = raw.shape;
-  return {
-    id: raw.id,
-    name: raw.name,
-    slug: raw.slug ?? undefined,
-    category: raw.category ?? "",
-    description: raw.prodDetails,
-    baseSellingPrice: priceNum,
-    baseMrp: mrpNum,
-    baseDiscountPercent: discountNum,
-    ratingCount: 0,
-    averageRating: raw.rating ?? 0,
-    images,
-    otherProperties: Object.keys(otherProps).length ? otherProps : undefined,
-    design: raw.design,
-    deliveryTime: raw.deliveryTime,
-    assembly: raw.assembly,
-    warranty: raw.warranty,
-    brand: raw.brand,
-    returnPolicy: raw.returnPolicy ?? undefined,
-    offers: raw.offers ?? undefined,
-    applicableCouponCodes: raw.applicableCouponCodes ?? undefined,
-  };
 }
 
 const faqs = [
@@ -398,33 +328,26 @@ const ProductItemDetails = () => {
   // fetch product
   useEffect(() => {
     if (!router.isReady) return;
+    if (actualRoute === "homedecor" || actualRoute === "electronics") {
+      void router.replace("/services/furnitures/furnitures-shop");
+      return;
+    }
     if (!id) {
+      setIsLoading(false);
+      return;
+    }
+    if (actualRoute !== "furnitures") {
       setIsLoading(false);
       return;
     }
     const fetchProduct = async () => {
       try {
         setIsLoading(true);
-        let res;
-        if (actualRoute === "furnitures") {
-          res = await apiClient.get(`${apiClient.URLS.furniture}/${id}`);
-        } else if (actualRoute === "homedecor") {
-          res = await apiClient.get(`${apiClient.URLS.homeDecor}/${id}`);
-        } else if (actualRoute === "electronics") {
-          res = await apiClient.get(`${apiClient.URLS.electronics}/${id}`);
-        } else {
-          return;
-        }
-
-        const product: Product =
-          actualRoute === "homedecor"
-            ? mapHomeDecorToProduct(res?.body as HomeDecorProductResponse)
-            : actualRoute === "electronics"
-              ? (mapElectronicsToProduct(res?.body as any) as Product)
-              : (res?.body as Product);
+        const res = await apiClient.get(`${apiClient.URLS.furniture}/${id}`);
+        const product = res?.body as Product;
         setItem(product);
 
-        // choose default variant (if any) — furniture/electronics only; homedecor has no variants
+        // choose default variant (if any)
         const defaultVariant =
           product.variants?.find((v) => v.isDefault) ||
           product.variants?.[0] ||
@@ -492,11 +415,7 @@ const ProductItemDetails = () => {
     item.baseSellingPrice ??
     sellingPrice;
 
-  const productTypeForCart = asPath.includes("furniture")
-    ? "FURNITURE_PRODUCT"
-    : asPath.includes("electronics")
-      ? "ELECTRONICS_PRODUCT"
-      : "HOME_DECOR_PRODUCT";
+  const productTypeForCart = "FURNITURE_PRODUCT";
   const cartItemInCart = cartItems.find(
     (i) =>
       String(i.productId) === String(item.id) &&
@@ -513,11 +432,7 @@ const ProductItemDetails = () => {
     userId: string
   ): Promise<boolean> => {
     const cartStore = useCartStore.getState();
-    const type = router.asPath.includes("furniture")
-      ? "FURNITURE_PRODUCT"
-      : router.asPath.includes("electronics")
-        ? "ELECTRONICS_PRODUCT"
-        : "HOME_DECOR_PRODUCT";
+    const type = "FURNITURE_PRODUCT";
 
     const snapshotImage =
       selectedVariant?.images?.[0]?.url ||
@@ -540,14 +455,7 @@ const ProductItemDetails = () => {
 
     return await cartStore.addToCart(payload, userId);
   };
-  const currentPath = router.asPath || "";
-  const path = currentPath.includes("furnitures")
-    ? "furnitures"
-    : currentPath.includes("electronics")
-      ? "electronics"
-      : currentPath.includes("homedecor") || currentPath.includes("homeDecor")
-        ? "homedecor"
-        : "unknown";
+  const path = "furnitures";
 
   const handleAddToCart = async (itemData: Product, userId?: string) => {
     if (!userId) {
@@ -976,7 +884,7 @@ const ProductItemDetails = () => {
         </div>
 
         <div ref={reviewSectionRef} className="mt-10 w-full">
-          <ReviewSection type={actualRoute === "furnitures" ? "furniture" : actualRoute === "homedecor" ? "homedecor" : "electronics"} id={String(item.id)} />
+          <ReviewSection type="furniture" id={String(item.id)} />
         </div>
         <div className="mt-10 w-full">
           <RecentlyViewed items={mappedRecentlyViewed} />

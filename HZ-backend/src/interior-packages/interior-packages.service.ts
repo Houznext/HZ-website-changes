@@ -33,12 +33,27 @@ export class InteriorPackagesService implements OnModuleInit {
     return this.repo.findOne({ where: { id } });
   }
 
-  create(dto: CreateInteriorPackageDto): Promise<InteriorPackage> {
+  private async clearHighlightExcept(id?: string) {
+    const qb = this.repo.createQueryBuilder().update(InteriorPackage).set({ highlighted: false });
+    if (id) {
+      await qb.where('id != :id', { id }).execute();
+    } else {
+      await qb.execute();
+    }
+  }
+
+  async create(dto: CreateInteriorPackageDto): Promise<InteriorPackage> {
+    if (dto.highlighted === true) {
+      await this.clearHighlightExcept();
+    }
     const pkg = this.repo.create(dto);
     return this.repo.save(pkg);
   }
 
   async update(id: string, dto: UpdateInteriorPackageDto): Promise<InteriorPackage | null> {
+    if (dto.highlighted === true) {
+      await this.clearHighlightExcept(id);
+    }
     await this.repo.update(id, dto);
     return this.repo.findOne({ where: { id } });
   }

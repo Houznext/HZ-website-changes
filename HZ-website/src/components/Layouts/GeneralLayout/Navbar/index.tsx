@@ -586,9 +586,9 @@ const Navbar = ({ isVisibleItems }: ShowItems) => {
       },
     },
     {
-      name: "Refer & Earn",
-      link: "/referandearn",
-      isActive: router.pathname.startsWith("/referandearn"),
+      name: "Houznext Rewards",
+      link: "/houznext-rewards",
+      isActive: router.pathname.startsWith("/houznext-rewards"),
     },
     {
       name: "Login",

@@ -1150,7 +1150,7 @@ export default function BranchesView() {
           handleDrawerToggle={() => setOpenDrawer(false)}
           closeIconCls="!text-black z-[9999] mt-10"
           openVariant="right"
-          title="Create Custom Builder"
+          title="Create LiveBuild user"
           panelCls="w-[95%] lg:w-[calc(100%-400px)] shadow-xl"
           overLayCls="bg-black/40"
         >

@@ -31,9 +31,9 @@ const faqs = [
       "Absolutely! We offer fully customizable interior design services to match your personal style and preferences. Our team of experienced designers works closely with you to create spaces that reflect your vision while ensuring functionality and aesthetics.",
   },
   {
-    question: "What is CustomBuilder in Houznext?",
+    question: "What is LiveBuild in Houznext?",
     answer:
-      "CustomBuilder is Houznext's specialized service that allows you to design and build your dream home exactly the way you envision it. From architectural design and layout to material choices and interior finishes, CustomBuilder offers the flexibility and expertise to create a space that is uniquely yours.",
+      "LiveBuild is Houznext's specialized service that allows you to design and build your dream home exactly the way you envision it. From architectural design and layout to material choices and interior finishes, LiveBuild offers the flexibility and expertise to create a space that is uniquely yours.",
   },
 ];
 const BuildHome = () => {

@@ -267,7 +267,7 @@ const MultiStepForm = () => {
   }, [custom_builder_id]);
 
   const handleSubmit = () => {
-    router.push("/custom-builder");
+    router.push("/livebuild");
     setSuccessModal(true);
   };
 

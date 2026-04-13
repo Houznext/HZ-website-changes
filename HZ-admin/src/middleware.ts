@@ -47,6 +47,28 @@ function hasPermissionOnActiveBranch(
   return perms.some((p) => p.resource === resource && p[action]);
 }
 
+/** Match backend / session store role variants (middleware must agree with usePermissions.isAdmin) */
+function isAdminRole(role?: string | null): boolean {
+  if (role == null || role === "") return false;
+  const r = role.toString().trim();
+  const u = r.toUpperCase();
+  return (
+    u === "ADMIN" ||
+    u === "SUPERADMIN" ||
+    u === "SUPER_ADMIN" ||
+    r === "SuperAdmin"
+  );
+}
+
+function isStaffKind(kind?: string | null): boolean {
+  return (kind ?? "").toString().trim().toUpperCase() === "STAFF";
+}
+
+function hasBackendJwt(token: Record<string, unknown> | null | undefined): boolean {
+  const u = token?.user as { token?: string } | undefined;
+  return typeof u?.token === "string" && u.token.length > 0;
+}
+
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token as any;
@@ -56,22 +78,32 @@ export default withAuth(
     const memberships = user?.branchMemberships ?? [];
     const kind = user?.kind;
 
-    const isAuthenticated = !!token;
+    const isAuthenticated = !!token && !!(token as any).user;
     const isStaffOrBranchUser =
-      kind === "STAFF" ||
+      isStaffKind(kind) ||
       (Array.isArray(memberships) && memberships.length > 0);
     const isBranchHead = Array.isArray(memberships)
       ? memberships.some((m) => m.isBranchHead)
       : false;
 
-    // 1️⃣ Authenticated user going to /login → send to /dashboard
-    if (path === "/login" && isAuthenticated) {
+    const isAdmin = isAdminRole(user?.role);
+    /** Same gate as withAuth `authorized`: must have backend JWT (avoids OAuth half-sessions + /login ↔ /dashboard loops) */
+    const hasBackendSession =
+      isAuthenticated && hasBackendJwt(token as Record<string, unknown>);
+
+    // 1️⃣ Real Houznext session on /login → dashboard
+    if (path === "/login" && hasBackendSession) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
-    // 2️⃣ Authenticated user going to "/" → send to /dashboard (optional)
-    if (path === "/" && isAuthenticated) {
+    // 2️⃣ Real session on "/" → dashboard
+    if (path === "/" && hasBackendSession) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+
+    // Builder packages page removed from nav; old links go to LiveBuild home
+    if (path === "/livebuild/packages" || path.startsWith("/livebuild/packages/")) {
+      return NextResponse.redirect(new URL("/livebuild", req.url));
     }
 
     // 3️⃣ Route → permission/resource mapping
@@ -83,10 +115,9 @@ export default withAuth(
       staffOnly?: boolean;
       branchHeadOnly?: boolean;
     }[] = [
-      // General staff/branch dashboard
+      // Dashboard: any valid Houznext JWT session (staff gate applies on other routes only)
       {
         match: /^\/dashboard$/,
-        staffOnly: true,
       },
 
       // Company / premises
@@ -130,22 +161,6 @@ export default withAuth(
         staffOnly: true,
       },
 
-      // Home Decor
-      {
-        match: /^\/home-decors(\/.*)?$/,
-        resource: "home_decor",
-        action: "view",
-        staffOnly: true,
-      },
-
-      // Electronics
-      {
-        match: /^\/electronics(\/.*)?$/,
-        resource: "electronics",
-        action: "view",
-        staffOnly: true,
-      },
-
       // Furnitures
       {
         match: /^\/furnitures(\/.*)?$/,
@@ -154,9 +169,15 @@ export default withAuth(
         staffOnly: true,
       },
 
-      // Custom Builder
+      // Interior packages CMS (admin /packages)
       {
-        match: /^\/custom-builder(\/.*)?$/,
+        match: /^\/packages(\/.*)?$/,
+        staffOnly: true,
+      },
+
+      // LiveBuild (custom builder admin)
+      {
+        match: /^\/livebuild(\/.*)?$/,
         resource: "custom_builder",
         action: "view",
         staffOnly: true,
@@ -186,17 +207,9 @@ export default withAuth(
         staffOnly: true,
       },
 
-      // Service Leads
+      // Houznext Rewards (refer & earn admin)
       {
-        match: /^\/serviceleads(\/.*)?$/,
-        resource: "service_leads",
-        action: "view",
-        staffOnly: true,
-      },
-
-      // Refer & Earn
-      {
-        match: /^\/referandearn(\/.*)?$/,
+        match: /^\/houznext-rewards(\/.*)?$/,
         resource: "referrals",
         action: "view",
         staffOnly: true,
@@ -258,8 +271,6 @@ export default withAuth(
       },
     ];
 
-    const isAdmin = user?.role === "ADMIN";
-
     // 4. Apply route checks
     for (const rule of routeChecks) {
       if (!rule.match.test(path)) continue;
@@ -290,16 +301,15 @@ export default withAuth(
 
         if (path === "/login") return true;
 
-        if (!token) return false;
+        // Reject empty / expired JWT objects from callback
+        if (!token || !(token as any).user) return false;
 
-        // Token expiry check (auto-logout when expired)
+        // Houznext admin app requires backend-issued bearer JWT on the user object
+        if (!hasBackendJwt(token as Record<string, unknown>)) return false;
+
         const now = Math.floor(Date.now() / 1000);
         const exp = (token as any)?.exp;
-
-        if (exp && now > exp) {
-          // token expired → treat as unauthenticated
-          return false;
-        }
+        if (exp && now > exp) return false;
 
         return true;
       },
@@ -312,12 +322,14 @@ export const config = {
     "/", // home
     "/dashboard",
     "/login",
-    "/home-decors",
+    "/cost-estimator",
+    "/packages",
+    "/packages/:path*",
     "/user-management",
     "/property",
     "/user-profile",
     "/access-control",
-    "/custom-builder",
+    "/livebuild/:path*",
     "/invoice",
     "/blogs",
     "/company-property",
@@ -325,11 +337,9 @@ export const config = {
     "/settings/:path*",
     "/branches/:path*",
     "/projects/:path*",
-    "/electronics/:path*",
     "/furnitures/:path*",
     "/crm/:path*",
-    "/serviceleads/:path*",
-    "/referandearn/:path*",
+    "/houznext-rewards/:path*",
     "/generalenquires/:path*",
     "/testimonials/:path*",
   ],

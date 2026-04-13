@@ -124,7 +124,7 @@ const BlogsForm = () => {
               "Residential Construction",
               "Construction for Business",
               "General",
-              "Custom Builder",
+              "LiveBuild",
               "Paints",
               "Electronics",
               "Vaastu Consultation",

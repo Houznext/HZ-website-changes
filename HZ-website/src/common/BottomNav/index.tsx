@@ -48,7 +48,7 @@ const BottomNav = () => {
                 </div>
             </Link>
 
-            <Link href="/user/custom-builder">
+            <Link href="/user/livebuild">
                 <div className="flex flex-col items-center footer-text">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -60,7 +60,7 @@ const BottomNav = () => {
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        className={`text-xl ${router.pathname.startsWith("/user/custom-builder")
+                        className={`text-xl ${router.pathname.startsWith("/user/livebuild")
                             ? activeClass
                             : inactiveClass
                             }`}
@@ -70,7 +70,7 @@ const BottomNav = () => {
                         <path d="M12 13v6" />
                     </svg>
                     <span
-                        className={`text-[10px] ${router.pathname.startsWith("/user/custom-builder")
+                        className={`text-[10px] ${router.pathname.startsWith("/user/livebuild")
                             ? activeClass
                             : inactiveClass
                             }`}

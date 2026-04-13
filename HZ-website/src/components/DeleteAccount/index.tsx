@@ -35,7 +35,7 @@ const labelMap: Record<string, string> = {
     testimonials: 'Testimonials',
     orders: 'Orders',
     addresses: 'Addresses',
-    customBuilders: 'Custom Builders',
+    customBuilders: 'LiveBuild projects',
     costEstimators: 'Cost Estimators',
     hasCart: 'Has Cart',
     hasWishlist: 'Has Wishlist',
@@ -47,7 +47,7 @@ const points = [
     "Your profile and all listed properties will be hidden.",
     "Your saved wishlist and favorite properties will no longer be accessible.",
     "All ongoing orders (e.g., furniture, services) and service requests will be canceled.",
-    "Custom Builder projects and quote requests will be closed.",
+    "LiveBuild projects and quote requests will be closed.",
     "Messages and conversations with agents, builders, or service providers will be closed.",
     "You can still browse Houznext! but won’t be able to use your dashboard or make new transactions."
 ];

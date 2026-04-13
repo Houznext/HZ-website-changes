@@ -17,7 +17,7 @@ import PropertySlider from "../PropertySilder";
 import Loader from "@/components/Loader";
 import Modal from "@/common/Modal";
 import Button from "@/common/Button";
-import HomeLoanFaqs from "@/components/Products/components/SubServices/LoansComponent/HomeLoanFaqs";
+import HomeLoanFaqs from "@/components/HomeLoanFaqs";
 import GoogleAdSense from "@/components/GoogleAdSense";
 import { User, MapPin, Home, Image as ImageIcon } from "lucide-react";
 

@@ -26,7 +26,7 @@ export class ContactUs {
   @Column({ nullable: true })
   city?: string;
 
-   @ManyToOne(() => User, (user) => user.serviceleads, { nullable: true })
+  @ManyToOne(() => User, (user) => user.ContactUs, { nullable: true })
   assignedTo?: User;
 
   @ManyToOne(() => User, { nullable: true })

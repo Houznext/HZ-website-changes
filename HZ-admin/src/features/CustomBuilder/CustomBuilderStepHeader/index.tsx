@@ -27,7 +27,7 @@ const StepNavigationHeader = ({ builderId }: { builderId: string }) => {
   const isActive = (path: string) => currentPath.includes(path);
 
   const handleRoute = (path: string) => {
-    router.push(`/custom-builder/${builderId}/${path}`);
+    router.push(`/livebuild/${builderId}/${path}`);
   };
 
   const tabs = [

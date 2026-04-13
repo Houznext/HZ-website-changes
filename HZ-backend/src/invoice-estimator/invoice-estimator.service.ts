@@ -14,7 +14,7 @@ import {
   UpdateInvoiceEstimatorDto,
 } from './dto/invoice-estimator.dto';
 import { InvoiceEstimator } from './entities/invoice-estimator.entity';
-import { CustomBuilder } from 'src/Custombuilder/entities/custom-builder.entity';
+import { CustomBuilder } from 'src/livebuild/entities/custom-builder.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
 import { RequestUser } from 'src/guard';
 

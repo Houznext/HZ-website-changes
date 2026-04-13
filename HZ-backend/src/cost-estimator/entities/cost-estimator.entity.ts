@@ -9,7 +9,7 @@ import {
   Index,
   JoinColumn
 } from 'typeorm';
-import { PropertyType } from '../../Custombuilder/custom-property/enum/custom-property.enum';
+import { PropertyType } from '../../livebuild/custom-property/enum/custom-property.enum';
 import { User } from 'src/user/entities/user.entity';
 import { ItemGroup } from './itemgroup.entity';
 

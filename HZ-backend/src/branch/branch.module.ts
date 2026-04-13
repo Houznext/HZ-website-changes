@@ -14,8 +14,6 @@ import { BranchRoleService } from 'src/branchRole/branch-role.service';
 import { OtpModule } from 'src/otp/otp.module';
 import { User } from 'src/user/entities/user.entity';
 import { AuthModule } from 'src/authSession/auth.module';
-import { BranchLegalServiceModule } from '../legalServices/branch-legal-service.module';
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -28,7 +26,6 @@ import { BranchLegalServiceModule } from '../legalServices/branch-legal-service.
     forwardRef(() => MembershipModule),
     forwardRef(() => UserModule),
     forwardRef(() => OtpModule),
-    forwardRef(() => BranchLegalServiceModule),
     AuthModule,
   ],
   controllers: [BranchController, MembershipController],

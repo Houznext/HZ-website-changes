@@ -15,7 +15,6 @@ import {
     Truck,
     Gift,
     ShieldCheck,
-    Package,
     MoveRight,
 } from "lucide-react";
 import { useRouter } from "next/router";
@@ -47,17 +46,10 @@ const SERVICE_GROUPS: ServiceGroup[] = [
                 description: "Buy, rent, plots & more in one place",
             },
             {
-                label: "Refer & Earn",
-                href: "/referandearn",
+                label: "Houznext Rewards",
+                href: "/houznext-rewards",
                 icon: Gift,
                 description: "Invite friends & earn rewards",
-            },
-            {
-                label: "Packages",
-                href: "/packages",
-                icon: Package,
-                description: "Broker & builder plans (coming soon)",
-                launchingSoon: true,
             },
             {
                 label: "Policies",

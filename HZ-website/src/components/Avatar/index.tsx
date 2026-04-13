@@ -99,8 +99,8 @@ const Avatar: React.FC<AvatarProps> = ({ showAbove = true }) => {
     { icon: <FiHeart size={14} />, label: "Wishlist", href: "/user/wishlist" },
     {
       icon: <FiTool size={14} />,
-      label: "Custom Builder",
-      href: "/user/custom-builder",
+      label: "LiveBuild",
+      href: "/user/livebuild",
     },
     {
       icon: <MdReviews size={14} />,
@@ -115,8 +115,8 @@ const Avatar: React.FC<AvatarProps> = ({ showAbove = true }) => {
     },
     {
       icon: <LuCheckCircle size={14} />,
-      label: "Referral Progress",
-      href: "/user/referralprogress",
+      label: "Houznext Rewards Progress",
+      href: "/user/houznext-rewards-progress",
     },
 
     { icon: <FiSettings size={14} />, label: "Settings", href: "#" },

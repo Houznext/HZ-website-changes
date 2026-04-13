@@ -11,9 +11,7 @@ import { Reviews } from './entities/reviews.entity';
 import { CreateReviewDto } from './dtos/reviews.dto';
 
 import { Property } from 'src/property/entities/property.entity';
-import { HomeDecors } from 'src/homeDecors/entities/homeDecors.entity';
 import { Furniture } from 'src/furnitures/entities/furniture.entity';
-import { Electronics } from 'src/electronics/entities/electronics.entity';
 import { OrderItem } from 'src/orders/entities/order-item.entity';
 import { OrderItemType } from 'src/orders/enum/order.enum';
 
@@ -26,21 +24,13 @@ export class ReviewService {
     @InjectRepository(Property)
     private readonly propertyRepository: Repository<Property>,
 
-    @InjectRepository(HomeDecors)
-    private readonly homeDecorsRepository: Repository<HomeDecors>,
-
     @InjectRepository(Furniture)
     private readonly furnitureRepository: Repository<Furniture>,
-
-    @InjectRepository(Electronics)
-    private readonly electronicsRepository: Repository<Electronics>,
-
 
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
   ) {}
 
-  // ---------------- POST REVIEW ----------------
   async postReview(
     userId: string,
     type: string,
@@ -60,13 +50,6 @@ export class ReviewService {
         }
         break;
 
-      case 'homedecor':
-        entity = await this.homeDecorsRepository.findOne({ where: { id } });
-        if (!entity) {
-          throw new NotFoundException(`No homeDecor found with id: ${id}`);
-        }
-        break;
-
       case 'furniture':
         entity = await this.furnitureRepository.findOne({ where: { id } });
         if (!entity) {
@@ -74,35 +57,22 @@ export class ReviewService {
         }
         break;
 
-      case 'electronics':
-        entity = await this.electronicsRepository.findOne({ where: { id } });
-        if (!entity) {
-          throw new NotFoundException(
-            `No Electronic Item found with id: ${id}`,
-          );
-        }
-        break;
-
-      case 'legal':
       case 'interiors':
-      case 'solar':
       case 'custombuilder':
         entity = null;
         break;
 
       default:
         throw new BadRequestException(
-          `Invalid type: ${type}. Expected 'property', 'homedecor', 'furniture', 'electronics', 'legal', 'interiors', 'solar' or 'custombuilder'.`,
+          `Invalid type: ${type}. Expected 'property', 'furniture', 'interiors', or 'custombuilder'.`,
         );
     }
 
-    // Map incoming `type` to OrderItemType enum
     const productType = this.mapTypeToOrderItemType(normalizedType);
     if (!productType) {
       throw new BadRequestException(`Review not supported for type: ${type}.`);
     }
 
-    // Verify purchase by checking OrderItem
     const hasPurchased = await this.orderItemRepository.findOne({
       where: {
         productType,
@@ -120,7 +90,6 @@ export class ReviewService {
       );
     }
 
-    // Create a new review
     const review = this.reviewsRepository.create({
       rating: createReviewDto.rating,
       headline: createReviewDto.headline,
@@ -129,23 +98,14 @@ export class ReviewService {
       user: { id: userId },
     });
 
-    // Assign the appropriate entity relationship or service target
     switch (normalizedType) {
       case 'property':
         review.property = entity;
         break;
-      case 'homedecor':
-        review.homeDecor = entity;
-        break;
       case 'furniture':
         review.furniture = entity;
         break;
-      case 'electronics':
-        review.electronics = entity;
-        break;
-      case 'legal':
       case 'interiors':
-      case 'solar':
       case 'custombuilder':
         review.targetType = productType;
         review.targetId = id;
@@ -170,7 +130,6 @@ export class ReviewService {
     };
   }
 
-  // ---------------- GET ALL REVIEWS ----------------
   async getAllReviews(type: string, id: string) {
     const normalizedType = type.toLowerCase();
     let reviews: any[];
@@ -190,20 +149,6 @@ export class ReviewService {
         break;
       }
 
-      case 'homedecor': {
-        const homeDecor = await this.homeDecorsRepository.findOne({
-          where: { id },
-        });
-        if (!homeDecor) {
-          throw new NotFoundException(`No homeDecor found with id: ${id}`);
-        }
-        reviews = await this.reviewsRepository.find({
-          where: { homeDecor: { id } },
-          relations: ['homeDecor', 'user'],
-        });
-        break;
-      }
-
       case 'furniture': {
         const furniture = await this.furnitureRepository.findOne({
           where: { id },
@@ -218,25 +163,7 @@ export class ReviewService {
         break;
       }
 
-      case 'electronics': {
-        const electronic = await this.electronicsRepository.findOne({
-          where: { id },
-        });
-        if (!electronic) {
-          throw new NotFoundException(
-            `No Electronic Product found with id:${id}`,
-          );
-        }
-        reviews = await this.reviewsRepository.find({
-          where: { electronics: { id } },
-          relations: ['electronics', 'user'],
-        });
-        break;
-      }
-
-      case 'legal':
       case 'interiors':
-      case 'solar':
       case 'custombuilder': {
         const productType = this.mapTypeToOrderItemType(normalizedType);
         if (!productType) {
@@ -251,7 +178,7 @@ export class ReviewService {
 
       default:
         throw new BadRequestException(
-          `Invalid type: ${type}. Expected 'property', 'homedecor', 'furniture', 'electronics', 'legal', 'interiors', 'solar' or 'custombuilder'.`,
+          `Invalid type: ${type}. Expected 'property', 'furniture', 'interiors', or 'custombuilder'.`,
         );
     }
 
@@ -271,7 +198,6 @@ export class ReviewService {
     return { type: normalizedType, id, reviews: formattedReviews };
   }
 
-  // ---------------- DELETE (USER) ----------------
   async deleteReview(userId: string, reviewId: string) {
     const review = await this.reviewsRepository.findOne({
       where: { id: reviewId },
@@ -294,7 +220,6 @@ export class ReviewService {
     };
   }
 
-  // ---------------- DELETE (ADMIN) ----------------
   async adminDeleteReview(reviewId: string) {
     const review = await this.reviewsRepository.findOne({
       where: { id: reviewId },
@@ -313,18 +238,10 @@ export class ReviewService {
     switch (normalizedType) {
       case 'property':
         return OrderItemType.PROPERTY_BOOKING_TOKEN;
-      case 'homedecor':
-        return OrderItemType.HOME_DECOR_PRODUCT;
       case 'furniture':
         return OrderItemType.FURNITURE_PRODUCT;
-      case 'electronics':
-        return OrderItemType.ELECTRONICS_PRODUCT;
-      case 'legal':
-        return OrderItemType.LEGAL_PACKAGE;
       case 'interiors':
         return OrderItemType.INTERIOR_PACKAGE;
-      case 'solar':
-        return OrderItemType.SOLAR_PACKAGE;
       case 'custombuilder':
         return OrderItemType.CUSTOM_BUILDER_PACKAGE;
       default:

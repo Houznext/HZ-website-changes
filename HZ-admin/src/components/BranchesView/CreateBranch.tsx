@@ -70,7 +70,7 @@ const BRANCH_LEVEL_OPTIONS = [
 
 const BRANCH_CATEGORY_OPTIONS = [
   { label: "General", value: "GENERAL" },
-  { label: "Custom Builder", value: "CUSTOM_BUILDER" },
+  { label: "LiveBuild", value: "CUSTOM_BUILDER" },
   { label: "Interiors", value: "INTERIORS" },
 ];
 

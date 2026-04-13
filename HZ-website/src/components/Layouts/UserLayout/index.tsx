@@ -83,21 +83,21 @@ function UserLayout({
     },
     {
       name: "Interior Projects",
-      link: "/user/custom-builder",
+      link: "/user/livebuild",
       icon: <FiTool className="text-[18px]" />,
-      isActive: router.asPath.startsWith("/user/custom-builder"),
+      isActive: router.asPath.startsWith("/user/livebuild"),
     },
     {
       name: "Interior Tracking",
-      link: "/user/custom-builder",
+      link: "/user/livebuild",
       icon: <FaHome className="text-[18px]" />,
-      isActive: router.asPath.startsWith("/user/custom-builder"),
+      isActive: router.asPath.startsWith("/user/livebuild"),
     },
     {
-      name: "Referral Progress",
-      link: "/user/referralprogress",
+      name: "Houznext Rewards Progress",
+      link: "/user/houznext-rewards-progress",
       icon: <LuCheckCircle className="text-[18px]" />,
-      isActive: router.pathname === "/user/referralprogress",
+      isActive: router.pathname === "/user/houznext-rewards-progress",
     },
     {
       name: "User Profile",
@@ -310,14 +310,14 @@ function UserLayout({
                     ? "My Properties"
                     : router.pathname === "/user/wishlist"
                     ? "Wishlist"
-                    : router.pathname.startsWith("/user/custom-builder")
+                    : router.pathname.startsWith("/user/livebuild")
                     ? "Interior Tracking"
                     : router.pathname === "/user/company-property"
                     ? "Company Property"
                     : router.pathname === "/user/testimonials"
                     ? "Testimonials"
-                    : router.pathname === "/user/referralprogress"
-                    ? "Referral Progress"
+                    : router.pathname === "/user/houznext-rewards-progress"
+                    ? "Houznext Rewards Progress"
                     : router.pathname === "/user/support"
                     ? "Support"
                     : "Client Dashboard"}

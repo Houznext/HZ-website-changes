@@ -12,7 +12,7 @@ import {
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { PropertyType } from '../../Custombuilder/custom-property/enum/custom-property.enum';
+import { PropertyType } from '../../livebuild/custom-property/enum/custom-property.enum';
 import { EstimationCategory } from '../Enum/cost-estimator.enum';
 
 class ItemDto {

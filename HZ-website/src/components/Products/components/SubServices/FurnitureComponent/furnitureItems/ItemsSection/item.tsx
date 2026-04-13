@@ -104,13 +104,7 @@ const Item = ({ item, category, eventCount }: IItemProps) => {
   const discountPercent =
     item.baseDiscountPercent ??
     (mrp ? Math.round(((mrp - sellingPrice) / mrp) * 100) : 0);
-  const path = currentPath.includes("furnitures")
-    ? "furnitures"
-    : currentPath.includes("electronics")
-      ? "electronics"
-      : currentPath.includes("homedecor") || currentPath.includes("homeDecor")
-        ? "homedecor"
-        : "unknown";
+  const path = "furnitures";
 
   const primaryImageUrl = item.images?.[0]?.url;
 
@@ -190,11 +184,7 @@ const Item = ({ item, category, eventCount }: IItemProps) => {
     const mrp = itemData.baseMrp ?? 0;
     const discountPercent = itemData.baseDiscountPercent ?? 0;
 
-    const type = router.asPath.includes("furniture")
-      ? "FURNITURE_PRODUCT"
-      : router.asPath.includes("electronics")
-        ? "ELECTRONICS_PRODUCT"
-        : "HOME_DECOR_PRODUCT";
+    const type = "FURNITURE_PRODUCT";
 
     const payload = {
       productType: type,

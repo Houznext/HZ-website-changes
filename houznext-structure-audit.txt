@@ -1,0 +1,247 @@
+================================================================================
+HOUZNEXT — REPOSITORY STRUCTURE AUDIT
+================================================================================
+Generated for: Claude / external architecture review
+Workspace root: HZ website changes/
+Last updated: 2026-04-11 (from live repo scan)
+
+This document describes how the public website, admin app, backend API, and
+database relate. It is a structural map, not a security or compliance audit.
+
+================================================================================
+1. MONOREPO LAYOUT (TOP LEVEL)
+================================================================================
+
+HZ website changes/
+├── HZ-website/          Public marketing + customer-facing Next.js app
+├── HZ-admin/            Internal staff/admin Next.js app
+├── HZ-backend/          NestJS REST (and related) API — single backend for both fronts
+├── houznext-structure-audit.txt   (this file)
+└── (no single root package.json — each app is independent)
+
+================================================================================
+2. PUBLIC WEBSITE — HZ-website/
+================================================================================
+
+2.1 Stack
+---------
+• Package name: houznext-website (package.json)
+• Framework: Next.js 14 (Pages Router is primary)
+• Auth: NextAuth (e.g. pages/api/auth/[...nextauth].ts)
+• Styling: Tailwind + MUI + some SCSS modules
+• Scripts: dev, build, start, lint; postbuild runs next-sitemap
+
+2.2 Routing model
+-----------------
+• Primary: src/pages/**  (file-based routes — ~100+ routes including dynamic segments)
+• Secondary: src/app/api/**  (App Router used only for a small set of routes):
+    - app/api/chat/route.ts          (AI chat)
+    - app/api/chat/helper.ts
+    - app/api/crawl/crawler.ts, seed.ts
+    - app/api/locality-trends/route.ts
+
+2.3 Major page areas (illustrative — not exhaustive)
+----------------------------------------------------
+• Marketing / content: index, about-us, contact-us, privacy-policy, terms-and-
+  condition, blog, blogs/[id], careers, buildlive, real-estate, pricing, etc.
+• Properties: properties, properties/[category]/[city], details/[slug], post-property
+• Services hub: services/*, custom-builder, solar, painting, legalservices, electronics,
+  furnitures, homedecor, earthmovers, packersandmovers, plumbing, loans, etc.
+• Interiors: interiors, interiors/[id], cost-estimator, Privacy-policy (under interiors)
+• User account (logged-in): user/* (dashboard, profile, wishlist, orders, properties,
+  custom-builder project sub-routes, company-property, referrals, support, etc.)
+• Commerce / utility: cart, signup, login, forgot-password, verify-otp, emicalculator
+• Customer portal (BuildLive-style): portal/[projectId]/* (designs, documents, trades, etc.)
+• API routes under pages/api/*: GA, locality/city fetch, cart, auth helpers, sitemap, etc.
+
+2.4 Shared frontend structure
+-----------------------------
+• src/components/     Large UI library (370+ files) — Homepage, Products/SubServices,
+  PropertiesList, CustomBuilder, LegalServices, ReferAndEarn, Navbar/Footer layouts, etc.
+• src/common/         Chatbot, Modal, Button, FormElements, auth AuthModal, etc.
+• src/utils/          apiClient.js, apiendpoints.js, hooks, projectData, chat/*, etc.
+• src/store/          Client state (e.g. cart)
+• public/             Static assets, images, icons
+
+2.5 Backend connectivity (website)
+----------------------------------
+• API base URL from env via src/utils/apiendpoints.js (getApiEndpoint):
+    LOCAL_API_ENDPOINT / DEV_API_ENDPOINT / PROD_API_ENDPOINT by NODE_ENV
+• Browser calls Nest API (JWT / session as implemented in apiClient)
+
+================================================================================
+3. ADMIN APP — HZ-admin/
+================================================================================
+
+3.1 Stack
+---------
+• Package name: houznext-admin
+• Framework: Next.js (Pages Router)
+• UI: MUI, NextUI, Headless UI, TanStack Table, Chart.js, etc.
+• Scripts: dev, build, start, lint; tests for floorplan (tsx) and python_solver (pytest)
+
+3.2 Routing
+-----------
+• src/pages/** — admin-only surfaces, e.g.:
+    - login, reset-password, dashboard, ga4-dashboard
+    - property, property/[id]/* (leads, analytics, referrals)
+    - company-property/*, crm, orders, serviceleads, generalenquires
+    - custom-builder/* (per-user work progress, materials, payments, chat, invoices, docs)
+    - interiors/* (projects, templates, onboard, handover, snags, designs, update)
+    - cost-estimator, invoice, solar, furnitures, electronics, home-decors, packages
+    - human-resource, attendance, settings/* (branches, user-management, careers admin, profile)
+    - blogs, testimonials, referandearn, legal-services, chat, search, error
+• src/pages/api/*     Proxies / server helpers (similar patterns to website: GA, locality, etc.)
+
+3.3 Layout / data
+-----------------
+• src/components/layout/Sidebar.tsx (and related layout components)
+• Uses apiClient pattern (see src/utils/apiClient.js) with NextAuth session / token store
+
+3.4 Backend connectivity (admin)
+--------------------------------
+• Same HZ-backend as the public site; typically different origin (e.g. localhost:3001)
+  with CORS allowed when configured (see backend section).
+
+================================================================================
+4. BACKEND API — HZ-backend/
+================================================================================
+
+4.1 Stack
+---------
+• Package name: hz-backend
+• Framework: NestJS 10
+• ORM: TypeORM (Postgres)
+• API docs: Swagger at /swagger (enabled in main.ts)
+• Default HTTP port: 4000 (process.env.PORT || 4000), bind 0.0.0.0
+• Health: GET /healthz
+
+4.2 Entry & configuration
+-------------------------
+• src/main.ts       Bootstrap, CORS, helmet, compression, cookie-parser, ValidationPipe
+• src/app.module.ts Registers TypeORM + all feature modules
+• db/datasource.ts  TypeORM DataSource config (also used for CLI migrations path)
+
+4.3 CORS (summary)
+------------------
+• Allows localhost:3000 and localhost:3001 by default
+• Merges ALLOWED_ORIGINS (comma-separated) from env
+• Vercel preview *.vercel.app allowed when matching logic applies
+
+4.4 Feature modules (Nest modules under src/)
+---------------------------------------------
+Grouped by concern (folder names as in repo):
+
+• Identity & access: user, authSession, otp, deleteaccount, guard (global patterns)
+• Properties: property, propertyLead, unified-property-listing, property-premium-plans,
+  reviews, wishlist
+• Commerce & orders: cart, orders, payment, shiprocket, solar-orders
+• CRM & leads: crm, builderleads, furnitureleads, servicecustomlead, contactus, Referral,
+  referandearn
+• Company & HR: company-onboarding (+ Awards, CompanyAddress), employee-hr (hr),
+  careers (career + admin), attendance
+• Branching / RBAC: branch, branchRole, branch-role-permission, membership patterns in code
+• Catalog: furnitures, electronics, homeDecors, blog, testimonials, ResourceName
+• Geography: city, state (under geography/)
+• Custom builder (large subtree): Custombuilder/* — customer, custom-builder, daily-progress,
+  custom-property, cb services (borewell, brickMasonry, centring, documentDrafting,
+  electricity, fallCeiling, flooring, painting, plumbing, interior), phase, package,
+  materials, payment-tracking, Query, cbdocument, location, cb-service, etc.
+• Interiors platform: interiors (customer portal / trades / templates), interior-packages,
+  floorplans
+• Estimators & finance: cost-estimator, invoice-estimator
+• Notifications & comms: notifications, whatsappSend, chat, chatbot, realtime (WebSockets)
+• Content & misc: Address, tasks, S3 (common/s3), audit-log (+ interceptor), PopularLocality,
+  legalServices (branch-legal-service)
+
+4.5 Cross-cutting services (files / folders)
+----------------------------------------------
+• sendEmail.service.ts (Nodemailer)
+• sms.service.ts (SMS provider integration)
+• whatsApp.service.ts (UltraMsg, etc., as configured)
+
+4.6 Scripts & ops (examples)
+----------------------------
+• Seeds: seed-admin, seed-blog, seed-furniture, etc.; seed:prod:* variants
+• migrate:houznext-admin, rename:legacy-branch (see package.json)
+• typeorm CLI: migration:generate / migration:run / migration:revert
+
+================================================================================
+5. DATABASE
+================================================================================
+
+5.1 Engine & access
+-------------------
+• PostgreSQL (connection string in env)
+• Primary env keys: DATABASE_URL or POSTGRES_URL (see db/datasource.ts)
+
+5.2 ORM configuration
+---------------------
+• TypeORM in Nest: TypeOrmModule.forRoot({ ...dataSourceOptions, autoLoadEntities: true })
+• Entities: glob src/**/*.entity.ts (compiled to dist for CLI)
+• migrations: [] and migrationsRun: false in datasource; synchronize: true
+  NOTE: schema sync is ON — suitable for dev; production should rely on migrations +
+  synchronize: false when hardened.
+
+5.3 NextAuth / website DB
+-------------------------
+• Website may use TypeORM adapter (@auth/typeorm-adapter) per package.json — user/session
+  tables may live in the same Postgres if configured (verify .env and NextAuth options).
+
+5.4 No separate “database repo”
+-------------------------------
+• Schema is defined by backend entities + any migrations under HZ-backend (currently minimal
+  migration usage in datasource config).
+
+================================================================================
+6. INTEGRATION DIAGRAM (TEXT)
+================================================================================
+
+  [Browser: Public site]     [Browser: Admin]
+         |                          |
+         |  HTTPS (3000)            |  HTTPS (3001 typical)
+         v                          v
+   HZ-website (Next)          HZ-admin (Next)
+         \                        /
+          \   REST + JWT/cookies /
+           \                    /
+            v                  v
+         HZ-backend (Nest) :4000
+                  |
+                  v
+            PostgreSQL
+                  ^
+                  |  (optional same DB for NextAuth adapter)
+            [NextAuth tables?]
+
+External services (typical): AWS S3, SMTP, SMS gateway, WhatsApp (UltraMsg), Twilio
+(interiors OTP), Pinecone/AI (website chat), Google Analytics APIs, Shiprocket, etc.
+(Exact set = environment-specific.)
+
+================================================================================
+7. ENVIRONMENT VARIABLES (REFERENCE — NOT VALUES)
+================================================================================
+
+Website / Admin (each app):
+• NODE_ENV, APP_ENV; API endpoints (LOCAL_/DEV_/PROD_API_ENDPOINT); NextAuth secrets;
+  public site URL (NEXTAUTH_URL, etc. per app)
+
+Backend:
+• DATABASE_URL or POSTGRES_URL, PORT, NODE_ENV, ALLOWED_ORIGINS, JWT/cookie secrets,
+  AWS_*, SMTP_*, SMS/VIDEO_*, ULTRAMSG_*, TWILIO_*, etc. (.env.development / .env)
+
+================================================================================
+8. SUGGESTED FOCUS AREAS FOR A DEEP AUDIT (CLAUDE / REVIEWER)
+================================================================================
+
+• TypeORM synchronize: true in production risk
+• CORS and ALLOWED_ORIGINS completeness for all deployed domains
+• Split of logic between pages/api (Next) vs Nest (single source of truth)
+• AuthZ: admin vs customer vs staff — guard.ts and branch membership rules on backend
+• PII: contact forms, CRM, chat logs, retention
+• Third-party keys rotation and least privilege (S3 buckets, webhooks)
+• Interior / custom-builder data model complexity and cascade deletes
+
+================================================================================
+END OF STRUCTURE AUDIT
+================================================================================

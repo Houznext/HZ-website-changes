@@ -986,7 +986,7 @@ export const InvoiceCard = ({ data, view }: any) => {
           className="md:px-5 px-3 py-2 md:text-[16px] text-[12px] rounded font-medium text-white bg-[#3586FF]"
           onClick={() =>
             router.push(
-              `/custom-builder/${data?.customBuilderId}/workprogress/invoices/${data.id}`
+              `/livebuild/${data?.customBuilderId}/workprogress/invoices/${data.id}`
             )
           }
         >

@@ -87,7 +87,7 @@ export default function RewardsPage() {
 
   const shareLink =
     typeof window !== "undefined"
-      ? `${window.location.origin}/referandearn`
+      ? `${window.location.origin}/houznext-rewards`
       : "";
 
   const content = () => {
@@ -136,7 +136,7 @@ export default function RewardsPage() {
                 if (navigator.share) {
                   navigator
                     .share({
-                      title: "Houznext BuildLive Interiors",
+                      title: "Houznext LiveBuild Interiors",
                       text: "Track my project and start your own.",
                       url: shareLink,
                     })

@@ -25,7 +25,14 @@ async function getSessionTokenOnce() {
   }
   const session = await getSession();
   const token = session?.token ?? session?.user?.token ?? session?.accessToken ?? "";
-  cachedSessionToken = token || null;
+  const resolved = token ? String(token) : null;
+  // Do not cache a missing token — session may still be hydrating right after sign-in.
+  if (!resolved) {
+    cachedSessionToken = null;
+    cachedSessionAt = 0;
+    return null;
+  }
+  cachedSessionToken = resolved;
   cachedSessionAt = now;
   return cachedSessionToken;
 }
@@ -122,7 +129,6 @@ const URLS = {
   branchroles: `${base_url}branch-roles`,
   hrBaseUrl: `${base_url}hr`,
   orders: `${base_url}orders`,
-  solarOrders: `${base_url}solar-orders`,
   shiprocket: `${base_url}shiprocket`,
   payments: `${base_url}payments`,
   propertyReferral: `${base_url}refer-and-earn/admin`,
@@ -138,7 +144,7 @@ const URLS = {
   chatThreads: `${base_url}chat/threads`,
   clearChat: `${base_url}chat/threads`,
 
-  // Interiors (BuildLive) base
+  // Interiors (LiveBuild) base
   interiors: `${base_url}interiors`,
 };
 

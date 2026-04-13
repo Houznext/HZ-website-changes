@@ -6,13 +6,11 @@ import { Module } from "@nestjs/common";
 import { User } from "src/user/entities/user.entity";
 import { WishlistItems } from "./entities/wishlistItems.entity";
 import { Furniture } from "src/furnitures/entities/furniture.entity";
-import { HomeDecors } from "src/homeDecors/entities/homeDecors.entity";
 import { Property } from "src/property/entities/property.entity";
-import { Electronics } from "src/electronics/entities/electronics.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Wishlist, User, WishlistItems, Property, HomeDecors, Furniture, Electronics])
+    TypeOrmModule.forFeature([Wishlist, User, WishlistItems, Property, Furniture])
   ],
   controllers: [WishlistController],
   providers: [WishlistService],

@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, Interval, Timeout } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DailyProgress } from 'src/Custombuilder/daily-progress/entities/daily-progress.entity';
-import { CustomBuilder } from 'src/Custombuilder/entities/custom-builder.entity';
+import { DailyProgress } from 'src/livebuild/daily-progress/entities/daily-progress.entity';
+import { CustomBuilder } from 'src/livebuild/entities/custom-builder.entity';
 import { generateDailyProgressSummaryTemplate } from 'src/emailTemplates';
 import { NotificationService } from 'src/notifications/notification.service';
 import { Between, Repository } from 'typeorm';

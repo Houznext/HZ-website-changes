@@ -1,4 +1,4 @@
-import { CreateDailyProgressDto } from './Custombuilder/daily-progress/dto/daily-progress.dto';
+import { CreateDailyProgressDto } from './livebuild/daily-progress/dto/daily-progress.dto';
 
 export const otpEmailTemplate = (otp: string) => `
 <!DOCTYPE html>
@@ -660,9 +660,9 @@ export const CUSTOM_BUILDER_CREATION_TEMPLATE = `
         <span style="color: #434343;">\${currentDate}</span>
       </header>
       <main>
-        <h1 style="font-size: 24px; margin-top: 20px;">Custom Builder Tracking Activated</h1>
+        <h1 style="font-size: 24px; margin-top: 20px;">LiveBuild Tracking Activated</h1>
         <p>Hello <strong>\${userName}</strong>,</p>
-        <p>We’re excited to let you know that your custom builder tracking has been successfully initiated with Houznext.</p>
+        <p>We’re excited to let you know that your LiveBuild tracking has been successfully initiated with Houznext.</p>
 
         <h2 style="font-size: 18px; margin-top: 20px;">Project Overview:</h2>
         <ul style="list-style: none; padding: 0;">

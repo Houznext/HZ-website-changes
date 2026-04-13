@@ -843,7 +843,7 @@ export default function ReferralProgressView() {
     return (
       <div className="flex flex-col gap-5 md:px-6 px-4 py-5 w-full max-w-[1700px] mx-auto">
         <h1 className="text-[22px] md:text-[26px] font-bold text-gray-900 tracking-tight">
-          Referral Progress
+          Houznext Rewards Progress
         </h1>
         <div className="text-center py-16">
           <Building2 className="mx-auto w-14 h-14 text-gray-300 mb-3" />
@@ -864,7 +864,7 @@ export default function ReferralProgressView() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
           <div>
             <h1 className="text-[22px] md:text-[26px] font-bold text-gray-900 tracking-tight">
-              Referral Progress
+              Houznext Rewards Progress
             </h1>
             <p className="text-gray-500 text-[13px] md:text-[14px] mt-0.5">
               Track your referral journey across {stats.total} propert
@@ -979,7 +979,7 @@ export default function ReferralProgressView() {
             </p>
             {referrals.length === 0 && !loading && (
               <Button
-                onClick={() => router.push("/referandearn")}
+                onClick={() => router.push("/houznext-rewards")}
                 className="mt-5 inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white font-semibold px-6 py-3 rounded-xl text-[14px] shadow-md shadow-amber-200/50 transition-all duration-200"
               >
                 <Share2 className="w-4 h-4" />

@@ -828,7 +828,7 @@ export default function PropertiesNavbar({
             </Button>
             {isReferAndEarnOnly &&
               renderDropdown(
-                "Refer & Earn Price",
+                "Houznext Rewards price",
                 "referAndEarnPriceRange",
                 referAndEarnPriceOptions?.length > 0
                   ? referAndEarnPriceOptions

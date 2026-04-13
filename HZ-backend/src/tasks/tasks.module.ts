@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { CustomBuilder } from 'src/Custombuilder/entities/custom-builder.entity';
-import { DailyProgress } from 'src/Custombuilder/daily-progress/entities/daily-progress.entity';
+import { CustomBuilder } from 'src/livebuild/entities/custom-builder.entity';
+import { DailyProgress } from 'src/livebuild/daily-progress/entities/daily-progress.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { NotificationService } from 'src/notifications/notification.service';
 import { MailerService } from 'src/sendEmail.service';

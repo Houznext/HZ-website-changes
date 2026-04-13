@@ -1,0 +1,1443 @@
+AUDIT
+==WEBSITE PAGES==
+HZ-website\src\pages\404.tsx
+HZ-website\src\pages\about-us.tsx
+HZ-website\src\pages\buildlive.tsx
+HZ-website\src\pages\emicalculator.tsx
+HZ-website\src\pages\index.tsx
+HZ-website\src\pages\interiors.tsx
+HZ-website\src\pages\login.tsx
+HZ-website\src\pages\pricing.tsx
+HZ-website\src\pages\real-estate.tsx
+HZ-website\src\pages\_app.tsx
+HZ-website\src\pages\_document.tsx
+HZ-website\src\pages\api\add_to_cart.ts
+HZ-website\src\pages\api\current-location.ts
+HZ-website\src\pages\api\fetchApartments.ts
+HZ-website\src\pages\api\fetchCity.ts
+HZ-website\src\pages\api\fetchHomePageCity.ts
+HZ-website\src\pages\api\fetchLocalities.ts
+HZ-website\src\pages\api\fetchNearbyLocations.ts
+HZ-website\src\pages\api\fetchSublocalities.ts
+HZ-website\src\pages\api\ga4data.ts
+HZ-website\src\pages\api\hello.ts
+HZ-website\src\pages\api\itemsclick.ts
+HZ-website\src\pages\api\Item_Impression.ts
+HZ-website\src\pages\api\location-details.tsx
+HZ-website\src\pages\api\nearby.ts
+HZ-website\src\pages\api\Property_Impression.ts
+HZ-website\src\pages\api\removefromcart.ts
+HZ-website\src\pages\api\view_property.ts
+HZ-website\src\pages\blog\index.tsx
+HZ-website\src\pages\blog\[slug].tsx
+HZ-website\src\pages\careers\index.tsx
+HZ-website\src\pages\cart\index.tsx
+HZ-website\src\pages\contact-us\index.tsx
+HZ-website\src\pages\forgot-password\index.tsx
+HZ-website\src\pages\ga4dashboard\index.tsx
+HZ-website\src\pages\gallery\index.tsx
+HZ-website\src\pages\houznext-rewards\index.tsx
+HZ-website\src\pages\livebuild\index.tsx
+HZ-website\src\pages\packages\index.tsx
+HZ-website\src\pages\portal\login.tsx
+HZ-website\src\pages\post-property\index.tsx
+HZ-website\src\pages\privacy-policy\index.tsx
+HZ-website\src\pages\projects\index.tsx
+HZ-website\src\pages\properties\index.tsx
+HZ-website\src\pages\propshome\index.tsx
+HZ-website\src\pages\recentproperties\index.tsx
+HZ-website\src\pages\services\index.tsx
+HZ-website\src\pages\signup\index.tsx
+HZ-website\src\pages\terms-and-condition\index.tsx
+HZ-website\src\pages\user\axis-control.tsx
+HZ-website\src\pages\user\index.tsx
+HZ-website\src\pages\verify-otp\index.tsx
+HZ-website\src\pages\api\auth\[...nextauth].ts
+HZ-website\src\pages\blogs\[id]\index.tsx
+HZ-website\src\pages\careers\apply\index.tsx
+HZ-website\src\pages\company\[companyname]\index.tsx
+HZ-website\src\pages\interiors\cost-estimator\index.tsx
+HZ-website\src\pages\interiors\Privacy-policy\index.tsx
+HZ-website\src\pages\interiors\[id]\index.tsx
+HZ-website\src\pages\portal\[projectId]\designs.tsx
+HZ-website\src\pages\portal\[projectId]\documents.tsx
+HZ-website\src\pages\portal\[projectId]\gallery.tsx
+HZ-website\src\pages\portal\[projectId]\index.tsx
+HZ-website\src\pages\portal\[projectId]\reports.tsx
+HZ-website\src\pages\portal\[projectId]\rewards.tsx
+HZ-website\src\pages\portal\[projectId]\snags.tsx
+HZ-website\src\pages\portal\[projectId]\trades.tsx
+HZ-website\src\pages\post-property\details\index.tsx
+HZ-website\src\pages\services\construction-for-business\index.tsx
+HZ-website\src\pages\services\custom-builder\index.tsx
+HZ-website\src\pages\services\furnitures\index.tsx
+HZ-website\src\pages\services\invest-in-land\index.tsx
+HZ-website\src\pages\user\CommonDashBoard\index.tsx
+HZ-website\src\pages\user\company-property\index.tsx
+HZ-website\src\pages\user\dashboard\index.tsx
+HZ-website\src\pages\user\livebuild\index.tsx
+HZ-website\src\pages\user\orders\index.tsx
+HZ-website\src\pages\user\profile\index.tsx
+HZ-website\src\pages\user\properties\index.tsx
+HZ-website\src\pages\user\referralprogress\index.tsx
+HZ-website\src\pages\user\support\index.tsx
+HZ-website\src\pages\user\support-inbox\index.tsx
+HZ-website\src\pages\user\testimonials\index.tsx
+HZ-website\src\pages\user\wishlist\index.tsx
+HZ-website\src\pages\interiors\[id]\[details]\index.tsx
+HZ-website\src\pages\properties\[category]\[city]\index.tsx
+HZ-website\src\pages\services\furnitures\custom-furnitures\index.tsx
+HZ-website\src\pages\services\[categorys]\[category-shop]\index.tsx
+HZ-website\src\pages\user\company-property\create\index.tsx
+HZ-website\src\pages\user\livebuild\[id]\index.tsx
+HZ-website\src\pages\properties\[category]\[city]\details\[slug].tsx
+HZ-website\src\pages\services\[categorys]\[category-shop]\compare\index.tsx
+HZ-website\src\pages\services\[categorys]\[category-shop]\[details]\index.tsx
+HZ-website\src\pages\user\company-property\[propertyId]\edit\index.tsx
+HZ-website\src\pages\user\livebuild\user\[id]\index.tsx
+HZ-website\src\pages\user\livebuild\[id]\chat\index.tsx
+HZ-website\src\pages\user\livebuild\[id]\materials\index.tsx
+HZ-website\src\pages\user\livebuild\[id]\payments\index.tsx
+HZ-website\src\pages\user\livebuild\[id]\phases\index.tsx
+HZ-website\src\pages\user\livebuild\[id]\progressimages\index.tsx
+HZ-website\src\pages\user\livebuild\[id]\projectoverview\index.tsx
+HZ-website\src\pages\user\livebuild\[id]\propertydocuments\index.tsx
+HZ-website\src\pages\user\livebuild\[id]\propertyinformation\index.tsx
+HZ-website\src\pages\user\livebuild\[id]\queries\index.tsx
+HZ-website\src\pages\user\livebuild\[id]\servicesselected\index.tsx
+HZ-website\src\pages\user\properties\[id]\viewanalytics\index.tsx
+HZ-website\src\pages\user\properties\[id]\viewleads\index.tsx
+HZ-website\src\pages\user\company-property\[propertyId]\edit\[projectId]\leads\index.tsx
+==BACKEND FOLDERS==
+Address
+app.controller.ts
+app.module.ts
+app.service.ts
+audit-log
+authSession
+blog
+branch
+branch-role-permission
+branchRole
+builderleads
+buildlive
+careers
+cart
+cartItems
+chat
+chatbot
+common
+company-onboarding
+contactus
+cost-estimator
+crm
+deleteaccount
+emailTemplates.ts
+Enums
+floorplans
+furnitures
+geography
+guard.ts
+houznext-rewards
+Interface
+interior-packages
+interiors
+invoice-estimator
+jwt
+livebuild
+main.ts
+migrations
+money
+notifications
+orders
+otp
+payment
+permission
+property
+property-premium-plans
+realtime
+ResourceName
+reviews
+scripts
+sendEmail.service.ts
+server.ts
+shiprocket
+sms.service.ts
+tasks
+testimonials
+unified-property-listing
+user
+whatsApp.service.ts
+whatsappSend
+wishlist
+==BACKEND MODULES==
+HZ-backend\src\app.module.ts
+HZ-backend\src\Address\address.module.ts
+HZ-backend\src\audit-log\audit-log.module.ts
+HZ-backend\src\authSession\auth.module.ts
+HZ-backend\src\blog\blog.module.ts
+HZ-backend\src\branch\branch.module.ts
+HZ-backend\src\branch\membership.module.ts
+HZ-backend\src\branch-role-permission\branch-role-permission.module.ts
+HZ-backend\src\branchRole\branch-role.module.ts
+HZ-backend\src\builderleads\builder.module.ts
+HZ-backend\src\cart\cart.module.ts
+HZ-backend\src\chat\chat.module.ts
+HZ-backend\src\chatbot\chatbot.module.ts
+HZ-backend\src\company-onboarding\company-onboarding.module.ts
+HZ-backend\src\contactus\contact-us.module.ts
+HZ-backend\src\cost-estimator\cost-estimator.module.ts
+HZ-backend\src\crm\crm.module.ts
+HZ-backend\src\deleteaccount\delete-account.module.ts
+HZ-backend\src\floorplans\floorplans.module.ts
+HZ-backend\src\furnitures\furniture.module.ts
+HZ-backend\src\houznext-rewards\houznext-rewards.module.ts
+HZ-backend\src\interior-packages\interior-packages.module.ts
+HZ-backend\src\interiors\interior.module.ts
+HZ-backend\src\invoice-estimator\invoice-estimator.module.ts
+HZ-backend\src\livebuild\custom-builder.module.ts
+HZ-backend\src\notifications\notification.module.ts
+HZ-backend\src\orders\order.module.ts
+HZ-backend\src\otp\otp.module.ts
+HZ-backend\src\payment\payment.module.ts
+HZ-backend\src\property\property.module.ts
+HZ-backend\src\property-premium-plans\property-premium-plans.module.ts
+HZ-backend\src\realtime\realtime.module.ts
+HZ-backend\src\ResourceName\resource.module.ts
+HZ-backend\src\reviews\reviews.module.ts
+HZ-backend\src\shiprocket\shiprocket.module.ts
+HZ-backend\src\tasks\tasks.module.ts
+HZ-backend\src\testimonials\testimonials.module.ts
+HZ-backend\src\unified-property-listing\unified-property-listing.module.ts
+HZ-backend\src\user\user.module.ts
+HZ-backend\src\whatsappSend\whatsapp.module.ts
+HZ-backend\src\wishlist\wishlist.module.ts
+HZ-backend\src\careers\admin\careerAdmin.module.ts
+HZ-backend\src\careers\career\career.module.ts
+HZ-backend\src\common\PopularLocality\popular.module.ts
+HZ-backend\src\common\s3\s3.module.ts
+HZ-backend\src\company-onboarding\Awards\awards.module.ts
+HZ-backend\src\company-onboarding\CompanyAddress\companyaddress.module.ts
+HZ-backend\src\geography\city\city.module.ts
+HZ-backend\src\geography\state\state.module.ts
+HZ-backend\src\livebuild\cbdocument\cbdocument.module.ts
+HZ-backend\src\livebuild\custom-property\custom-property.module.ts
+HZ-backend\src\livebuild\customer\customer.module.ts
+HZ-backend\src\livebuild\daily-progress\daily-progress.module.ts
+HZ-backend\src\livebuild\location\location.module.ts
+HZ-backend\src\livebuild\Materials\materials.module.ts
+HZ-backend\src\livebuild\package\package.module.ts
+HZ-backend\src\livebuild\payment-tracking\payment-tracking.module.ts
+HZ-backend\src\livebuild\phase\phase.module.ts
+HZ-backend\src\livebuild\Query\query.module.ts
+HZ-backend\src\livebuild\service-required\cb-service.module.ts
+HZ-backend\src\property\propertyLead\property-lead.module.ts
+HZ-backend\src\livebuild\services\borewell\borewell.module.ts
+HZ-backend\src\livebuild\services\brickMasonry\brickMasonry.module.ts
+HZ-backend\src\livebuild\services\centring\centring.module.ts
+HZ-backend\src\livebuild\services\documentDrafting\documentDrafting.module.ts
+HZ-backend\src\livebuild\services\electricity\electricity.module.ts
+HZ-backend\src\livebuild\services\fallCeiling\fallCeiling.module.ts
+HZ-backend\src\livebuild\services\flooring\flooring.module.ts
+HZ-backend\src\livebuild\services\interior\interior.module.ts
+HZ-backend\src\livebuild\services\painting\painting.module.ts
+HZ-backend\src\livebuild\services\plumbing\plumbing.module.ts
+==BACKEND ENTITIES==
+HZ-backend\src\cost-estimator\cb-property.entity.ts
+HZ-backend\src\audit-log\entities\audit-log.entity.ts
+HZ-backend\src\blog\entities\blog.entity.ts
+HZ-backend\src\branch\entities\branch.entity.ts
+HZ-backend\src\branch\entities\user-branch-membership.entity.ts
+HZ-backend\src\branch-role-permission\entities\branch-role.-permission.entity.ts
+HZ-backend\src\branchRole\entities\branch-role.entity.ts
+HZ-backend\src\builderleads\Entity\builderlead.entity.ts
+HZ-backend\src\careers\entities\applicant.entity.ts
+HZ-backend\src\careers\entities\career.entity.ts
+HZ-backend\src\careers\entities\jobDepartment.entity.ts
+HZ-backend\src\careers\entities\jobRole.entity.ts
+HZ-backend\src\cart\entities\cart.entity.ts
+HZ-backend\src\cartItems\entities\cartitem.entity.ts
+HZ-backend\src\chat\entities\chat-attachment.entity.ts
+HZ-backend\src\chat\entities\chat-message.entity.ts
+HZ-backend\src\chat\entities\chat-read-receipt.entity.ts
+HZ-backend\src\chat\entities\chat-thread-member.entity.ts
+HZ-backend\src\chat\entities\chat-thread.entity.ts
+HZ-backend\src\chatbot\entities\bot-conversation.entity.ts
+HZ-backend\src\chatbot\entities\bot-message.entity.ts
+HZ-backend\src\company-onboarding\entities\company-projects.entity.ts
+HZ-backend\src\company-onboarding\entities\company-property-sellers.entity.ts
+HZ-backend\src\company-onboarding\entities\company.entity.ts
+HZ-backend\src\company-onboarding\entities\developer-information.entity.ts
+HZ-backend\src\company-onboarding\entities\project-property-type.entity.ts
+HZ-backend\src\company-onboarding\entities\property-type-units.entity.ts
+HZ-backend\src\company-onboarding\entities\units-floor-planing.entity.ts
+HZ-backend\src\contactus\entities\contact-us.entity.ts
+HZ-backend\src\cost-estimator\entities\cost-estimator.entity.ts
+HZ-backend\src\cost-estimator\entities\itemgroup.entity.ts
+HZ-backend\src\crm\entities\crm.entity.ts
+HZ-backend\src\crm\entities\leadStatus.entity.ts
+HZ-backend\src\floorplans\entities\floorplan.entity.ts
+HZ-backend\src\furnitures\entities\furniture-image.entity.ts
+HZ-backend\src\furnitures\entities\furniture-variant.entity.ts
+HZ-backend\src\furnitures\entities\furniture.entity.ts
+HZ-backend\src\houznext-rewards\entities\propertyreferralagreement.entity.ts
+HZ-backend\src\houznext-rewards\entities\referral.entity.ts
+HZ-backend\src\houznext-rewards\entities\referralcase.entity.ts
+HZ-backend\src\houznext-rewards\entities\referralcasesteplog.entity.ts
+HZ-backend\src\interior-packages\entities\interior-package.entity.ts
+HZ-backend\src\interiors\entities\base.entity.ts
+HZ-backend\src\interiors\entities\customer.entity.ts
+HZ-backend\src\interiors\entities\daily-progress-report.entity.ts
+HZ-backend\src\interiors\entities\daily-update.entity.ts
+HZ-backend\src\interiors\entities\design-upload.entity.ts
+HZ-backend\src\interiors\entities\interior-project.entity.ts
+HZ-backend\src\interiors\entities\labour-entry.entity.ts
+HZ-backend\src\interiors\entities\material-usage.entity.ts
+HZ-backend\src\interiors\entities\payment-milestone.entity.ts
+HZ-backend\src\interiors\entities\project-document.entity.ts
+HZ-backend\src\interiors\entities\project-trade.entity.ts
+HZ-backend\src\interiors\entities\qc-checkpoint-template.entity.ts
+HZ-backend\src\interiors\entities\qc-item.entity.ts
+HZ-backend\src\interiors\entities\referral-lead.entity.ts
+HZ-backend\src\interiors\entities\rep.entity.ts
+HZ-backend\src\interiors\entities\snag-item.entity.ts
+HZ-backend\src\interiors\entities\trade-media.entity.ts
+HZ-backend\src\interiors\entities\trade-template.entity.ts
+HZ-backend\src\invoice-estimator\entities\invoice-estimator.entity.ts
+HZ-backend\src\livebuild\entities\cbDocument.entity.ts
+HZ-backend\src\livebuild\entities\custom-builder.entity.ts
+HZ-backend\src\notifications\entities\notification.entity.ts
+HZ-backend\src\orders\entities\order-item.entity.ts
+HZ-backend\src\orders\entities\order-query.entity.ts
+HZ-backend\src\orders\entities\order.entity.ts
+HZ-backend\src\otp\entities\otp.entity.ts
+HZ-backend\src\payment\entities\payment-audit-log.entity.ts
+HZ-backend\src\payment\entities\payment.entity.ts
+HZ-backend\src\property\entities\basicDetails.entity.ts
+HZ-backend\src\property\entities\location.entity.ts
+HZ-backend\src\property\entities\mediaDetails.entity.ts
+HZ-backend\src\property\entities\property.entity.ts
+HZ-backend\src\property\entities\propertyDetails.entity.ts
+HZ-backend\src\property\propertyLead\property-lead.entity.ts
+HZ-backend\src\property-premium-plans\entities\property-premium-plan.entity.ts
+HZ-backend\src\reviews\entities\reviews.entity.ts
+HZ-backend\src\testimonials\entity\testimonials.entity.ts
+HZ-backend\src\user\entities\user.entity.ts
+HZ-backend\src\wishlist\entities\wishlist.entity.ts
+HZ-backend\src\wishlist\entities\wishlistItems.entity.ts
+HZ-backend\src\company-onboarding\Awards\entity\company-awards.entity.ts
+HZ-backend\src\geography\city\entities\city.entity.ts
+HZ-backend\src\geography\state\entities\state.entity.ts
+HZ-backend\src\livebuild\custom-property\entities\cb-property.entity.ts
+HZ-backend\src\livebuild\custom-property\entities\commercial-construction.entity.ts
+HZ-backend\src\livebuild\custom-property\entities\house-construction.entity.ts
+HZ-backend\src\livebuild\custom-property\entities\interior-info.entity.ts
+HZ-backend\src\livebuild\daily-progress\entities\daily-progress.entity.ts
+HZ-backend\src\livebuild\floor\entities\floor.entity.ts
+HZ-backend\src\livebuild\Materials\entities\materials.entity.ts
+HZ-backend\src\livebuild\package\entity\package.entity.ts
+HZ-backend\src\livebuild\payment-tracking\entities\payment-tracking.entity.ts
+HZ-backend\src\livebuild\phase\entities\phase.entity.ts
+HZ-backend\src\livebuild\Query\entities\query.entity.ts
+HZ-backend\src\livebuild\service-required\entities\cb-service.entity.ts
+HZ-backend\src\money\rewards\entities\reward-transaction.entity.ts
+HZ-backend\src\money\rewards\entities\rewards.entity.ts
+HZ-backend\src\money\wallet\entities\wallet-transaction.entity.ts
+HZ-backend\src\money\wallet\entities\wallet.entity.ts
+HZ-backend\src\property\entities\property-details\commercialAttributes.entity.ts
+HZ-backend\src\property\entities\property-details\constructionStatus.entity.ts
+HZ-backend\src\property\entities\property-details\facilities.entity.ts
+HZ-backend\src\property\entities\property-details\flatshareDetails.entity.ts
+HZ-backend\src\property\entities\property-details\furnishing.entity.ts
+HZ-backend\src\property\entities\property-details\highligts.entity.ts
+HZ-backend\src\property\entities\property-details\occupancy.entity.ts
+HZ-backend\src\property\entities\property-details\plot.entity.ts
+HZ-backend\src\property\entities\property-details\pricingDetails.entity.ts
+HZ-backend\src\property\entities\property-details\residential.entity.ts
+HZ-backend\src\livebuild\services\borewell\entities\borewell.entity.ts
+HZ-backend\src\livebuild\services\brickMasonry\entities\brickMasonry.entity.ts
+HZ-backend\src\livebuild\services\centring\entities\centring.entity.ts
+HZ-backend\src\livebuild\services\documentDrafting\entities\documentDrafting.entity.ts
+HZ-backend\src\livebuild\services\electricity\entities\electricity.entity.ts
+HZ-backend\src\livebuild\services\fallCeiling\entities\fallCeiling.entity.ts
+HZ-backend\src\livebuild\services\flooring\entities\flooring.entity.ts
+HZ-backend\src\livebuild\services\interior\entities\interior.entity.ts
+HZ-backend\src\livebuild\services\painting\entities\painting.entity.ts
+HZ-backend\src\livebuild\services\plumbing\entities\plumbing.entity.ts
+==BACKEND CONTROLLERS==
+HZ-backend\src\app.controller.ts
+HZ-backend\src\Address\address.controller.ts
+HZ-backend\src\audit-log\audit-log.controller.ts
+HZ-backend\src\authSession\auth.controller.ts
+HZ-backend\src\blog\blog.controller.ts
+HZ-backend\src\branch\branch.controller.ts
+HZ-backend\src\branch\membership.controller.ts
+HZ-backend\src\branch-role-permission\branch-role-permission.controller.ts
+HZ-backend\src\branchRole\branch-role.controller.ts
+HZ-backend\src\builderleads\builder.controller.ts
+HZ-backend\src\cart\cart.controller.ts
+HZ-backend\src\chat\chat.controller.ts
+HZ-backend\src\chatbot\chatbot.controller.ts
+HZ-backend\src\company-onboarding\company-onboarding.controller.ts
+HZ-backend\src\contactus\contact-us.controller.ts
+HZ-backend\src\cost-estimator\cost-estimator.controller.ts
+HZ-backend\src\crm\crm.controller.ts
+HZ-backend\src\deleteaccount\delete-account.controller.ts
+HZ-backend\src\floorplans\floorplans.controller.ts
+HZ-backend\src\furnitures\furniture.controller.ts
+HZ-backend\src\houznext-rewards\referandearn-admin.controller.ts
+HZ-backend\src\houznext-rewards\referandearn.controller.ts
+HZ-backend\src\houznext-rewards\referral.controller.ts
+HZ-backend\src\interior-packages\interior-packages.controller.ts
+HZ-backend\src\interiors\interior.controller.ts
+HZ-backend\src\invoice-estimator\invoice-estimator.controller.ts
+HZ-backend\src\livebuild\custom-builder.controller.ts
+HZ-backend\src\notifications\notification.controller.ts
+HZ-backend\src\orders\order.controller.ts
+HZ-backend\src\otp\otp.controller.ts
+HZ-backend\src\payment\payment.controller.ts
+HZ-backend\src\property\property.controller.ts
+HZ-backend\src\property-premium-plans\property-premium-plans.controller.ts
+HZ-backend\src\ResourceName\resource.controller.ts
+HZ-backend\src\reviews\reviews.controller.ts
+HZ-backend\src\shiprocket\shiprocket.controller.ts
+HZ-backend\src\testimonials\testimonials.controller.ts
+HZ-backend\src\unified-property-listing\unified-property-listing.controller.ts
+HZ-backend\src\user\user.controller.ts
+HZ-backend\src\whatsappSend\whatsapp.controller.ts
+HZ-backend\src\wishlist\wishlist.controller.ts
+HZ-backend\src\careers\admin\careerAdmin.controller.ts
+HZ-backend\src\careers\career\career.controller.ts
+HZ-backend\src\common\PopularLocality\popular-locality.controller.ts
+HZ-backend\src\common\s3\s3.controller.ts
+HZ-backend\src\company-onboarding\Awards\awards.controller.ts
+HZ-backend\src\company-onboarding\CompanyAddress\companyaddress.controller.ts
+HZ-backend\src\geography\city\city.controller.ts
+HZ-backend\src\geography\state\state.controller.ts
+HZ-backend\src\livebuild\cbdocument\cbdocument.controller.ts
+HZ-backend\src\livebuild\custom-property\custom-property.controller.ts
+HZ-backend\src\livebuild\customer\customer.controller.ts
+HZ-backend\src\livebuild\daily-progress\daily-progress.controller.ts
+HZ-backend\src\livebuild\location\location.controller.ts
+HZ-backend\src\livebuild\Materials\materials.controller.ts
+HZ-backend\src\livebuild\package\package.controller.ts
+HZ-backend\src\livebuild\payment-tracking\payment-tracking.controller.ts
+HZ-backend\src\livebuild\phase\phase.controller.ts
+HZ-backend\src\livebuild\Query\query.controller.ts
+HZ-backend\src\livebuild\service-required\cb-service.controller.ts
+HZ-backend\src\property\propertyLead\property-lead.controller.ts
+HZ-backend\src\livebuild\services\borewell\borewell.controller.ts
+HZ-backend\src\livebuild\services\brickMasonry\brickMasonry.controller.ts
+HZ-backend\src\livebuild\services\centring\centring.controller.ts
+HZ-backend\src\livebuild\services\documentDrafting\documentDrafting.controller.ts
+HZ-backend\src\livebuild\services\electricity\electricity.controller.ts
+HZ-backend\src\livebuild\services\fallCeiling\fallCeiling.controller.ts
+HZ-backend\src\livebuild\services\flooring\flooring.controller.ts
+HZ-backend\src\livebuild\services\interior\interior.controller.ts
+HZ-backend\src\livebuild\services\painting\painting.controller.ts
+HZ-backend\src\livebuild\services\plumbing\plumbing.controller.ts
+==APP MODULE==
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { UserModule } from './user/user.module';
+import { dataSourceOptions } from 'db/datasource';
+import { PropertyModule } from './property/property.module';
+import { BlogModule } from './blog/blog.module';
+import { OtpModule } from './otp/otp.module';
+import { MailerService } from './sendEmail.service';
+import { TestimonialModule } from './testimonials/testimonials.module';
+import { AuthModule } from './authSession/auth.module';
+import { AddressModule } from './Address/address.module';
+import { BuilderLeadsModule } from './builderleads/builder.module';
+import { FurnitureModule } from './furnitures/furniture.module';
+import { ConfigModule } from '@nestjs/config';
+import { CartModule } from './cart/cart.module';
+import { NotificationModule } from './notifications/notification.module';
+import { CareerAdminModule } from './careers/admin/careerAdmin.module';
+import { CareerModule } from './careers/career/career.module';
+import { CustomerModule } from './livebuild/customer/customer.module';
+import { LocationModule } from './livebuild/location/location.module';
+import { LivebuildModule } from './livebuild/custom-builder.module';
+import { DailyProgressModule } from './livebuild/daily-progress/daily-progress.module';
+import { CustomPropertyModule } from './livebuild/custom-property/custom-property.module';
+import { CBServiceModule } from './livebuild/service-required/cb-service.module';
+import { CostEstimatorModule } from './cost-estimator/cost-estimator.module';
+import { ControllerAuthGuard } from './guard';
+import { BorewellModule } from './livebuild/services/borewell/borewell.module';
+import { BrickMasonryModule } from './livebuild/services/brickMasonry/brickMasonry.module';
+import { CentringModule } from './livebuild/services/centring/centring.module';
+import { DocumentDraftingModule } from './livebuild/services/documentDrafting/documentDrafting.module';
+import { ElectricityModule } from './livebuild/services/electricity/electricity.module';
+import { FallCeilingModule } from './livebuild/services/fallCeiling/fallCeiling.module';
+import { FlooringModule } from './livebuild/services/flooring/flooring.module';
+import { PaintingModule } from './livebuild/services/painting/painting.module';
+import { PlumbingModule } from './livebuild/services/plumbing/plumbing.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { WishlistModule } from './wishlist/wishlist.module';
+import { CRMLeadModule } from './crm/crm.module';
+import { AwardModule } from './company-onboarding/Awards/awards.module';
+import { CompanyAddressModule } from './company-onboarding/CompanyAddress/companyaddress.module';
+import { InteriorServiceModule } from './livebuild/services/interior/interior.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksModule } from './tasks/tasks.module';
+import { DeleteAccountModule } from './deleteaccount/delete-account.module';
+import { PropertyLeadModule } from './property/propertyLead/property-lead.module';
+import { InvoiceEstimatorModule } from './invoice-estimator/invoice-estimator.module';
+import { WhatsAppModule } from './whatsappSend/whatsapp.module';
+import { UnifiedPropertyListingModule } from './unified-property-listing/unified-property-listing.module';
+import { QueryModule } from './livebuild/Query/query.module';
+import { S3Module } from './common/s3/s3.module';
+import { PackageModule } from './livebuild/package/package.module';
+import { ContactUsModule } from './contactus/contact-us.module';
+import { ResourceModule } from './ResourceName/resource.module';
+import { CbDocumentModule } from './livebuild/cbdocument/cbdocument.module';
+import { PhaseModule } from './livebuild/phase/phase.module';
+import { MaterialsModule } from './livebuild/Materials/materials.module';
+import { PaymentTrackingModule } from './livebuild/payment-tracking/payment-tracking.module';
+import { CityModule } from './geography/city/city.module';
+import { StateModule } from './geography/state/state.module';
+import { OrdersModule } from './orders/order.module';
+import { HouznextRewardsModule } from './houznext-rewards/houznext-rewards.module';
+import { PropertyPremiumPlansModule } from './property-premium-plans/property-premium-plans.module';
+import { ChatModule } from './chat/chat.module';
+import { ChatbotModule } from './chatbot/chatbot.module';
+import { RealtimeModule } from "./realtime/realtime.module";
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { FloorplansModule } from './floorplans/floorplans.module';
+import { ShiprocketModule } from './shiprocket/shiprocket.module';
+import { AuditLogModule } from './audit-log/audit-log.module';
+import { InteriorModule } from './interiors/interior.module';
+import { BranchModule } from './branch/branch.module';
+import { BranchRoleModule } from './branchRole/branch-role.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { AuditLogInterceptor } from './audit-log/audit-log.interceptor';
+import { InteriorPackagesModule } from './interior-packages/interior-packages.module';
+
+@Module({
+  imports: [
+    EventEmitterModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRoot({
+      ...dataSourceOptions,
+      autoLoadEntities: true,
+      synchronize: true,
+      logging: false,
+      migrations: [],
+      migrationsRun: false,
+    }),
+    ScheduleModule.forRoot(),
+    RealtimeModule,
+    AuthModule,
+    UserModule,
+    S3Module,
+    NotificationModule,
+
+    TasksModule,
+    PropertyModule,
+    BlogModule,
+    OtpModule,
+    TestimonialModule,
+    AddressModule,
+    BuilderLeadsModule,
+    UnifiedPropertyListingModule,
+    FurnitureModule,
+    PropertyModule,
+    CartModule,
+    OrdersModule,
+    CareerAdminModule,
+    CareerModule,
+    WhatsAppModule,
+    CustomerModule,
+    LocationModule,
+    LivebuildModule,
+    QueryModule,
+    DailyProgressModule,
+    CustomPropertyModule,
+    CBServiceModule,
+    CostEstimatorModule,
+    BorewellModule,
+    BrickMasonryModule,
+    CentringModule,
+    DocumentDraftingModule,
+    ElectricityModule,
+    FallCeilingModule,
+
+    FlooringModule,
+
+    PaintingModule,
+    PlumbingModule,
+    BrickMasonryModule,
+    DocumentDraftingModule,
+    InteriorServiceModule,
+    CostEstimatorModule,
+    ReviewsModule,
+    WishlistModule,
+    CRMLeadModule,
+    AwardModule,
+    CompanyAddressModule,
+    DeleteAccountModule,
+    PropertyLeadModule,
+    PropertyPremiumPlansModule,
+    InvoiceEstimatorModule,
+    PackageModule,
+    StateModule,
+    ResourceModule,
+    ContactUsModule,
+    CbDocumentModule,
+    PhaseModule,
+    MaterialsModule,
+    PaymentTrackingModule,
+    CityModule,
+    HouznextRewardsModule,
+    ChatModule,
+    ChatbotModule,
+    FloorplansModule,
+    ShiprocketModule,
+    AuditLogModule,
+    InteriorModule,
+    InteriorPackagesModule,
+    BranchModule,
+    BranchRoleModule,
+  ],
+  controllers: [AppController],
+  providers: [
+    AppService,
+    MailerService,
+    ControllerAuthGuard,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditLogInterceptor,
+    },
+  ],
+})
+export class AppModule { }
+
+==ADMIN PAGES==
+HZ-admin\src\pages\blogs.tsx
+HZ-admin\src\pages\index.tsx
+HZ-admin\src\pages\_app.tsx
+HZ-admin\src\pages\_document.tsx
+HZ-admin\src\pages\api\add_to_cart.ts
+HZ-admin\src\pages\api\current-location.ts
+HZ-admin\src\pages\api\fetchApartments.ts
+HZ-admin\src\pages\api\fetchCity.ts
+HZ-admin\src\pages\api\fetchLocalities.ts
+HZ-admin\src\pages\api\fetchSublocalities.ts
+HZ-admin\src\pages\api\floor-plans.ts
+HZ-admin\src\pages\api\ga4.ts
+HZ-admin\src\pages\api\ga4data.ts
+HZ-admin\src\pages\api\hello.ts
+HZ-admin\src\pages\api\Item_Impression.ts
+HZ-admin\src\pages\api\Property_Impression.ts
+HZ-admin\src\pages\api\view_property.ts
+HZ-admin\src\pages\chat\index.tsx
+HZ-admin\src\pages\company-property\index.tsx
+HZ-admin\src\pages\cost-estimator\index.tsx
+HZ-admin\src\pages\crm\index.tsx
+HZ-admin\src\pages\dashboard\index.tsx
+HZ-admin\src\pages\error\index.tsx
+HZ-admin\src\pages\furnitures\index.tsx
+HZ-admin\src\pages\ga4-dashboard\index.tsx
+HZ-admin\src\pages\generalenquires\index.tsx
+HZ-admin\src\pages\houznext-rewards\index.tsx
+HZ-admin\src\pages\interiors\index.tsx
+HZ-admin\src\pages\interiors\onboard.tsx
+HZ-admin\src\pages\invoice\index.tsx
+HZ-admin\src\pages\livebuild\index.tsx
+HZ-admin\src\pages\login\index.tsx
+HZ-admin\src\pages\orders\index.tsx
+HZ-admin\src\pages\packages\index.tsx
+HZ-admin\src\pages\projects\index.tsx
+HZ-admin\src\pages\property\index.tsx
+HZ-admin\src\pages\reset-password\index.tsx
+HZ-admin\src\pages\search\index.tsx
+HZ-admin\src\pages\settings\index.tsx
+HZ-admin\src\pages\testimonials\index.tsx
+HZ-admin\src\pages\api\auth\[...nextauth].ts
+HZ-admin\src\pages\api\floorplans\generate.ts
+HZ-admin\src\pages\api\floorplans\[planId].ts
+HZ-admin\src\pages\company-property\create\index.tsx
+HZ-admin\src\pages\cost-estimator\[category]\[id].tsx
+HZ-admin\src\pages\interiors\templates\index.tsx
+HZ-admin\src\pages\interiors\[projectId]\designs.tsx
+HZ-admin\src\pages\interiors\[projectId]\handover.tsx
+HZ-admin\src\pages\interiors\[projectId]\index.tsx
+HZ-admin\src\pages\interiors\[projectId]\snags.tsx
+HZ-admin\src\pages\interiors\[projectId]\update.tsx
+HZ-admin\src\pages\invoice\[id]\index.tsx
+HZ-admin\src\pages\livebuild\packages\index.tsx
+HZ-admin\src\pages\settings\attendance-management\index.tsx
+HZ-admin\src\pages\settings\branches\index.tsx
+HZ-admin\src\pages\settings\careersAdmin\index.tsx
+HZ-admin\src\pages\settings\user-management\index.tsx
+HZ-admin\src\pages\settings\user-profile\index.tsx
+HZ-admin\src\pages\company-property\[propertyId]\edit\index.tsx
+HZ-admin\src\pages\livebuild\[userId]\customer-onboarding\index.tsx
+HZ-admin\src\pages\livebuild\[userId]\document-upload\index.tsx
+HZ-admin\src\pages\livebuild\[userId]\materials\index.tsx
+HZ-admin\src\pages\livebuild\[userId]\payments\index.tsx
+HZ-admin\src\pages\livebuild\[userId]\testimonial\index.tsx
+HZ-admin\src\pages\livebuild\[userId]\workprogress\index.tsx
+HZ-admin\src\pages\projects\[id]\projectdetails\index.tsx
+HZ-admin\src\pages\projects\[id]\viewleads\index.tsx
+HZ-admin\src\pages\property\[id]\viewanalytics\index.tsx
+HZ-admin\src\pages\property\[id]\viewleads\index.tsx
+HZ-admin\src\pages\property\[id]\viewreferrals\index.tsx
+HZ-admin\src\pages\[categorys]\[id]\itemanalytics\index.tsx
+HZ-admin\src\pages\livebuild\[userId]\workprogress\chat\index.tsx
+HZ-admin\src\pages\livebuild\[userId]\workprogress\invoices\index.tsx
+HZ-admin\src\pages\livebuild\[userId]\workprogress\queries\index.tsx
+HZ-admin\src\pages\property\[id]\referrals\[referralId]\index.tsx
+HZ-admin\src\pages\livebuild\[userId]\workprogress\invoices\[id]\index.tsx
+==ADMIN COMPONENTS==
+AccessControl
+AdminDashBoard
+AttendanceManagementView
+BlogForm
+BlogsView
+BranchesView
+CareerAdminView
+chat
+ChatPanel
+ChatView
+CompanyPropertiesComp
+CostEstimatorDetailsView
+CostEstimatorView
+CrmView
+FurnituresView
+GA4AnalyticsView
+GeneralEnquiresView
+HouznextRewardsView
+interiors
+InvoiceDetailsView
+InvoiceView
+ItemAnalyticsComponent
+layout
+LoginComponent
+NewCrmView
+OrderManagement
+ProjectsComponents
+Property
+ReferralDetailComponent
+SessionSync
+SettingsView
+SpinLoader
+Testimonialsview
+ui
+UserManagement
+ViewAnalyticsComponent
+ViewLeadsComponent
+ViewReferralsComponent
+BranchesView\BranchNavigation
+BranchesView\BranchStatistics
+BranchesView\RolesSection
+CompanyPropertiesComp\CompanyProperty
+CostEstimatorDetailsView\ConstEstimationTable
+CostEstimatorDetailsView\CostEstimatorHeader
+CostEstimatorView\CostEstimationCard
+CostEstimatorView\CostEstimatorForm
+InvoiceView\InvoiceCard
+ProjectsComponents\ProjectCard
+ProjectsComponents\ProjectDetailsView
+ProjectsComponents\ProjectView
+Property\BasicDetails
+Property\LocationDetails
+Property\PropertyCard
+Property\PropertyDetails
+Property\PropIcons
+Property\UploadMedia
+Property\PropertyDetails\PropertyHelpers
+==WEBSITE COMPONENTS==
+aboutus
+AccessControl
+Avatar
+BackRoute
+BlogCard
+BlogFilters
+Blogshero
+BreadCrumb
+Broker
+CareerView
+ChatPanel
+CheckoutFlow
+CompanyDetailsPropertyView
+CompanyProject
+CompanyProjectsView
+CompanyPropertiesComp
+Contentbar
+CustomBuilder
+DashboardView
+DeleteAccount
+EmiCalculator
+EmptyState
+Footer
+ForgotPasswordView
+Ga4Dashboardview
+GoogleAdSense
+HomeLoanFaqs
+Homepage
+HouznextRewards
+Icons
+ItemsFilterBar
+LaunchedSoon
+Layouts
+ListEndQuote
+Loader
+LoginComponent
+MobileBlogCard
+Orders
+portal
+PostPropertyView
+PremiumPackages
+PrivacyComp
+Products
+Profilecard
+ProfileView
+PropertiesListComponent
+Property
+PropertyComp
+PropertyDetailsComponent
+PropertyStepsBox
+PropListCard
+PublicPostProperty
+RecentPropertiesView
+ReferralProgressView
+RouteBreadCrumbs
+SEO
+ServicePartners
+ServicesCard
+SessionSync
+SignUpComponent
+TermsCondition
+TestimonialsView
+TrendingBlogCard
+ui
+UserDashboardView
+VerifyOtpView
+ViewAnalyticsComponent
+ViewLeadsComponent
+welcomeModal
+wishlist
+aboutus\CountUp
+aboutus\Timeline
+Avatar\menuItems
+Broker\Developer
+CheckoutFlow\AddressCart
+CheckoutFlow\CartComponent
+CheckoutFlow\EmptyCard
+CheckoutFlow\Icons
+CheckoutFlow\PaymentComponent
+CompanyDetailsPropertyView\ProjectCard
+CompanyProject\ProjectCardList
+CompanyPropertiesComp\CompanyProperty
+CustomBuilder\CustomBuilderDetailsView
+CustomBuilder\CustomBuilderUserProfileView
+CustomBuilder\DocumentSection
+CustomBuilder\MaterialsView
+CustomBuilder\PaymentTrackingView
+CustomBuilder\PhasesView
+CustomBuilder\ProgressImagesView
+CustomBuilder\ProjectOverViewComponent
+CustomBuilder\PropertyDocumentsView
+CustomBuilder\PropertyInformationView
+CustomBuilder\QueriesView
+CustomBuilder\RouterBack
+CustomBuilder\ServicesSelectedView
+CustomBuilder\TrendsClient
+Homepage\ConstructionProgress
+Homepage\HeroSection
+Homepage\InsightsAndTools
+Homepage\OnePlaceInHouseServices
+Homepage\OurMainServices
+Homepage\OurProducts
+Homepage\PropertiesList
+Homepage\RecentTab
+Homepage\SpecialOffers
+HouznextRewards\ExploreMore
+HouznextRewards\ReferHeroSection
+HouznextRewards\ReferPropCard
+HouznextRewards\ReferPropertiesSlider
+HouznextRewards\ReferralFormSection
+HouznextRewards\Refersteps
+HouznextRewards\RefferingUs
+Layouts\GeneralLayout
+Layouts\LoginLayout
+Layouts\PackageLayout
+Layouts\PropertiesLayout
+Layouts\UserLayout
+PostPropertyView\LoginBanner
+PremiumPackages\PackageCard
+Products\components
+Products\icons
+PropertiesListComponent\NewlyLaunch
+PropertiesListComponent\PropertiesAds
+PropertiesListComponent\PropertyDetailsView
+PropertiesListComponent\PropertyHeader
+PropertiesListComponent\SingleProperty
+Property\BasicDetails
+Property\LocationDetails
+Property\PropertyDetails
+Property\PropIcons
+Property\UploadMedia
+PropertyComp\Icons
+PropertyComp\PopularBuilders
+PropertyComp\PopularCity
+PropertyComp\PopularLocalties
+PropertyComp\Properties
+PropertyComp\PropertyCity
+PropertyComp\PropertyType
+PropertyComp\realEstateProperties
+PropertyComp\TopProperties
+PropertyDetailsComponent\ContactSellerForm
+PropertyDetailsComponent\HelpYouDecide
+PropertyDetailsComponent\ReferralForm
+PublicPostProperty\BasicDetails
+PublicPostProperty\BasicInfo
+PublicPostProperty\LocationDetails
+PublicPostProperty\PropDetails
+PublicPostProperty\PropertyHelpers
+PublicPostProperty\PropertySilder
+PublicPostProperty\PropertySteps
+PublicPostProperty\PropertyValidations
+PublicPostProperty\PropIcons
+PublicPostProperty\UploadMedia
+PublicPostProperty\VerifyStep
+ReferralProgressView\CustomStepper
+CompanyProject\ProjectCardList\companyProjectCard
+Layouts\GeneralLayout\Footer
+Layouts\GeneralLayout\Navbar
+Layouts\PropertiesLayout\PropertiesLayoutWrapper
+Layouts\PropertiesLayout\PropertiesNavbar
+Products\components\ApplyView
+Products\components\BlogsDetails
+Products\components\BreadCrumb
+Products\components\BuilderProcess
+Products\components\BuildHome
+Products\components\Calculator
+Products\components\CostEstimator
+Products\components\HeroSection
+Products\components\NewUiTable
+Products\components\onestepsol
+Products\components\ourProjects
+Products\components\SubServices
+Products\components\TestimonalHouse
+Products\components\TriedOptions
+Property\PropertyDetails\PropertyHelpers
+Products\components\ApplyView\ListTable
+Products\components\SubServices\CivilEngineeringComponent
+Products\components\SubServices\Components
+Products\components\SubServices\ConstructionForBusinessComponent
+Products\components\SubServices\CustomFurniture
+Products\components\SubServices\FurnitureComponent
+Products\components\SubServices\InteriorsComponent
+Products\components\SubServices\ResidentialConstructionComponent
+Products\components\SubServices\ServiceHeroSection
+Products\components\SubServices\VaastuComponent
+Products\components\SubServices\CivilEngineeringComponent\Packages
+Products\components\SubServices\Components\ChooseUs
+Products\components\SubServices\Components\CommonTheWayWeWork
+Products\components\SubServices\Components\ContactForm
+Products\components\SubServices\Components\FAQSComp
+Products\components\SubServices\Components\OurPartners
+Products\components\SubServices\Components\OurProjects
+Products\components\SubServices\Components\OurServices
+Products\components\SubServices\Components\ServiceHeroSection
+Products\components\SubServices\Components\ServiceIcons
+Products\components\SubServices\Components\ServiceProcess
+Products\components\SubServices\Components\ServiceTabSection
+Products\components\SubServices\Components\Tags
+Products\components\SubServices\Components\TestimonialsSection
+Products\components\SubServices\Components\TiredOfMultipleOptions
+Products\components\SubServices\CustomFurniture\AlreadyCustomizedFurniture
+Products\components\SubServices\CustomFurniture\CustomFurnitureOrder
+Products\components\SubServices\CustomFurniture\CustomFurnitureProcess
+Products\components\SubServices\CustomFurniture\CustomHerosection
+Products\components\SubServices\CustomFurniture\Customization
+Products\components\SubServices\CustomFurniture\FrequentlyAskedQuestions
+Products\components\SubServices\CustomFurniture\FurnitureCustomization
+Products\components\SubServices\CustomFurniture\OurCustomFurniture
+Products\components\SubServices\FurnitureComponent\bestpackage
+Products\components\SubServices\FurnitureComponent\customizefurniture
+Products\components\SubServices\FurnitureComponent\explorefurniture
+Products\components\SubServices\FurnitureComponent\furnitureItems
+Products\components\SubServices\FurnitureComponent\furnitures
+Products\components\SubServices\FurnitureComponent\WhyVisitUs
+Products\components\SubServices\InteriorsComponent\interiorsCalculator
+Products\components\SubServices\InteriorsComponent\InteriorsCard
+Products\components\SubServices\InteriorsComponent\InteriorsCostEstimation
+Products\components\SubServices\InteriorsComponent\InteriorsDetailsComp
+Products\components\SubServices\InteriorsComponent\InteriorsPrivacyComp
+Products\components\SubServices\InteriorsComponent\ListSection
+Products\components\SubServices\InteriorsComponent\Packages
+Products\components\SubServices\InteriorsComponent\WorkFlow
+Products\components\SubServices\ResidentialConstructionComponent\GetInTouch
+Products\components\SubServices\VaastuComponent\AboutVaastu
+Products\components\SubServices\FurnitureComponent\furnitureItems\HomeSection
+Products\components\SubServices\FurnitureComponent\furnitureItems\ItemDetailsSection
+Products\components\SubServices\FurnitureComponent\furnitureItems\ItemsSection
+Products\components\SubServices\FurnitureComponent\furnitureItems\ItemDetailsSection\ReviewSection
+Products\components\SubServices\FurnitureComponent\furnitureItems\ItemsSection\AddCompareProductModal
+Products\components\SubServices\FurnitureComponent\furnitureItems\ItemsSection\CompareView
+==NAVBAR==
+import { useState, useCallback } from 'react'
+import { useRouter } from 'next/router'
+import { useQuoteModal } from './QuoteModal'
+
+const NAV_LINKS = [
+  { label: 'Home',        href: '/' },
+  { label: 'Interiors',   href: '/interiors' },
+  { label: 'Real Estate', href: '/real-estate' },
+  { label: 'BuildLive',   href: '/buildlive' },
+  { label: 'Pricing',     href: '/pricing' },
+  { label: 'Blog',        href: '/blog' },
+]
+
+export default function Navbar() {
+  const router = useRouter()
+  const { openModal } = useQuoteModal()
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  const isActive = useCallback(
+    (href: string) =>
+      href === '/' ? router.pathname === '/' : router.pathname.startsWith(href),
+    [router.pathname]
+  )
+
+  return (
+    <>
+      <nav
+        className="fixed top-0 left-0 right-0 z-[200] isolate"
+        style={{ background: '#0f2a44', height: 60 }}
+      >
+        {/* Main nav row — plain <a href> = full navigation; works even if client router is stuck */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 h-full flex items-center justify-between gap-6">
+          {/* Logo */}
+          <a
+            href="/"
+            className="flex-shrink-0 cursor-pointer no-underline flex items-center"
+            aria-label="Houznext home"
+          >
+            <img
+              src="/images/Houznext Logo.png"
+              alt="Houznext"
+              style={{ height: '32px', width: 'auto', objectFit: 'contain' }}
+            />
+          </a>
+
+          {/* Desktop nav links */}
+          <div className="hidden md:flex items-center gap-1">
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="relative px-3 py-1.5 rounded text-[13px] font-[500] transition-colors duration-150 cursor-pointer no-underline inline-block"
+                style={{
+                  color: isActive(link.href) ? '#fff' : 'rgba(255,255,255,0.75)',
+                  background: 'transparent',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive(link.href)) {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent'
+                }}
+              >
+                {link.label}
+                {isActive(link.href) && (
+                  <span
+                    className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full pointer-events-none"
+                    style={{ background: '#2f80ed' }}
+                  />
+                )}
+              </a>
+            ))}
+          </div>
+
+          {/* Right side actions */}
+          <div className="hidden md:flex items-center gap-3">
+            <a
+              href="/login"
+              className="px-4 py-1.5 rounded-lg text-[13px] font-[500] text-white transition-colors duration-150 hover:bg-white/10 inline-block cursor-pointer no-underline"
+              style={{ border: '1px solid rgba(255,255,255,0.25)' }}
+            >
+              Login / My Home
+            </a>
+            <button
+              type="button"
+              onClick={openModal}
+              className="px-4 py-1.5 rounded-lg text-[13px] font-head font-bold text-white transition-all duration-200 hover:-translate-y-px hover:shadow-lg"
+              style={{ background: '#2f80ed' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#1a6dd6' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#2f80ed' }}
+            >
+              Free Quote
+            </button>
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            type="button"
+            className="md:hidden text-white p-2"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label="Toggle menu"
+          >
+            <svg width="22" height="18" viewBox="0 0 22 18" fill="none">
+              {mobileOpen ? (
+                <path d="M1 1L21 17M21 1L1 17" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              ) : (
+                <>
+                  <line x1="0" y1="2"  x2="22" y2="2"  stroke="white" strokeWidth="2" strokeLinecap="round" />
+                  <line x1="0" y1="9"  x2="22" y2="9"  stroke="white" strokeWidth="2" strokeLinecap="round" />
+                  <line x1="0" y1="16" x2="22" y2="16" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                </>
+              )}
+            </svg>
+          </button>
+        </div>
+
+        {/* Bottom gradient line — must not steal clicks from row above */}
+        <div
+          className="pointer-events-none absolute bottom-0 left-0 right-0 z-0 h-[2px]"
+          style={{
+            background:
+              'linear-gradient(90deg, transparent 0%, #2f80ed 30%, #f2994a 50%, #2f80ed 70%, transparent 100%)',
+          }}
+        />
+      </nav>
+
+      {/* Mobile menu drawer */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-[190] md:hidden"
+          style={{ paddingTop: 60 }}
+          onClick={() => setMobileOpen(false)}
+        >
+          <div
+            className="absolute top-[60px] left-0 right-0 shadow-2xl z-10"
+            style={{ background: '#0f2a44' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col py-3">
+              {NAV_LINKS.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="text-left px-6 py-3 text-[14px] font-[500] transition-colors block w-full cursor-pointer no-underline"
+                  style={{
+                    color: isActive(link.href) ? '#2f80ed' : 'rgba(255,255,255,0.8)',
+                    background: isActive(link.href) ? 'rgba(47,128,237,0.1)' : 'transparent',
+                  }}
+                >
+                  {link.label}
+                </a>
+              ))}
+              <div className="flex gap-3 px-6 py-4 border-t border-white/10 mt-2">
+                <a
+                  href="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex-1 py-2 text-[13px] font-[500] text-white rounded-lg border border-white/25 text-center cursor-pointer no-underline"
+                >
+                  Login
+                </a>
+                <button
+                  type="button"
+                  onClick={() => { openModal(); setMobileOpen(false) }}
+                  className="flex-1 py-2 text-[13px] font-head font-bold text-white rounded-lg"
+                  style={{ background: '#2f80ed' }}
+                >
+                  Free Quote
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Spacer to push content below fixed nav */}
+      <div style={{ height: 60 }} />
+    </>
+  )
+}
+
+==FOOTER==
+import Link from 'next/link'
+
+const SERVICES = [
+  { label: 'Home Interiors',   href: '/interiors' },
+  { label: 'Pricing Packages', href: '/pricing' },
+  { label: 'Real Estate',      href: '/real-estate' },
+  { label: 'BuildLive Tracking', href: '/buildlive' },
+  { label: 'Interior Calculator', href: '/pricing' },
+]
+
+const BUILDLIVE = [
+  { label: 'My Home Portal',   href: '/portal/login' },
+  { label: 'Project Tracking', href: '/buildlive' },
+  { label: 'Design Approvals', href: '/buildlive' },
+  { label: 'Milestone Payments', href: '/buildlive' },
+  { label: 'Snag Management',  href: '/buildlive' },
+]
+
+const COMPANY = [
+  { label: 'About Us',         href: '/about-us' },
+  { label: 'Blog',             href: '/blog' },
+  { label: 'Careers',          href: '/careers' },
+  { label: 'Contact',          href: '/contact-us' },
+  { label: 'Privacy Policy',   href: '/privacy-policy' },
+  { label: 'Terms of Service', href: '/terms-and-condition' },
+]
+
+const footerLinkClass =
+  'text-[13px] transition-colors text-left cursor-pointer no-underline block w-fit text-[#5a6a7e] hover:text-white'
+
+export default function Footer() {
+  return (
+    <footer style={{ background: '#0f2a44' }} className="relative z-10">
+      <div className="max-w-7xl mx-auto px-6 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+          {/* Brand column */}
+          <div className="md:col-span-1">
+            <Link
+              href="/"
+              className="font-head font-extrabold text-[26px] leading-none mb-3 inline-block cursor-pointer no-underline bg-transparent border-0 p-0 text-left"
+            >
+              <span className="text-white">Houz</span>
+              <span style={{ color: '#f2994a' }}>next</span>
+            </Link>
+            <p className="text-sm italic mt-2" style={{ color: '#5a6a7e' }}>
+              Buy Right. Build Strong. Design Beautiful.
+            </p>
+            <p className="text-xs mt-4 leading-relaxed" style={{ color: '#5a6a7e' }}>
+              Fixed-price home interiors, RERA-verified real estate, and live BuildLive
+              tracking for homeowners across Telangana.
+            </p>
+            <div className="flex items-center gap-3 mt-5">
+              <a
+                href="https://instagram.com/houznext"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-white transition-colors"
+                style={{ background: 'rgba(255,255,255,0.1)' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = '#2f80ed' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.1)' }}
+                aria-label="Instagram"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                </svg>
+              </a>
+              <a
+                href="https://wa.me/919759750770"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-white transition-colors"
+                style={{ background: 'rgba(255,255,255,0.1)' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = '#25D366' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.1)' }}
+                aria-label="WhatsApp"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          {/* Services */}
+          <div>
+            <h4 className="font-head font-bold text-white text-[13px] uppercase tracking-wider mb-4">
+              Services
+            </h4>
+            <ul className="space-y-2.5">
+              {SERVICES.map((item) => (
+                <li key={item.label}>
+                  <Link href={item.href} className={footerLinkClass}>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* BuildLive */}
+          <div>
+            <h4 className="font-head font-bold text-white text-[13px] uppercase tracking-wider mb-4">
+              BuildLive
+            </h4>
+            <ul className="space-y-2.5">
+              {BUILDLIVE.map((item) => (
+                <li key={item.label}>
+                  <Link href={item.href} className={footerLinkClass}>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Company */}
+          <div>
+            <h4 className="font-head font-bold text-white text-[13px] uppercase tracking-wider mb-4">
+              Company
+            </h4>
+            <ul className="space-y-2.5">
+              {COMPANY.map((item) => (
+                <li key={item.label}>
+                  <Link href={item.href} className={footerLinkClass}>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div style={{ background: '#071828' }}>
+        <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-2">
+          <p className="text-xs" style={{ color: '#5a6a7e' }}>
+            © {new Date().getFullYear()} Houznext. All rights reserved.
+          </p>
+          <div className="flex items-center gap-4">
+            <span
+              className="text-xs px-2 py-0.5 rounded border font-[500]"
+              style={{ color: '#5a6a7e', borderColor: '#1a3a5c' }}
+            >
+              RERA Registered
+            </span>
+            <span
+              className="text-xs px-2 py-0.5 rounded border font-[500]"
+              style={{ color: '#5a6a7e', borderColor: '#1a3a5c' }}
+            >
+              ISO 9001:2015
+            </span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+==NEXT CONFIG==
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  output: 'standalone',
+  compress: true,
+  eslint: { ignoreDuringBuilds: true },
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'houznext.com' },
+      { protocol: 'https', hostname: 'your-railway-backend.up.railway.app' },
+      // Legacy S3 buckets (keep for existing portal/property images)
+      { protocol: 'https', hostname: 'dreamcasaimages.s3.ap-south-1.amazonaws.com' },
+      { protocol: 'https', hostname: 'onecasa-dev-assets.s3.ap-south-1.amazonaws.com' },
+      { protocol: 'https', hostname: 'onecasa-prod-assets.s3.ap-south-1.amazonaws.com' },
+      { protocol: 'https', hostname: 'via.placeholder.com' },
+      { protocol: 'https', hostname: 'cdn.pixabay.com' },
+      { protocol: 'https', hostname: 'maps.googleapis.com' },
+      { protocol: 'https', hostname: 'placehold.co', pathname: '/**' },
+      { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
+    ],
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options',        value: 'DENY' },
+          { key: 'Referrer-Policy',        value: 'strict-origin-when-cross-origin' },
+        ],
+      },
+      {
+        source: '/_next/static/(.*)',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      },
+      {
+        source: '/images/(.*)',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      },
+    ]
+  },
+  async redirects() {
+    return [
+      { source: '/solar', destination: '/', permanent: false },
+      { source: '/solar/:path*', destination: '/', permanent: false },
+      { source: '/services/solar', destination: '/', permanent: false },
+      { source: '/legalservices', destination: '/', permanent: false },
+      { source: '/legalservices/:path*', destination: '/', permanent: false },
+      { source: '/earthmovers', destination: '/', permanent: false },
+      { source: '/earthmovers/:path*', destination: '/', permanent: false },
+      { source: '/services/earthmovers', destination: '/', permanent: false },
+      { source: '/painting', destination: '/', permanent: false },
+      { source: '/painting/:path*', destination: '/', permanent: false },
+      { source: '/services/painting', destination: '/', permanent: false },
+      { source: '/plumbing', destination: '/', permanent: false },
+      { source: '/plumbing/:path*', destination: '/', permanent: false },
+      { source: '/services/plumbing', destination: '/', permanent: false },
+      { source: '/packersandmovers', destination: '/', permanent: false },
+      { source: '/packersandmovers/:path*', destination: '/', permanent: false },
+      { source: '/loans', destination: '/', permanent: false },
+      { source: '/loans/:path*', destination: '/', permanent: false },
+      { source: '/services/loans', destination: '/', permanent: false },
+      { source: '/services/homedecor', destination: '/', permanent: false },
+      { source: '/services/homedecor/:path*', destination: '/', permanent: false },
+      { source: '/services/electronics', destination: '/', permanent: false },
+      { source: '/services/electronics/:path*', destination: '/', permanent: false },
+      { source: '/services/vastu-consultation', destination: '/', permanent: false },
+      { source: '/services/civilEngineering', destination: '/', permanent: false },
+      { source: '/services/custom-builder', destination: '/livebuild', permanent: true },
+      { source: '/services/custom-builder/:path*', destination: '/livebuild', permanent: true },
+      { source: '/custom-builder', destination: '/livebuild', permanent: true },
+      { source: '/custom-builder/:path*', destination: '/livebuild', permanent: true },
+      { source: '/referandearn', destination: '/houznext-rewards', permanent: true },
+      { source: '/view-analytics', destination: '/', permanent: false },
+      {
+        source: '/custom-builder/user/:id*',
+        destination: '/user/livebuild/user/:id*',
+        permanent: false,
+      },
+      // Houznext blog listing lives at /blog; /blogs was legacy OneCasa listing (CMS). Keep /blogs/:id for API articles.
+      { source: '/blogs', destination: '/blog', permanent: true },
+      { source: '/blogs/', destination: '/blog', permanent: true },
+    ]
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.optimization.splitChunks = {
+        ...config.optimization.splitChunks,
+        cacheGroups: {
+          ...config.optimization.splitChunks.cacheGroups,
+          vendor: {
+            test: /[\\/]node_modules[\\/](react|react-dom|next)[\\/]/,
+            name: 'vendor',
+            chunks: 'all',
+            priority: 10,
+            minSize: 20000,
+            maxSize: 40000,
+          },
+        },
+      }
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        moment$: 'moment/moment.js',
+      }
+    }
+    return config
+  },
+}
+
+module.exports = nextConfig
+
+==WEBSITE API CLIENT==
+==ADMIN API CLIENT==

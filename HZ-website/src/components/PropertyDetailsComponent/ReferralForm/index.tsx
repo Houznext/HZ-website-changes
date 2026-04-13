@@ -167,7 +167,7 @@ export default function ReferralForm({
               </button>
             )}
             <div className="min-w-0 flex-1">
-              <h2 className="text-lg font-bold tracking-tight md:text-xl">Refer & Earn</h2>
+              <h2 className="text-lg font-bold tracking-tight md:text-xl">Houznext Rewards</h2>
               <p className="mt-0.5 text-xs font-medium text-white/90 md:mt-1 md:text-sm">
                 Share your friend’s details and earn rewards when they convert
               </p>

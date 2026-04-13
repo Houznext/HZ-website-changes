@@ -10,7 +10,7 @@ export default function BuildLivePage() {
   return (
     <>
       <SeoHead
-        title="BuildLive — Track Your Interior Live Daily | Houznext"
+        title="LiveBuild — Track Your Interior Live Daily | Houznext"
         description="Room-by-room live photo updates, design approvals, milestone payments and snag management. Know exactly what's happening at your site every day — from your phone."
         canonical="/buildlive"
         schema={buildliveSchema}
@@ -41,7 +41,7 @@ function BuildLiveHero() {
                 <span style={{ color: '#2f80ed' }}>Live.</span>
               </h1>
               <p className="text-[16px] mb-6 leading-relaxed" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                BuildLive is Houznext&apos;s proprietary project tracking system.
+                LiveBuild is Houznext&apos;s proprietary project tracking system.
                 Know exactly what&apos;s happening at your site — every single day.
               </p>
               <ul className="space-y-2.5 mb-8">
@@ -181,7 +181,7 @@ function WaBar() {
             Login to My Home →
           </button>
           <a
-            href="https://wa.me/919759750770?text=Hi%20Houznext%2C%20I%20want%20to%20know%20more%20about%20BuildLive"
+            href="https://wa.me/919759750770?text=Hi%20Houznext%2C%20I%20want%20to%20know%20more%20about%20LiveBuild"
             target="_blank" rel="noopener noreferrer"
             className="px-8 py-4 rounded-xl font-head font-bold text-white text-[15px] transition-all hover:-translate-y-0.5 inline-flex items-center gap-2"
             style={{ background: '#25D366' }}

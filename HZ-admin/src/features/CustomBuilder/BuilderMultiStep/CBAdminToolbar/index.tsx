@@ -56,7 +56,7 @@ const CBAdminToolbar: React.FC<Props> = ({
       {/* Title row */}
       <div className="flex items-center justify-between gap-3 py-3 md:py-4">
         <h1 className="text-[18px] md:text-[22px] font-bold text-[#2F6EF7]">
-          Custom Builders
+          LiveBuild
         </h1>
 
         <div className="hidden md:flex items-center gap-8">

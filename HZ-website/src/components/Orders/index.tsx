@@ -50,7 +50,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; sort: number }> = {
     ELECTRONICS: { label: "Electronics", sort: 4 },
     HOME_DECOR: { label: "Home Decor", sort: 5 },
     SOLAR: { label: "Solar", sort: 6 },
-    CUSTOM_BUILDER: { label: "Custom Builder", sort: 7 },
+    CUSTOM_BUILDER: { label: "LiveBuild", sort: 7 },
     STORE: { label: "Store", sort: 8 },
     SERVICE: { label: "Services", sort: 9 },
     MIXED: { label: "Other", sort: 10 },

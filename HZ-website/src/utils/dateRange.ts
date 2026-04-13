@@ -1,4 +1,4 @@
-import { filtersdata } from "@/components/CustomBuilder/ServicesSelectedView/helper";
+import { filtersdata } from "@/components/LivebuildComponent/ServicesSelectedView/helper";
 
 type FilterType = (typeof filtersdata)[number]["id"];
 export function getDateRange(

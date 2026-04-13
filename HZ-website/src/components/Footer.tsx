@@ -4,7 +4,7 @@ const SERVICES = [
   { label: 'Home Interiors',   href: '/interiors' },
   { label: 'Pricing Packages', href: '/pricing' },
   { label: 'Real Estate',      href: '/real-estate' },
-  { label: 'BuildLive Tracking', href: '/buildlive' },
+  { label: 'LiveBuild Tracking', href: '/buildlive' },
   { label: 'Interior Calculator', href: '/pricing' },
 ]
 
@@ -46,7 +46,7 @@ export default function Footer() {
               Buy Right. Build Strong. Design Beautiful.
             </p>
             <p className="text-xs mt-4 leading-relaxed" style={{ color: '#5a6a7e' }}>
-              Fixed-price home interiors, RERA-verified real estate, and live BuildLive
+              Fixed-price home interiors, RERA-verified real estate, and live LiveBuild
               tracking for homeowners across Telangana.
             </p>
             <div className="flex items-center gap-3 mt-5">
@@ -97,10 +97,10 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* BuildLive */}
+          {/* LiveBuild */}
           <div>
             <h4 className="font-head font-bold text-white text-[13px] uppercase tracking-wider mb-4">
-              BuildLive
+              LiveBuild
             </h4>
             <ul className="space-y-2.5">
               {BUILDLIVE.map((item) => (

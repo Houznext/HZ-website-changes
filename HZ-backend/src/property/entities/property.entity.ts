@@ -17,8 +17,8 @@ import { User } from 'src/user/entities/user.entity';
 import { WishlistItems } from 'src/wishlist/entities/wishlistItems.entity';
 import { Reviews } from 'src/reviews/entities/reviews.entity';
 import { PropertyLead } from '../propertyLead/property-lead.entity';
-import { PropertyReferralAgreement } from 'src/referandearn/entities/propertyreferralagreement.entity';
-import { ContactRouting } from 'src/referandearn/enum/refer-and-earn.enum';
+import { PropertyReferralAgreement } from 'src/houznext-rewards/entities/propertyreferralagreement.entity';
+import { ContactRouting } from 'src/houznext-rewards/enum/refer-and-earn.enum';
 
 @Entity()
 export class Property {

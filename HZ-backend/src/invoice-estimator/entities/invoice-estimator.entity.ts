@@ -6,7 +6,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
-import { CustomBuilder } from 'src/Custombuilder/entities/custom-builder.entity';
+import { CustomBuilder } from 'src/livebuild/entities/custom-builder.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
 
 @Entity()

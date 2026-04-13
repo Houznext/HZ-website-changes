@@ -15,37 +15,32 @@ import { BuilderLeadsModule } from './builderleads/builder.module';
 import { FurnitureModule } from './furnitures/furniture.module';
 import { ConfigModule } from '@nestjs/config';
 import { CartModule } from './cart/cart.module';
-import { FurnitureLeadModule } from './furnitureleads/furniture-lead.module';
 import { NotificationModule } from './notifications/notification.module';
-import { ServiceCustomLeadModule } from './servicecustomlead/servicecustomlead.module';
-import { HomeDecorsModule } from './homeDecors/homeDecors.module';
 import { CareerAdminModule } from './careers/admin/careerAdmin.module';
 import { CareerModule } from './careers/career/career.module';
-import { CustomerModule } from './Custombuilder/customer/customer.module';
-import { LocationModule } from './Custombuilder/location/location.module';
-import { CustomBuilderModule } from './Custombuilder/custom-builder.module';
-import { DailyProgressModule } from './Custombuilder/daily-progress/daily-progress.module';
-import { CustomPropertyModule } from './Custombuilder/custom-property/custom-property.module';
-import { CBServiceModule } from './Custombuilder/service-required/cb-service.module';
+import { CustomerModule } from './livebuild/customer/customer.module';
+import { LocationModule } from './livebuild/location/location.module';
+import { LivebuildModule } from './livebuild/custom-builder.module';
+import { DailyProgressModule } from './livebuild/daily-progress/daily-progress.module';
+import { CustomPropertyModule } from './livebuild/custom-property/custom-property.module';
+import { CBServiceModule } from './livebuild/service-required/cb-service.module';
 import { CostEstimatorModule } from './cost-estimator/cost-estimator.module';
 import { ControllerAuthGuard } from './guard';
-import { BorewellModule } from './Custombuilder/services/borewell/borewell.module';
-import { BrickMasonryModule } from './Custombuilder/services/brickMasonry/brickMasonry.module';
-import { CentringModule } from './Custombuilder/services/centring/centring.module';
-import { DocumentDraftingModule } from './Custombuilder/services/documentDrafting/documentDrafting.module';
-import { ElectricityModule } from './Custombuilder/services/electricity/electricity.module';
-import { FallCeilingModule } from './Custombuilder/services/fallCeiling/fallCeiling.module';
-import { FlooringModule } from './Custombuilder/services/flooring/flooring.module';
-import { PaintingModule } from './Custombuilder/services/painting/painting.module';
-import { PlumbingModule } from './Custombuilder/services/plumbing/plumbing.module';
+import { BorewellModule } from './livebuild/services/borewell/borewell.module';
+import { BrickMasonryModule } from './livebuild/services/brickMasonry/brickMasonry.module';
+import { CentringModule } from './livebuild/services/centring/centring.module';
+import { DocumentDraftingModule } from './livebuild/services/documentDrafting/documentDrafting.module';
+import { ElectricityModule } from './livebuild/services/electricity/electricity.module';
+import { FallCeilingModule } from './livebuild/services/fallCeiling/fallCeiling.module';
+import { FlooringModule } from './livebuild/services/flooring/flooring.module';
+import { PaintingModule } from './livebuild/services/painting/painting.module';
+import { PlumbingModule } from './livebuild/services/plumbing/plumbing.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { CRMLeadModule } from './crm/crm.module';
-import { CompanyOnboardingModule } from './company-onboarding/company-onboarding.module';
 import { AwardModule } from './company-onboarding/Awards/awards.module';
 import { CompanyAddressModule } from './company-onboarding/CompanyAddress/companyaddress.module';
-import { InteriorServiceModule } from './Custombuilder/services/interior/interior.module';
-import { ElectronicsModule } from './electronics/electronics.module';
+import { InteriorServiceModule } from './livebuild/services/interior/interior.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './tasks/tasks.module';
 import { DeleteAccountModule } from './deleteaccount/delete-account.module';
@@ -53,37 +48,33 @@ import { PropertyLeadModule } from './property/propertyLead/property-lead.module
 import { InvoiceEstimatorModule } from './invoice-estimator/invoice-estimator.module';
 import { WhatsAppModule } from './whatsappSend/whatsapp.module';
 import { UnifiedPropertyListingModule } from './unified-property-listing/unified-property-listing.module';
-import { QueryModule } from './Custombuilder/Query/query.module';
+import { QueryModule } from './livebuild/Query/query.module';
 import { S3Module } from './common/s3/s3.module';
-import { PackageModule } from './Custombuilder/package/package.module';
+import { PackageModule } from './livebuild/package/package.module';
 import { ContactUsModule } from './contactus/contact-us.module';
 import { ResourceModule } from './ResourceName/resource.module';
-import { CbDocumentModule } from './Custombuilder/cbdocument/cbdocument.module';
-import { PhaseModule } from './Custombuilder/phase/phase.module';
-import { MaterialsModule } from './Custombuilder/Materials/materials.module';
-import { PaymentTrackingModule } from './Custombuilder/payment-tracking/payment-tracking.module';
+import { CbDocumentModule } from './livebuild/cbdocument/cbdocument.module';
+import { PhaseModule } from './livebuild/phase/phase.module';
+import { MaterialsModule } from './livebuild/Materials/materials.module';
+import { PaymentTrackingModule } from './livebuild/payment-tracking/payment-tracking.module';
 import { CityModule } from './geography/city/city.module';
 import { StateModule } from './geography/state/state.module';
-import { ReferralModule } from './Referral/referral.module';
-import { HrModule } from './employee-hr/hr.module';
 import { OrdersModule } from './orders/order.module';
-import { ReferAndEarnModule } from './referandearn/referandearn.module';
+import { HouznextRewardsModule } from './houznext-rewards/houznext-rewards.module';
 import { PropertyPremiumPlansModule } from './property-premium-plans/property-premium-plans.module';
 import { ChatModule } from './chat/chat.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
 import { RealtimeModule } from "./realtime/realtime.module";
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { StaffAttendanceModule } from "./attendance/attendance.module"
-import { SolarOrdersModule } from './solar-orders/solar-orders.module';
 import { FloorplansModule } from './floorplans/floorplans.module';
 import { ShiprocketModule } from './shiprocket/shiprocket.module';
 import { AuditLogModule } from './audit-log/audit-log.module';
 import { InteriorModule } from './interiors/interior.module';
+import { InteriorPackagesModule } from './interior-packages/interior-packages.module';
 import { BranchModule } from './branch/branch.module';
 import { BranchRoleModule } from './branchRole/branch-role.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditLogInterceptor } from './audit-log/audit-log.interceptor';
-import { InteriorPackagesModule } from './interior-packages/interior-packages.module';
 
 @Module({
   imports: [
@@ -115,18 +106,14 @@ import { InteriorPackagesModule } from './interior-packages/interior-packages.mo
     BuilderLeadsModule,
     UnifiedPropertyListingModule,
     FurnitureModule,
-    PropertyModule,
     CartModule,
-    FurnitureLeadModule,
-    ServiceCustomLeadModule,
     OrdersModule,
-    HomeDecorsModule,
     CareerAdminModule,
     CareerModule,
     WhatsAppModule,
     CustomerModule,
     LocationModule,
-    CustomBuilderModule,
+    LivebuildModule,
     QueryModule,
     DailyProgressModule,
     CustomPropertyModule,
@@ -143,24 +130,18 @@ import { InteriorPackagesModule } from './interior-packages/interior-packages.mo
 
     PaintingModule,
     PlumbingModule,
-    BrickMasonryModule,
-    DocumentDraftingModule,
     InteriorServiceModule,
-    CostEstimatorModule,
     ReviewsModule,
     WishlistModule,
     CRMLeadModule,
     AwardModule,
     CompanyAddressModule,
-    CompanyOnboardingModule,
     DeleteAccountModule,
-    ElectronicsModule,
     PropertyLeadModule,
     PropertyPremiumPlansModule,
     InvoiceEstimatorModule,
     PackageModule,
     StateModule,
-    ReferralModule,
     ResourceModule,
     ContactUsModule,
     CbDocumentModule,
@@ -168,12 +149,9 @@ import { InteriorPackagesModule } from './interior-packages/interior-packages.mo
     MaterialsModule,
     PaymentTrackingModule,
     CityModule,
-    HrModule,
-    ReferAndEarnModule,
+    HouznextRewardsModule,
     ChatModule,
     ChatbotModule,
-    StaffAttendanceModule,
-    SolarOrdersModule,
     FloorplansModule,
     ShiprocketModule,
     AuditLogModule,

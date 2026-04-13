@@ -9,8 +9,6 @@ import {
 import { Wishlist } from './wishlist.entity';
 import { Property } from 'src/property/entities/property.entity';
 import { Furniture } from 'src/furnitures/entities/furniture.entity';
-import { HomeDecors } from 'src/homeDecors/entities/homeDecors.entity';
-import { Electronics } from 'src/electronics/entities/electronics.entity';
 
 @Entity()
 export class WishlistItems {
@@ -26,14 +24,6 @@ export class WishlistItems {
 
   @ManyToOne(() => Furniture, (furniture) => furniture.wishlistItems)
   furniture: Furniture;
-
-  @ManyToOne(() => HomeDecors, (homeDecors) => homeDecors.wishlistItems)
-  homeDecors: HomeDecors;
-
-  @ManyToOne(() => Electronics, (electronics) => electronics.wishlistItems, {
-    nullable: true,
-  })
-  electronics: Electronics;
 
   @ManyToOne(() => Wishlist, (wishlist) => wishlist.wishlistItems, {
     eager: true,

@@ -736,7 +736,7 @@ function SingleProperty({
                   }}
                   className="md:px-4 px-2  py-1 text-[12px] md:text-[12px] text-nowrap text-[#3586FF] border font-medium border-[#3586FF] rounded-lg text-center hover:bg-blue-50 transition-colors"
                 >
-                  Refer and Earn
+                  Houznext Rewards
                 </Button>
               ) : (
                 <Button

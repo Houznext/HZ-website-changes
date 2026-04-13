@@ -15,8 +15,7 @@ import {
   ADMIN_REFERRAL_NOTIFICATION_TEMPLATE,
   ADMIN_CONTACT_NOTIFICATION_TEMPLATE,
 } from './emailTemplates';
-import { Referral } from './Referral/entities/referral.entity';
-import { ServiceCustomLead } from './servicecustomlead/entities/servicecustomlead.entity';
+import { Referral } from './houznext-rewards/entities/referral.entity';
 
 import { PropertyLead } from './property/propertyLead/property-lead.entity';
 interface GenericLead {
@@ -196,32 +195,6 @@ export class MailerService {
       );
     }
   }
-  async notifyAdminsAboutServiceLead(lead: ServiceCustomLead): Promise<void> {
-    const populatedTemplate = this.populateTemplate(
-      ADMIN_LEAD_NOTIFICATION_TEMPLATE,
-      {
-        leadName: lead.name || 'No Name',
-        leadId: lead.id.toString(),
-        phoneNumber: lead.phonenumber || 'N/A',
-
-        service: lead.serviceType || 'N/A',
-        assignedTo: lead.assignedTo?.fullName || 'Unassigned',
-        currentDate: new Date().toLocaleDateString(),
-      },
-    );
-
-    const adminEmails = ['business@houznext.com'];
-
-    for (const email of adminEmails) {
-      await this.sendMail(
-        email,
-        'New Lead Created',
-        'A new lead has been created.',
-        populatedTemplate,
-      );
-    }
-  }
-
   async notifyAdminsAboutContactLead(contact: ContactUs): Promise<void> {
     const populatedTemplate = this.populateTemplate(
       ADMIN_CONTACT_NOTIFICATION_TEMPLATE,

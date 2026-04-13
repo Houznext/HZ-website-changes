@@ -1,7 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { env } from "process";
 import apiClient from "@/src/utils/apiClient";
 
 type DecodedToken = {
@@ -78,45 +77,8 @@ const authOptions: NextAuthOptions = {
         const email = credentials?.email;
         const password = credentials?.password;
 
-        // Houznext static admin fallback (does not depend on backend user record)
-        if (
-          email === "business@houznext.com" &&
-          password === "Houznext@758"
-        ) {
-          const now = Math.floor(Date.now() / 1000);
-          const payload = { exp: now + 60 * 60 * 24 * 30, lastLogin: now };
-          const header = { alg: "HS256", typ: "JWT" };
-          const base64url = (obj: any) =>
-            Buffer.from(JSON.stringify(obj))
-              .toString("base64")
-              .replace(/=/g, "")
-              .replace(/\+/g, "-")
-              .replace(/\//g, "_");
-
-          const token = `${base64url(header)}.${base64url(
-            payload
-          )}.houznext-static-signature`;
-
-          // Use the real backend user ID for business@houznext.com
-          // so APIs that expect a UUID (like cost-estimator) work correctly.
-          return {
-            id: "b3617af1-b2e5-415b-aa55-a2b56e34a0de",
-            email: "business@houznext.com",
-            firstName: "Houznext",
-            lastName: "Admin",
-            username: "houznext-admin",
-            phone: null,
-            profile: null,
-            kind: "STAFF",
-            role: "ADMIN",
-            token,
-            branchMemberships: [],
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          } as any;
-        }
-
-        // Default behaviour: delegate to backend login endpoint
+        // All logins must receive a backend-signed JWT — JwtAuthGuard verifies
+        // JWT_SECRET on the API; a client-only "static" token always yields 401 on PUT/POST.
         try {
           const res = await apiClient.post(
             `${apiClient.URLS.user}/login-user`,
@@ -130,8 +92,14 @@ const authOptions: NextAuthOptions = {
 
           const { user, token, branchMemberships } = body || {};
           if ((res?.status === 201 || res?.status === 200) && user && token) {
-            const isAdmin = user.role === "ADMIN";
-            const isStaff = user.kind === "STAFF";
+            const roleStr = (user.role ?? "").toString().trim();
+            const kindStr = (user.kind ?? "").toString().trim().toUpperCase();
+            const isAdmin =
+              roleStr === "ADMIN" ||
+              roleStr === "SuperAdmin" ||
+              roleStr.toUpperCase() === "SUPERADMIN" ||
+              roleStr.toUpperCase() === "SUPER_ADMIN";
+            const isStaff = kindStr === "STAFF";
             const hasBranchMemberships =
               Array.isArray(branchMemberships) && branchMemberships.length > 0;
 
@@ -247,7 +215,6 @@ const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signOut: env.NEXTAUTH_URL,
     signIn: "/login",
   },
 };

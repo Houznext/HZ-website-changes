@@ -10,7 +10,7 @@ import {
 import { Property } from 'src/property/entities/property.entity';
 import { Project } from 'src/company-onboarding/entities/company-projects.entity';
 import { User } from 'src/user/entities/user.entity';
-import { CustomBuilder } from 'src/Custombuilder/entities/custom-builder.entity';
+import { CustomBuilder } from 'src/livebuild/entities/custom-builder.entity';
 import { Company } from 'src/company-onboarding/entities/company.entity';
 
 @Entity('location_details')

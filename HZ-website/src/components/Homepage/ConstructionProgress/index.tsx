@@ -101,7 +101,7 @@ const ConstructionProgress = () => {
                     </span>
                     , progress on{" "}
                     <Button
-                      onClick={() => router.push("/user/custom-builder")}
+                      onClick={() => router.push("/user/livebuild")}
                       className="text-[#3586FF] font-bold underline-offset-2 hover:underline"
                     >
                       {item.propertyName}
@@ -113,7 +113,7 @@ const ConstructionProgress = () => {
                 </div>
 
                 <Button
-                  onClick={() => router.push("/user/custom-builder")}
+                  onClick={() => router.push("/user/livebuild")}
                   className="bg-[#3586FF] hover:bg-blue-600 text-nowrap text-white font-medium md:text-[14px] text-[12px] px-4 py-1 rounded-lg shadow transition-all"
                 >
                   Track Progress

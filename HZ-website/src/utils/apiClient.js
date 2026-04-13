@@ -56,7 +56,6 @@ const URLS = {
   payment: `${base_url}payments`,
   payments: `${base_url}payments`,
   orders: `${base_url}orders`,
-  homeDecor: `${base_url}homeDecor`,
   careers: `${base_url}admin/careers`,
   apply: `${base_url}careers`,
   crmlead: `${base_url}crmlead`,
@@ -69,7 +68,6 @@ const URLS = {
   company: `${base_url}custom-property`,
   companyonboarding: `${base_url}companyOnboarding`,
   strapiInteriors: `${strapi_url}`,
-  electronics: `${base_url}electronics`,
   company_address: `${base_url}company-address`,
   company_awards: `${base_url}company-awards`,
   delete_account: `${base_url}delete-account`,
@@ -82,12 +80,12 @@ const URLS = {
   payments: `${base_url}payments`,
   referandearn: `${base_url}refer-and-earn`,
   referAndEarnProperties: `${base_url}refer-and-earn/properties`,
-  interior_packages: `${base_url}interior-packages`,
   chat: `${base_url}chat`,
   chatDm: `${base_url}chat/dm`,
   chatThreads: `${base_url}chat/threads`,
   chatbotConversations: `${base_url}chatbot/conversations`,
   branches: `${base_url}branches`,
+  interior_packages: `${base_url}interior-packages`,
 };
 
 const getResponseBody = (response) => {

@@ -34,7 +34,7 @@ import {
   listItems,
 } from "@/utils/interiorshelper";
 import { InteriorCalc } from "./InteriorsCard";
-import Partners from "@/components/SolarPage/Partners";
+import Partners from "@/components/ServicePartners";
 import Link from "next/link";
 
 const InteriorsComponent = ({

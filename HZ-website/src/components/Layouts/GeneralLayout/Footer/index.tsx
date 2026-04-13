@@ -45,16 +45,8 @@ const GeneralFooter = () => {
           url: "/services/construction-for-business",
         },
         {
-          label: "Solar Solutions", // ← ADDED
-          url: "/solar",
-        },
-        {
-          label: "Custom Builder",
-          url: "/custom-builder",
-        },
-        {
-          label: "Legal Services",
-          url: "/legalservices",
+          label: "LiveBuild",
+          url: "/livebuild",
         },
       ],
     },
@@ -82,8 +74,8 @@ const GeneralFooter = () => {
           url: "/contact-us",
         },
         {
-          label: "Refer & Earn",
-          url: "/referandearn",
+          label: "Houznext Rewards",
+          url: "/houznext-rewards",
         },
         {
           label: "Terms & Conditions",

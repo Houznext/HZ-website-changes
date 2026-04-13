@@ -11,14 +11,11 @@ import { PaymentsService } from './payment.service';
 import { User } from 'src/user/entities/user.entity';
 import { PropertyModule } from 'src/property/property.module';
 import { PropertyPremiumPlansModule } from 'src/property-premium-plans/property-premium-plans.module';
-import { SolarOrdersModule } from 'src/solar-orders/solar-orders.module';
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([Payment, PaymentAuditLog, Order, OrderItem, User, Cart, CartItem]),
     PropertyModule,
     PropertyPremiumPlansModule,
-    SolarOrdersModule,
   ],
   controllers: [PaymentsController],
   providers: [PaymentsService],

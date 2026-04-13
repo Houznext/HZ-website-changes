@@ -6,7 +6,7 @@ const NAV_LINKS = [
   { label: 'Home',        href: '/' },
   { label: 'Interiors',   href: '/interiors' },
   { label: 'Real Estate', href: '/real-estate' },
-  { label: 'BuildLive',   href: '/buildlive' },
+  { label: 'LiveBuild',   href: '/buildlive' },
   { label: 'Pricing',     href: '/pricing' },
   { label: 'Blog',        href: '/blog' },
 ]

@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
@@ -7,8 +7,6 @@ import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import InteriorCalculator from '@/components/InteriorCalculator'
 import { useQuoteModal } from '@/components/QuoteModal'
 import { interiorServiceSchema } from '@/lib/schemas'
-import apiClient from '@/utils/apiClient'
-
 import Reveal from '@/components/ui/Reveal'
 
 interface ApiPackage {
@@ -21,6 +19,7 @@ interface ApiPackage {
   highlighted: boolean;
   sortOrder: number;
   isActive: boolean;
+  bhkType?: string | null;
 }
 
 const HARDCODED_PACKAGES: ApiPackage[] = [
@@ -39,7 +38,7 @@ const HARDCODED_PACKAGES: ApiPackage[] = [
     price: '₹7.5L',
     suffix: 'onwards',
     color: '#2f80ed',
-    features: ['Everything in Essential', 'Wall panelling', 'Study unit', 'Crockery unit', 'BuildLive tracking'],
+    features: ['Everything in Essential', 'Wall panelling', 'Study unit', 'Crockery unit', 'LiveBuild tracking'],
     highlighted: true,
     sortOrder: 1,
     isActive: true,
@@ -56,7 +55,36 @@ const HARDCODED_PACKAGES: ApiPackage[] = [
   },
 ]
 
-export default function InteriorsPage() {
+function mergeDisplayPackages(cms: ApiPackage[] | null): ApiPackage[] {
+  const fallback = HARDCODED_PACKAGES
+  if (!cms || !Array.isArray(cms) || cms.length === 0) return fallback
+  const active = [...cms]
+    .filter((p) => p.isActive)
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+  if (active.length === 0) return fallback
+  return active.map((row) => {
+    const fb = fallback.find((f) => f.name === row.name)
+    return {
+      id: row.id,
+      name: row.name,
+      price: row.price,
+      suffix: row.suffix ?? 'onwards',
+      color: row.color || fb?.color || '#5a6a7e',
+      features: row.features?.length ? row.features : (fb?.features ?? []),
+      highlighted: row.highlighted,
+      sortOrder: row.sortOrder,
+      isActive: row.isActive,
+    }
+  })
+}
+
+type InteriorsPageProps = {
+  cmsPackages: ApiPackage[] | null
+}
+
+export default function InteriorsPage({ cmsPackages }: InteriorsPageProps) {
+  const packages = mergeDisplayPackages(cmsPackages)
+
   return (
     <>
       <SeoHead
@@ -70,7 +98,7 @@ export default function InteriorsPage() {
       <main style={{ background: '#f5f7fa' }}>
         <InteriorsHero />
         <WhyChooseUs />
-        <PackagesSection />
+        <PackagesSection packages={packages} />
         <RoomCategories />
         <ProcessTimeline />
         <ServiceBanner />
@@ -110,7 +138,7 @@ function InteriorsHero() {
               </h1>
               <p className="text-[16px] mb-8 leading-relaxed" style={{ color: 'rgba(255,255,255,0.65)' }}>
                 Fixed-price interior design for 2BHK, 3BHK and villas. 45-day delivery,
-                photorealistic 3D designs, and live BuildLive tracking.
+                photorealistic 3D designs, and live LiveBuild tracking.
               </p>
               <div className="flex flex-wrap gap-3">
                 <button
@@ -192,28 +220,9 @@ function WhyChooseUs() {
   )
 }
 
-function PackagesSection() {
+function PackagesSection({ packages }: { packages: ApiPackage[] }) {
   const { openModal } = useQuoteModal()
-  const [packages, setPackages] = useState<ApiPackage[]>([])
-  const [loaded, setLoaded] = useState(false)
-
-  useEffect(() => {
-    apiClient.get(apiClient.URLS.interior_packages, { activeOnly: 'true' })
-      .then((res) => {
-        const data = Array.isArray(res.body) ? res.body : []
-        if (data.length > 0) {
-          setPackages(data as ApiPackage[])
-        } else {
-          setPackages(HARDCODED_PACKAGES)
-        }
-      })
-      .catch(() => {
-        setPackages(HARDCODED_PACKAGES)
-      })
-      .finally(() => setLoaded(true))
-  }, [])
-
-  const display = loaded ? packages : HARDCODED_PACKAGES
+  const display = packages
 
   return (
     <section className="py-16 px-4" style={{ background: '#f5f7fa' }}>
@@ -294,6 +303,27 @@ function PackagesSection() {
   )
 }
 
+export async function getStaticProps() {
+  const raw =
+    process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT
+  let cmsPackages: ApiPackage[] | null = null
+  if (raw) {
+    const base = String(raw).replace(/\/$/, '')
+    try {
+      const res = await fetch(`${base}/interior-packages?activeOnly=true`)
+      if (res.ok) {
+        cmsPackages = await res.json()
+      }
+    } catch {
+      cmsPackages = null
+    }
+  }
+  return {
+    props: { cmsPackages },
+    revalidate: 30,
+  }
+}
+
 function RoomCategories() {
   const rooms = [
     { label: 'Living Room',  desc: 'Sofas, TV units, entertainment walls, accent lighting' },
@@ -335,7 +365,7 @@ function ProcessTimeline() {
     { n: '1', label: 'Consultation',   desc: 'Free call to understand your vision and budget' },
     { n: '2', label: '3D Design',       desc: 'Photorealistic designs for every room' },
     { n: '3', label: 'Approval',        desc: 'Review, revise and approve online' },
-    { n: '4', label: 'Execution',       desc: 'Our team builds with BuildLive tracking' },
+    { n: '4', label: 'Execution',       desc: 'Our team builds with LiveBuild tracking' },
     { n: '5', label: 'Handover',        desc: 'Keys + 1-year warranty document' },
   ]
   return (

@@ -2,14 +2,12 @@ import { Blog } from 'src/blog/entities/blog.entity';
 import { Cart } from 'src/cart/entities/cart.entity';
 import { CostEstimator } from 'src/cost-estimator/entities/cost-estimator.entity';
 import { InvoiceEstimator } from 'src/invoice-estimator/entities/invoice-estimator.entity';
-import { CustomBuilder } from 'src/Custombuilder/entities/custom-builder.entity';
-import { FurnitureLeads } from 'src/furnitureleads/entities/furniture-leads.entity';
+import { CustomBuilder } from 'src/livebuild/entities/custom-builder.entity';
 import { Property } from 'src/property/entities/property.entity';
 import { Reviews } from 'src/reviews/entities/reviews.entity';
 import { Testimonials } from 'src/testimonials/entity/testimonials.entity';
 import { Wishlist } from 'src/wishlist/entities/wishlist.entity';
 import { CRMLead } from 'src/crm/entities/crm.entity';
-import { ServiceCustomLead } from 'src/servicecustomlead/entities/servicecustomlead.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -23,17 +21,16 @@ import {
 } from 'typeorm';
 import { Project } from 'src/company-onboarding/entities/company-projects.entity';
 import { Company } from 'src/company-onboarding/entities/company.entity';
-import { CBQuery } from 'src/Custombuilder/Query/entities/query.entity';
+import { CBQuery } from 'src/livebuild/Query/entities/query.entity';
 import { BasicDetails } from 'src/property/entities/basicDetails.entity';
 import { IndianState, UserKind, UserRole } from '../enum/user.enum';
 import { LocationDetails } from 'src/property/entities/location.entity';
 import { Exclude } from 'class-transformer';
-import { Referral } from 'src/Referral/entities/referral.entity';
+import { Referral } from 'src/houznext-rewards/entities/referral.entity';
 import { ContactUs } from 'src/contactus/entities/contact-us.entity';
-import { DailyProgress } from 'src/Custombuilder/daily-progress/entities/daily-progress.entity';
+import { DailyProgress } from 'src/livebuild/daily-progress/entities/daily-progress.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
 import { UserBranchMembership } from 'src/branch/entities/user-branch-membership.entity';
-import { EmployeeHrDetails } from 'src/employee-hr/entity/employee-hr.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { Payment } from 'src/payment/entities/payment.entity';
 
@@ -119,9 +116,6 @@ export class User {
   @OneToMany(() => LocationDetails, (location) => location.user)
   locations: LocationDetails[];
 
-  @OneToMany(() => FurnitureLeads, (furnitureLeads) => furnitureLeads.user)
-  furnitureLeads: FurnitureLeads[];
-
   @OneToMany(() => CustomBuilder, (customBuilder) => customBuilder.customer, {
     cascade: true,
   })
@@ -178,9 +172,6 @@ export class User {
   @OneToMany(() => CRMLead, (crmLead) => crmLead.assignedTo)
   crmLeads: CRMLead[];
 
-  @OneToMany(() => ServiceCustomLead, (serviceLead) => serviceLead.assignedTo)
-  serviceleads: ServiceCustomLead[];
-
   @OneToMany(() => ContactUs, (contact) => contact.assignedTo)
   ContactUs: ContactUs[];
 
@@ -207,9 +198,6 @@ export class User {
 
   @OneToMany(() => UserBranchMembership, (m) => m.user)
   branchMemberships: UserBranchMembership[];
-
-  @OneToOne(() => EmployeeHrDetails, (hr) => hr.user)
-  hrDetails?: EmployeeHrDetails;
 
   @Column({ nullable: true })
   passwordResetToken: string | null;

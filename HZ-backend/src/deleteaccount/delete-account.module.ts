@@ -6,7 +6,7 @@ import { Blog } from 'src/blog/entities/blog.entity';
 import { Testimonials } from 'src/testimonials/entity/testimonials.entity';
 import { Wishlist } from 'src/wishlist/entities/wishlist.entity';
 import { Cart } from 'src/cart/entities/cart.entity';
-import { CustomBuilder } from 'src/Custombuilder/entities/custom-builder.entity';
+import { CustomBuilder } from 'src/livebuild/entities/custom-builder.entity';
 import { CostEstimator } from 'src/cost-estimator/entities/cost-estimator.entity';
 import { DeleteAccountController } from './delete-account.controller';
 import { DeleteAccountService } from './delete-account.service';

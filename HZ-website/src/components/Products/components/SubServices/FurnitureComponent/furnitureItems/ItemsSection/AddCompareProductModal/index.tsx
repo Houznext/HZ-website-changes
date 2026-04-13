@@ -34,10 +34,7 @@ export function AddCompareProductModal({
   const canAdd = items.length < 4;
   const categoryFromRoute = (router.query.category as string) || "";
   const compareCategory = items?.[0]?.category;
-  const pathParts = router.asPath.split("/");
-
   const enforcedCategory = compareCategory || categoryFromRoute;
-  const actualRoute = pathParts[2];
 
   useEffect(() => {
     if (!isOpen) return;
@@ -67,26 +64,12 @@ export function AddCompareProductModal({
     const fetchCompareItems = async () => {
       setLoading(true);
       try {
-        let res;
-
-        if (actualRoute === "furnitures") {
-          res = await apiClient.get(
-            `${apiClient.URLS.furniture}?${queryString}`
-          );
-          const body: any = res?.body ?? res;
-          const data: any = body?.data ?? body;
-          setList(Array.isArray(data) ? data : []);
-        } else if (actualRoute === "homedecor") {
-          res = await apiClient.get(
-            `${apiClient.URLS.homeDecor}?${queryString}`
-          );
-          setList(res?.body?.data || []);
-        } else if (actualRoute === "electronics") {
-          res = await apiClient.get(
-            `${apiClient.URLS.electronics}?${queryString}`
-          );
-          setList(res?.body?.data || []);
-        }
+        const res = await apiClient.get(
+          `${apiClient.URLS.furniture}?${queryString}`
+        );
+        const body: any = res?.body ?? res;
+        const data: any = body?.data ?? body;
+        setList(Array.isArray(data) ? data : []);
       } catch {
         setList([]);
       } finally {

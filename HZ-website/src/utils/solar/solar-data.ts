@@ -1,4 +1,4 @@
-import { SolarData } from "@/components/SolarPage/CalculationResultView";
+import type { SolarData } from "@/utils/solar/solarTypes";
 
 interface ROIDetails {
   paybackPeriod: number;

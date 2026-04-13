@@ -1,4 +1,3 @@
-import EarthMovesComponent from "@/components/EarthMovesComponent";
 import withGeneralLayout from "@/components/Layouts/GeneralLayout";
 
 import React from "react";

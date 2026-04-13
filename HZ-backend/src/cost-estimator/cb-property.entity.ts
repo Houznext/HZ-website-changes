@@ -9,12 +9,12 @@ import {
   OneToOne,
 } from 'typeorm';
 
-import { CustomBuilder } from 'src/Custombuilder/entities/custom-builder.entity';
+import { CustomBuilder } from 'src/livebuild/entities/custom-builder.entity';
 import { PurposeType } from 'src/property/enums/property.enum';
-import { ConstructionScope, PropertyType, CommercialPropertyType } from '../Custombuilder/custom-property/enum/custom-property.enum';
-import { HouseConstruction } from '../Custombuilder/custom-property/entities/house-construction.entity';
-import { InteriorInfo } from '../Custombuilder/custom-property/entities/interior-info.entity';
-import { CommercialConstruction } from '../Custombuilder/custom-property/entities/commercial-construction.entity';
+import { ConstructionScope, PropertyType, CommercialPropertyType } from '../livebuild/custom-property/enum/custom-property.enum';
+import { HouseConstruction } from '../livebuild/custom-property/entities/house-construction.entity';
+import { InteriorInfo } from '../livebuild/custom-property/entities/interior-info.entity';
+import { CommercialConstruction } from '../livebuild/custom-property/entities/commercial-construction.entity';
 
 @Entity()
 export class CBProperty {

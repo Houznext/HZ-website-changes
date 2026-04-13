@@ -22,20 +22,16 @@
     "migration:generate": "npm run typeorm -- migration:generate",
     "migration:run": "npm run typeorm -- migration:run",
     "migration:revert": "npm run typeorm -- migration:revert",
-    "seed:electronics": "cross-env NODE_ENV=development npx ts-node -r tsconfig-paths/register src/scripts/seed-electronics.ts",
     "seed:furniture": "cross-env NODE_ENV=development npx ts-node -r tsconfig-paths/register src/scripts/seed-furniture.ts",
-    "seed:homeDecor": "cross-env NODE_ENV=development npx ts-node -r tsconfig-paths/register src/scripts/seed-homeDecor.ts",
     "seed:blog": "cross-env NODE_ENV=development npx ts-node -r tsconfig-paths/register src/scripts/seed-blog.ts",
     "seed:admin": "cross-env NODE_ENV=development npx ts-node -r tsconfig-paths/register src/scripts/seed-admin.ts",
     "migrate:houznext-admin": "cross-env NODE_ENV=development npx ts-node -r tsconfig-paths/register src/scripts/migrate-to-houznext-admin.ts",
     "rename:legacy-branch": "cross-env NODE_ENV=development npx ts-node -r tsconfig-paths/register src/scripts/rename-legacy-branch-names.ts",
-    "seed:all": "npm run seed:admin && npm run seed:blog && npm run seed:furniture && npm run seed:electronics && npm run seed:homeDecor",
+    "seed:all": "npm run seed:admin && npm run seed:blog && npm run seed:furniture",
     "seed:prod:admin": "cross-env NODE_ENV=production npx ts-node -r tsconfig-paths/register src/scripts/seed-admin.ts",
     "seed:prod:blog": "cross-env NODE_ENV=production npx ts-node -r tsconfig-paths/register src/scripts/seed-blog.ts",
     "seed:prod:furniture": "cross-env NODE_ENV=production npx ts-node -r tsconfig-paths/register src/scripts/seed-furniture.ts",
-    "seed:prod:electronics": "cross-env NODE_ENV=production npx ts-node -r tsconfig-paths/register src/scripts/seed-electronics.ts",
-    "seed:prod:homeDecor": "cross-env NODE_ENV=production npx ts-node -r tsconfig-paths/register src/scripts/seed-homeDecor.ts",
-    "seed:prod:all": "npm run seed:prod:admin && npm run seed:prod:blog && npm run seed:prod:furniture && npm run seed:prod:electronics && npm run seed:prod:homeDecor"
+    "seed:prod:all": "npm run seed:prod:admin && npm run seed:prod:blog && npm run seed:prod:furniture"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1009.0",

@@ -23,10 +23,10 @@ const OurProducts = () => {
             }}
             className="text-[24px] leading-[34.1px] Gordita-Medium mt-[16px] mb-[24px]"
           >
-            Custom Builder
+            LiveBuild
           </p>
           <p className="text-center text-[#7B7C83] text-base leading-[28px]">
-            At Houznext, our Custom Builder service empowers you to create a
+            At Houznext, our LiveBuild service empowers you to create a
             home that truly reflects your unique style and preferences. With an
             array of customizable options, we make it easy for you to design the
             perfect living space. From selecting materials to choosing the

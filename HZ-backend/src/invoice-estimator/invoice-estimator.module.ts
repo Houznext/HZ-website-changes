@@ -6,7 +6,7 @@ import { InvoiceEstimatorService } from './invoice-estimator.service';
 import { InvoiceEstimatorController } from './invoice-estimator.controller';
 
 import { User } from 'src/user/entities/user.entity';
-import { CustomBuilder } from 'src/Custombuilder/entities/custom-builder.entity';
+import { CustomBuilder } from 'src/livebuild/entities/custom-builder.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
 
 import { NotificationModule } from 'src/notifications/notification.module';

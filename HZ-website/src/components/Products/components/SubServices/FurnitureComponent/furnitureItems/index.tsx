@@ -1,20 +1,13 @@
 import { useRouter } from "next/router";
 import BreadCrumb from "../../../BreadCrumb";
-import Footer from "@/components/Footer";
 import { useEffect, useRef, useState } from "react";
 import apiClient from "@/utils/apiClient";
 import toast from "react-hot-toast";
-import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import GoogleAdSense from "@/components/GoogleAdSense";
 import { useCompareStore } from "@/store/useCompareStore";
 import { ArrowRight, Share2, Download, X } from "lucide-react";
 import Button from "@/common/Button";
-import { mapElectronicsListItem } from "@/utils/electronicsMapper";
-import {
-  ELECTRONICS_CATEGORIES,
-  getElectronicsCategoryForApi,
-} from "@/constants/electronicsCategories";
 
 interface IItemsSectionProps {
   category: string;
@@ -22,21 +15,8 @@ interface IItemsSectionProps {
   isLoading: boolean;
 }
 
-// Dynamic imports at module level - stable references prevent remounts and duplicate itemsclick calls
-const FurnitureItemsSection = dynamic(
+const ItemsSection = dynamic(
   () => import("./ItemsSection").then((mod) => mod.default as React.ComponentType<IItemsSectionProps>)
-);
-const HomeDecorItemsSection = dynamic(
-  () =>
-    import(
-      "@/components/Products/components/SubServices/HomeDecorComponent/HomeDecorItems/ItemsSection"
-    ).then((mod) => mod.default as React.ComponentType<IItemsSectionProps>)
-);
-const ElectronicsItemsSection = dynamic(
-  () =>
-    import(
-      "@/components/Products/components/ElectronicsComponent/ElectronicItems/ItemsSection"
-    ).then((mod) => mod.default as React.ComponentType<IItemsSectionProps>)
 );
 
 const ProductListItems = () => {
@@ -48,23 +28,12 @@ const ProductListItems = () => {
 
   const { items: compareItems, clear, remove } = useCompareStore();
 
-  const { category } = router.query;
-
-  const { query, asPath } = router;
+  const { asPath } = router;
   const pathParts = asPath.split("/");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
   const actualRoute = pathParts[2];
-
-  const ItemsSection =
-    actualRoute === "furnitures"
-      ? FurnitureItemsSection
-      : actualRoute === "homedecor"
-        ? HomeDecorItemsSection
-        : actualRoute === "electronics"
-          ? ElectronicsItemsSection
-          : FurnitureItemsSection;
 
   const actualRouteshop = actualRoute ? `${actualRoute}-shop` : "";
 
@@ -81,61 +50,20 @@ const ProductListItems = () => {
     category: "New Arrivals",
   });
 
-  const categories =
-    actualRoute === "furnitures"
-      ? [
-        { id: 1, name: "New Arrivals", category: "New Arrivals" },
-        { id: 2, name: "Sofas", category: "Sofas" },
-        { id: 3, name: "Living room", category: "Living room" },
-        { id: 4, name: "Dining Tables", category: "Dining Tables" },
-        { id: 5, name: "Beds", category: "Beds" },
-        { id: 6, name: "Study & Office", category: "Study & Office" },
-        { id: 7, name: "Storage", category: "Storage" },
-        { id: 8, name: "Custom Furniture", category: "Custom Furniture" },
-        { id: 9, name: "Tables", category: "Tables" },
-        { id: 10, name: "Chairs", category: "Chairs" },
-        { id: 11, name: "TV Units", category: "TV Units" },
-        { id: 12, name: "Wardrobes", category: "Wardrobes" },
-      ]
-      : actualRoute === "homedecor"
-        ? [
-          { id: 1, name: "New Arrivals", category: "New Arrivals" },
-          { id: 2, name: "Wall Shelves", category: "Wall Shelves" },
-          { id: 3, name: "Baskets", category: "Baskets" },
-          { id: 4, name: "Photo Frame", category: "Photo Frame" },
-          { id: 5, name: "Wall Mirrors", category: "Wall Mirrors" },
-          { id: 6, name: "Wall Art and Paintings", category: "Wall Art and Paintings" },
-          { id: 7, name: "Figurines", category: "Figurines" },
-          { id: 8, name: "Miniatures", category: "Miniatures" },
-          { id: 9, name: "Pots and Plants", category: "Pots and Plants" },
-          { id: 10, name: "Artificial Plants and Flowers", category: "Artificial Plants and Flowers" },
-          { id: 11, name: "Plant Stand", category: "Plant Stand" },
-          { id: 12, name: "Hanging Planters", category: "Hanging Planters" },
-          { id: 13, name: "Gardening", category: "Gardening" },
-          { id: 14, name: "Festive Decor", category: "Festive Decor" },
-          { id: 15, name: "Candles", category: "Candles" },
-          { id: 16, name: "Decor Gift Sets", category: "Decor Gift Sets" },
-          { id: 17, name: "Tableware", category: "Tableware" },
-          { id: 18, name: "Dinner Set", category: "Dinner Set" },
-          { id: 19, name: "Coffee Mugs", category: "Coffee Mugs" },
-          { id: 20, name: "Serving Trays", category: "Serving Trays" },
-          { id: 21, name: "Teapots", category: "Teapots" },
-          { id: 22, name: "Glassware", category: "Glassware" },
-          { id: 23, name: "Clocks", category: "Clocks" },
-          { id: 24, name: "Home Temples", category: "Home Temples" },
-          { id: 25, name: "Trays", category: "Trays" },
-          { id: 26, name: "Home Fragrances", category: "Home Fragrances" },
-          { id: 27, name: "Flower Pot and Vases", category: "Flower Pot and Vases" },
-          { id: 28, name: "Vases", category: "Vases" },
-          { id: 29, name: "Wall Hanging", category: "Wall Hanging" },
-          { id: 30, name: "Wallpapers and Decals", category: "Wallpapers and Decals" },
-          { id: 31, name: "Fountains", category: "Fountains" },
-          { id: 32, name: "Key Holder", category: "Key Holder" },
-          { id: 33, name: "Outdoor Decors", category: "Outdoor Decors" },
-        ]
-        : actualRoute === "electronics"
-          ? [...ELECTRONICS_CATEGORIES]
-          : [];
+  const categories = [
+    { id: 1, name: "New Arrivals", category: "New Arrivals" },
+    { id: 2, name: "Sofas", category: "Sofas" },
+    { id: 3, name: "Living room", category: "Living room" },
+    { id: 4, name: "Dining Tables", category: "Dining Tables" },
+    { id: 5, name: "Beds", category: "Beds" },
+    { id: 6, name: "Study & Office", category: "Study & Office" },
+    { id: 7, name: "Storage", category: "Storage" },
+    { id: 8, name: "Custom Furniture", category: "Custom Furniture" },
+    { id: 9, name: "Tables", category: "Tables" },
+    { id: 10, name: "Chairs", category: "Chairs" },
+    { id: 11, name: "TV Units", category: "TV Units" },
+    { id: 12, name: "Wardrobes", category: "Wardrobes" },
+  ];
   const sharedCompared = () => {
     const ids = items.map((i) => i.id).join(",");
     const url = `${window.location.origin}/compare?ids=${ids}`;
@@ -164,34 +92,28 @@ const ProductListItems = () => {
 
   useEffect(() => {
     if (!router.isReady) return;
-    let cat: string;
-    if (actualRoute === "electronics") {
-      const param = categoryParam?.trim();
-      const category =
-        !param || param === ""
-          ? ELECTRONICS_CATEGORIES[0]
-          : ELECTRONICS_CATEGORIES.find(
-              (c) =>
-                c.category === param ||
-                c.category.toLowerCase() === param?.toLowerCase()
-            );
-      if (category) setSelectedCategory(category);
-      cat = param ?? "";
-    } else if (actualRoute === "furnitures" || actualRoute === "homedecor") {
-      const param = categoryParam?.trim();
-      const defaultCategory = categories[0]; // "New Arrivals"
-      const category = param
-        ? categories.find(
-            (c) =>
-              c.category === param ||
-              c.category.toLowerCase() === param?.toLowerCase()
-          )
-        : defaultCategory;
-      if (category) setSelectedCategory(category);
-      cat = param && category ? category.category : (defaultCategory?.category ?? "New Arrivals");
-    } else {
-      cat = categoryParam || "";
+    if (actualRoute === "homedecor" || actualRoute === "electronics") {
+      void router.replace("/services/furnitures/furnitures-shop");
+      return;
     }
+    if (actualRoute !== "furnitures") {
+      lastFetchedKeyRef.current = null;
+      setItems([]);
+      setIsLoading(false);
+      return;
+    }
+    const param = categoryParam?.trim();
+    const defaultCategory = categories[0];
+    const category = param
+      ? categories.find(
+          (c) =>
+            c.category === param ||
+            c.category.toLowerCase() === param?.toLowerCase()
+        )
+      : defaultCategory;
+    if (category) setSelectedCategory(category);
+    const cat =
+      param && category ? category.category : (defaultCategory?.category ?? "New Arrivals");
     const fetchKey = `${actualRoute}|${cat}`;
     if (lastFetchedKeyRef.current === fetchKey) return;
     lastFetchedKeyRef.current = fetchKey;
@@ -200,68 +122,11 @@ const ProductListItems = () => {
 
   const fetchItems = async (category: string): Promise<void> => {
     try {
-      let res;
-
-      if (actualRoute === "furnitures") {
-        const furnitureCategory = (category?.trim()) ? category.trim() : "New Arrivals";
-        res = await apiClient.get(apiClient.URLS.furniture, { category: furnitureCategory }, true);
-        const body: any = res?.body ?? res;
-        const data: any = body?.data ?? body;
-        setItems(Array.isArray(data) ? data : []);
-      } else if (actualRoute === "homedecor") {
-        const homeDecorCategory = (category?.trim()) ? category.trim() : "New Arrivals";
-        const params: Record<string, string | number | undefined> = {
-          page: 1,
-          categories: homeDecorCategory,
-        };
-        res = await apiClient.get(apiClient.URLS.homeDecor, params, true);
-        const rawData = res?.body?.data || [];
-        setItems(
-          rawData.map((row: any) => ({
-            id: row.id,
-            name: row.name,
-            category: row.category,
-            baseSellingPrice: row.currentPrice ?? row.price,
-            baseMrp: row.price,
-            baseDiscountPercent: row.discount ?? 0,
-            images: (row.images || []).map((url: string, i: number) => ({
-              id: i + 1,
-              url,
-              alt: null,
-              sortOrder: i,
-              isPrimary: i === 0,
-              colorHex: null,
-              angle: null,
-              viewType: null,
-            })),
-            otherProperties: {
-              ...(row.otherProperties || {}),
-              material: row.otherProperties?.style ?? row.design ?? "",
-            },
-            brand: row.brand,
-            warranty: row.warranty,
-            createdDate: row.createdDate,
-            deliveryTime: row.deliveryTime,
-            assembly: row.assembly,
-          }))
-        );
-      } else if (actualRoute === "electronics") {
-        const params: Record<string, string | number | string[] | undefined> = {
-          page: 1,
-          limit: 12,
-        };
-        const categoriesForApi = getElectronicsCategoryForApi(category ?? "New Arrivals");
-        if (categoriesForApi?.length) {
-          params.categories = categoriesForApi;
-        }
-        res = await apiClient.get(apiClient.URLS.electronics, params, true);
-        const rawData = res?.body?.data ?? [];
-        setItems(
-          Array.isArray(rawData)
-            ? rawData.map((row: any) => mapElectronicsListItem(row))
-            : []
-        );
-      }
+      const furnitureCategory = category?.trim() ? category.trim() : "New Arrivals";
+      const res = await apiClient.get(apiClient.URLS.furniture, { category: furnitureCategory }, true);
+      const body: any = res?.body ?? res;
+      const data: any = body?.data ?? body;
+      setItems(Array.isArray(data) ? data : []);
     } catch (error) {
       toast.error("Something went wrong");
       console.error(error);
@@ -272,12 +137,8 @@ const ProductListItems = () => {
 
   const handleCompare = () => {
     if (!router.isReady) return;
-
-    const { categorys, categoryShop } = router.query;
-
-    router.push(
-      `/services/${categorys}/${actualRoute}-shop/compare`
-    );
+    const categorys = router.query.categorys;
+    router.push(`/services/${categorys}/${actualRoute}-shop/compare`);
   };
 
 

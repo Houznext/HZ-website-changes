@@ -1228,7 +1228,7 @@ export const DayProgress = () => {
             className="bg-gray-200 md:text-[14px] text-[10px] text-nowrap text-gray-700 md:px-3 font-medium px-2 py-1 rounded-md"
             onClick={() =>
               router.push(
-                `/custom-builder/${custom_builder_id}/workprogress/chat`
+                `/livebuild/${custom_builder_id}/workprogress/chat`
               )
             }
           >
@@ -3155,7 +3155,7 @@ Lng: ${log.uploadLocation.longitude}`}
                     className="p-3 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow duration-300 cursor-pointer"
                     onClick={() =>
                       router.push(
-                        `/custom-builder/${custom_builder_id}/workprogress/queries`,
+                        `/livebuild/${custom_builder_id}/workprogress/queries`,
                       )
                     }
                   >
@@ -3198,7 +3198,7 @@ Lng: ${log.uploadLocation.longitude}`}
               <TourStep
                 order={5}
                 targetRef={invoicesRef}
-                text="Invoices: View all invoices related to this custom builder."
+                text="Invoices: View all invoices related to this LiveBuild project."
               />
               <div className="flex md:flex-row flex-col items-center md:gap-3 gap-1 mt-4 w-full max-w-[100%]">
                 <div className="flex-[2] z-[99]" ref={searchFilterRef}>
@@ -3258,7 +3258,7 @@ Lng: ${log.uploadLocation.longitude}`}
                       className="bg-[#2F79E9] md:px-5 px-3 md:py-[6px] py-1 md:text-[14px] text-[12px] rounded-md text-white font-medium flex items-center gap-1"
                       onClick={() =>
                         router.push(
-                          `/custom-builder/${custom_builder_id}/workprogress/invoices`,
+                          `/livebuild/${custom_builder_id}/workprogress/invoices`,
                         )
                       }
                     >

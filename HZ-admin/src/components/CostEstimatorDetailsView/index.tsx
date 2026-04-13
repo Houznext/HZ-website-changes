@@ -556,7 +556,7 @@ const CostEstimatorDetailsView = () => {
                     'Transparent Pricing',
                     '40+ Quality Checks',
                     '10-Year Warranty',
-                    'Real-time updates via BuildLive (Under development)',
+                    'Real-time updates via LiveBuild (Under development)',
                   ].map((item) => (
                     <tr key={item}>
                       <td style={{ paddingRight: '10px', paddingBottom: '8px', verticalAlign: 'top', width: '10px', lineHeight: '20px' }}>

@@ -122,7 +122,7 @@ const CityPackage = ({ handleSave }) => {
         <div className="flex items-end justify-end">
           <Button
             className="bg-[#5297ff] font-medium  text-white btn-txt md:px-5 px-3 md:py-1 py-1 rounded-[4px] md:rounded-[8px] "
-            onClick={() => router.push("/custom-builder/packages")}
+            onClick={() => router.push("/livebuild")}
           >
             Add Package
           </Button>

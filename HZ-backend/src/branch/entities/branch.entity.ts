@@ -11,7 +11,6 @@ import {
 import { BranchCategory, BranchLevel, OwnerIdProofType } from '../enum/branch.enum';
 import { BranchRole } from 'src/branchRole/entities/branch-role.entity';
 import { InvoiceEstimator } from 'src/invoice-estimator/entities/invoice-estimator.entity';
-import { BranchLegalService } from '../../legalServices/entities/branch-legal-service.entity';
 
 @Entity()
 export class Branch {
@@ -116,7 +115,4 @@ export class Branch {
 
   @OneToMany(() => InvoiceEstimator, (ie) => ie.branch)
   invoiceEstimators: InvoiceEstimator[];
-
-  @OneToMany(() => BranchLegalService, (ls) => ls.branch)
-  legalServices: BranchLegalService[];
 }

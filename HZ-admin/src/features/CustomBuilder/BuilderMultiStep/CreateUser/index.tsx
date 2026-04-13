@@ -285,13 +285,13 @@ const CreateCBuser = ({ setopenDrawer, handleClose }: any) => {
         if (
           res.body?.message === "Existing user upgraded to custom builder user"
         ) {
-          toast.success("Existing user upgraded to Custom Builder role");
+          toast.success("Existing user upgraded to LiveBuild role");
         } else if (
           res.body?.message === "Existing user verified as custom builder user"
         ) {
           toast.success("Existing user verified successfully");
         } else if (res.body?.message === "New custom builder user created") {
-          toast.success("New Custom Builder user created and verified");
+          toast.success("New LiveBuild user created and verified");
         } else {
           toast.success("OTP verified successfully");
         }
@@ -419,7 +419,7 @@ const CreateCBuser = ({ setopenDrawer, handleClose }: any) => {
   return (
     <div className="flex flex-col  gap-5 md:px-4 px-3 md:py-6 py-4 bg-slate-50 min-w-full">
       <h2 className="text-lg md:text-2xl font-bold md:mb-1 text-[#3586FF] tracking-tight">
-        Create Custom Builder User
+        Create LiveBuild user
       </h2>
 
       {/* Info: Both credentials for login */}
@@ -693,7 +693,7 @@ const CreateCBuser = ({ setopenDrawer, handleClose }: any) => {
   />
 
   <CheckboxInput
-    label="Create Custom Builder"
+    label="Create LiveBuild"
     labelCls="font-medium text-[#000000] text-[14px]"
     name="createCustomBuilder"
     className="w-4 h-4"

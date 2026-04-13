@@ -57,7 +57,7 @@ export default async function handler(req, res) {
   urls.push(urlEntry(`${BASE_URL}/about-us`, { changefreq: "monthly", priority: "0.6", lastmod: today }));
   urls.push(urlEntry(`${BASE_URL}/contact-us`, { changefreq: "monthly", priority: "0.6", lastmod: today }));
   urls.push(urlEntry(`${BASE_URL}/blog`, { changefreq: "daily", priority: "0.7", lastmod: today }));
-  urls.push(urlEntry(`${BASE_URL}/referandearn`, { changefreq: "monthly", priority: "0.5", lastmod: today }));
+  urls.push(urlEntry(`${BASE_URL}/houznext-rewards`, { changefreq: "monthly", priority: "0.5", lastmod: today }));
   urls.push(urlEntry(`${BASE_URL}/post-property`, { changefreq: "monthly", priority: "0.6", lastmod: today }));
 
   // ===== CITY x CATEGORY LISTING PAGES =====
@@ -83,7 +83,7 @@ export default async function handler(req, res) {
     { path: "/painting/paint-cost-calculator", priority: "0.7" },
     { path: "/legalservices", priority: "0.75" },
     { path: "/legalservices/packages", priority: "0.65" },
-    { path: "/custom-builder", priority: "0.8" },
+    { path: "/livebuild", priority: "0.8" },
     { path: "/services/custom-builder", priority: "0.8" },
     { path: "/services/furnitures", priority: "0.75" },
     { path: "/services/furnitures/custom-furnitures", priority: "0.65" },

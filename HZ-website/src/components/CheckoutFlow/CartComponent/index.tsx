@@ -32,7 +32,7 @@ const getProductTypeLabel = (productType: string) => {
     ELECTRONICS_PRODUCT: "Electronics",
     HOME_DECOR_PRODUCT: "Home Decor",
     INTERIOR_PACKAGE: "Interior",
-    CUSTOM_BUILDER_PACKAGE: "Custom Builder",
+    CUSTOM_BUILDER_PACKAGE: "LiveBuild",
     SOLAR_PACKAGE: "Solar",
     PAINTING_SERVICE: "Painting",
     PLUMBING_SERVICE: "Plumbing",

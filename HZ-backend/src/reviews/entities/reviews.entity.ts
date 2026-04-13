@@ -1,6 +1,4 @@
-import { Electronics } from 'src/electronics/entities/electronics.entity';
 import { Furniture } from 'src/furnitures/entities/furniture.entity';
-import { HomeDecors } from 'src/homeDecors/entities/homeDecors.entity';
 import { Property } from 'src/property/entities/property.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
@@ -61,20 +59,10 @@ export class Reviews {
   @ManyToOne(() => Property, (property) => property.reviews, { nullable: true })
   property: Property;
 
-  @ManyToOne(() => HomeDecors, (homeDecor) => homeDecor.reviews, {
-    nullable: true,
-  })
-  homeDecor: HomeDecors;
-
   @ManyToOne(() => Furniture, (furniture) => furniture.reviews, {
     nullable: true,
   })
   furniture: Furniture;
-
-  @ManyToOne(() => Electronics, (electronics) => electronics.reviews, {
-    nullable: true,
-  })
-  electronics: Electronics;
 
   @ManyToOne(() => User, (user) => user.reviews, { nullable: false })
   user: User;

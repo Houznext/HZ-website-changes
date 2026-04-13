@@ -175,7 +175,7 @@ const AdminCustomBuilders: React.FC = () => {
 
   const handleRoute = (id: string, route: string) => {
     setCustomBuilderID(id);
-    router.push(`/custom-builder/${id}/${route}`);
+    router.push(`/livebuild/${id}/${route}`);
   };
 
   const toggleDropdown = (idx: number) =>
@@ -601,7 +601,7 @@ const AdminCustomBuilders: React.FC = () => {
       {/* Header row: title + Add Customer */}
       <div className="flex items-center justify-between gap-2 px-2 md:px-0 md:mb-6 mb-3 w-full ">
         <h1 className="text-[#3586FF]  font-bold text-[18px] md:text-[24px]">
-          Custom Builders
+          LiveBuild
         </h1>
 
         <CustomTooltip
@@ -727,7 +727,7 @@ const AdminCustomBuilders: React.FC = () => {
           handleDrawerToggle={() => setOpenDrawer(false)}
           closeIconCls="!text-black z-[9999] mt-10"
           openVariant="right"
-          title="Create Custom Builder"
+          title="Create LiveBuild user"
           panelCls="w-[95%] lg:w-[calc(100%-390px)] shadow-xl"
           overLayCls="bg-black/40"
         >
