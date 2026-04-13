@@ -135,6 +135,22 @@ export class ContactUsService {
   async findAll(): Promise<ContactUs[]> {
     return this.contactUsRepo.find();
   }
+
+  async getCalculatorLeads(page = 1, limit = 20) {
+    const [data, total] = await this.contactUsRepo.findAndCount({
+      where: { serviceType: 'Home Interiors - Calculator' },
+      order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
   async findContactsByUser(
     userId: string,
     startDate?: string,

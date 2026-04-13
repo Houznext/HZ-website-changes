@@ -33,6 +33,24 @@ type NavLink = {
   icon: React.ElementType;
   badgeKey?: "buildlive" | "blog" | "ga4";
 };
+
+function NavCalculatorLeadsIcon(props: { className?: string }) {
+  return (
+    <svg
+      className={props.className}
+      viewBox="0 0 24 24"
+      width={15}
+      height={15}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M9 7H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-3M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2M9 7h6M9 12h6M9 16h4" />
+    </svg>
+  );
+}
 type NavItem = NavSection | NavLink;
 
 const NAV_STRUCTURE: NavItem[] = [
@@ -52,6 +70,7 @@ const NAV_STRUCTURE: NavItem[] = [
   { section: "CRM" },
   { href: "/crm",                label: "CRM Leads",     icon: MessageSquare },
   { href: "/generalenquires",    label: "Enquiries",     icon: Inbox },
+  { href: "/calculator-leads",   label: "Calculator Leads", icon: NavCalculatorLeadsIcon },
   { section: "Settings" },
   { href: "/settings",           label: "Settings",      icon: Settings },
   { href: "/settings/branches",  label: "Branches",      icon: GitBranch },

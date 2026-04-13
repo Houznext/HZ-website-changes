@@ -123,6 +123,7 @@ const URLS = {
   referrals: `${base_url}referrals`,
   staffattendance: `${base_url}staff-attendance`,
   contact_us: `${base_url}contact-us`,
+  calculator_leads: `${base_url}contact-us/calculator-leads`,
   phases: `${base_url}phases`,
   documents: `${base_url}documents`,
   branches: `${base_url}branches`,

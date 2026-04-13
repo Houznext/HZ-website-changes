@@ -32,6 +32,19 @@ export class ContactUsController {
   findAll() {
     return this.contactUsService.findAll();
   }
+
+  @Get('calculator-leads')
+  @UseGuards(ControllerAuthGuard)
+  async getCalculatorLeads(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.contactUsService.getCalculatorLeads(
+      page ? parseInt(page, 10) : 1,
+      limit ? parseInt(limit, 10) : 20,
+    );
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get contact form entry by ID' })
   @ApiResponse({ status: 200, type: ContactUs })
