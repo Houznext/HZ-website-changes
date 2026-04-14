@@ -416,11 +416,18 @@ export default function InteriorCalculator() {
 
     const est = calcEstimate(state)
 
+    const normalizedName = state.name.trim().replace(/\s+/g, ' ')
+    const [firstPart, ...restParts] = normalizedName.split(' ')
+    const firstName = firstPart || 'Customer'
+    const lastName = restParts.join(' ').trim() || 'Customer'
+    const fallbackEmail = `lead-${state.phone.trim()}@houznext.local`
+    const emailAddress = state.email.trim() || fallbackEmail
+
     const payload = {
-      firstName: state.name.trim(),
-      lastName: '',
+      firstName,
+      lastName,
       contactNumber: state.phone.trim(),
-      emailAddress: state.email.trim() || '',
+      emailAddress,
       serviceType: 'Home Interiors - Calculator',
       city: '',
       tellUsMore: JSON.stringify({
@@ -440,12 +447,12 @@ export default function InteriorCalculator() {
     try {
       await apiClient.post(apiClient.URLS.contact_us, payload)
       setSubmitted(true)
+      setShowModal(true)
+      setModalPkg('Premium')
     } catch (err) {
       console.error('Calculator submit error:', err)
     } finally {
       setSubmitting(false)
-      setShowModal(true)
-      setModalPkg('Premium')
     }
   }, [state])
 

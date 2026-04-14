@@ -5,6 +5,7 @@ import SeoHead from '@/components/SeoHead'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import Reveal from '@/components/ui/Reveal'
 import { buildliveSchema } from '@/lib/schemas'
+import LiveBuildHeroGraph from '@/components/LiveBuildHeroGraph'
 
 export default function BuildLivePage() {
   return (
@@ -72,51 +73,10 @@ function BuildLiveHero() {
             </div>
           </Reveal>
 
-          {/* Floating dashboard card */}
           <Reveal variant="left" delay={200}>
-            <div className="flex justify-center animate-float">
-              <div
-                className="w-full max-w-sm rounded-2xl p-6"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(47,128,237,0.3)' }}
-              >
-                <div className="flex items-center justify-between mb-5">
-                  <div>
-                    <p className="font-head font-bold text-white text-[14px]">Ravi&apos;s Home</p>
-                    <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>3BHK · Kondapur, Hyderabad</p>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full animate-pulse-dot" style={{ background: '#f2994a' }} />
-                    <span className="text-[10px] font-[500]" style={{ color: '#f2994a' }}>LIVE</span>
-                  </div>
-                </div>
-
-                {/* Overall progress */}
-                <div className="mb-5 p-3 rounded-xl" style={{ background: 'rgba(47,128,237,0.1)' }}>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-[12px] font-[600] text-white">Overall progress</span>
-                    <span className="text-[12px] font-bold" style={{ color: '#2f80ed' }}>76%</span>
-                  </div>
-                  <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
-                    <div className="h-full rounded-full" style={{ width: '76%', background: 'linear-gradient(90deg, #2f80ed, #1a6dd6)' }} />
-                  </div>
-                </div>
-
-                {[
-                  { room: 'Living room',    pct: 90 },
-                  { room: 'Kitchen',        pct: 100 },
-                  { room: 'Master bedroom', pct: 65 },
-                  { room: 'Bedroom 2',      pct: 55 },
-                ].map((item) => (
-                  <div key={item.room} className="mb-3 last:mb-0">
-                    <div className="flex justify-between mb-1">
-                      <span className="text-[11px] text-white/70">{item.room}</span>
-                      <span className="text-[11px]" style={{ color: item.pct === 100 ? '#4ade80' : '#2f80ed' }}>{item.pct}%</span>
-                    </div>
-                    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
-                      <div className="h-full rounded-full" style={{ width: `${item.pct}%`, background: item.pct === 100 ? '#4ade80' : '#2f80ed' }} />
-                    </div>
-                  </div>
-                ))}
+            <div className="flex justify-center md:justify-end w-full animate-float">
+              <div className="w-full max-w-[min(100%,400px)] sm:max-w-md mx-auto md:mx-0">
+                <LiveBuildHeroGraph />
               </div>
             </div>
           </Reveal>
