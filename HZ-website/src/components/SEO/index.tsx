@@ -113,7 +113,7 @@ const SEO: React.FC<ISEO> = (props) => {
     ? Array.isArray(rawKw) ? rawKw.filter(Boolean).join(', ') : rawKw
     : DEFAULT_KEYWORDS;
   const imageURL = props.imageUrl || PRIMARY_IMAGE_URL;
-  const favicon = props.favicon || '/favicon.ico';
+  const favicon = props.favicon || '/favicon-32x32.png';
   const canonical = props.canonicalUrl || currentUrl;
   const noIndex = props.noIndex === true;
   const corporateContacts = props.corporateContact || CORPORATE_CONTACTS;
