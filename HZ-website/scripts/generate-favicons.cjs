@@ -1,11 +1,24 @@
 /**
  * Regenerates favicon + PWA icons from scripts/branding/favicon-source.png
- * Run: npm run generate-favicons
+ *
+ * sharp/to-ico are not project deps (avoids Vercel build trace issues). Run either:
+ *   npm run generate-favicons:install
+ *   npm install --no-save sharp to-ico && npm run generate-favicons
  */
 const fs = require("fs");
 const path = require("path");
-const sharp = require("sharp");
-const toIco = require("to-ico");
+
+let sharp;
+let toIco;
+try {
+  sharp = require("sharp");
+  toIco = require("to-ico");
+} catch {
+  console.error(
+    "Missing sharp or to-ico. Run: npm run generate-favicons:install"
+  );
+  process.exit(1);
+}
 
 const src = path.join(__dirname, "branding", "favicon-source.png");
 const pub = path.join(__dirname, "..", "public");

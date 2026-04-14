@@ -9,7 +9,8 @@
     "postbuild": "next-sitemap",
     "start": "next start",
     "lint": "next lint",
-    "generate-favicons": "node scripts/generate-favicons.cjs"
+    "generate-favicons": "node scripts/generate-favicons.cjs",
+    "generate-favicons:install": "npm install --no-save sharp@^0.33.5 to-ico@^1.1.5 && node scripts/generate-favicons.cjs"
   },
   "dependencies": {
     "@ai-sdk/google": "^0.0.55",
@@ -118,8 +119,6 @@
     "eslint": "^8",
     "eslint-config-next": "14.0.3",
     "lodash": "^4.17.21",
-    "sharp": "^0.33.5",
-    "to-ico": "^1.1.5",
     "typescript": "^5"
   },
   "browserslist": [
