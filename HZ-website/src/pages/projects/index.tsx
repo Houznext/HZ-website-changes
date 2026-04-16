@@ -437,13 +437,25 @@ export default function ProjectsPage() {
                 <StrokeIcon path="M20 6L9 17l-5-5" stroke="#fff" size={14} />
                 Get free estimate
               </button>
-              <a
-                href="/pricing"
+              <button
+                type="button"
+                onClick={() => {
+                  window.location.href = '/pricing'
+                }}
                 className="text-[14px] font-[700] px-7 py-[13px]"
-                style={{ display: 'inline-block', borderRadius: 11, border: '2px solid rgba(255,255,255,.3)', background: 'transparent', color: '#fff', transition: 'all .2s ease', textDecoration: 'none' }}
+                style={{
+                  display: 'inline-block',
+                  borderRadius: 11,
+                  border: '2px solid rgba(255,255,255,.3)',
+                  background: 'transparent',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  transition: 'all .2s ease',
+                  fontFamily: 'inherit',
+                }}
               >
                 View all packages
-              </a>
+              </button>
             </div>
           </div>
         </section>
