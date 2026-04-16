@@ -68,6 +68,24 @@ function NavProjectsIcon(props: { className?: string }) {
     </svg>
   );
 }
+
+function NavHeroCarouselIcon(props: { className?: string }) {
+  return (
+    <svg
+      className={props.className}
+      viewBox="0 0 24 24"
+      width={15}
+      height={15}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+    </svg>
+  );
+}
 type NavItem = NavSection | NavLink;
 
 const NAV_STRUCTURE: NavItem[] = [
@@ -86,6 +104,7 @@ const NAV_STRUCTURE: NavItem[] = [
   { href: "/projects",           label: "Projects",      icon: NavProjectsIcon },
   { section: "CRM" },
   { href: "/crm",                label: "CRM Leads",     icon: MessageSquare },
+  { href: "/hero-carousel",      label: "Hero Carousel", icon: NavHeroCarouselIcon },
   { href: "/generalenquires",    label: "Enquiries",     icon: Inbox },
   { href: "/calculator-leads",   label: "Calculator Leads", icon: NavCalculatorLeadsIcon },
   { section: "Settings" },

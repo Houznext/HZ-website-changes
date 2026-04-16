@@ -76,6 +76,7 @@ import { BranchRoleModule } from './branchRole/branch-role.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditLogInterceptor } from './audit-log/audit-log.interceptor';
 import { InteriorProjectsModule } from './interior-projects/interior-projects.module';
+import { HeroCarouselModule } from './hero-carousel/hero-carousel.module';
 
 @Module({
   imports: [
@@ -161,6 +162,7 @@ import { InteriorProjectsModule } from './interior-projects/interior-projects.mo
     BranchModule,
     BranchRoleModule,
     InteriorProjectsModule,
+    HeroCarouselModule,
   ],
   controllers: [AppController],
   providers: [

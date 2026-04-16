@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
@@ -159,6 +159,106 @@ function Hero() {
   const [submittedName, setSubmittedName] = useState('')
   const [heroFormName, setHeroFormName] = useState('')
 
+  // ── Carousel state ───────────────────────────────────
+  const [slides, setSlides] = useState<string[]>([])
+  const [settings, setSettings] = useState({
+    intervalMs: 3000,
+    showArrows: true,
+    showDots: true,
+    pauseOnHover: true,
+    kenBurns: true,
+  })
+  const [curIdx, setCurIdx] = useState(0)
+  const [prevIdx, setPrevIdx] = useState<number | null>(null)
+  const [paused, setPaused] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const rafRef = useRef<number | null>(null)
+  const startRef = useRef<number>(0)
+  const pausedRef = useRef(false)
+  pausedRef.current = paused
+
+  useEffect(() => {
+    const API = process.env.NEXT_PUBLIC_API_URL
+      || process.env.NEXT_PUBLIC_BACKEND_URL
+      || 'http://localhost:4000'
+    fetch(`${API}/hero-carousel/public`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.slides?.length) {
+          setSlides(data.slides.map((s: { imageUrl: string }) => s.imageUrl))
+        }
+        if (data?.settings) {
+          setSettings({
+            intervalMs: data.settings.intervalMs ?? 3000,
+            showArrows: data.settings.showArrows ?? true,
+            showDots: data.settings.showDots ?? true,
+            pauseOnHover: data.settings.pauseOnHover ?? true,
+            kenBurns: data.settings.kenBurns ?? true,
+          })
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const goTo = useCallback((n: number) => {
+    if (!slides.length) return
+    setPrevIdx(curIdx)
+    const next = ((n % slides.length) + slides.length) % slides.length
+    setCurIdx(next)
+    setProgress(0)
+    startRef.current = performance.now()
+  }, [curIdx, slides.length])
+
+  const goNext = useCallback(() => goTo(curIdx + 1), [curIdx, goTo])
+  const goPrev = useCallback(() => goTo(curIdx - 1), [curIdx, goTo])
+
+  useEffect(() => {
+    if (!slides.length) return
+    startRef.current = performance.now()
+    const interval = settings.intervalMs
+
+    function tick(now: number) {
+      if (!pausedRef.current) {
+        const elapsed = now - startRef.current
+        const pct = Math.min(100, (elapsed / interval) * 100)
+        setProgress(pct)
+        if (pct >= 100) {
+          setCurIdx(prev => {
+            const next = (prev + 1) % slides.length
+            setPrevIdx(prev)
+            return next
+          })
+          setProgress(0)
+          startRef.current = performance.now()
+        }
+      }
+      rafRef.current = requestAnimationFrame(tick)
+    }
+
+    rafRef.current = requestAnimationFrame(tick)
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [slides.length, settings.intervalMs])
+
+  useEffect(() => {
+    startRef.current = performance.now()
+    setProgress(0)
+  }, [curIdx])
+
+  const handleMouseEnter = useCallback(() => {
+    if (settings.pauseOnHover) setPaused(true)
+  }, [settings.pauseOnHover])
+
+  const handleMouseLeave = useCallback(() => {
+    if (settings.pauseOnHover) {
+      setPaused(false)
+      startRef.current = performance.now()
+    }
+  }, [settings.pauseOnHover])
+
   return (
     <>
       {showModal && (
@@ -172,30 +272,58 @@ function Hero() {
         />
       )}
 
-      <section className="relative overflow-hidden" style={{ background: '#0f2a44' }}>
+      <style>{`
+        @keyframes hz-kb { from { transform: scale(1); } to { transform: scale(1.06); } }
+        .hz-slide-bg { position: absolute; inset: 0; background-size: cover; background-position: center; background-repeat: no-repeat; }
+        .hz-slide-bg.hz-kb-active { animation: hz-kb 6s ease forwards; }
+      `}</style>
+
+      <section
+        className="relative overflow-hidden"
+        style={{ background: '#0f2a44' }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <style dangerouslySetInnerHTML={{ __html: HERO_ANIM_CSS }} />
 
-        <div
-          className="absolute inset-0 animate-hz-kenburns"
-          style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1600&q=90')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(108deg, #0f2a44 0%, rgba(15,42,68,0.95) 26%, rgba(15,42,68,0.80) 46%, rgba(15,42,68,0.28) 66%, rgba(15,42,68,0.06) 100%)',
-          }}
-        />
+        {/* ── Image carousel layer — only images animate ── */}
+        {slides.length > 0 && (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+            {slides.map((url, i) => {
+              const isActive = i === curIdx
+              const isPrev = i === prevIdx
+              return (
+                <div
+                  key={url + i}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    opacity: isActive ? 1 : 0,
+                    transition: isPrev
+                      ? 'opacity 1s ease'
+                      : isActive
+                      ? 'opacity 1s ease'
+                      : 'none',
+                    zIndex: isActive ? 2 : isPrev ? 1 : 0,
+                  }}
+                >
+                  <div
+                    className={
+                      'hz-slide-bg' +
+                      (isActive && settings.kenBurns ? ' hz-kb-active' : '')
+                    }
+                    style={{ backgroundImage: `url(${url})` }}
+                  />
+                </div>
+              )
+            })}
+          </div>
+        )}
 
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.035]"
           style={{
+            zIndex: 1,
             backgroundImage:
               'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)',
             backgroundSize: '44px 44px',
@@ -221,7 +349,7 @@ function Hero() {
           ))}
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 py-20 md:py-16 lg:py-20">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 py-20 md:py-16 lg:py-20" style={{ zIndex: 2 }}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-14 items-center">
             <div className="animate-fade-up">
               <div className="inline-flex items-center gap-2.5 mb-5">
@@ -340,6 +468,136 @@ function Hero() {
             </div>
           </div>
         </div>
+
+        {/* ── Gradient overlay so text stays legible ── */}
+        {slides.length > 0 && (
+          <div
+            style={{
+              position: 'absolute', inset: 0, zIndex: 1,
+              background:
+                'linear-gradient(105deg, rgba(15,42,68,0.93) 0%, rgba(15,42,68,0.78) 45%, rgba(15,42,68,0.32) 100%)',
+              pointerEvents: 'none',
+            }}
+          />
+        )}
+
+        {/* ── Progress bar ── */}
+        {slides.length > 1 && (
+          <div
+            style={{
+              position: 'absolute', bottom: 0, left: 0,
+              height: 3, zIndex: 10,
+              background: '#f2994a',
+              width: `${progress}%`,
+              transition: 'width 0.1s linear',
+            }}
+          />
+        )}
+
+        {/* ── Dots ── */}
+        {slides.length > 1 && settings.showDots && (
+          <div
+            style={{
+              position: 'absolute', bottom: 18, left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex', gap: 8, zIndex: 10,
+            }}
+          >
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => goTo(i)}
+                style={{
+                  width: i === curIdx ? 24 : 8,
+                  height: 8,
+                  borderRadius: i === curIdx ? 4 : '50%',
+                  background: i === curIdx
+                    ? '#f2994a'
+                    : 'rgba(255,255,255,0.35)',
+                  border: 'none', cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  padding: 0,
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* ── Slide counter ── */}
+        {slides.length > 1 && (
+          <div
+            style={{
+              position: 'absolute', top: 18, right: 20,
+              fontSize: 11.5, fontWeight: 700, zIndex: 10,
+              color: 'rgba(255,255,255,0.45)',
+              letterSpacing: '0.06em',
+            }}
+          >
+            {curIdx + 1} / {slides.length}
+          </div>
+        )}
+
+        {/* ── Arrows ── */}
+        {slides.length > 1 && settings.showArrows && (
+          <>
+            <button
+              onClick={goPrev}
+              style={{
+                position: 'absolute', left: 14,
+                top: '50%', transform: 'translateY(-50%)',
+                width: 36, height: 36, borderRadius: '50%',
+                background: 'rgba(255,255,255,0.10)',
+                border: '1px solid rgba(255,255,255,0.18)',
+                cursor: 'pointer', zIndex: 10,
+                display: 'flex', alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background 0.2s',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement)
+                  .style.background = 'rgba(255,255,255,0.2)'
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement)
+                  .style.background = 'rgba(255,255,255,0.10)'
+              }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24"
+                fill="none" stroke="#fff" strokeWidth="2.2"
+                strokeLinecap="round">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <button
+              onClick={goNext}
+              style={{
+                position: 'absolute', right: 14,
+                top: '50%', transform: 'translateY(-50%)',
+                width: 36, height: 36, borderRadius: '50%',
+                background: 'rgba(255,255,255,0.10)',
+                border: '1px solid rgba(255,255,255,0.18)',
+                cursor: 'pointer', zIndex: 10,
+                display: 'flex', alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background 0.2s',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement)
+                  .style.background = 'rgba(255,255,255,0.2)'
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement)
+                  .style.background = 'rgba(255,255,255,0.10)'
+              }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24"
+                fill="none" stroke="#fff" strokeWidth="2.2"
+                strokeLinecap="round">
+                <path d="M9 18l6-6-6-6"/>
+              </svg>
+            </button>
+          </>
+        )}
       </section>
     </>
   )

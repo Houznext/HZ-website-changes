@@ -1,0 +1,17 @@
+export * from './apiClient.js'
+import apiClientJs from './apiClient.js'
+
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT
+
+const apiClient = apiClientJs as any
+
+apiClient.URLS = {
+  ...apiClient.URLS,
+  hero_carousel: `${BASE_URL}hero-carousel`,
+  hero_carousel_upload: `${BASE_URL}hero-carousel/upload`,
+  hero_carousel_settings: `${BASE_URL}hero-carousel/settings`,
+  hero_carousel_reorder: `${BASE_URL}hero-carousel/reorder`,
+}
+
+export default apiClient
