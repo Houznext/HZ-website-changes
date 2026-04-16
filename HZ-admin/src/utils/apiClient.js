@@ -118,6 +118,8 @@ const URLS = {
   property_leads: `${base_url}property-leads`,
   packages: `${base_url}packages`,
   interior_packages: `${base_url}interior-packages`,
+  interior_projects: `${base_url}interior-projects`,
+  interior_projects_stats: `${base_url}interior-projects/stats`,
   towns: `${base_url}towns`,
   states: `${base_url}states`,
   referrals: `${base_url}referrals`,

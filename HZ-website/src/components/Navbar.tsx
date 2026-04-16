@@ -5,6 +5,7 @@ import { useQuoteModal } from './QuoteModal'
 const NAV_LINKS = [
   { label: 'Home',        href: '/' },
   { label: 'Interiors',   href: '/interiors' },
+  { label: 'Projects',    href: '/projects' },
   { label: 'Real Estate', href: '/real-estate' },
   { label: 'LiveBuild',   href: '/buildlive' },
   { label: 'Pricing',     href: '/pricing' },
@@ -49,6 +50,10 @@ export default function Navbar() {
               <a
                 key={link.href}
                 href={link.href}
+                onClick={(e) => {
+                  e.preventDefault()
+                  void router.push(link.href)
+                }}
                 className="relative px-3 py-1.5 rounded text-[13px] font-[500] transition-colors duration-150 cursor-pointer no-underline inline-block"
                 style={{
                   color: isActive(link.href) ? '#fff' : 'rgba(255,255,255,0.75)',
@@ -143,7 +148,11 @@ export default function Navbar() {
                 <a
                   key={link.href}
                   href={link.href}
-                  onClick={() => setMobileOpen(false)}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    void router.push(link.href)
+                    setMobileOpen(false)
+                  }}
                   className="text-left px-6 py-3 text-[14px] font-[500] transition-colors block w-full cursor-pointer no-underline"
                   style={{
                     color: isActive(link.href) ? '#2f80ed' : 'rgba(255,255,255,0.8)',

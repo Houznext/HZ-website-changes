@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 const SERVICES = [
   { label: 'Home Interiors',   href: '/interiors' },
+  { label: 'Our Projects', href: '/projects' },
   { label: 'Pricing Packages', href: '/pricing' },
   { label: 'Real Estate',      href: '/real-estate' },
   { label: 'LiveBuild Tracking', href: '/buildlive' },

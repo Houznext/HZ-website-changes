@@ -9,7 +9,6 @@ import {
   Home,
   FileText,
   Building2,
-  Layers,
   MessageSquare,
   Inbox,
   Settings,
@@ -51,6 +50,24 @@ function NavCalculatorLeadsIcon(props: { className?: string }) {
     </svg>
   );
 }
+
+function NavProjectsIcon(props: { className?: string }) {
+  return (
+    <svg
+      className={props.className}
+      viewBox="0 0 24 24"
+      width={15}
+      height={15}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10" />
+    </svg>
+  );
+}
 type NavItem = NavSection | NavLink;
 
 const NAV_STRUCTURE: NavItem[] = [
@@ -66,7 +83,7 @@ const NAV_STRUCTURE: NavItem[] = [
   { href: "/packages",           label: "Int. Packages", icon: LayoutGrid },
   { href: "/blogs",              label: "Blog",          icon: FileText,        badgeKey: "blog"      },
   { href: "/property",           label: "Properties",    icon: Building2 },
-  { href: "/projects",           label: "Projects",      icon: Layers },
+  { href: "/projects",           label: "Projects",      icon: NavProjectsIcon },
   { section: "CRM" },
   { href: "/crm",                label: "CRM Leads",     icon: MessageSquare },
   { href: "/generalenquires",    label: "Enquiries",     icon: Inbox },
