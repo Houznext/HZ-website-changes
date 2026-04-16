@@ -31,7 +31,7 @@ import {
 } from '../permission/enum/permission.enum';
 import * as bcrypt from 'bcrypt';
 
-const OLD_ADMIN_EMAIL = process.env.MIGRATE_LEGACY_ADMIN_EMAIL?.trim() ?? '';
+const OLD_ADMIN_EMAIL = 'business@houznext.com';
 const NEW_ADMIN_EMAIL = 'business@houznext.com';
 const NEW_ADMIN_PASSWORD = 'Houznext@758';
 const NEW_ADMIN_FIRST_NAME = 'Houznext';
