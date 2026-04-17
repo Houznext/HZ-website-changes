@@ -7,6 +7,7 @@ import {
   Fragment,
 } from 'react'
 import { createPortal } from 'react-dom'
+import toast from 'react-hot-toast'
 import apiClient from '@/utils/apiClient'
 
 // ─── Legacy exports (ResultModal.tsx) — keep API stable ───────────────────────
@@ -370,14 +371,9 @@ export default function InteriorCalculator() {
   const [modalPkg, setModalPkg] = useState<'Essential' | 'Premium' | 'Luxury'>(
     'Premium',
   )
-  const [mounted, setMounted] = useState(false)
   const [showValidation, setShowValidation] = useState(false)
   const TOTAL_STEPS = 5
   const ddRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -420,7 +416,8 @@ export default function InteriorCalculator() {
     const [firstPart, ...restParts] = normalizedName.split(' ')
     const firstName = firstPart || 'Customer'
     const lastName = restParts.join(' ').trim() || 'Customer'
-    const fallbackEmail = `lead-${state.phone.trim()}@houznext.local`
+    const digits = state.phone.trim().replace(/\D/g, '').slice(-10)
+    const fallbackEmail = `noreply+calc${digits}@houznext.com`
     const emailAddress = state.email.trim() || fallbackEmail
 
     const payload = {
@@ -447,11 +444,16 @@ export default function InteriorCalculator() {
     try {
       await apiClient.post(apiClient.URLS.contact_us, payload)
       setSubmitted(true)
-      setShowModal(true)
-      setModalPkg('Premium')
     } catch (err) {
       console.error('Calculator submit error:', err)
+      setSubmitted(false)
+      toast.error(
+        'We could not save your details right now. Your estimate is still shown below — please try again or WhatsApp us.',
+        { duration: 6000 },
+      )
     } finally {
+      setModalPkg('Premium')
+      setShowModal(true)
       setSubmitting(false)
     }
   }, [state])
@@ -2126,7 +2128,7 @@ export default function InteriorCalculator() {
           </button>
         </div>
       </div>
-      {mounted &&
+      {typeof document !== 'undefined' &&
         showModal &&
         createPortal(modalContent, document.body)}
     </div>

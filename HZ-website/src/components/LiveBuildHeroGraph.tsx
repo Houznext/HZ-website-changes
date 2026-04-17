@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const BUILDLIVE_ROOMS = [
   { label: 'Living room', pct: 90, color: '#2f80ed' },
@@ -70,17 +70,21 @@ function DonutChart({ pct, color, size = 40, strokeWidth = 5, animate = false }:
 
 function useCountUpOnce(target: number, duration = 1700): number {
   const [val, setVal] = useState(0)
-  const ran = useRef(false)
   useEffect(() => {
-    if (ran.current) return
-    ran.current = true
+    let raf = 0
+    let cancelled = false
     const t0 = performance.now()
     const tick = (now: number) => {
+      if (cancelled) return
       const p = Math.min((now - t0) / duration, 1)
       setVal(Math.round((1 - Math.pow(1 - p, 3)) * target))
-      if (p < 1) requestAnimationFrame(tick)
+      if (p < 1) raf = requestAnimationFrame(tick)
     }
-    requestAnimationFrame(tick)
+    raf = requestAnimationFrame(tick)
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(raf)
+    }
   }, [target, duration])
   return val
 }
@@ -138,7 +142,11 @@ export default function LiveBuildHeroGraph({ className = '' }: LiveBuildHeroGrap
         <div className="relative flex-shrink-0" style={{ width: 52, height: 52 }}>
           <DonutChart pct={OVERALL_PCT} color="#2f80ed" size={52} strokeWidth={5} animate />
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="font-black text-[12px]" style={{ color: '#2f80ed' }}>
+            <span
+              className="font-black text-[12px]"
+              style={{ color: '#2f80ed' }}
+              suppressHydrationWarning
+            >
               {overallCount}%
             </span>
             <span className="text-[7px] mt-0.5" style={{ color: 'rgba(255,255,255,0.38)' }}>

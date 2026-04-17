@@ -29,7 +29,9 @@ export function tryParseJSON(json) {
 }
 /** Ensure trailing slash so `${base_url}otp` resolves to `/otp`, not `hostotp`. */
 const rawApiBase =
-  process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT;
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT ||
+  (process.env.NODE_ENV === "development" ? "http://localhost:4000" : "");
 const base_url = rawApiBase
   ? rawApiBase.endsWith("/")
     ? rawApiBase

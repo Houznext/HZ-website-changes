@@ -6,6 +6,7 @@ import apiClient from "@/src/utils/apiClient";
 import {
   Box,
   Chip,
+  CircularProgress,
   Drawer,
   IconButton,
   Pagination,
@@ -100,9 +101,11 @@ function CalculatorLeadsPage() {
   const [search, setSearch] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selected, setSelected] = useState<CalculatorLeadRow | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchPage = useCallback(async (p: number) => {
     setLoading(true);
+    let rowCount = 0;
     try {
       const res = await apiClient.get(
         apiClient.URLS.calculator_leads,
@@ -115,7 +118,9 @@ function CalculatorLeadsPage() {
           total?: number;
           totalPages?: number;
         };
-        setRows(Array.isArray(b.data) ? b.data : []);
+        const data = Array.isArray(b.data) ? b.data : [];
+        rowCount = data.length;
+        setRows(data);
         setTotal(typeof b.total === "number" ? b.total : 0);
         setTotalPages(
           typeof b.totalPages === "number" && b.totalPages > 0
@@ -130,6 +135,7 @@ function CalculatorLeadsPage() {
     } finally {
       setLoading(false);
     }
+    return { rowCount };
   }, [limit]);
 
   useEffect(() => {
@@ -169,6 +175,7 @@ function CalculatorLeadsPage() {
     return null;
   }
   const hasAccess = hasPermission("referral", "view");
+  const canDelete = hasPermission("referral", "delete");
   if (!hasAccess) {
     return <AccessDenied resource="Calculator Leads" />;
   }
@@ -176,6 +183,40 @@ function CalculatorLeadsPage() {
   const openDetail = (row: CalculatorLeadRow) => {
     setSelected(row);
     setDrawerOpen(true);
+  };
+
+  const handleDeleteLead = async (row: CalculatorLeadRow) => {
+    if (!canDelete) {
+      toast.error("You do not have permission to delete leads.");
+      return;
+    }
+    const label = [row.firstName, row.lastName].filter(Boolean).join(" ").trim();
+    const ok = window.confirm(
+      `Delete this calculator lead${label ? ` for ${label}` : ""}? This cannot be undone.`
+    );
+    if (!ok) return;
+    setDeletingId(row.id);
+    try {
+      await apiClient.delete(
+        `${apiClient.URLS.contact_us}/${row.id}`,
+        {},
+        true
+      );
+      toast.success("Lead deleted.");
+      if (selected?.id === row.id) {
+        setDrawerOpen(false);
+        setSelected(null);
+      }
+      const { rowCount } = await fetchPage(page);
+      if (rowCount === 0 && page > 1) {
+        setPage((p) => p - 1);
+      }
+    } catch (e: unknown) {
+      console.error(e);
+      toast.error("Failed to delete lead.");
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const selMeta = selected ? parseMeta(selected.tellUsMore) : {};
@@ -367,25 +408,54 @@ function CalculatorLeadsPage() {
                           {(row.emailAddress || "").trim() || "—"}
                         </TableCell>
                         <TableCell>
-                          <IconButton
-                            size="small"
-                            aria-label="View lead"
-                            onClick={() => openDetail(row)}
-                          >
-                            <svg
-                              width={18}
-                              height={18}
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="1.8"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                            <IconButton
+                              size="small"
+                              aria-label="View lead"
+                              onClick={() => openDetail(row)}
                             >
-                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                              <circle cx="12" cy="12" r="3" />
-                            </svg>
-                          </IconButton>
+                              <svg
+                                width={18}
+                                height={18}
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.8"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                <circle cx="12" cy="12" r="3" />
+                              </svg>
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              aria-label="Delete lead"
+                              disabled={!canDelete || deletingId === row.id}
+                              onClick={() => void handleDeleteLead(row)}
+                              sx={{
+                                color: "#b91c1c",
+                                "&:hover": { bgcolor: "rgba(185,28,28,0.08)" },
+                              }}
+                            >
+                              {deletingId === row.id ? (
+                                <CircularProgress size={18} color="inherit" />
+                              ) : (
+                                <svg
+                                  width={18}
+                                  height={18}
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="1.8"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6" />
+                                </svg>
+                              )}
+                            </IconButton>
+                          </Box>
                         </TableCell>
                       </TableRow>
                     );
@@ -491,6 +561,29 @@ function CalculatorLeadsPage() {
             >
               {JSON.stringify(selMeta, null, 2)}
             </Box>
+            {canDelete && selected && (
+              <Box sx={{ mt: 2.5 }}>
+                <button
+                  type="button"
+                  disabled={deletingId === selected.id}
+                  onClick={() => void handleDeleteLead(selected)}
+                  style={{
+                    width: "100%",
+                    padding: "10px 14px",
+                    borderRadius: 8,
+                    border: "1px solid #fecaca",
+                    background: deletingId === selected.id ? "#f1f5f9" : "#fef2f2",
+                    color: "#b91c1c",
+                    fontWeight: 700,
+                    fontSize: 14,
+                    cursor:
+                      deletingId === selected.id ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {deletingId === selected.id ? "Deleting…" : "Delete this lead"}
+                </button>
+              </Box>
+            )}
           </Box>
         )}
       </Drawer>
