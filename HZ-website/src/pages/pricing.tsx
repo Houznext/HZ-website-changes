@@ -232,14 +232,14 @@ function PricingGrid({
                     ))}
                   </ul>
                   <button
-                    onClick={openModal}
+                    onClick={() => openModal('Pricing page')}
                     className="w-full py-2.5 rounded-xl text-[13px] font-head font-bold transition-all hover:-translate-y-px"
                     style={pkg.popular
                       ? { background: '#2f80ed', color: '#fff' }
                       : { background: '#f5f7fa', color: '#2f80ed', border: '1px solid #dde8f5' }
                     }
                   >
-                    Get {pkg.name} quote →
+                    Request {pkg.name} consultation →
                   </button>
                 </div>
               </div>

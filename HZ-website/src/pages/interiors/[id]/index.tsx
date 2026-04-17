@@ -53,7 +53,7 @@ const InteriorsId = () => {
           item.imageUrl?.url ?? "/images/custombuilder/subservices/default.png",
         title: item.title,
         description: item.description,
-        buttonLabel: "Get quote",
+        buttonLabel: "Explore design",
       })),
       title: data.heading,
       subTitle: data.description,

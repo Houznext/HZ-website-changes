@@ -6,7 +6,7 @@ import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import Modal from "@/common/Modal";
 import clsx from "clsx";
-import CustomInput from "@/common/FormElements/CustomInput";
+import { useQuoteModal } from "@/components/QuoteModal";
 import { useStrapiInteriorStore } from "@/store/strapiInteriorsData";
 import SectionSkeleton from "@/common/Skeleton";
 import { packages, budgetDetails } from "@/utils/interiorshelper";
@@ -22,8 +22,6 @@ import {
   ArrowRight,
   Star,
   Shield,
-  Phone,
-  Send,
   Crown,
   Gem,
   Zap,
@@ -78,19 +76,12 @@ const PackageCard: React.FC<Package> = ({
   description,
   price,
 }) => {
+  const { openModal: openConsultationModal } = useQuoteModal();
   const [openModal, setOpenModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Package | undefined>(
     undefined
   );
-  const [openQuoteModal, setQuoteModal] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
-  const [quoteForm, setQuoteForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    propertyName: "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleModal = (item: Package) => {
     setSelectedItem(item);
@@ -106,15 +97,6 @@ const PackageCard: React.FC<Package> = ({
   const activePackage = matchedBhk?.packages[activeTab];
   const tierKey = activePackage?.type || "Basic";
   const tier = TIER_CONFIG[tierKey] || TIER_CONFIG.Basic;
-
-  const handleQuoteSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setIsSubmitting(false);
-    setQuoteForm({ name: "", email: "", phone: "", propertyName: "" });
-    setQuoteModal(false);
-  };
 
   return (
     <>
@@ -320,163 +302,31 @@ const PackageCard: React.FC<Package> = ({
                     </p>
                   </div>
                   <Button
-                    onClick={() => setQuoteModal(true)}
+                    type="button"
+                    onClick={() => {
+                      const hint = [
+                        "Interiors packages",
+                        activePackage?.type,
+                        bhk,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ");
+                      setOpenModal(false);
+                      window.setTimeout(() => openConsultationModal(hint), 0);
+                    }}
                     className={clsx(
                       "flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold text-sm transition-all duration-300 shadow-lg hover:shadow-xl shrink-0",
                       `bg-gradient-to-r ${tier.gradient}`
                     )}
                   >
                     <Gem className="w-4 h-4" />
-                    Get Free Quote
+                    Get free consultation
                   </Button>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Quote Modal */}
-          {openQuoteModal && (
-            <Modal
-              isOpen={openQuoteModal}
-              closeModal={() => setQuoteModal(false)}
-              className="max-w-[460px] !p-0 overflow-hidden"
-              rootCls="z-[999999]"
-            >
-              <div className="bg-gradient-to-r from-[#3586FF] to-[#1a5bbf] px-6 py-5 text-white">
-                <h2 className="text-xl font-bold">Get Your Free Quote</h2>
-                <p className="text-blue-100 text-sm mt-1">
-                  {activePackage?.type} Package for {bhk} — Starting at{" "}
-                  {activePackage?.startingPrice}
-                </p>
-              </div>
-
-              <form onSubmit={handleQuoteSubmit} className="p-6">
-                <div className="space-y-4">
-                  <CustomInput
-                    type="text"
-                    name="name"
-                    label="Full Name"
-                    placeholder="Enter your name"
-                    value={quoteForm.name}
-                    onChange={(e: any) =>
-                      setQuoteForm((f) => ({ ...f, name: e.target.value }))
-                    }
-                    labelCls="font-medium text-sm text-gray-700"
-                    outerInptCls="bg-gray-50 border-gray-200 focus-within:border-[#3586FF] focus-within:ring-2 focus-within:ring-[#3586FF]/10"
-                    className="text-sm"
-                    required
-                  />
-                  <CustomInput
-                    type="email"
-                    name="email"
-                    label="Email"
-                    placeholder="you@example.com"
-                    value={quoteForm.email}
-                    onChange={(e: any) =>
-                      setQuoteForm((f) => ({ ...f, email: e.target.value }))
-                    }
-                    labelCls="font-medium text-sm text-gray-700"
-                    outerInptCls="bg-gray-50 border-gray-200 focus-within:border-[#3586FF] focus-within:ring-2 focus-within:ring-[#3586FF]/10"
-                    className="text-sm"
-                    required
-                  />
-                  <CustomInput
-                    type="number"
-                    name="phone"
-                    label="Phone Number"
-                    placeholder="10-digit mobile number"
-                    value={quoteForm.phone}
-                    onChange={(e: any) =>
-                      setQuoteForm((f) => ({
-                        ...f,
-                        phone: e.target.value.replace(/\D/g, "").slice(0, 10),
-                      }))
-                    }
-                    labelCls="font-medium text-sm text-gray-700"
-                    outerInptCls="bg-gray-50 border-gray-200 focus-within:border-[#3586FF] focus-within:ring-2 focus-within:ring-[#3586FF]/10"
-                    className="text-sm"
-                    required
-                  />
-                  <CustomInput
-                    type="text"
-                    name="propertyName"
-                    label="Property / Apartment Name"
-                    placeholder="e.g., My Apartment"
-                    value={quoteForm.propertyName}
-                    onChange={(e: any) =>
-                      setQuoteForm((f) => ({
-                        ...f,
-                        propertyName: e.target.value,
-                      }))
-                    }
-                    labelCls="font-medium text-sm text-gray-700"
-                    outerInptCls="bg-gray-50 border-gray-200 focus-within:border-[#3586FF] focus-within:ring-2 focus-within:ring-[#3586FF]/10"
-                    className="text-sm"
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className={clsx(
-                    "w-full mt-6 py-3 rounded-xl text-white font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2",
-                    isSubmitting
-                      ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-[#3586FF] hover:bg-[#2b6fd9] shadow-lg shadow-[#3586FF]/25"
-                  )}
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center gap-2">
-                      <svg
-                        className="animate-spin h-4 w-4"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                        />
-                      </svg>
-                      Sending...
-                    </span>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      Get My Free Quote
-                    </>
-                  )}
-                </Button>
-
-                <p className="text-center text-[11px] text-gray-400 mt-3">
-                  By submitting, you agree to our{" "}
-                  <span className="text-[#3586FF]">Privacy Policy</span> &amp;{" "}
-                  <span className="text-[#3586FF]">Terms</span>
-                </p>
-
-                <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-gray-100">
-                  <Phone className="w-3.5 h-3.5 text-gray-400" />
-                  <p className="text-xs text-gray-500">
-                    Or call us at{" "}
-                    <a
-                      href="tel:+919759750770"
-                      className="text-[#3586FF] font-medium"
-                    >
-                      +91 97597 50770
-                    </a>
-                  </p>
-                </div>
-              </form>
-            </Modal>
-          )}
         </Modal>
       )}
     </>

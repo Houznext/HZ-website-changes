@@ -346,7 +346,7 @@ export default function HeroConsultationFormCard({
               'Sending…'
             ) : (
               <>
-                Get Free Quote
+                Request free consultation
                 <svg
                   width="14"
                   height="14"

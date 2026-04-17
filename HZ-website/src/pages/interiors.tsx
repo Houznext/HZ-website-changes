@@ -142,13 +142,13 @@ function InteriorsHero() {
               </p>
               <div className="flex flex-wrap gap-3">
                 <button
-                  onClick={openModal}
+                  onClick={() => openModal('Interiors page — hero')}
                   className="px-6 py-3 rounded-xl font-head font-bold text-white text-[15px] transition-all hover:-translate-y-0.5"
                   style={{ background: '#2f80ed' }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#1a6dd6' }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#2f80ed' }}
                 >
-                  Get free quote →
+                  Request free consultation →
                 </button>
                 <button
                   onClick={() => router.push('/pricing')}
@@ -222,6 +222,7 @@ function WhyChooseUs() {
 
 function PackagesSection({ packages }: { packages: ApiPackage[] }) {
   const { openModal } = useQuoteModal()
+  const openConsultation = () => openModal('Interiors page — packages section')
   const display = packages
 
   return (
@@ -282,7 +283,8 @@ function PackagesSection({ packages }: { packages: ApiPackage[] }) {
                     ))}
                   </ul>
                   <button
-                    onClick={openModal}
+                    type="button"
+                    onClick={openConsultation}
                     className="w-full py-2.5 rounded-xl text-[13px] font-head font-bold
                                transition-all hover:-translate-y-px"
                     style={
@@ -291,7 +293,7 @@ function PackagesSection({ packages }: { packages: ApiPackage[] }) {
                         : { background: '#f5f7fa', color: '#2f80ed', border: '1px solid #dde8f5' }
                     }
                   >
-                    Get {pkg.name} quote →
+                    Request {pkg.name} consultation →
                   </button>
                 </div>
               </div>

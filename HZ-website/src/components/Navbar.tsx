@@ -90,13 +90,13 @@ export default function Navbar() {
             </a>
             <button
               type="button"
-              onClick={openModal}
+              onClick={() => openModal('Navbar — Free consultation')}
               className="px-4 py-1.5 rounded-lg text-[13px] font-head font-bold text-white transition-all duration-200 hover:-translate-y-px hover:shadow-lg"
               style={{ background: '#2f80ed' }}
               onMouseEnter={(e) => { e.currentTarget.style.background = '#1a6dd6' }}
               onMouseLeave={(e) => { e.currentTarget.style.background = '#2f80ed' }}
             >
-              Free Quote
+              Free consultation
             </button>
           </div>
 
@@ -172,11 +172,14 @@ export default function Navbar() {
                 </a>
                 <button
                   type="button"
-                  onClick={() => { openModal(); setMobileOpen(false) }}
+                  onClick={() => {
+                    openModal('Navbar — Free consultation')
+                    setMobileOpen(false)
+                  }}
                   className="flex-1 py-2 text-[13px] font-head font-bold text-white rounded-lg"
                   style={{ background: '#2f80ed' }}
                 >
-                  Free Quote
+                  Free consultation
                 </button>
               </div>
             </div>

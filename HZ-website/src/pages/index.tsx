@@ -157,7 +157,6 @@ function Hero() {
 
   const [showModal, setShowModal] = useState(false)
   const [submittedName, setSubmittedName] = useState('')
-  const [heroFormName, setHeroFormName] = useState('')
 
   // ── Carousel state ───────────────────────────────────
   const [slides, setSlides] = useState<string[]>([])
@@ -384,10 +383,7 @@ function Hero() {
               <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-8">
                 <button
                   type="button"
-                  onClick={() => {
-                    setSubmittedName(heroFormName.trim())
-                    setShowModal(true)
-                  }}
+                  onClick={() => void router.push('/interiors')}
                   className="font-head font-bold text-white rounded-xl text-[14px]"
                   style={{ padding: '13px 28px', background: '#2f80ed', border: 'none', minHeight: 44, transition: 'all 0.18s' }}
                   onMouseEnter={(e) => {
@@ -403,7 +399,7 @@ function Hero() {
                     el.style.boxShadow = 'none'
                   }}
                 >
-                  Get free estimate →
+                  Explore interiors →
                 </button>
                 <button
                   type="button"
@@ -460,7 +456,6 @@ function Hero() {
                     setSubmittedName(n)
                     setShowModal(true)
                   }}
-                  onNameChange={setHeroFormName}
                 />
 
                 <LiveBuildHeroGraph />
@@ -876,7 +871,7 @@ function PackagesSection() {
                   ))}
                 </ul>
                 <button
-                  onClick={openModal}
+                  onClick={() => openModal('Homepage — request proposal strip')}
                   className="w-full py-2.5 rounded-xl text-[13px] font-head font-bold transition-all hover:-translate-y-px"
                   style={
                     pkg.highlighted
@@ -884,7 +879,7 @@ function PackagesSection() {
                       : { background: '#f5f7fa', color: '#2f80ed', border: '1px solid #dde8f5' }
                   }
                 >
-                  Get {pkg.name} quote →
+                  Request {pkg.name} consultation →
                 </button>
               </div>
             </div>

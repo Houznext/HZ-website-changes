@@ -2,8 +2,7 @@ import Button from "@/common/Button";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { InteriorCalc } from "../InteriorsCard";
-import Modal from "@/common/Modal";
-import CustomInput from "@/common/FormElements/CustomInput";
+import { useQuoteModal } from "@/components/QuoteModal";
 import SectionSkeleton from "@/common/Skeleton";
 import BreadCrumb from "../../../BreadCrumb";
 import { usePathname } from "next/navigation";
@@ -50,16 +49,8 @@ const InteriorsDetailsComp: React.FC<InteriorsDetailsCompProps> = ({
   const path = pathname?.split("/");
 
   const lastSegment = path?.[2];
-  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const { openModal } = useQuoteModal();
   const [loading, setLoading] = useState(true);
-
-  const handleOpenQuoteModal = () => {
-    setIsQuoteModalOpen(true);
-  };
-
-  const handleCloseQuoteModal = () => {
-    setIsQuoteModalOpen(false);
-  };
   const query = new URLSearchParams({
     title: encodeURIComponent(title),
     description: encodeURIComponent(description),
@@ -343,85 +334,15 @@ const InteriorsDetailsComp: React.FC<InteriorsDetailsCompProps> = ({
             <div className="md:pb-0 pb-1 md:px-0 px-4">
               <Button
                 className="md:w-[50%] w-full md:rounded-[8px] rounded-[4px] bg-[#3586FF]  p-2 md:text-[20px] font-medium text-[12px] text-white md:static fixed bottom-0  right-0 "
-                onClick={handleOpenQuoteModal}
+                onClick={() =>
+                  openModal(`Interior design detail — ${title}`)
+                }
               >
-                Get Quote
+                Get free consultation
               </Button>
             </div>
           </div>
 
-          {isQuoteModalOpen && (
-            <Modal
-              isOpen={isQuoteModalOpen}
-              closeModal={handleCloseQuoteModal}
-              className="max-w-[520px] md:min-h-[630px] min-h-[500px]"
-              rootCls="z-[99999]"
-              label="Place"
-            >
-              <div className="flex flex-col items-center md:gap-4 gap-2 py-4">
-                <h1 className="font-medium md:text-[20px] text-[16px] leading-[18.52px]">
-                  Design for Every Budget
-                </h1>
-                <form>
-                  <div className="flex flex-col md:gap-y-[48px] gap-y-[24px] p-5">
-                    <div className="grid grid-cols-1 md:gap-5 gap-2">
-                      <CustomInput
-                        type="text"
-                        name="name"
-                        placeholder="Name"
-                        className=" px-2 rounded-[4px]"
-                        rootCls="px-2"
-                      />
-                      <CustomInput
-                        type="email"
-                        name="email"
-                        placeholder="Email ID"
-                        className=" px-2 rounded-[4px]"
-                        rootCls="px-2"
-                      />
-                      <CustomInput
-                        type="number"
-                        name="phone"
-                        placeholder="Phone Number"
-                        className=" px-2 rounded-[4px]"
-                        rootCls="px-2"
-                      />
-                      <div className="flex items-center gap-2 md:pl-[15px] pl-[10px]">
-                        <input
-                          id="whatsappUpdates"
-                          type="checkbox"
-                          className="w-4 h-4"
-                        />
-                        <label
-                          htmlFor="whatsappUpdates"
-                          className="text-gray-800 md:text-[16px] text-[12px]"
-                        >
-                          Send me updates on WhatsApp
-                        </label>
-                      </div>
-                      <CustomInput
-                        type="text"
-                        name="propertyName"
-                        placeholder="Property Name"
-                        className=" px-2 rounded-[4px]"
-                        rootCls="px-2"
-                      />
-                    </div>
-
-                    <Button className="bg-[#3586FF] md:px-5 px-3 md:py-4 py-3 md:text-[16px] font-medium text-[12px] rounded-md text-white">
-                      Get A Quote
-                    </Button>
-                  </div>
-                </form>
-
-                <p className="text-center font-regular md:text-[16px] text-[10px]">
-                  By submitting this form, you agree to the{" "}
-                  <span className="text-red-500">privacy policy</span> &{" "}
-                  <span className="text-red-500">terms and conditions</span>.
-                </p>
-              </div>
-            </Modal>
-          )}
         </div>
       )}
       <InteriorCalc />

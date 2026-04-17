@@ -141,7 +141,7 @@ const ContactForm = ({
             type="submit"
             className="bg-[#3586FF] md:text-[16px] text-[14px] text-white font-medium py-2 rounded-[6px] mt-4"
           >
-            Get Free Quote
+            Request free consultation
           </Button>
         </div>
       </form>

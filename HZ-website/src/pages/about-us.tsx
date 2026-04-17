@@ -138,13 +138,13 @@ export default function AboutUs() {
               Get a free consultation and fixed-price quote in 24 hours.
             </p>
             <button
-              onClick={openModal}
+              onClick={() => openModal('About us page')}
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-head font-bold text-white text-[15px]"
               style={{ background: '#2f80ed' }}
               onMouseEnter={(e) => { e.currentTarget.style.background = '#1a6dd6' }}
               onMouseLeave={(e) => { e.currentTarget.style.background = '#2f80ed' }}
             >
-              Get Free Quote →
+              Request free consultation →
             </button>
           </Reveal>
         </section>

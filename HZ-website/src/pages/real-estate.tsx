@@ -193,7 +193,7 @@ function PropertyListings() {
                   <p className="text-[12px] mb-3" style={{ color: '#5a6a7e' }}>{l.area}</p>
                   <div className="flex items-center justify-between">
                     <span className="font-head font-black text-[20px]" style={{ color: '#2f80ed' }}>{l.price}</span>
-                    <button onClick={openModal} className="text-[12px] font-[600] px-3 py-1.5 rounded-lg transition-all hover:bg-blue-light" style={{ background: '#e8f1fd', color: '#2f80ed' }}>
+                    <button type="button" onClick={() => openModal('Real estate page')} className="text-[12px] font-[600] px-3 py-1.5 rounded-lg transition-all hover:bg-blue-light" style={{ background: '#e8f1fd', color: '#2f80ed' }}>
                       Enquire →
                     </button>
                   </div>

@@ -222,8 +222,8 @@ export default function LoginPage() {
                 {/* New customer */}
                 <p className="text-center text-[12px] mt-5" style={{ color: '#5a6a7e' }}>
                   New customer?{' '}
-                  <button onClick={openModal} className="font-[600]" style={{ color: '#2f80ed' }}>
-                    Get a free quote
+                  <button type="button" onClick={() => openModal('Login page')} className="font-[600]" style={{ color: '#2f80ed' }}>
+                    Get a free consultation
                   </button>
                 </p>
               </div>
