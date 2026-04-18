@@ -12,6 +12,9 @@ apiClient.URLS = {
   hero_carousel_upload: `${BASE_URL}hero-carousel/upload`,
   hero_carousel_settings: `${BASE_URL}hero-carousel/settings`,
   hero_carousel_reorder: `${BASE_URL}hero-carousel/reorder`,
+  services_content: `${BASE_URL}services-content`,
+  services_content_upload_card: `${BASE_URL}services-content`,
+  services_content_upload_hero: `${BASE_URL}services-content`,
 }
 
 export default apiClient

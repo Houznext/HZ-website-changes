@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/Icons'
 import Reveal from '@/components/ui/Reveal'
 import LiveBuildHeroGraph from '@/components/LiveBuildHeroGraph'
+import ServicesSection from '@/components/ServicesSection'
 import { HERO_CONSULTATION_CSS } from '@/components/HeroConsultation/keyframes'
 import HeroConsultationFormCard from '@/components/HeroConsultation/HeroConsultationFormCard'
 import HeroSuccessModal from '@/components/HeroConsultation/HeroSuccessModal'
@@ -54,6 +55,7 @@ export default function HomePage() {
       <main style={{ background: '#f5f7fa' }}>
         <Hero />
         <MetricsStrip />
+        <ServicesSection />
         <HowItWorks />
         <>
           <style>{`
