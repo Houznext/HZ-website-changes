@@ -11,7 +11,17 @@ export class S3Service {
     requestChecksumCalculation: RequestChecksumCalculation.WHEN_REQUIRED,
   });
 
-  async generateUploadURL(fileName: string, fileType: string): Promise<string> {
+  /**
+   * When contentLength is set, it is included in the SigV4 signature.
+   * The PUT request must send the same Content-Length header (and body
+   * of that exact size) or S3 rejects the upload — this avoids failures
+   * when Node's fetch would otherwise use chunked transfer encoding.
+   */
+  async generateUploadURL(
+    fileName: string,
+    fileType: string,
+    contentLength?: number,
+  ): Promise<string> {
     const bucket = process.env.S3_BUCKET_NAME;
     if (!bucket) {
       throw new Error('S3_BUCKET_NAME is not set');
@@ -20,7 +30,10 @@ export class S3Service {
     const command = new PutObjectCommand({
       Bucket: bucket,
       Key: fileName,
-      ContentType: fileType,
+      ContentType: fileType || 'application/octet-stream',
+      ...(typeof contentLength === 'number' && contentLength >= 0
+        ? { ContentLength: contentLength }
+        : {}),
     });
 
     // v3 expects expiresIn in seconds

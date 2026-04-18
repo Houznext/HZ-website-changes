@@ -1393,7 +1393,7 @@ const WHY: WhyDef[] = [
   { Icon: IconLock,       color: '#2f80ed', title: 'Fixed pricing',          desc: 'Quote = Invoice. No surprises, no escalations, ever.' },
   { Icon: IconZap,        color: '#f2994a', title: '45-day delivery',        desc: 'We commit to delivery dates and stick to them — guaranteed.' },
   { Icon: IconSmartphone, color: '#2f80ed', title: 'LiveBuild tracking',     desc: 'Daily photos and progress updates from your site.' },
-  { Icon: IconShield,     color: '#2f80ed', title: '1-year warranty',        desc: 'All work is covered for 12 months with no questions asked.' },
+  { Icon: IconShield,     color: '#2f80ed', title: '10 years warranty',      desc: 'All work is covered for 10 years - Terms and conditions apply' },
   { Icon: IconCreditCard, color: '#f2994a', title: 'EMI options available',  desc: 'Zero-cost EMI plans through leading banks and NBFCs.' },
 ]
 

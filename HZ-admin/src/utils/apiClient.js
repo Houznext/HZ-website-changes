@@ -124,6 +124,7 @@ const URLS = {
   hero_carousel_upload: `${base_url}hero-carousel/upload`,
   hero_carousel_settings: `${base_url}hero-carousel/settings`,
   hero_carousel_reorder: `${base_url}hero-carousel/reorder`,
+  services_content: `${base_url}services-content`,
   towns: `${base_url}towns`,
   states: `${base_url}states`,
   referrals: `${base_url}referrals`,

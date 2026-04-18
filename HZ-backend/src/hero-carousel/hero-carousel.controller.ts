@@ -13,6 +13,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { HeroCarouselService } from './hero-carousel.service';
 import { CreateSlideDto } from './dto/create-slide.dto';
 import { UpdateSlideDto } from './dto/update-slide.dto';
@@ -52,22 +53,40 @@ export class HeroCarouselController {
 
   @Post('upload')
   @UseGuards(ControllerAuthGuard)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 30 * 1024 * 1024 },
+    }),
+  )
   async uploadImage(@UploadedFile() file: any) {
     if (!file) {
       throw new BadRequestException('File is required');
     }
 
+    const buffer: Buffer = file.buffer;
+    if (!buffer || !buffer.length) {
+      throw new BadRequestException(
+        'Empty file upload — try a smaller image or a different format',
+      );
+    }
+    const mime = file.mimetype || 'application/octet-stream';
+
     const key = `hero-carousel/${Date.now()}-${file.originalname
       .replace(/\s+/g, '-')
       .toLowerCase()}`;
-    const signedUrl = await this.s3.generateUploadURL(key, file.mimetype);
+    const signedUrl = await this.s3.generateUploadURL(
+      key,
+      mime,
+      buffer.length,
+    );
     const response = await fetch(signedUrl, {
       method: 'PUT',
       headers: {
-        'Content-Type': file.mimetype,
+        'Content-Type': mime,
+        'Content-Length': String(buffer.length),
       },
-      body: file.buffer,
+      body: buffer,
     });
 
     if (!response.ok) {

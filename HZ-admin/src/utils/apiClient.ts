@@ -1,8 +1,11 @@
 export * from './apiClient.js'
 import apiClientJs from './apiClient.js'
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT
+const rawBase =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT ||
+  'http://localhost:4000/'
+const BASE_URL = rawBase.replace(/\/?$/, '/')
 
 const apiClient = apiClientJs as any
 

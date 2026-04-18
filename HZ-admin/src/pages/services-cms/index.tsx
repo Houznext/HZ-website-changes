@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import withAdminLayout from "@/src/common/AdminLayout";
 import apiClient from "@/src/utils/apiClient";
 
@@ -281,6 +281,51 @@ function ServicesCmsPage() {
     }, 2800);
   }
 
+  function uploadErrorMessage(xhr: XMLHttpRequest): string {
+    const fallback = "Upload failed — check file size and format";
+    const raw = xhr.responseText || "";
+    if (!raw.trim()) {
+      if (xhr.status === 401 || xhr.status === 403) {
+        return "Not authorized — refresh the page and sign in again";
+      }
+      if (xhr.status === 404) {
+        return "Upload API not found — restart the backend and try again";
+      }
+      return fallback;
+    }
+    try {
+      const err = JSON.parse(raw) as {
+        message?: string | string[];
+        error?: string;
+      };
+      if (err?.message) {
+        return Array.isArray(err.message)
+          ? err.message.join(", ")
+          : String(err.message);
+      }
+      if (err?.error) return String(err.error);
+    } catch {
+      /* ignore */
+    }
+    return fallback;
+  }
+
+  /** Resolves API base for uploads (apiClient.js now includes services_content; this is a fallback). */
+  function servicesContentBase(): string {
+    const u = (apiClient as { URLS?: { services_content?: string } }).URLS
+      ?.services_content;
+    if (typeof u === "string" && /^https?:\/\//i.test(u)) {
+      return u.replace(/\/+$/, "");
+    }
+    if (typeof window !== "undefined") {
+      const pub = process.env.NEXT_PUBLIC_API_URL;
+      const local = process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT;
+      const raw = (pub || local || "http://localhost:4000/").trim();
+      return `${raw.replace(/\/?$/, "/")}services-content`.replace(/\/+$/, "");
+    }
+    return "http://localhost:4000/services-content".replace(/\/+$/, "");
+  }
+
   function updateField(
     id: number,
     field: keyof ServiceItem,
@@ -329,24 +374,35 @@ function ServicesCmsPage() {
     }
   }
 
-  function handleCardImageUpload(id: number, file: File) {
+  async function handleCardImageUpload(id: number, file: File) {
     setCardUploading(id);
     setCardProgress((p) => ({ ...p, [id]: 0 }));
 
+    const baseUrl = servicesContentBase();
+    const fresh = await getSession();
     const token =
-      (session as any)?.accessToken ||
-      (session as any)?.token ||
-      (session as any)?.user?.token ||
+      (fresh as { accessToken?: string })?.accessToken ||
+      (fresh as { token?: string })?.token ||
+      (fresh as { user?: { token?: string } })?.user?.token ||
       "";
+
+    if (!token) {
+      showToast("Session expired — refresh the page and sign in again");
+      setCardUploading(null);
+      setCardProgress((p) => {
+        const next = { ...p };
+        delete next[id];
+        return next;
+      });
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
 
     const xhr = new XMLHttpRequest();
-    xhr.open(
-      "POST",
-      `${apiClient.URLS.services_content}/${id}/upload-card-image`
-    );
-    if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    xhr.open("POST", `${baseUrl}/upload/card/${id}`);
+    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
 
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) {
@@ -356,25 +412,34 @@ function ServicesCmsPage() {
     };
 
     xhr.onload = () => {
-      if (xhr.status === 200 || xhr.status === 201) {
+      const ok = xhr.status >= 200 && xhr.status < 300;
+      if (ok) {
         try {
-          const res = JSON.parse(xhr.responseText) as ServiceItem;
-          const url = res?.cardImageUrl || "";
-          if (url) {
+          const raw = xhr.responseText?.trim();
+          if (!raw) {
+            showToast("Upload succeeded but empty response — refresh the list");
+          } else {
+            const res = JSON.parse(raw) as ServiceItem;
             setServices((prev) =>
-              prev.map((s) => (s.id === id ? { ...s, cardImageUrl: url } : s))
+              prev.map((s) =>
+                s.id === id
+                  ? {
+                      ...s,
+                      ...res,
+                      cardImageUrl: String(
+                        res.cardImageUrl ?? (s as ServiceItem).cardImageUrl ?? ""
+                      ),
+                    }
+                  : s
+              )
             );
-          } else if (res && typeof res === "object") {
-            setServices((prev) =>
-              prev.map((s) => (s.id === id ? { ...s, ...res } : s))
-            );
+            showToast("Card image uploaded successfully");
           }
-          showToast("Card image uploaded successfully");
         } catch {
-          showToast("Image saved — refresh to see it");
+          showToast("Upload succeeded — refresh the page to see the image");
         }
       } else {
-        showToast("Upload failed — check file size and format");
+        showToast(uploadErrorMessage(xhr));
       }
       setCardUploading(null);
       setCardProgress((p) => {
@@ -387,29 +452,45 @@ function ServicesCmsPage() {
     xhr.onerror = () => {
       showToast("Network error — upload failed");
       setCardUploading(null);
+      setCardProgress((p) => {
+        const next = { ...p };
+        delete next[id];
+        return next;
+      });
     };
 
     xhr.send(formData);
   }
 
-  function handleHeroImageUpload(id: number, file: File) {
+  async function handleHeroImageUpload(id: number, file: File) {
     setHeroUploading(id);
     setHeroProgress((p) => ({ ...p, [id]: 0 }));
 
+    const baseUrl = servicesContentBase();
+    const fresh = await getSession();
     const token =
-      (session as any)?.accessToken ||
-      (session as any)?.token ||
-      (session as any)?.user?.token ||
+      (fresh as { accessToken?: string })?.accessToken ||
+      (fresh as { token?: string })?.token ||
+      (fresh as { user?: { token?: string } })?.user?.token ||
       "";
+
+    if (!token) {
+      showToast("Session expired — refresh the page and sign in again");
+      setHeroUploading(null);
+      setHeroProgress((p) => {
+        const next = { ...p };
+        delete next[id];
+        return next;
+      });
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
 
     const xhr = new XMLHttpRequest();
-    xhr.open(
-      "POST",
-      `${apiClient.URLS.services_content}/${id}/upload-hero-image`
-    );
-    if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    xhr.open("POST", `${baseUrl}/upload/hero/${id}`);
+    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
 
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) {
@@ -419,25 +500,34 @@ function ServicesCmsPage() {
     };
 
     xhr.onload = () => {
-      if (xhr.status === 200 || xhr.status === 201) {
+      const ok = xhr.status >= 200 && xhr.status < 300;
+      if (ok) {
         try {
-          const res = JSON.parse(xhr.responseText) as ServiceItem;
-          const url = res?.heroImageUrl || "";
-          if (url) {
+          const raw = xhr.responseText?.trim();
+          if (!raw) {
+            showToast("Upload succeeded but empty response — refresh the list");
+          } else {
+            const res = JSON.parse(raw) as ServiceItem;
             setServices((prev) =>
-              prev.map((s) => (s.id === id ? { ...s, heroImageUrl: url } : s))
+              prev.map((s) =>
+                s.id === id
+                  ? {
+                      ...s,
+                      ...res,
+                      heroImageUrl: String(
+                        res.heroImageUrl ?? (s as ServiceItem).heroImageUrl ?? ""
+                      ),
+                    }
+                  : s
+              )
             );
-          } else if (res && typeof res === "object") {
-            setServices((prev) =>
-              prev.map((s) => (s.id === id ? { ...s, ...res } : s))
-            );
+            showToast("Hero image uploaded successfully");
           }
-          showToast("Hero image uploaded successfully");
         } catch {
-          showToast("Image saved — refresh to see it");
+          showToast("Upload succeeded — refresh the page to see the image");
         }
       } else {
-        showToast("Upload failed — check file size and format");
+        showToast(uploadErrorMessage(xhr));
       }
       setHeroUploading(null);
       setHeroProgress((p) => {
@@ -450,6 +540,11 @@ function ServicesCmsPage() {
     xhr.onerror = () => {
       showToast("Network error — upload failed");
       setHeroUploading(null);
+      setHeroProgress((p) => {
+        const next = { ...p };
+        delete next[id];
+        return next;
+      });
     };
 
     xhr.send(formData);
@@ -884,14 +979,14 @@ function ServicesCmsPage() {
 
                     <input
                       type="file"
-                      accept="image/jpeg,image/png,image/webp"
+                      accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
                       style={{ display: "none" }}
                       ref={(el) => {
                         cardInputRefs.current[svc.id] = el;
                       }}
                       onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file) handleCardImageUpload(svc.id, file);
+                        if (file) void handleCardImageUpload(svc.id, file);
                         e.target.value = "";
                       }}
                     />
@@ -1320,14 +1415,14 @@ function ServicesCmsPage() {
 
                   <input
                     type="file"
-                    accept="image/jpeg,image/png,image/webp"
+                    accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
                     style={{ display: "none" }}
                     ref={(el) => {
                       heroInputRefs.current[svc.id] = el;
                     }}
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      if (file) handleHeroImageUpload(svc.id, file);
+                      if (file) void handleHeroImageUpload(svc.id, file);
                       e.target.value = "";
                     }}
                   />
