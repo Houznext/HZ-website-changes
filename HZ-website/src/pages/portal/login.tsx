@@ -9,7 +9,11 @@ export default function PortalLoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+  const API = (
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT ||
+    "http://localhost:4000/"
+  ).replace(/\/?$/, "");
 
   const sendOtp = async () => {
     if (mobile.length < 10) {
@@ -87,7 +91,7 @@ export default function PortalLoginPage() {
 
   return (
     <div className="min-h-screen bg-[#f5f6fa] flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl border border-gray-100 p-10 w-full max-w-sm">
+      <div className="bg-white rounded-2xl border border-gray-100 p-10 w-full max-w-[380px]">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-2">
           <div className="w-8 h-8 rounded-lg bg-[#1D9E75] flex items-center justify-center text-white text-sm font-semibold">
@@ -117,7 +121,7 @@ export default function PortalLoginPage() {
             <label className="text-xs font-medium text-gray-700 block mb-1">
               Mobile number
             </label>
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-2 mb-3">
               <span className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-500 flex-shrink-0">
                 +91
               </span>
@@ -129,6 +133,16 @@ export default function PortalLoginPage() {
                 placeholder="10-digit number"
                 className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-[#1A56DB] transition-colors"
               />
+            </div>
+            <div
+              className="mb-4 rounded-lg px-3 py-2 text-xs text-[#64748b]"
+              style={{
+                background: "#f8fafc",
+                marginBottom: "14px",
+              }}
+            >
+              Your mobile number is your login ID and is referenced on all Houznext invoices and
+              quotations.
             </div>
             <button
               onClick={sendOtp}

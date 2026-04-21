@@ -18,6 +18,7 @@ import { ProjectDocument } from './entities/project-document.entity';
 import { DailyProgressReport } from './entities/daily-progress-report.entity';
 import { ReferralLead } from './entities/referral-lead.entity';
 import { PaymentMilestone } from './entities/payment-milestone.entity';
+import { User } from '../user/entities/user.entity';
 import { InteriorService } from './interior.service';
 import { InteriorController } from './interior.controller';
 import { InteriorSeedService } from './interior-seed.service';
@@ -42,6 +43,7 @@ import { InteriorSeedService } from './interior-seed.service';
       DailyProgressReport,
       ReferralLead,
       PaymentMilestone,
+      User,
     ]),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'hz_jwt_secret_fallback',

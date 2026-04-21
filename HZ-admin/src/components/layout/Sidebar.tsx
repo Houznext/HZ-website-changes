@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   Calculator,
   Receipt,
-  Home,
   FileText,
   Building2,
   MessageSquare,
@@ -18,7 +17,7 @@ import {
   ChevronDown,
   LayoutTemplate,
   LayoutGrid,
-  HardHat,
+  UserPlus,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useSidebarBadges } from "@/src/hooks/useSidebarBadges";
@@ -104,7 +103,7 @@ function NavHeroCarouselIcon(props: { className?: string }) {
     </svg>
   );
 }
-type NavItem = NavSection | NavLink;
+type NavItem = NavSection | NavLink | { custom: "livebuild" };
 
 const NAV_STRUCTURE: NavItem[] = [
   { section: "Overview" },
@@ -113,8 +112,7 @@ const NAV_STRUCTURE: NavItem[] = [
   { href: "/cost-estimator",     label: "Quotations",    icon: Calculator },
   { href: "/invoice",            label: "Invoices",      icon: Receipt },
   { section: "Content" },
-  { href: "/interiors",          label: "Interiors",     icon: Home,            badgeKey: "buildlive" },
-  { href: "/livebuild",          label: "LiveBuild",     icon: HardHat },
+  { custom: "livebuild" },
   { href: "/interiors/templates", label: "Trade templates", icon: LayoutTemplate },
   { href: "/packages",           label: "Int. Packages", icon: LayoutGrid },
   { href: "/blogs",              label: "Blog",          icon: FileText,        badgeKey: "blog"      },
@@ -210,16 +208,79 @@ export default function Sidebar() {
             );
           }
 
+          if ("custom" in item && item.custom === "livebuild") {
+            const path = router.pathname;
+            const onboardActive = path.startsWith("/interiors/onboard");
+            const dashActive =
+              path === "/interiors" ||
+              (path.startsWith("/interiors/") && !onboardActive);
+            const dashBadge = resolveBadge("buildlive");
+            return (
+              <React.Fragment key="livebuild-block">
+                <div className="mx-3 my-2 border-t border-white/10" />
+                <p className="px-3 py-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  LiveBuild
+                </p>
+                <Link
+                  href="/interiors"
+                  className={`flex items-center gap-2.5 px-2.5 py-[9px] rounded-[10px] text-[13px] font-medium transition-all duration-150 ${
+                    dashActive
+                      ? "bg-[#2f80ed]/20 text-white border border-[#2f80ed]/30 shadow-[0_2px_10px_rgba(47,128,237,0.15)]"
+                      : "text-slate-400 hover:bg-white/[0.06] hover:text-slate-100 border border-transparent"
+                  }`}
+                >
+                  <span
+                    className={`flex h-7 w-7 items-center justify-center rounded-lg flex-shrink-0 transition-colors ${
+                      dashActive
+                        ? "bg-[#2f80ed] text-white"
+                        : "bg-white/[0.05] text-slate-400"
+                    }`}
+                  >
+                    <LayoutDashboard className="w-[15px] h-[15px]" />
+                  </span>
+                  <span className="flex-1 truncate">Int. dashboard</span>
+                  {dashBadge && (
+                    <span
+                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${badgeStyles[dashBadge.color]}`}
+                    >
+                      {dashBadge.text}
+                    </span>
+                  )}
+                </Link>
+                <Link
+                  href="/interiors/onboard"
+                  className={`flex items-center gap-2.5 px-2.5 py-[9px] rounded-[10px] text-[13px] font-medium transition-all duration-150 ${
+                    onboardActive
+                      ? "bg-[#2f80ed]/20 text-white border border-[#2f80ed]/30 shadow-[0_2px_10px_rgba(47,128,237,0.15)]"
+                      : "text-slate-400 hover:bg-white/[0.06] hover:text-slate-100 border border-transparent"
+                  }`}
+                >
+                  <span
+                    className={`flex h-7 w-7 items-center justify-center rounded-lg flex-shrink-0 transition-colors ${
+                      onboardActive
+                        ? "bg-[#2f80ed] text-white"
+                        : "bg-white/[0.05] text-slate-400"
+                    }`}
+                  >
+                    <UserPlus className="w-[15px] h-[15px]" />
+                  </span>
+                  <span className="flex-1 truncate">Onboard customer</span>
+                </Link>
+              </React.Fragment>
+            );
+          }
+
+          const link = item as NavLink;
           const isActive =
-            router.pathname === item.href ||
-            router.pathname.startsWith(item.href + "/");
-          const Icon = item.icon;
-          const badge = resolveBadge(item.badgeKey);
+            router.pathname === link.href ||
+            router.pathname.startsWith(link.href + "/");
+          const Icon = link.icon;
+          const badge = resolveBadge(link.badgeKey);
 
           return (
             <Link
-              key={item.href}
-              href={item.href}
+              key={link.href}
+              href={link.href}
               className={`flex items-center gap-2.5 px-2.5 py-[9px] rounded-[10px] text-[13px] font-medium transition-all duration-150 ${
                 isActive
                   ? "bg-[#2f80ed]/20 text-white border border-[#2f80ed]/30 shadow-[0_2px_10px_rgba(47,128,237,0.15)]"
@@ -235,7 +296,7 @@ export default function Sidebar() {
               >
                 <Icon className="w-[15px] h-[15px]" />
               </span>
-              <span className="flex-1 truncate">{item.label}</span>
+              <span className="flex-1 truncate">{link.label}</span>
               {badge && (
                 <span
                   className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${badgeStyles[badge.color]}`}

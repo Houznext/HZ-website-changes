@@ -266,6 +266,38 @@ function ProjectDetailPage() {
           <Button
             size="small"
             variant="outlined"
+            onClick={() => {
+              const origin =
+                process.env.NEXT_PUBLIC_HZ_WEBSITE_ORIGIN || 'http://localhost:3000';
+              window.open(`${origin}/portal/${project.id}`, '_blank', 'noopener,noreferrer');
+            }}
+            sx={{
+              borderRadius: '8px',
+              textTransform: 'none',
+              fontSize: 12,
+              borderColor: '#e5e7eb',
+              color: '#374151',
+            }}
+          >
+            View portal
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => router.push(`/interiors/${project.id}/payments`)}
+            sx={{
+              borderRadius: '8px',
+              textTransform: 'none',
+              fontSize: 12,
+              borderColor: '#e5e7eb',
+              color: '#374151',
+            }}
+          >
+            Payments
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
             onClick={() => router.push(`/interiors/${project.id}/designs`)}
             sx={{
               borderRadius: '8px',

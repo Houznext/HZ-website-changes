@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -247,7 +247,18 @@ export class InteriorService {
       const q = `%${filters.search}%`;
       qb.andWhere('(customer.fullName ILIKE :q OR customer.mobile ILIKE :q)', { q });
     }
-    return qb.orderBy('p.createdAt', 'DESC').getMany();
+    const rows = await qb.orderBy('p.createdAt', 'DESC').getMany();
+    for (const p of rows) {
+      const openSnags = await this.snagItemRepo.count({
+        where: { projectId: p.id, status: 'open' },
+      });
+      (p as InteriorProject & { openSnagCount?: number }).openSnagCount = openSnags;
+      const holdMilestone = await this.milestoneRepo.findOne({
+        where: { projectId: p.id, status: 'on_hold' },
+      });
+      (p as InteriorProject & { hasPaymentHold?: boolean }).hasPaymentHold = Boolean(holdMilestone);
+    }
+    return rows;
   }
 
   async updateProject(id: string, dto: Partial<CreateProjectDto>): Promise<InteriorProject> {
@@ -480,10 +491,10 @@ export class InteriorService {
         'CAST(d.updateDate AS DATE) = CAST(:yesterday AS DATE)',
         { yesterday: yesterday.toISOString().slice(0, 10) },
       );
-    } else if (dateFilter === 'week') {
+    } else if (dateFilter === 'week' || dateFilter === 'this_week') {
       const from = subDays(now, 7);
       qb.andWhere('d.updateDate >= :from', { from: from.toISOString().slice(0, 10) });
-    } else if (dateFilter === 'month') {
+    } else if (dateFilter === 'month' || dateFilter === 'this_month') {
       const from = subDays(now, 30);
       qb.andWhere('d.updateDate >= :from', { from: from.toISOString().slice(0, 10) });
     }
@@ -756,5 +767,214 @@ export class InteriorService {
     if (!lead) throw new UnauthorizedException('Referral not found');
     lead.status = status;
     return this.referralLeadRepo.save(lead);
+  }
+
+  async changeCustomerContact(customerId: string, newMobile: string, otp: string): Promise<Customer> {
+    const customer = await this.customerRepo.findOne({ where: { id: customerId } });
+    if (!customer) throw new UnauthorizedException('Customer not found');
+    if (
+      customer.otpCode !== otp ||
+      !customer.otpExpiresAt ||
+      customer.otpExpiresAt < new Date()
+    ) {
+      throw new UnauthorizedException('Invalid or expired OTP');
+    }
+    await this.customerRepo.update(customerId, {
+      mobile: newMobile,
+      otpCode: null,
+      otpExpiresAt: null,
+    });
+    const updated = await this.customerRepo.findOne({ where: { id: customerId } });
+    if (!updated) throw new UnauthorizedException('Customer not found');
+    return updated;
+  }
+
+  async getProjectFull(id: string): Promise<InteriorProject> {
+    const project = await this.projectRepo.findOne({
+      where: { id },
+      relations: [
+        'customer',
+        'rep',
+        'trades',
+        'trades.template',
+        'paymentMilestones',
+        'documents',
+        'designUploads',
+        'snagItems',
+      ],
+    });
+    if (!project) throw new UnauthorizedException('Project not found');
+
+    const trades = project.trades ?? [];
+    for (const t of trades) {
+      const dailyUpdates = await this.dailyUpdateRepo.find({
+        where: { tradeId: t.id },
+        order: { createdAt: 'DESC' },
+        take: 30,
+        relations: ['labourEntries', 'materialUsages'],
+      });
+      const media = await this.tradeMediaRepo.find({
+        where: { tradeId: t.id },
+        order: { createdAt: 'DESC' },
+        take: 20,
+      });
+      (t as ProjectTrade & { dailyUpdates: DailyUpdate[]; media: TradeMedia[] }).dailyUpdates =
+        dailyUpdates;
+      (t as ProjectTrade & { dailyUpdates: DailyUpdate[]; media: TradeMedia[] }).media = media;
+    }
+
+    project.snagItems = (project.snagItems ?? []).filter((s) => s.status === 'open');
+    return project;
+  }
+
+  async getProjectNotifications(projectId: string): Promise<
+    Array<{
+      id: string;
+      type: 'update' | 'snag' | 'design' | 'milestone';
+      title: string;
+      body: string;
+      createdAt: Date;
+      read: boolean;
+    }>
+  > {
+    const project = await this.projectRepo.findOne({ where: { id: projectId } });
+    if (!project) throw new NotFoundException('Project not found');
+
+    const updates = await this.dailyUpdateRepo.find({
+      where: { projectId },
+      order: { createdAt: 'DESC' },
+      take: 20,
+      relations: ['trade', 'trade.template'],
+    });
+
+    const since = subDays(new Date(), 7);
+    const resolvedSnags = await this.snagItemRepo
+      .createQueryBuilder('s')
+      .where('s.projectId = :projectId', { projectId })
+      .andWhere('s.status = :st', { st: 'resolved' })
+      .andWhere('s.resolvedAt IS NOT NULL')
+      .andWhere('s.resolvedAt >= :since', { since })
+      .orderBy('s.resolvedAt', 'DESC')
+      .getMany();
+
+    const designRows = await this.designUploadRepo.find({
+      where: { projectId },
+      order: { createdAt: 'DESC' },
+      take: 80,
+    });
+    const recentDesigns = designRows.filter((d) => d.createdAt && d.createdAt >= since);
+
+    const rows: Array<{
+      id: string;
+      type: 'update' | 'snag' | 'design' | 'milestone';
+      title: string;
+      body: string;
+      createdAt: Date;
+      read: boolean;
+    }> = [];
+
+    for (const u of updates) {
+      const tradeName = (u.trade as ProjectTrade | null)?.template?.name ?? 'Site update';
+      rows.push({
+        id: `upd-${u.id}`,
+        type: 'update',
+        title: `${tradeName} — ${u.cumulativeProgress ?? 0}%`,
+        body: u.workDoneToday ?? u.stageLabel ?? '',
+        createdAt: u.createdAt,
+        read: false,
+      });
+    }
+    for (const s of resolvedSnags) {
+      rows.push({
+        id: `snag-${s.id}`,
+        type: 'snag',
+        title: `Resolved: ${s.title ?? 'Snag'}`,
+        body: s.resolutionNote ?? s.description ?? '',
+        createdAt: s.resolvedAt ?? s.raisedAt,
+        read: false,
+      });
+    }
+    for (const d of recentDesigns) {
+      rows.push({
+        id: `des-${d.id}`,
+        type: 'design',
+        title: `Design — ${d.roomTag ?? 'Room'}`,
+        body: d.designNotes ?? 'New design upload',
+        createdAt: d.createdAt,
+        read: false,
+      });
+    }
+
+    rows.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return rows;
+  }
+
+  async setMilestoneDueDate(id: string, dueDate: string): Promise<PaymentMilestone> {
+    const m = await this.milestoneRepo.findOne({ where: { id } });
+    if (!m) throw new UnauthorizedException('Milestone not found');
+    m.dueDate = parseISO(dueDate);
+    return this.milestoneRepo.save(m);
+  }
+
+  async markMilestoneReceived(
+    id: string,
+    receivedAt: string,
+    receiptNote?: string,
+  ): Promise<PaymentMilestone> {
+    const m = await this.milestoneRepo.findOne({ where: { id } });
+    if (!m) throw new UnauthorizedException('Milestone not found');
+    m.status = 'paid';
+    m.paidAt = parseISO(receivedAt);
+    if (receiptNote) {
+      m.triggerCondition = `receipt:${receiptNote}`.slice(0, 2000);
+    }
+    return this.milestoneRepo.save(m);
+  }
+
+  async milestoneHold(id: string): Promise<PaymentMilestone> {
+    const m = await this.milestoneRepo.findOne({ where: { id } });
+    if (!m?.projectId) throw new UnauthorizedException('Milestone not found');
+    m.status = 'on_hold';
+    await this.milestoneRepo.save(m);
+    const proj = await this.projectRepo.findOne({ where: { id: m.projectId } });
+    if (proj?.status === 'execution') {
+      proj.status = 'on_hold';
+      await this.projectRepo.save(proj);
+    }
+    return this.milestoneRepo.findOne({ where: { id } }) as Promise<PaymentMilestone>;
+  }
+
+  async milestoneReleaseHold(id: string): Promise<PaymentMilestone> {
+    const m = await this.milestoneRepo.findOne({ where: { id } });
+    if (!m?.projectId) throw new UnauthorizedException('Milestone not found');
+    m.status = 'paid';
+    await this.milestoneRepo.save(m);
+    const proj = await this.projectRepo.findOne({ where: { id: m.projectId } });
+    if (proj) {
+      proj.status = 'execution';
+      await this.projectRepo.save(proj);
+    }
+    return this.milestoneRepo.findOne({ where: { id } }) as Promise<PaymentMilestone>;
+  }
+
+  async updateTradeMediaDailyUpdate(
+    tradeId: string,
+    mediaId: string,
+    dailyUpdateId: string | null,
+  ): Promise<TradeMedia> {
+    const media = await this.tradeMediaRepo.findOne({ where: { id: mediaId } });
+    if (!media || media.tradeId !== tradeId) {
+      throw new UnauthorizedException('Media not found');
+    }
+    media.dailyUpdateId = dailyUpdateId;
+    return this.tradeMediaRepo.save(media);
+  }
+
+  async deleteTradeMedia(tradeId: string, mediaId: string): Promise<void> {
+    const media = await this.tradeMediaRepo.findOne({ where: { id: mediaId } });
+    if (!media || media.tradeId !== tradeId) {
+      throw new UnauthorizedException('Media not found');
+    }
+    await this.tradeMediaRepo.delete(mediaId);
   }
 }

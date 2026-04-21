@@ -186,7 +186,7 @@ export default function HeroConsultationFormCard({
             </div>
             <input
               type="text"
-              placeholder="e.g. Ravi Reddy"
+              placeholder="e.g. Ravi Kumar"
               value={name}
               onChange={(e) => {
                 const v = e.target.value

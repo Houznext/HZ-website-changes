@@ -41,6 +41,15 @@ const BAR_COLOR: Record<string, string> = {
   in_progress: '#1A56DB', not_started: '#9ca3af',
   on_hold: '#F59E0B', completed: '#1D9E75',
 };
+const RING_BY_SLUG: Record<string, string> = {
+  'modular-kitchen': '#2f80ed',
+  wardrobes: '#16a34a',
+  'false-ceiling': '#7c3aed',
+  flooring: '#d97706',
+  painting: '#dc2626',
+  electrical: '#0891b2',
+  plumbing: '#059669',
+};
 const DATE_FILTERS = [
   { label: 'Today',      value: 'today' },
   { label: 'Yesterday',  value: 'yesterday' },
@@ -48,17 +57,25 @@ const DATE_FILTERS = [
   { label: 'Last month', value: 'month' },
   { label: 'All time',   value: 'all' },
 ];
-const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+const API = (
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT ||
+  'http://localhost:4000/'
+).replace(/\/?$/, '');
 const getToken = () => typeof window !== 'undefined' ? localStorage.getItem('hz_customer_token') ?? '' : '';
 
 function TradeCard({ trade, isSelected, onClick }: {
   trade: ITrade; isSelected: boolean; onClick: () => void;
 }) {
   const prog = Math.round(trade.overallProgress ?? 0);
-  const emoji = TRADE_EMOJI[trade.template?.slug ?? ''] ?? '🔧';
   const statusClass = STATUS_CLASSES[trade.status] ?? STATUS_CLASSES.not_started;
   const barColor = BAR_COLOR[trade.status] ?? '#9ca3af';
   const name = trade.customName ?? trade.template?.name ?? 'Trade';
+  const slug = trade.template?.slug ?? '';
+  const ringCol = RING_BY_SLUG[slug] ?? '#2f80ed';
+  const r = 14;
+  const c = 2 * Math.PI * r;
+  const off = c * (1 - Math.min(100, Math.max(0, prog)) / 100);
   return (
     <div
       onClick={onClick}
@@ -67,8 +84,22 @@ function TradeCard({ trade, isSelected, onClick }: {
       }`}
     >
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-base flex-shrink-0">
-          {emoji}
+        <div className="w-9 h-9 flex items-center justify-center flex-shrink-0">
+          <svg width="36" height="36" viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r={r} fill="none" stroke="#f1f5f9" strokeWidth="4" />
+            <circle
+              cx="18"
+              cy="18"
+              r={r}
+              fill="none"
+              stroke={ringCol}
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeDasharray={c}
+              strokeDashoffset={off}
+              transform="rotate(-90 18 18)"
+            />
+          </svg>
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-xs font-medium text-gray-900 truncate">{name}</p>

@@ -46,7 +46,7 @@ export default function HomePage() {
     <>
       <SeoHead
         title="Home Interiors in Hyderabad | Houznext"
-        description="Fixed-price interior design for 2BHK, 3BHK and villas across Telangana. 45-day delivery, LiveBuild live tracking, 1-year warranty. Packages from ₹4.5L. 500+ homes delivered."
+        description="Interior design for 2BHK, 3BHK and villas across Telangana. 45–60 day delivery, LiveBuild live tracking, 1-year warranty. Packages from ₹4.5L. 15+ homes delivered."
         canonical="/"
         schema={[localBusinessSchema, pricingFaqSchema]}
         ogImage="https://houznext.com/og-home.jpg"
@@ -514,8 +514,8 @@ function useParticles(count = 18): Particle[] {
 
 const TRUST_BADGES = [
   { Icon: IconTrophy, label: '4.8★ Rating', color: '#f2994a', animClass: 'animate-hz-bounce' },
-  { Icon: IconZap, label: '45-day delivery', color: '#2f80ed', animClass: 'animate-hz-spin-slow' },
-  { Icon: IconLock, label: 'Fixed price', color: '#2f80ed', animClass: 'animate-hz-bounce-delay' },
+  { Icon: IconZap, label: '45–60 day delivery', color: '#2f80ed', animClass: 'animate-hz-spin-slow' },
+  { Icon: IconLock, label: 'No cost overrun', color: '#2f80ed', animClass: 'animate-hz-bounce-delay' },
 ]
 
 
@@ -716,39 +716,40 @@ function Hero() {
           ))}
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 py-20 md:py-16 lg:py-20" style={{ zIndex: 2 }}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-14 items-center">
-            <div className="animate-fade-up">
-              <div className="inline-flex items-center gap-2.5 mb-5">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-16 sm:py-20 md:py-16 lg:py-20" style={{ zIndex: 2 }}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 xl:gap-14 items-center">
+            <div className="animate-fade-up min-w-0">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 mb-4 sm:mb-5">
                 <div
                   className="h-0.5 animate-hz-expand-line flex-shrink-0"
                   style={{ width: 28, background: '#f2994a', borderRadius: 1 }}
                 />
                 <span
-                  className="text-[11px] font-bold uppercase tracking-[0.12em]"
+                  className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.1em] sm:tracking-[0.12em] leading-snug"
                   style={{ color: '#f2994a' }}
                 >
-                  500+ Homes Delivered
+                  15+ homes delivered
                 </span>
               </div>
 
               <h1
-                className="font-head font-black text-white mb-4 leading-[1.07]"
-                style={{ fontSize: 'clamp(26px, 5vw, 54px)', letterSpacing: '-0.5px' }}
+                className="font-head font-black text-white mb-3 sm:mb-4 leading-[1.1] sm:leading-[1.08] max-w-[22ch] sm:max-w-none"
+                style={{
+                  fontSize: 'clamp(22px, 4.5vw, 48px)',
+                  letterSpacing: '-0.35px',
+                }}
               >
-                Your home.{' '}
-                <br className="hidden sm:block" />
-                <span style={{ color: '#2f80ed' }}>Beautifully</span> realised.
+                Making Home Interiors <span style={{ color: '#2f80ed' }}>Effortless</span>.
               </h1>
 
               <p
-                className="text-[15px] mb-8"
-                style={{ color: 'rgba(255,255,255,0.57)', letterSpacing: '0.04em' }}
+                className="text-[13px] sm:text-[14px] md:text-[15px] mb-7 sm:mb-8 leading-relaxed max-w-xl"
+                style={{ color: 'rgba(255,255,255,0.62)', letterSpacing: '0.01em' }}
               >
-                Buy Right · Build Strong · Design Beautiful
+                Turnkey home interiors with real-time LiveBuild updates, ensuring everything stays on time and within budget.
               </p>
 
-              <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-8">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-7 sm:mb-8">
                 <button
                   type="button"
                   onClick={() => void router.push('/interiors')}
@@ -797,9 +798,9 @@ function Hero() {
                 </button>
               </div>
 
-              <div className="flex flex-wrap gap-4 sm:gap-5">
+              <div className="flex flex-wrap gap-x-4 gap-y-3 sm:gap-5">
                 {TRUST_BADGES.map(({ Icon, label, color, animClass }) => (
-                  <div key={label} className="flex items-center gap-2 cursor-default group">
+                  <div key={label} className="flex items-center gap-2 min-w-0 cursor-default group">
                     <div
                       className="w-[30px] h-[30px] rounded-lg flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-125 group-hover:-rotate-6"
                       style={{ background: `${color}22` }}
@@ -808,7 +809,10 @@ function Hero() {
                         <Icon size={14} strokeWidth={2} stroke={color} />
                       </div>
                     </div>
-                    <span className="text-[12.5px] font-[500]" style={{ color: 'rgba(255,255,255,0.72)' }}>
+                    <span
+                      className="text-[11.5px] sm:text-[12.5px] font-[500] leading-snug"
+                      style={{ color: 'rgba(255,255,255,0.72)' }}
+                    >
                       {label}
                     </span>
                   </div>
@@ -883,20 +887,6 @@ function Hero() {
                 }}
               />
             ))}
-          </div>
-        )}
-
-        {/* ── Slide counter ── */}
-        {slides.length > 1 && (
-          <div
-            style={{
-              position: 'absolute', top: 18, right: 20,
-              fontSize: 11.5, fontWeight: 700, zIndex: 10,
-              color: 'rgba(255,255,255,0.45)',
-              letterSpacing: '0.06em',
-            }}
-          >
-            {curIdx + 1} / {slides.length}
           </div>
         )}
 

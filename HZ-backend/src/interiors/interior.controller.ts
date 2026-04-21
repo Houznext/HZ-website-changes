@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { InteriorService } from './interior.service';
 import { InteriorJwtGuard, InteriorJwtPayload } from './interior-jwt.guard';
+import { ControllerAuthGuard } from '../guard';
 import {
   SendOtpDto,
   VerifyOtpDto,
@@ -97,6 +98,15 @@ export class InteriorController {
     return this.interiorService.getReferralsByCustomer(id);
   }
 
+  @UseGuards(InteriorJwtGuard)
+  @Patch('customers/:id/change-contact')
+  changeCustomerContact(
+    @Param('id') id: string,
+    @Body() body: { newMobile: string; otp: string },
+  ) {
+    return this.interiorService.changeCustomerContact(id, body.newMobile, body.otp);
+  }
+
   @Post('customers/:id/referrals')
   createReferral(@Param('id') id: string, @Body() dto: CreateReferralDto) {
     return this.interiorService.createReferralLead(id, dto);
@@ -116,6 +126,16 @@ export class InteriorController {
     return this.interiorService.getAllProjects({ status, repId, search });
   }
 
+  @Get('projects/:id/full')
+  getProjectFull(@Param('id') id: string) {
+    return this.interiorService.getProjectFull(id);
+  }
+
+  @Get('projects/:id/notifications')
+  getProjectNotifications(@Param('id') id: string) {
+    return this.interiorService.getProjectNotifications(id);
+  }
+
   @Get('projects/:id')
   getProject(@Param('id') id: string) {
     return this.interiorService.getProject(id);
@@ -127,7 +147,7 @@ export class InteriorController {
     return this.interiorService.updateProject(id, dto);
   }
 
-  @UseGuards(InteriorJwtGuard)
+  @UseGuards(ControllerAuthGuard)
   @Delete('projects/:id')
   deleteProject(@Param('id') id: string) {
     return this.interiorService.deleteProject(id);
@@ -257,6 +277,26 @@ export class InteriorController {
     return this.interiorService.addMedia(dto);
   }
 
+  @UseGuards(InteriorJwtGuard)
+  @Patch('trades/:tradeId/media/:mediaId')
+  updateTradeMediaDailyUpdate(
+    @Param('tradeId') tradeId: string,
+    @Param('mediaId') mediaId: string,
+    @Body() body: { dailyUpdateId: string | null },
+  ) {
+    return this.interiorService.updateTradeMediaDailyUpdate(
+      tradeId,
+      mediaId,
+      body.dailyUpdateId ?? null,
+    );
+  }
+
+  @UseGuards(InteriorJwtGuard)
+  @Delete('trades/:tradeId/media/:mediaId')
+  deleteTradeMedia(@Param('tradeId') tradeId: string, @Param('mediaId') mediaId: string) {
+    return this.interiorService.deleteTradeMedia(tradeId, mediaId);
+  }
+
   @Get('qc/:tradeId')
   getQcItems(@Param('tradeId') tradeId: string) {
     return this.interiorService.getQcItems(tradeId);
@@ -272,6 +312,33 @@ export class InteriorController {
   @Patch('snags/:id/resolve')
   resolveSnag(@Param('id') id: string, @Body() dto: ResolveSnagDto) {
     return this.interiorService.resolveSnag(id, dto);
+  }
+
+  @UseGuards(InteriorJwtGuard)
+  @Patch('milestones/:id/due-date')
+  setMilestoneDueDate(@Param('id') id: string, @Body() body: { dueDate: string }) {
+    return this.interiorService.setMilestoneDueDate(id, body.dueDate);
+  }
+
+  @UseGuards(InteriorJwtGuard)
+  @Patch('milestones/:id/mark-received')
+  markMilestoneReceived(
+    @Param('id') id: string,
+    @Body() body: { receivedAt: string; receiptNote?: string },
+  ) {
+    return this.interiorService.markMilestoneReceived(id, body.receivedAt, body.receiptNote);
+  }
+
+  @UseGuards(InteriorJwtGuard)
+  @Patch('milestones/:id/hold')
+  milestoneHold(@Param('id') id: string) {
+    return this.interiorService.milestoneHold(id);
+  }
+
+  @UseGuards(InteriorJwtGuard)
+  @Patch('milestones/:id/release-hold')
+  milestoneReleaseHold(@Param('id') id: string) {
+    return this.interiorService.milestoneReleaseHold(id);
   }
 
   @UseGuards(InteriorJwtGuard)
