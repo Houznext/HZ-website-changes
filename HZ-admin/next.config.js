@@ -5,12 +5,19 @@
  * If dev logs show "Failed to proxy" / ECONNREFUSED to port 4000, start the Nest
  * app: `cd HZ-backend && npm run start:dev` (or set the env vars above to your API URL).
  */
-const backendRewriteBase = (
+// Trim: Vercel env values are sometimes pasted with a leading tab, which makes
+// Next.js reject the rewrite: destination must start with / or http(s)://
+let backendRewriteBase = String(
   process.env.BACKEND_REWRITE_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT ||
-  "http://127.0.0.1:4000"
-).replace(/\/$/, "");
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT ||
+    "http://127.0.0.1:4000",
+)
+  .trim()
+  .replace(/\/$/, "");
+if (!backendRewriteBase) {
+  backendRewriteBase = "http://127.0.0.1:4000";
+}
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
