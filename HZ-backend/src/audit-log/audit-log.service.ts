@@ -26,12 +26,18 @@ export class AuditLogService {
   ) {}
 
   async log(dto: CreateAuditLogDto): Promise<void> {
+    // audit_logs.resourceId is a UUID column; some resources (e.g. integer PKs) are not valid UUIDs.
+    // The real identifier remains in newValue (JSON) for those resources.
+    const resourceId = this.toUuidOrNull(
+      (dto.resourceId as string | number | null | undefined) ?? null,
+    );
+
     const entry = this.auditLogRepository.create({
-      userId: dto.userId ?? null,
+      userId: this.toUuidOrNull(dto.userId) ?? null,
       action: dto.action,
       resource: dto.resource,
-      resourceId: dto.resourceId ?? null,
-      branchId: dto.branchId ?? null,
+      resourceId,
+      branchId: this.toUuidOrNull(dto.branchId) ?? null,
       httpMethod: dto.httpMethod ?? 'UNKNOWN',
       path: dto.path ?? null,
       oldValue: dto.oldValue ?? null,
@@ -46,6 +52,16 @@ export class AuditLogService {
     } catch (err) {
       console.error('Failed to write audit log:', err);
     }
+  }
+
+  private readonly UUID_RE =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+  private toUuidOrNull(value: string | number | null | undefined): string | null {
+    if (value == null) return null;
+    const s = String(value).trim();
+    if (s.length === 0) return null;
+    return this.UUID_RE.test(s) ? s : null;
   }
 
   async findByResource(
