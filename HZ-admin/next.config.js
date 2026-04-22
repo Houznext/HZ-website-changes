@@ -1,7 +1,29 @@
+/**
+ * API used when proxying (browser → Next → Nest). Resolves in order:
+ * BACKEND_REWRITE_URL (e.g. production internal URL) → public API env → local dev
+ *
+ * If dev logs show "Failed to proxy" / ECONNREFUSED to port 4000, start the Nest
+ * app: `cd HZ-backend && npm run start:dev` (or set the env vars above to your API URL).
+ */
+const backendRewriteBase = (
+  process.env.BACKEND_REWRITE_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT ||
+  "http://127.0.0.1:4000"
+).replace(/\/$/, "");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  async rewrites() {
+    return [
+      {
+        source: "/api/hz-backend/:path*",
+        destination: `${backendRewriteBase}/:path*`,
+      },
+    ];
+  },
   async redirects() {
     return [
       { source: "/solar", destination: "/dashboard", permanent: false },

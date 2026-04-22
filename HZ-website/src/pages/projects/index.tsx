@@ -275,7 +275,7 @@ export default function ProjectsPage() {
     <>
       <SeoHead
         title="Our Interior Projects | Houznext"
-        description="500+ completed interior projects across Telangana. Fixed-price, 45-day delivery, stunning designs."
+        description="15+ completed interior projects across Telangana. Fixed-price, 45-day delivery, stunning designs."
         canonical="/projects"
       />
       <Navbar />
@@ -293,11 +293,11 @@ export default function ProjectsPage() {
               Homes we&apos;ve <span style={{ color: '#f2994a' }}>transformed</span>
             </h1>
             <p className="text-[15px] leading-[1.6] mx-auto mb-7 max-w-[480px]" style={{ color: 'rgba(255,255,255,.6)' }}>
-              500+ completed interior projects across Telangana. Every space designed, built, and delivered on time — fixed price, no surprises.
+              15+ completed interior projects across Telangana. Every space designed, built, and delivered on time — fixed price, no surprises.
             </p>
             <div className="flex justify-center gap-8 md:gap-10 flex-wrap">
               {[
-                ['500+', 'Projects delivered'],
+                ['15+', 'Projects delivered'],
                 ['45d', 'Avg. delivery'],
                 ['4.8★', 'Customer rating'],
                 ['8', 'Cities served'],

@@ -18,6 +18,7 @@ import {
   LayoutTemplate,
   LayoutGrid,
   UserPlus,
+  Image as CmsDesignIdeasIcon,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useSidebarBadges } from "@/src/hooks/useSidebarBadges";
@@ -112,16 +113,19 @@ const NAV_STRUCTURE: NavItem[] = [
   { href: "/cost-estimator",     label: "Quotations",    icon: Calculator },
   { href: "/invoice",            label: "Invoices",      icon: Receipt },
   { section: "Content" },
-  { custom: "livebuild" },
   { href: "/interiors/templates", label: "Trade templates", icon: LayoutTemplate },
   { href: "/packages",           label: "Int. Packages", icon: LayoutGrid },
   { href: "/blogs",              label: "Blog",          icon: FileText,        badgeKey: "blog"      },
   { href: "/property",           label: "Properties",    icon: Building2 },
   { href: "/projects",           label: "Projects",      icon: NavProjectsIcon },
   { href: "/services-cms",     label: "Services CMS",  icon: NavServicesCmsIcon },
+  { href: "/interiors-cms",      label: "Interiors CMS", icon: LayoutTemplate },
+  { href: "/design-ideas-cms",  label: "Design ideas CMS", icon: CmsDesignIdeasIcon },
+  { href: "/hero-carousel",      label: "Hero Carousel", icon: NavHeroCarouselIcon },
+  { section: "LiveBuild" },
+  { custom: "livebuild" },
   { section: "CRM" },
   { href: "/crm",                label: "CRM Leads",     icon: MessageSquare },
-  { href: "/hero-carousel",      label: "Hero Carousel", icon: NavHeroCarouselIcon },
   { href: "/generalenquires",    label: "Enquiries",     icon: Inbox },
   { href: "/calculator-leads",   label: "Calculator Leads", icon: NavCalculatorLeadsIcon },
   { section: "Settings" },
@@ -217,10 +221,6 @@ export default function Sidebar() {
             const dashBadge = resolveBadge("buildlive");
             return (
               <React.Fragment key="livebuild-block">
-                <div className="mx-3 my-2 border-t border-white/10" />
-                <p className="px-3 py-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                  LiveBuild
-                </p>
                 <Link
                   href="/interiors"
                   className={`flex items-center gap-2.5 px-2.5 py-[9px] rounded-[10px] text-[13px] font-medium transition-all duration-150 ${

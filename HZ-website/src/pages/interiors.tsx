@@ -8,6 +8,7 @@ import InteriorCalculator from '@/components/InteriorCalculator'
 import { useQuoteModal } from '@/components/QuoteModal'
 import { interiorServiceSchema } from '@/lib/schemas'
 import Reveal from '@/components/ui/Reveal'
+import { getCmsContent } from '@/lib/cms'
 
 interface ApiPackage {
   id?: string;
@@ -80,26 +81,33 @@ function mergeDisplayPackages(cms: ApiPackage[] | null): ApiPackage[] {
 
 type InteriorsPageProps = {
   cmsPackages: ApiPackage[] | null
+  cms: Record<string, any> | null
 }
 
-export default function InteriorsPage({ cmsPackages }: InteriorsPageProps) {
+export default function InteriorsPage({ cmsPackages, cms }: InteriorsPageProps) {
   const packages = mergeDisplayPackages(cmsPackages)
+
+  const defaultDesc =
+    'Modular kitchen, wardrobes, false ceiling, TV unit — fixed-price interior packages from ₹4.5L for 2BHK. 45-day delivery in Hyderabad, Warangal, Karimnagar. Free 3D design.'
 
   return (
     <>
       <SeoHead
-        title="Home Interiors Hyderabad | Fixed-Price Packages | Houznext"
-        description="Modular kitchen, wardrobes, false ceiling, TV unit — fixed-price interior packages from ₹4.5L for 2BHK. 45-day delivery in Hyderabad, Warangal, Karimnagar. Free 3D design."
-        canonical="/interiors"
+        title={
+          cms?.seo?.metaTitle ??
+          'Home Interiors Hyderabad | Fixed-Price Packages | Houznext'
+        }
+        description={cms?.seo?.metaDescription ?? defaultDesc}
+        canonical={cms?.seo?.canonical ?? '/interiors'}
         schema={interiorServiceSchema}
-        ogImage="https://houznext.com/og-interiors.jpg"
+        ogImage={cms?.seo?.ogImage || 'https://houznext.com/og-interiors.jpg'}
       />
       <Navbar />
       <main style={{ background: '#f5f7fa' }}>
-        <InteriorsHero />
+        <InteriorsHero cms={cms} />
         <WhyChooseUs />
         <PackagesSection packages={packages} />
-        <RoomCategories />
+        <RoomCategories cms={cms} />
         <ProcessTimeline />
         <ServiceBanner />
         <section className="py-16 px-4 bg-white">
@@ -121,9 +129,58 @@ export default function InteriorsPage({ cmsPackages }: InteriorsPageProps) {
   )
 }
 
-function InteriorsHero() {
+function InteriorsHero({ cms }: { cms: any }) {
   const { openModal } = useQuoteModal()
   const router = useRouter()
+
+  const eyebrow = cms?.hero?.eyebrow ?? 'Home Interiors'
+  const rawHeadline = cms?.hero?.headline ?? 'Spaces that feel {like} {you.}'
+  const subheading =
+    cms?.hero?.subheading ??
+    'Fixed-price interior design for 2BHK, 3BHK and villas. 45-day delivery, photorealistic 3D designs, and live LiveBuild tracking.'
+  const primaryCta = cms?.hero?.primaryCta ?? {
+    label: 'Request free consultation →',
+    href: '/contact-us',
+  }
+  const secondaryCta = cms?.hero?.secondaryCta ?? {
+    label: 'View packages',
+    href: '/pricing',
+  }
+
+  const headlineParts = rawHeadline.split(/(\{[^}]+\})/g)
+  const headlineJsx = headlineParts.map((part: string, i: number) => {
+    if (part.startsWith('{') && part.endsWith('}')) {
+      return (
+        <span key={i} style={{ color: '#2f80ed' }}>
+          {part.slice(1, -1)}
+        </span>
+      )
+    }
+    return <span key={i}>{part}</span>
+  })
+
+  const defaultHeroCards = [
+    { slot: 'living', label: 'Living Room', imageUrl: '', action: 'tab', actionValue: 'living' },
+    { slot: 'kitchen', label: 'Kitchen', imageUrl: '', action: 'tab', actionValue: 'kitchen' },
+    { slot: 'bedroom', label: 'Master Bedroom', imageUrl: '', action: 'tab', actionValue: 'bedroom' },
+  ]
+  const heroCards = cms?.heroCards ?? defaultHeroCards
+
+  const slotBg: Record<string, string> = {
+    living: '#1a3a5c',
+    kitchen: '#1a4a5c',
+    bedroom: '#1c3a6c',
+  }
+
+  function handleCardClick(card: any) {
+    if (card.action === 'tab') {
+      void router.push(`/design-ideas?tab=${card.actionValue}`)
+    } else if (card.action === 'url' && card.actionValue) {
+      void router.push(card.actionValue)
+    } else if (card.action === 'cta') {
+      openModal('Interiors page — hero card')
+    }
+  }
 
   return (
     <section className="py-20 px-4" style={{ background: '#0f2a44' }}>
@@ -131,54 +188,83 @@ function InteriorsHero() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <Reveal variant="right">
             <div>
-              <EyebrowLabel className="mb-4">Home Interiors</EyebrowLabel>
+              <EyebrowLabel className="mb-4">{eyebrow}</EyebrowLabel>
               <h1 className="font-head font-black text-[40px] md:text-[52px] leading-[1.1] text-white mb-4">
-                Spaces that feel{' '}
-                <span style={{ color: '#2f80ed' }}>like you.</span>
+                {headlineJsx}
               </h1>
               <p className="text-[16px] mb-8 leading-relaxed" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                Fixed-price interior design for 2BHK, 3BHK and villas. 45-day delivery,
-                photorealistic 3D designs, and live LiveBuild tracking.
+                {subheading}
               </p>
               <div className="flex flex-wrap gap-3">
                 <button
-                  onClick={() => openModal('Interiors page — hero')}
+                  type="button"
+                  onClick={() => {
+                    if (!primaryCta?.href || primaryCta.href === '#') {
+                      openModal('Interiors page — hero')
+                    } else {
+                      void router.push(primaryCta.href)
+                    }
+                  }}
                   className="px-6 py-3 rounded-xl font-head font-bold text-white text-[15px] transition-all hover:-translate-y-0.5"
                   style={{ background: '#2f80ed' }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#1a6dd6' }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#2f80ed' }}
                 >
-                  Request free consultation →
+                  {primaryCta.label}
                 </button>
                 <button
-                  onClick={() => router.push('/pricing')}
+                  type="button"
+                  onClick={() => void router.push(secondaryCta.href)}
                   className="px-6 py-3 rounded-xl font-head font-bold text-white text-[15px] hover:bg-white/10 transition-colors"
                   style={{ border: '1px solid rgba(255,255,255,0.25)' }}
                 >
-                  View packages
+                  {secondaryCta.label}
                 </button>
               </div>
             </div>
           </Reveal>
 
-          {/* Gallery grid */}
           <Reveal variant="left" delay={200}>
             <div className="grid grid-cols-2 gap-3">
-              {[
-                { label: 'Living Room',    bg: '#1a3a5c' },
-                { label: 'Kitchen',        bg: '#1a4a5c' },
-                { label: 'Master Bedroom', bg: '#1c3a6c' },
-              ].map((item, i) => (
+              {heroCards.map((card: any, i: number) => (
                 <div
-                  key={item.label}
-                  className={`rounded-2xl flex items-end p-4 ${i === 2 ? 'col-span-2' : ''}`}
-                  style={{ background: item.bg, height: i === 2 ? 140 : 180, border: '1px solid rgba(47,128,237,0.2)' }}
+                  key={card.slot}
+                  role={card.action !== 'none' ? 'button' : undefined}
+                  tabIndex={card.action !== 'none' ? 0 : undefined}
+                  onKeyDown={card.action !== 'none' ? (e) => { if (e.key === 'Enter' || e.key === ' ') handleCardClick(card) } : undefined}
+                  onClick={() => handleCardClick(card)}
+                  className={`
+                    group rounded-2xl flex items-end p-4 relative overflow-hidden
+                    transition-all duration-300
+                    ${card.action !== 'none' ? 'cursor-pointer hover:scale-[1.015]' : 'cursor-default'}
+                    ${i === 2 ? 'col-span-2' : ''}
+                  `}
+                  style={{
+                    background: card.imageUrl
+                      ? `linear-gradient(0deg, rgba(10,25,40,0.75) 0%, transparent 60%), url(${card.imageUrl}) center/cover no-repeat`
+                      : slotBg[card.slot] ?? '#1a3a5c',
+                    height: i === 2 ? 140 : 180,
+                    border: '1px solid rgba(47,128,237,0.2)',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (card.action !== 'none') { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(47,128,237,0.6)' }
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(47,128,237,0.2)'
+                  }}
                 >
+                  {card.action !== 'none' && (
+                    <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/10 items-center justify-center hidden group-hover:flex">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round">
+                        <path d="M9 18l6-6-6-6" />
+                      </svg>
+                    </div>
+                  )}
                   <span
-                    className="text-[12px] font-head font-bold px-3 py-1 rounded-full text-white"
-                    style={{ background: 'rgba(15,42,68,0.7)' }}
+                    className="relative z-10 text-[12px] font-head font-bold px-3 py-1 rounded-full text-white transition-colors duration-200 group-hover:!bg-[#2f80ed]"
+                    style={{ background: 'rgba(15,42,68,0.75)' }}
                   >
-                    {item.label}
+                    {card.label}
                   </span>
                 </div>
               ))}
@@ -308,51 +394,109 @@ function PackagesSection({ packages }: { packages: ApiPackage[] }) {
 export async function getStaticProps() {
   const raw =
     process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT
+  const base = raw ? String(raw).replace(/\/$/, '') : null
   let cmsPackages: ApiPackage[] | null = null
-  if (raw) {
-    const base = String(raw).replace(/\/$/, '')
+  const cms: Record<string, any> | null = await getCmsContent('interiors_page')
+  if (base) {
     try {
-      const res = await fetch(`${base}/interior-packages?activeOnly=true`)
-      if (res.ok) {
-        cmsPackages = await res.json()
+      const pRes = await fetch(`${base}/interior-packages?activeOnly=true`)
+      if (pRes.ok) {
+        cmsPackages = await pRes.json()
       }
     } catch {
       cmsPackages = null
     }
   }
   return {
-    props: { cmsPackages },
-    revalidate: 30,
+    props: { cmsPackages, cms },
+    revalidate: 60,
   }
 }
 
-function RoomCategories() {
-  const rooms = [
-    { label: 'Living Room',  desc: 'Sofas, TV units, entertainment walls, accent lighting' },
-    { label: 'Bedroom',      desc: 'Wardrobes, study units, cove ceilings, wall panels' },
-    { label: 'Kitchen',      desc: 'Modular kitchens, hob, chimney, storage solutions' },
-    { label: 'Home Office',  desc: 'Ergonomic workstations, storage walls, acoustic panels' },
+function RoomCategories({ cms }: { cms: any }) {
+  const router = useRouter()
+  const { openModal } = useQuoteModal()
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
+
+  const rbrData = cms?.roomByRoom
+  const eyebrow = rbrData?.eyebrow ?? 'Room categories'
+  const heading = rbrData?.heading ?? 'Room by room excellence'
+  const defaultCards = [
+    { slug: 'living', title: 'Living Room', description: 'Sofas, TV units, entertainment walls, accent lighting', imageUrl: '', action: 'tab', actionValue: 'living', visible: true },
+    { slug: 'bedroom', title: 'Bedroom', description: 'Wardrobes, study units, cove ceilings, wall panels', imageUrl: '', action: 'tab', actionValue: 'bedroom', visible: true },
+    { slug: 'kitchen', title: 'Kitchen', description: 'Modular kitchens, hob, chimney, storage solutions', imageUrl: '', action: 'tab', actionValue: 'kitchen', visible: true },
+    { slug: 'office', title: 'Home Office', description: 'Ergonomic workstations, storage walls, acoustic panels', imageUrl: '', action: 'tab', actionValue: 'office', visible: true },
   ]
+  const cards = rbrData?.cards ?? defaultCards
+  const visibleCards = (cards as any[]).filter((c) => c.visible !== false)
+
+  const slotBg: Record<string, string> = {
+    living: '#1a3a5c',
+    bedroom: '#1a4a5c',
+    kitchen: '#1c3a6c',
+    office: '#1a3a50',
+  }
+
+  function handleClick(card: any) {
+    if (card.action === 'none') return
+    if (card.action === 'tab') {
+      void router.push(`/design-ideas?tab=${card.actionValue}`)
+    } else if (card.action === 'url' && card.actionValue) {
+      void router.push(card.actionValue)
+    } else if (card.action === 'cta') {
+      openModal('Interiors page — room card')
+    }
+  }
+
   return (
     <section className="py-16 px-4" style={{ background: '#0f2a44' }}>
       <div className="max-w-7xl mx-auto">
         <Reveal variant="fade" className="text-center mb-12">
-          <EyebrowLabel className="mb-3 justify-center">Room categories</EyebrowLabel>
-          <h2 className="font-head font-bold text-[28px] md:text-[34px] text-white">Room by room excellence</h2>
+          <EyebrowLabel className="mb-3 justify-center">{eyebrow}</EyebrowLabel>
+          <h2 className="font-head font-bold text-[28px] md:text-[34px] text-white">{heading}</h2>
         </Reveal>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
-          {rooms.map((r, i) => (
-            <Reveal key={r.label} delay={i * 110} variant="up">
+          {visibleCards.map((card: any, i: number) => (
+            <Reveal key={card.slug} delay={i * 110} variant="up">
               <div
-                className="relative rounded-2xl overflow-hidden p-6 flex flex-col justify-end h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                role={card.action !== 'none' ? 'button' : undefined}
+                tabIndex={card.action !== 'none' ? 0 : undefined}
+                onKeyDown={card.action !== 'none' ? (e) => { if (e.key === 'Enter' || e.key === ' ') handleClick(card) } : undefined}
+                onMouseEnter={() => setHoveredIdx(i)}
+                onMouseLeave={() => setHoveredIdx(null)}
+                onClick={() => handleClick(card)}
+                className={`
+                  relative rounded-2xl overflow-hidden p-6 flex flex-col justify-end h-full
+                  transition-all duration-300
+                  ${card.action !== 'none' ? 'cursor-pointer hover:-translate-y-1 hover:shadow-xl' : 'cursor-default'}
+                `}
                 style={{
                   minHeight: 220,
-                  background: `linear-gradient(135deg, ${['#1a3a5c','#1a4a5c','#1c3a6c','#1a3a50'][i]} 0%, #0f2a44 100%)`,
+                  background: card.imageUrl
+                    ? `linear-gradient(0deg, rgba(10,25,40,0.82) 0%, rgba(15,40,65,0.3) 100%), url(${card.imageUrl}) center/cover no-repeat`
+                    : `linear-gradient(135deg, ${slotBg[card.slug] ?? '#1a3a5c'} 0%, #0f2a44 100%)`,
                   border: '1px solid rgba(47,128,237,0.25)',
                 }}
               >
-                <h3 className="font-head font-bold text-white text-[16px] mb-1">{r.label}</h3>
-                <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>{r.desc}</p>
+                {card.action !== 'none' && (
+                  <div
+                    className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center transition-all"
+                    style={{
+                      opacity: hoveredIdx === i ? 1 : 0,
+                      background: hoveredIdx === i ? '#2f80ed' : 'rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round">
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  </div>
+                )}
+                <h3 className="font-head font-bold text-white text-[16px] mb-1" style={{ position: 'relative', zIndex: 1 }}>
+                  {card.title}
+                </h3>
+                <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)', position: 'relative', zIndex: 1 }}>
+                  {card.description}
+                </p>
               </div>
             </Reveal>
           ))}

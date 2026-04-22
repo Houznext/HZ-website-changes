@@ -78,6 +78,7 @@ import { AuditLogInterceptor } from './audit-log/audit-log.interceptor';
 import { InteriorProjectsModule } from './interior-projects/interior-projects.module';
 import { HeroCarouselModule } from './hero-carousel/hero-carousel.module';
 import { ServicesContentModule } from './services-content/services-content.module';
+import { CmsModule } from './cms/cms.module';
 
 @Module({
   imports: [
@@ -165,6 +166,7 @@ import { ServicesContentModule } from './services-content/services-content.modul
     InteriorProjectsModule,
     HeroCarouselModule,
     ServicesContentModule,
+    CmsModule,
   ],
   controllers: [AppController],
   providers: [

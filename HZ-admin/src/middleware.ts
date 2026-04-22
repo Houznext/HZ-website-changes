@@ -115,6 +115,8 @@ export default withAuth(
       staffOnly?: boolean;
       branchHeadOnly?: boolean;
     }[] = [
+      { match: /^\/design-ideas-cms(\/.*)?$/, staffOnly: true },
+      { match: /^\/interiors-cms(\/.*)?$/, staffOnly: true },
       // Dashboard: any valid Houznext JWT session (staff gate applies on other routes only)
       {
         match: /^\/dashboard$/,
@@ -342,5 +344,7 @@ export const config = {
     "/houznext-rewards/:path*",
     "/generalenquires/:path*",
     "/testimonials/:path*",
+    "/design-ideas-cms/:path*",
+    "/interiors-cms/:path*",
   ],
 };
