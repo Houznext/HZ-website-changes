@@ -219,9 +219,11 @@ const DesignIdeasCmsPage = () => {
     setIsSaving(true);
     const r = await saveDraft(CMS_KEY, collectData(), token);
     setIsSaving(false);
-    r.ok
-      ? toast.success("Draft saved")
-      : toast.error(r.errorMessage, { duration: 8000 });
+    if (r.ok) {
+      toast.success("Draft saved");
+    } else {
+      toast.error(r.errorMessage, { duration: 8000 });
+    }
   };
 
   const handlePublish = async () => {
@@ -232,9 +234,11 @@ const DesignIdeasCmsPage = () => {
     setIsPublishing(true);
     const r = await publishCms(CMS_KEY, collectData(), token);
     setIsPublishing(false);
-    r.ok
-      ? toast.success("Published! Design ideas page is live ✓")
-      : toast.error(r.errorMessage, { duration: 8000 });
+    if (r.ok) {
+      toast.success("Published! Design ideas page is live ✓");
+    } else {
+      toast.error(r.errorMessage, { duration: 8000 });
+    }
   };
 
   const siteBase =

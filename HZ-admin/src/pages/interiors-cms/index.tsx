@@ -215,9 +215,11 @@ const InteriorsCmsPage = () => {
     setIsSaving(true);
     const r = await saveDraft(CMS_KEY, collectData(), token);
     setIsSaving(false);
-    r.ok
-      ? toast.success("Draft saved")
-      : toast.error(r.errorMessage, { duration: 8000 });
+    if (r.ok) {
+      toast.success("Draft saved");
+    } else {
+      toast.error(r.errorMessage, { duration: 8000 });
+    }
   };
 
   const handlePublish = async () => {
@@ -228,9 +230,11 @@ const InteriorsCmsPage = () => {
     setIsPublishing(true);
     const r = await publishCms(CMS_KEY, collectData(), token);
     setIsPublishing(false);
-    r.ok
-      ? toast.success("Published! Interiors page is live ✓")
-      : toast.error(r.errorMessage, { duration: 8000 });
+    if (r.ok) {
+      toast.success("Published! Interiors page is live ✓");
+    } else {
+      toast.error(r.errorMessage, { duration: 8000 });
+    }
   };
 
   const siteBase =

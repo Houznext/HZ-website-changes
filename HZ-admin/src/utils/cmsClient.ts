@@ -5,7 +5,8 @@
  */
 const CMS_PATH = "/api/hz-backend/cms";
 
-export type CmsActionResult = { ok: true } | { ok: false; errorMessage: string };
+/** `errorMessage` is set when `ok` is false (plain object shape avoids ternary narrow issues in TS). */
+export type CmsActionResult = { ok: boolean; errorMessage?: string };
 
 function errorHintForCmsRequest(status: number): string {
   if (status === 502 || status === 503 || status === 504) {
