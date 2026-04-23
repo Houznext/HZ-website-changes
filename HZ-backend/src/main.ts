@@ -50,26 +50,35 @@ async function bootstrap() {
     'http://localhost:3001',
   ];
 
-  const allowedOrigins = [...staticLocalOrigins, ...envOrigins].map((s) =>
-    s.replace(/\/$/, ''),
-  );
+  /** Public website + admin on Vercel / custom domain — must match browser Origin */
+  const publicSiteOrigins = [
+    'https://houznext.com',
+    'https://www.houznext.com',
+  ];
+
+  const allowedOrigins = [
+    ...staticLocalOrigins,
+    ...publicSiteOrigins,
+    ...envOrigins,
+  ].map((s) => s.replace(/\/$/, ''));
 
   app.enableCors({
     origin: (origin, cb) => {
-      // Server-to-server (no Origin header) or no restrictions configured → allow
+      // Server-to-server (no Origin) → allow
       if (!origin) return cb(null, true);
-      if (allowedOrigins.length === staticLocalOrigins.length && !isProd) {
+      // Dev: permissive CORS when ALLOWED_ORIGINS is not set (local admin + many ports)
+      if (!isProd && envOrigins.length === 0) {
         return cb(null, true);
       }
       const normalized = origin.replace(/\/$/, '');
-      // Always allow Vercel preview URLs for this project
       const isVercelPreview = normalized.endsWith('.vercel.app');
       if (allowedOrigins.includes(normalized) || isVercelPreview) {
         return cb(null, true);
       }
-      // Return null (not an Error) so Express does NOT throw a 500;
-      // the browser will see missing CORS headers and block the request cleanly.
-      console.warn(`[CORS] Blocked origin: ${origin}`);
+      // Avoid high-volume [CORS] logs on Railway (rate limit) — set CORS_LOG_BLOCKED=1 to debug
+      if (process.env.CORS_LOG_BLOCKED === '1') {
+        console.warn(`[CORS] Blocked origin: ${origin}`);
+      }
       return cb(null, false);
     },
     credentials: true,

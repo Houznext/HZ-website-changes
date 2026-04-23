@@ -1,467 +1,430 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { useRouter } from 'next/router'
-import Navbar from '@/components/Navbar'
+import React, { useCallback, useMemo, useState } from 'react'
+
+import FilterBar from '@/components/InteriorPortfolio/FilterBar'
+import MasonryGrid from '@/components/InteriorPortfolio/MasonryGrid'
+import ProjectModal from '@/components/InteriorPortfolio/ProjectModal'
+import ProjectsHero from '@/components/InteriorPortfolio/ProjectsHero'
+import {
+  DerivedProject,
+  FilterCity,
+  FilterStyle,
+  FilterType,
+  PortfolioProject,
+  SortOrder,
+} from '@/components/InteriorPortfolio/types'
 import Footer from '@/components/Footer'
+import Navbar from '@/components/Navbar'
 import SeoHead from '@/components/SeoHead'
-import FreeConsultationHeroModal from '@/components/HeroConsultation/FreeConsultationHeroModal'
-import { InteriorProject, ProjectsResponse } from '@/types/interior-project'
 
-function StrokeIcon({ path, stroke = '#64748b', size = 16 }: { path: string; stroke?: string; size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke={stroke}
-      strokeWidth={1.8}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d={path} />
-    </svg>
-  )
+function getCardHeight(id: string): number {
+  let hash = 0
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash << 5) - hash + id.charCodeAt(i)
+    hash |= 0
+  }
+  const heights = [220, 240, 260, 280, 300, 320, 340, 350]
+  return heights[Math.abs(hash) % heights.length]
 }
 
-async function fetchProjects(params: Record<string, string>): Promise<ProjectsResponse> {
-  const rawApi = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT || 'http://localhost:4000'
-  const api = rawApi.endsWith('/') ? rawApi.slice(0, -1) : rawApi
-  const qs = new URLSearchParams(params).toString()
-  const res = await fetch(`${api}/interior-projects/public?${qs}`)
-  if (!res.ok) throw new Error('Failed to fetch')
-  return res.json()
+function getInitials(name: string): string {
+  return (name ?? '')
+    .split(' ')
+    .map((w) => w[0] ?? '')
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
 }
 
-const FILTERS = ['All', '2BHK', '3BHK', 'Villa / 4BHK+', 'Essential', 'Premium', 'Luxury'] as const
-const SORTS = ['Newest first', 'Cost: low to high', 'Cost: high to low', 'Fastest delivery'] as const
-
-const STYLE_BG: Record<string, string> = {
-  Modern: '#dbeafe',
-  'Warm / Scandi': '#fef3c7',
-  Classic: '#f3e8ff',
-  Bohemian: '#dcfce7',
-  Industrial: '#f1f5f9',
-  Luxury: '#fef9ee',
+function formatArea(sqft: number | null): string {
+  if (!sqft) return ''
+  return `${Number(sqft).toLocaleString('en-IN')} sqft`
 }
 
-function getPackageBadgeStyle(pkg?: string) {
-  if (pkg === 'Premium') return { background: 'rgba(47,128,237,.9)', color: '#fff' }
-  if (pkg === 'Luxury') return { background: 'rgba(242,153,74,.9)', color: '#7c3a00' }
-  return { background: 'rgba(255,255,255,.9)', color: '#0f2a44' }
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return ''
+  try {
+    return new Date(dateStr).toLocaleDateString('en-IN', {
+      month: 'short',
+      year: 'numeric',
+    })
+  } catch {
+    return ''
+  }
 }
 
-function toApiParams(filter: string, sort: string, page: number) {
-  const params: Record<string, string> = { page: String(page), limit: '9' }
-  if (filter === '2BHK') params.propertyType = '2BHK'
-  if (filter === '3BHK') params.propertyType = '3BHK'
-  if (filter === 'Villa / 4BHK+') params.propertyType = 'Villa'
-  if (filter === 'Essential') params.package = 'Essential'
-  if (filter === 'Premium') params.package = 'Premium'
-  if (filter === 'Luxury') params.package = 'Luxury'
+function deriveProject(p: PortfolioProject): DerivedProject {
+  const bhkStr = p.bhk ?? ''
+  const loc = [p.locality, p.city].filter(Boolean).join(', ')
+  const style = p.stylePreference ?? ''
+  const pkg = p.packageTier ?? 'Premium'
+  const days = p.deliveredInDays
+  const area = p.totalAreaSqft
+  const repName = p.rep?.fullName ?? 'Houznext team'
 
-  if (sort === 'Cost: low to high') params.sort = 'cost-low'
-  if (sort === 'Cost: high to low') params.sort = 'cost-high'
-  if (sort === 'Fastest delivery') params.sort = 'days'
-  if (sort === 'Newest first') params.sort = 'newest'
-  return params
+  return {
+    ...p,
+    trades: p.trades ?? [],
+    displayName:
+      [bhkStr, loc].filter(Boolean).join(' · ') || 'Houznext Project',
+    locationFull: loc || 'Hyderabad',
+    packageLabel: pkg,
+    styleLabel: style,
+    daysLabel: days != null && days > 0 ? `${days} days` : '—',
+    areaLabel: formatArea(area),
+    photoUrls: p.portfolioPhotoUrls ?? [],
+    designerInitials: getInitials(repName),
+    deliveredMonth: formatDate(p.actualEndDate ?? p.handoverDate),
+    cardHeight: getCardHeight(p.id),
+  }
 }
 
-function PlaceholderImage({ styleName }: { styleName?: string }) {
-  const bg = STYLE_BG[styleName || ''] || '#f0f7ff'
-  return (
-    <div className="w-full h-full flex flex-col items-center justify-center" style={{ background: bg }}>
-      <StrokeIcon path="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10" stroke="#2f80ed" size={28} />
-      <p className="text-[12px] mt-2 font-[700]" style={{ color: '#0f2a44' }}>{styleName || 'Project image'}</p>
-    </div>
-  )
-}
+function applyFilters(
+  projects: DerivedProject[],
+  filterType: FilterType,
+  filterStyle: FilterStyle,
+  filterCity: FilterCity,
+  sortOrder: SortOrder,
+): DerivedProject[] {
+  let result = [...projects]
 
-function PackagePill({ pkg, active, onClick }: { pkg: string; active: boolean; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="text-[13px] font-[600] px-4 py-[7px] whitespace-nowrap"
-      style={{
-        borderRadius: 24,
-        border: active ? '1.5px solid #2f80ed' : '1.5px solid #e2e8f0',
-        background: active ? '#2f80ed' : '#fff',
-        color: active ? '#fff' : '#64748b',
-        transition: 'all .2s ease',
-      }}
-      onMouseEnter={(e) => {
-        if (!active) {
-          e.currentTarget.style.borderColor = '#93c5fd'
-          e.currentTarget.style.color = '#0f2a44'
-          e.currentTarget.style.background = '#f0f7ff'
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!active) {
-          e.currentTarget.style.borderColor = '#e2e8f0'
-          e.currentTarget.style.color = '#64748b'
-          e.currentTarget.style.background = '#fff'
-        }
-      }}
-    >
-      {pkg}
-    </button>
-  )
-}
+  if (filterType !== 'all') {
+    result = result.filter((p) => {
+      const bhk = (p.bhk ?? '').toLowerCase()
+      if (filterType === '2bhk') return bhk.includes('2')
+      if (filterType === '3bhk') return bhk.includes('3')
+      if (filterType === 'villa') {
+        return (
+          bhk.includes('villa') ||
+          (p.propertyType ?? '').toLowerCase().includes('villa')
+        )
+      }
+      return true
+    })
+  }
 
-function ProjectCard({ p, list, featured = false }: { p: InteriorProject; list: boolean; featured?: boolean }) {
-  const router = useRouter()
-  const imageHeight = list ? '100%' : featured ? 320 : 220
-  const rooms = p.rooms || []
-  const extraCount = rooms.length > 2 ? rooms.length - 2 : 0
-  return (
-    <article
-      onClick={() => router.push(`/projects/${p.id}`)}
-      className={`group bg-white overflow-hidden cursor-pointer ${list ? 'flex flex-col sm:flex-row' : ''}`}
-      style={{
-        border: '1.5px solid #e2e8f0',
-        borderRadius: 16,
-        transition: 'all .25s ease',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = '#93c5fd'
-        e.currentTarget.style.transform = 'translateY(-4px)'
-        e.currentTarget.style.boxShadow = '0 12px 40px rgba(15,42,68,.1)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = '#e2e8f0'
-        e.currentTarget.style.transform = 'translateY(0)'
-        e.currentTarget.style.boxShadow = 'none'
-      }}
-    >
-      <div
-        className={`${list ? 'sm:w-[280px] sm:min-h-[180px] flex-shrink-0' : 'w-full'} relative overflow-hidden`}
-        style={{ height: list ? 'auto' : imageHeight as number | string, background: '#f1f5f9' }}
-      >
-        {featured && (
-          <span
-            className="absolute z-20 top-[14px] left-[14px] text-[10px] font-[800] uppercase tracking-[.05em] px-3 py-1"
-            style={{ borderRadius: 20, background: '#f2994a', color: '#7c3a00' }}
-          >
-            Featured
-          </span>
-        )}
-        <div className="w-full h-full transition-transform duration-500 group-hover:scale-[1.06]">
-          {p.images && p.images.length > 0 ? (
-            <img src={p.images[0]} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <PlaceholderImage styleName={p.style} />
-          )}
-        </div>
-        <span
-          className="absolute top-3 left-3 text-white text-[11px] font-[700] px-[10px] py-1"
-          style={{ borderRadius: 20, background: 'rgba(15,42,68,.85)' }}
-        >
-          {p.propertyType} · {p.sqft || 0} sqft
-        </span>
-        <span className="absolute top-3 right-3 text-[11px] font-[700] px-[10px] py-1" style={{ borderRadius: 20, ...getPackageBadgeStyle(p.package) }}>
-          {p.package}
-        </span>
-        <div
-          className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100"
-          style={{ transition: 'opacity .25s ease', background: 'rgba(15,42,68,.7)' }}
-        >
-          <button
-            className="flex items-center gap-2 text-[13px] font-[700] px-5 py-2.5"
-            style={{ borderRadius: 10, background: '#fff', color: '#0f2a44', border: 'none', transition: 'all .2s ease' }}
-          >
-            View project
-            <StrokeIcon path="M15 3h6v6M10 14L21 3" stroke="#0f2a44" size={14} />
-          </button>
-        </div>
-      </div>
+  if (filterStyle !== 'all') {
+    result = result.filter((p) => p.styleLabel === filterStyle)
+  }
 
-      <div className={`${list ? 'flex-1 p-5' : 'p-4'}`}>
-        <h3 className={`font-[800] mb-1 ${list ? 'text-[17px]' : featured ? 'text-[18px]' : 'text-[15px]'}`} style={{ color: '#0f2a44', lineHeight: 1.3 }}>
-          {p.title}
-        </h3>
-        <div className="flex items-center gap-[5px] text-[12px] mb-3" style={{ color: '#64748b' }}>
-          <StrokeIcon path="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#2f80ed" size={12} />
-          <span>{p.location}</span>
-        </div>
+  if (filterCity !== 'all') {
+    result = result.filter(
+      (p) => (p.city ?? '').toLowerCase() === filterCity.toLowerCase(),
+    )
+  }
 
-        <div className="flex flex-wrap gap-2 mb-3">
-          {rooms.slice(0, 2).map((r) => (
-            <span key={r} className="flex items-center gap-1 text-[11.5px] px-[9px] py-1" style={{ borderRadius: 20, color: '#64748b', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
-              <StrokeIcon path="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10" stroke="#2f80ed" size={11} />
-              {r}
-            </span>
-          ))}
-          {extraCount > 0 && (
-            <span className="text-[11.5px] px-[9px] py-1" style={{ borderRadius: 20, color: '#64748b', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
-              +{extraCount} more
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between pt-3" style={{ borderTop: '1px solid #e2e8f0' }}>
-          <div>
-            <p className="text-[16px] font-[900]" style={{ color: '#2f80ed' }}>₹{p.costInLakhs}L</p>
-            <p className="text-[10.5px]" style={{ color: '#64748b' }}>fixed price</p>
-          </div>
-          <div className="flex items-center gap-[5px] text-[12px]" style={{ color: '#64748b' }}>
-            <StrokeIcon path="M12 2a10 10 0 100 20A10 10 0 0012 2zM12 6v6l4 2" stroke="#64748b" size={14} />
-            {p.deliveryDays} days
-          </div>
-        </div>
-      </div>
-    </article>
-  )
-}
-
-function SkeletonCard() {
-  return (
-    <div className="animate-pulse bg-white rounded-2xl overflow-hidden" style={{ border: '1.5px solid #e2e8f0' }}>
-      <div className="h-[220px] bg-slate-200" />
-      <div className="p-4 space-y-3">
-        <div className="h-4 bg-slate-200 rounded" />
-        <div className="h-3 bg-slate-200 rounded w-2/3" />
-        <div className="h-8 bg-slate-200 rounded" />
-      </div>
-    </div>
-  )
-}
-
-export default function ProjectsPage() {
-  const router = useRouter()
-  const [activeFilter, setActiveFilter] = useState<string>('All')
-  const [activeSort, setActiveSort] = useState<string>('Newest first')
-  const [gridView, setGridView] = useState(true)
-  const [loading, setLoading] = useState(true)
-  const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [items, setItems] = useState<InteriorProject[]>([])
-  const [consultationOpen, setConsultationOpen] = useState(false)
-  const loadMoreRef = useRef(false)
-
-  const loadProjects = useCallback(async (targetPage: number, append: boolean) => {
-    setLoading(true)
-    try {
-      const params = toApiParams(activeFilter, activeSort, targetPage)
-      const data = await fetchProjects(params)
-      setTotalPages(data.totalPages || 1)
-      setItems((prev) => (append ? [...prev, ...data.data] : data.data))
-    } catch {
-      if (!append) setItems([])
-    } finally {
-      setLoading(false)
+  result.sort((a, b) => {
+    if (sortOrder === 'fastest') {
+      return (a.deliveredInDays ?? 999) - (b.deliveredInDays ?? 999)
     }
-  }, [activeFilter, activeSort])
+    const da = new Date(a.actualEndDate ?? a.handoverDate ?? 0).getTime()
+    const db = new Date(b.actualEndDate ?? b.handoverDate ?? 0).getTime()
+    return sortOrder === 'newest' ? db - da : da - db
+  })
 
-  useEffect(() => {
+  return result
+}
+
+interface ProjectsPageProps {
+  projects: PortfolioProject[]
+}
+
+const PAGE_SIZE = 12
+
+export default function ProjectsPage({ projects: rawProjects }: ProjectsPageProps) {
+  const allDerived = useMemo(() => {
+    const list = Array.isArray(rawProjects) ? rawProjects : []
+    return list.map((r) => deriveProject(r))
+  }, [rawProjects])
+
+  const [filterType, setFilterType] = useState<FilterType>('all')
+  const [filterStyle, setFilterStyle] = useState<FilterStyle>('all')
+  const [filterCity, setFilterCity] = useState<FilterCity>('all')
+  const [sortOrder, setSortOrder] = useState<SortOrder>('newest')
+  const [page, setPage] = useState(1)
+
+  const [selectedProject, setSelectedProject] = useState<DerivedProject | null>(
+    null,
+  )
+
+  const cities = useMemo(() => {
+    const s = new Set(allDerived.map((p) => p.city ?? '').filter(Boolean))
+    return Array.from(s).sort()
+  }, [allDerived])
+
+  const styles = useMemo(() => {
+    const s = new Set(allDerived.map((p) => p.styleLabel).filter(Boolean))
+    return Array.from(s).sort()
+  }, [allDerived])
+
+  const filtered = useMemo(
+    () =>
+      applyFilters(
+        allDerived,
+        filterType,
+        filterStyle,
+        filterCity,
+        sortOrder,
+      ),
+    [allDerived, filterType, filterStyle, filterCity, sortOrder],
+  )
+
+  const handleTypeChange = useCallback((v: FilterType) => {
+    setFilterType(v)
     setPage(1)
-    loadMoreRef.current = false
-    void loadProjects(1, false)
-  }, [activeFilter, activeSort, loadProjects])
+  }, [])
+  const handleStyleChange = useCallback((v: FilterStyle) => {
+    setFilterStyle(v)
+    setPage(1)
+  }, [])
+  const handleCityChange = useCallback((v: FilterCity) => {
+    setFilterCity(v)
+    setPage(1)
+  }, [])
+  const handleSortChange = useCallback((v: SortOrder) => {
+    setSortOrder(v)
+    setPage(1)
+  }, [])
 
-  useEffect(() => {
-    const query: Record<string, string> = {}
-    if (activeFilter !== 'All') query.filter = activeFilter
-    if (activeSort !== 'Newest first') query.sort = activeSort
-    void router.replace({ pathname: '/projects', query }, undefined, { shallow: true })
-  }, [activeFilter, activeSort, router])
+  const visibleProjects = filtered.slice(0, page * PAGE_SIZE)
+  const hasMore = filtered.length > visibleProjects.length
 
-  const canLoadMore = page < totalPages
-  const featured = activeFilter === 'All' && items.length > 0 && items[0].featured
-  const first = featured ? items[0] : null
-  const side = featured ? items.slice(1, 3) : []
-  const rest = featured ? items.slice(3) : items
+  const openModal = useCallback((p: DerivedProject) => setSelectedProject(p), [])
+  const closeModal = useCallback(() => setSelectedProject(null), [])
 
   return (
     <>
       <SeoHead
-        title="Our Interior Projects | Houznext"
-        description="15+ completed interior projects across Telangana. Fixed-price, 45-day delivery, stunning designs."
+        title="Our Projects | Real Home Transformations | Houznext Hyderabad"
+        description="Browse 50+ completed home interior projects by Houznext across Hyderabad, Warangal and Karimnagar. Real homes, real transformations — 2BHK, 3BHK and villas."
         canonical="/projects"
+        ogImage="https://houznext.com/og-projects.jpg"
       />
       <Navbar />
-      <main style={{ background: '#f8fafc', fontFamily: 'Inter,system-ui,sans-serif' }}>
-        <section className="relative overflow-hidden" style={{ background: '#0f2a44', padding: '56px 0 48px' }}>
-          <div className="absolute pointer-events-none rounded-full" style={{ width: 280, height: 280, border: '1.5px solid rgba(47,128,237,.15)', top: -60, right: -60 }} />
-          <div className="absolute pointer-events-none rounded-full" style={{ width: 200, height: 200, border: '1.5px solid rgba(242,153,74,.12)', bottom: -80, left: -40 }} />
-          <div className="max-w-5xl mx-auto px-6 text-center">
-            <div className="inline-flex items-center gap-2 mb-3">
-              <span className="w-[18px] h-[2px]" style={{ background: '#f2994a' }} />
-              <span className="text-[11px] font-[700] tracking-[.12em] uppercase" style={{ color: '#f2994a' }}>OUR WORK</span>
-              <span className="w-[18px] h-[2px]" style={{ background: '#f2994a' }} />
-            </div>
-            <h1 className="text-[28px] md:text-[38px] font-[900] mb-3 text-white leading-[1.1]">
-              Homes we&apos;ve <span style={{ color: '#f2994a' }}>transformed</span>
-            </h1>
-            <p className="text-[15px] leading-[1.6] mx-auto mb-7 max-w-[480px]" style={{ color: 'rgba(255,255,255,.6)' }}>
-              15+ completed interior projects across Telangana. Every space designed, built, and delivered on time — fixed price, no surprises.
-            </p>
-            <div className="flex justify-center gap-8 md:gap-10 flex-wrap">
-              {[
-                ['15+', 'Projects delivered'],
-                ['45d', 'Avg. delivery'],
-                ['4.8★', 'Customer rating'],
-                ['8', 'Cities served'],
-              ].map(([v, l]) => (
-                <div key={l}>
-                  <p className="text-[24px] font-[900] text-white">{v}</p>
-                  <p className="text-[11px] font-[500]" style={{ color: 'rgba(255,255,255,.5)' }}>{l}</p>
-                </div>
-              ))}
+      <main style={{ background: '#f5f7fa' }}>
+        <ProjectsHero totalCount={allDerived.length} />
+
+        <FilterBar
+          filterType={filterType}
+          filterStyle={filterStyle}
+          filterCity={filterCity}
+          sortOrder={sortOrder}
+          cities={cities}
+          styles={styles}
+          onType={handleTypeChange}
+          onStyle={handleStyleChange}
+          onCity={handleCityChange}
+          onSort={handleSortChange}
+        />
+
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 32px 0' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 20,
+            }}
+          >
+            <div
+              className="font-head font-bold"
+              style={{ fontSize: 18, color: '#1f2933' }}
+            >
+              Completed projects{' '}
+              <span style={{ fontSize: 13, fontWeight: 400, color: '#5a6a7e' }}>
+                Showing {visibleProjects.length} of {filtered.length}
+              </span>
             </div>
           </div>
-        </section>
 
-        <section className="sticky z-[100]" style={{ top: 60, background: '#fff', borderBottom: '1px solid #e2e8f0', padding: '12px 0', boxShadow: '0 2px 8px rgba(0,0,0,.05)' }}>
-          <div className="max-w-5xl mx-auto px-6 flex items-center gap-[10px] flex-wrap">
-            <span className="text-[12px] font-[700] mr-1" style={{ color: '#64748b' }}>Filter:</span>
-            {FILTERS.map((f) => (
-              <PackagePill key={f} pkg={f} active={activeFilter === f} onClick={() => setActiveFilter(f)} />
-            ))}
-            <div className="ml-auto flex items-center gap-2">
-              <label className="text-[12px]" style={{ color: '#64748b' }}>Sort:</label>
-              <select
-                value={activeSort}
-                onChange={(e) => setActiveSort(e.target.value)}
-                className="text-[13px] px-3 py-[7px]"
-                style={{ border: '1.5px solid #e2e8f0', borderRadius: 8, color: '#0f2a44', background: '#fff', outline: 'none', cursor: 'pointer' }}
-              >
-                {SORTS.map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
-          </div>
-        </section>
+          <MasonryGrid projects={visibleProjects} onCardClick={openModal} />
 
-        <section className="max-w-5xl mx-auto px-6 mt-6 mb-4">
-          <div className="flex items-center justify-between">
-            <p className="text-[13px]" style={{ color: '#64748b' }}><b style={{ color: '#0f2a44' }}>{items.length}</b> projects found</p>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setGridView(true)}
-                className="w-8 h-8 flex items-center justify-center"
-                style={{ borderRadius: 8, border: `1.5px solid ${gridView ? '#2f80ed' : '#e2e8f0'}`, background: gridView ? '#f0f7ff' : '#fff' }}
-              >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#0f2a44" strokeWidth="1.4"><rect x="1" y="1" width="4" height="4"/><rect x="9" y="1" width="4" height="4"/><rect x="1" y="9" width="4" height="4"/><rect x="9" y="9" width="4" height="4"/></svg>
-              </button>
-              <button
-                onClick={() => setGridView(false)}
-                className="w-8 h-8 flex items-center justify-center"
-                style={{ borderRadius: 8, border: `1.5px solid ${!gridView ? '#2f80ed' : '#e2e8f0'}`, background: !gridView ? '#f0f7ff' : '#fff' }}
-              >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#0f2a44" strokeWidth="1.4"><path d="M2 3h10M2 7h10M2 11h10" /></svg>
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <section className="max-w-5xl mx-auto px-6 pb-10">
-          {loading ? (
-            <div className={`grid gap-5 ${gridView ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
-              {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
-            </div>
-          ) : items.length === 0 ? (
-            <div className="text-center mt-12">
-              <div className="mx-auto w-10 h-10 flex items-center justify-center">
-                <StrokeIcon path="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10" size={40} />
-              </div>
-              <h3 className="text-[18px] font-[700] mt-3" style={{ color: '#0f2a44' }}>No projects found</h3>
-              <p className="text-[14px] mt-1" style={{ color: '#64748b' }}>Try adjusting your filters</p>
-              <button onClick={() => { setActiveFilter('All'); setActiveSort('Newest first') }} className="mt-5 px-4 py-2 text-[13px] font-[700]" style={{ borderRadius: 10, border: '2px solid #0f2a44', color: '#0f2a44', background: '#fff' }}>
-                Reset filters
-              </button>
-            </div>
-          ) : gridView ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {first && (
-                <div className="col-span-1 sm:col-span-2 lg:col-span-3 grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-5">
-                  <ProjectCard p={first} list={false} featured />
-                  <div className="grid grid-cols-1 gap-5">
-                    {side.map((p) => <ProjectCard key={p.id} p={p} list={false} />)}
-                  </div>
-                </div>
-              )}
-              {rest.map((p) => <ProjectCard key={p.id} p={p} list={false} />)}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {items.map((p) => <ProjectCard key={p.id} p={p} list />)}
-            </div>
-          )}
-
-          {!loading && canLoadMore && (
-            <div className="flex justify-center mt-9">
-              <button
-                onClick={async () => {
-                  if (loadMoreRef.current) return
-                  loadMoreRef.current = true
-                  const nextPage = page + 1
-                  setPage(nextPage)
-                  await loadProjects(nextPage, true)
-                  loadMoreRef.current = false
-                }}
-                className="flex items-center gap-[10px] px-9 py-[13px] text-[14px] font-[700]"
-                style={{ borderRadius: 12, border: '2px solid #0f2a44', background: '#fff', color: '#0f2a44', transition: 'all .2s ease' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#0f2a44'
-                  e.currentTarget.style.color = '#fff'
-                  e.currentTarget.style.transform = 'translateY(-2px)'
-                  e.currentTarget.style.boxShadow = '0 10px 24px rgba(15,42,68,.2)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#fff'
-                  e.currentTarget.style.color = '#0f2a44'
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = 'none'
-                }}
-              >
-                <StrokeIcon path="M8 3v10M3 8l5 5 5-5" stroke="currentColor" size={14} />
-                Load more
-              </button>
-            </div>
-          )}
-        </section>
-
-        <section className="max-w-5xl mx-auto px-6 mt-12 mb-12">
-          <div className="relative text-center overflow-hidden" style={{ background: '#0f2a44', borderRadius: 20, padding: '40px 32px' }}>
-            <div className="absolute rounded-full pointer-events-none" style={{ top: -40, right: -40, width: 160, height: 160, border: '1px solid rgba(47,128,237,.2)' }} />
-            <h2 className="relative z-10 text-[26px] font-[900] text-white mb-2">Love what you see?</h2>
-            <p className="relative z-10 text-[14px] mb-6" style={{ color: 'rgba(255,255,255,.6)' }}>
-              Get a free consultation and personalised 3D design for your home.
-            </p>
-            <div className="relative z-10 flex justify-center gap-3 flex-wrap">
+          {hasMore && (
+            <div style={{ textAlign: 'center', paddingBottom: 24 }}>
               <button
                 type="button"
-                onClick={() => setConsultationOpen(true)}
-                className="inline-flex items-center gap-2 text-[14px] font-[700] px-7 py-[13px]"
-                style={{ borderRadius: 11, border: 'none', background: '#2f80ed', color: '#fff', cursor: 'pointer', transition: 'all .2s ease' }}
-              >
-                <StrokeIcon path="M20 6L9 17l-5-5" stroke="#fff" size={14} />
-                Get free estimate
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  window.location.href = '/pricing'
-                }}
-                className="text-[14px] font-[700] px-7 py-[13px]"
+                onClick={() => setPage((p) => p + 1)}
+                className="font-head font-bold"
                 style={{
-                  display: 'inline-block',
-                  borderRadius: 11,
-                  border: '2px solid rgba(255,255,255,.3)',
+                  padding: '12px 32px',
+                  borderRadius: 10,
+                  border: '2px solid #2f80ed',
                   background: 'transparent',
-                  color: '#fff',
+                  color: '#2f80ed',
+                  fontSize: 14,
                   cursor: 'pointer',
-                  transition: 'all .2s ease',
+                  transition: 'all 0.2s',
                   fontFamily: 'inherit',
                 }}
+                onMouseEnter={(e) => {
+                  const b = e.currentTarget
+                  b.style.background = '#2f80ed'
+                  b.style.color = '#fff'
+                }}
+                onMouseLeave={(e) => {
+                  const b = e.currentTarget
+                  b.style.background = 'transparent'
+                  b.style.color = '#2f80ed'
+                }}
               >
-                View all packages
+                Load more projects
               </button>
             </div>
+          )}
+        </div>
+
+        <section
+          style={{
+            background: '#0f2a44',
+            padding: '64px 32px',
+            textAlign: 'center',
+            marginTop: 8,
+          }}
+        >
+          <div
+            style={{
+              position: 'relative',
+              height: 3,
+              background: 'linear-gradient(90deg,#2f80ed,#f2994a,#2f80ed)',
+              marginBottom: 0,
+            }}
+          />
+          <div
+            className="flex justify-center items-center gap-2"
+            style={{ marginBottom: 18, marginTop: 36 }}
+          >
+            <span className="w-[18px] h-[2px]" style={{ background: '#f2994a' }} />
+            <span
+              className="font-head font-bold text-[11px] uppercase tracking-[0.12em]"
+              style={{ color: 'rgba(255,255,255,0.6)' }}
+            >
+              Start your journey
+            </span>
+            <span className="w-[18px] h-[2px]" style={{ background: '#f2994a' }} />
+          </div>
+          <h2
+            className="font-head font-black text-white mx-auto"
+            style={{ fontSize: 'clamp(20px,3vw,32px)', marginBottom: 12 }}
+          >
+            Want a home like these?
+          </h2>
+          <p
+            style={{
+              fontSize: 15,
+              color: 'rgba(255,255,255,0.62)',
+              marginBottom: 28,
+              maxWidth: 460,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              lineHeight: 1.65,
+            }}
+          >
+            Free 3D design. Fixed price. 45-day delivery. Let&apos;s create your dream
+            home together.
+          </p>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: 12,
+              flexWrap: 'wrap',
+            }}
+          >
+            <button
+              type="button"
+              className="font-head font-bold"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '13px 26px',
+                borderRadius: 10,
+                background: '#2f80ed',
+                color: '#fff',
+                fontSize: 14,
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                fontFamily: 'inherit',
+              }}
+              onMouseEnter={(e) => {
+                const b = e.currentTarget
+                b.style.background = '#1a6dd6'
+                b.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                const b = e.currentTarget
+                b.style.background = '#2f80ed'
+                b.style.transform = 'translateY(0)'
+              }}
+            >
+              Get free consultation →
+            </button>
+            <a
+              href="https://wa.me/919759750770?text=Hi+Houznext+I+want+a+free+consultation"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-head font-bold"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 7,
+                padding: '12px 24px',
+                borderRadius: 10,
+                background: 'transparent',
+                color: '#fff',
+                fontSize: 14,
+                border: '1.5px solid rgba(255,255,255,0.3)',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                fontFamily: 'inherit',
+                textDecoration: 'none',
+              }}
+              onMouseEnter={(e) => {
+                const a = e.currentTarget
+                a.style.borderColor = '#fff'
+                a.style.background = 'rgba(255,255,255,0.1)'
+              }}
+              onMouseLeave={(e) => {
+                const a = e.currentTarget
+                a.style.borderColor = 'rgba(255,255,255,0.3)'
+                a.style.background = 'transparent'
+              }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+              </svg>
+              Chat on WhatsApp
+            </a>
           </div>
         </section>
       </main>
-      <FreeConsultationHeroModal open={consultationOpen} onClose={() => setConsultationOpen(false)} />
       <Footer />
+      <ProjectModal project={selectedProject} onClose={closeModal} />
     </>
   )
+}
+
+export async function getStaticProps() {
+  const raw = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+  const API = String(raw).replace(/\/$/, '')
+  try {
+    const res = await fetch(`${API}/interiors/portfolio`, {
+      headers: { 'Content-Type': 'application/json' },
+    })
+    if (!res.ok) throw new Error(`Backend responded with ${res.status}`)
+    const data = (await res.json()) as unknown
+    const projects: PortfolioProject[] = Array.isArray(data)
+      ? (data as PortfolioProject[])
+      : []
+    return {
+      props: { projects },
+      revalidate: 60,
+    }
+  } catch (err) {
+    console.error('[projects/getStaticProps] Failed to fetch portfolio:', err)
+    return {
+      props: { projects: [] as PortfolioProject[] },
+      revalidate: 60,
+    }
+  }
 }

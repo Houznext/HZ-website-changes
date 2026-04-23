@@ -92,6 +92,31 @@ export class InteriorProject extends BaseEntity {
   @Column({ type: 'boolean', nullable: true, default: false })
   isHandedOver: boolean | null;
 
+  // ── Portfolio / public-facing fields ──────────────────────────────────
+  @Column({ type: 'boolean', nullable: true, default: false })
+  isPublishedToPortfolio: boolean | null;
+
+  @Column({ type: 'varchar', nullable: true, default: 'Essential' })
+  packageTier: string | null;
+
+  @Column({ type: 'int', nullable: true })
+  deliveredInDays: number | null;
+
+  @Column({ type: 'text', nullable: true })
+  projectStory: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  customerTestimonial: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  customerName: string | null;
+
+  @Column({ type: 'decimal', precision: 3, scale: 1, nullable: true, default: 5.0 })
+  customerRating: number | null;
+
+  @Column({ type: 'jsonb', nullable: true, default: [] })
+  portfolioPhotoUrls: string[] | null;
+
   @Column({ type: 'date', nullable: true })
   handoverDate: Date | null;
 

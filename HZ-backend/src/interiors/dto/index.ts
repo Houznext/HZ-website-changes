@@ -10,3 +10,4 @@ export * from './qc.dto';
 export * from './snag.dto';
 export * from './milestone.dto';
 export * from './referral.dto';
+export * from './update-portfolio.dto';

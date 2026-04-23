@@ -34,6 +34,7 @@ import {
   ResolveSnagDto,
   UpdateMilestoneDto,
   CreateReferralDto,
+  UpdatePortfolioDto,
 } from './dto';
 import { subDays, startOfDay, parseISO } from 'date-fns';
 
@@ -259,6 +260,46 @@ export class InteriorService {
       (p as InteriorProject & { hasPaymentHold?: boolean }).hasPaymentHold = Boolean(holdMilestone);
     }
     return rows;
+  }
+
+  async getPortfolioProjects(): Promise<InteriorProject[]> {
+    return this.projectRepo
+      .createQueryBuilder('p')
+      .leftJoinAndSelect('p.customer', 'customer')
+      .leftJoinAndSelect('p.rep', 'rep')
+      .leftJoinAndSelect('p.trades', 'trades')
+      .leftJoinAndSelect('trades.template', 'template')
+      .where('p.isPublishedToPortfolio = :pub', { pub: true })
+      .andWhere('p.isHandedOver = :ho', { ho: true })
+      .orderBy('p.actualEndDate', 'DESC')
+      .getMany();
+  }
+
+  async updatePortfolioFields(
+    id: string,
+    dto: UpdatePortfolioDto,
+  ): Promise<InteriorProject> {
+    const project = await this.projectRepo.findOne({ where: { id } });
+    if (!project) throw new NotFoundException('Project not found');
+    if (dto.isPublishedToPortfolio !== undefined) {
+      project.isPublishedToPortfolio = dto.isPublishedToPortfolio;
+    }
+    if (dto.packageTier !== undefined) project.packageTier = dto.packageTier;
+    if (dto.deliveredInDays !== undefined) {
+      project.deliveredInDays = dto.deliveredInDays;
+    }
+    if (dto.projectStory !== undefined) project.projectStory = dto.projectStory;
+    if (dto.customerTestimonial !== undefined) {
+      project.customerTestimonial = dto.customerTestimonial;
+    }
+    if (dto.customerName !== undefined) project.customerName = dto.customerName;
+    if (dto.customerRating !== undefined) {
+      project.customerRating = dto.customerRating;
+    }
+    if (dto.portfolioPhotoUrls !== undefined) {
+      project.portfolioPhotoUrls = dto.portfolioPhotoUrls;
+    }
+    return this.projectRepo.save(project);
   }
 
   async updateProject(id: string, dto: Partial<CreateProjectDto>): Promise<InteriorProject> {

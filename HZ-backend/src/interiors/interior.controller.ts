@@ -36,6 +36,7 @@ import {
   AddTradeToProjectDto,
   GenerateDprDto,
   UpdateReferralStatusDto,
+  UpdatePortfolioDto,
 } from './dto';
 
 type RequestWithUser = Request & { user: InteriorJwtPayload };
@@ -126,6 +127,11 @@ export class InteriorController {
     return this.interiorService.getAllProjects({ status, repId, search });
   }
 
+  @Get('portfolio')
+  getPortfolio() {
+    return this.interiorService.getPortfolioProjects();
+  }
+
   @Get('projects/:id/full')
   getProjectFull(@Param('id') id: string) {
     return this.interiorService.getProjectFull(id);
@@ -151,6 +157,15 @@ export class InteriorController {
   @Delete('projects/:id')
   deleteProject(@Param('id') id: string) {
     return this.interiorService.deleteProject(id);
+  }
+
+  @UseGuards(ControllerAuthGuard)
+  @Patch('projects/:id/portfolio')
+  updatePortfolio(
+    @Param('id') id: string,
+    @Body() dto: UpdatePortfolioDto,
+  ) {
+    return this.interiorService.updatePortfolioFields(id, dto);
   }
 
   @Post('projects/:id/designs')
