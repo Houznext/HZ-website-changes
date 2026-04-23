@@ -262,6 +262,10 @@ export class InteriorService {
     return rows;
   }
 
+  /**
+   * Public portfolio: completed work — isHandedOver, or a saved handoverDate (in case
+   * the handover flag was not toggled in admin).
+   */
   async getPortfolioProjects(): Promise<InteriorProject[]> {
     return this.projectRepo
       .createQueryBuilder('p')
@@ -269,9 +273,9 @@ export class InteriorService {
       .leftJoinAndSelect('p.rep', 'rep')
       .leftJoinAndSelect('p.trades', 'trades')
       .leftJoinAndSelect('trades.template', 'template')
-      .where('p.isPublishedToPortfolio = :pub', { pub: true })
-      .andWhere('p.isHandedOver = :ho', { ho: true })
-      .orderBy('p.actualEndDate', 'DESC')
+      .where('(p.isHandedOver = :ho OR p.handoverDate IS NOT NULL)', { ho: true })
+      .orderBy('p.actualEndDate', 'DESC', 'NULLS LAST')
+      .addOrderBy('p.handoverDate', 'DESC', 'NULLS LAST')
       .getMany();
   }
 

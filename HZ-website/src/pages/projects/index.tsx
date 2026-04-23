@@ -1,20 +1,21 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import FilterBar from '@/components/InteriorPortfolio/FilterBar'
-import MasonryGrid from '@/components/InteriorPortfolio/MasonryGrid'
 import ProjectModal from '@/components/InteriorPortfolio/ProjectModal'
 import ProjectsHero from '@/components/InteriorPortfolio/ProjectsHero'
+import ProjectsLegacyToolbar, {
+  type ProjectsLegacyFilter,
+} from '@/components/InteriorPortfolio/ProjectsLegacyToolbar'
+import LegacyProjectCard from '@/components/InteriorPortfolio/LegacyProjectCard'
+import LegacyProjectListItem from '@/components/InteriorPortfolio/LegacyProjectListItem'
 import {
   DerivedProject,
-  FilterCity,
-  FilterStyle,
-  FilterType,
   PortfolioProject,
   SortOrder,
 } from '@/components/InteriorPortfolio/types'
 import Footer from '@/components/Footer'
 import Navbar from '@/components/Navbar'
 import SeoHead from '@/components/SeoHead'
+import type { InteriorProject } from '@/types/interior-project'
 
 function getCardHeight(id: string): number {
   let hash = 0
@@ -78,38 +79,39 @@ function deriveProject(p: PortfolioProject): DerivedProject {
   }
 }
 
-function applyFilters(
+function applyLegacyFilters(
   projects: DerivedProject[],
-  filterType: FilterType,
-  filterStyle: FilterStyle,
-  filterCity: FilterCity,
+  filter: ProjectsLegacyFilter,
   sortOrder: SortOrder,
 ): DerivedProject[] {
   let result = [...projects]
 
-  if (filterType !== 'all') {
+  if (filter !== 'all') {
     result = result.filter((p) => {
       const bhk = (p.bhk ?? '').toLowerCase()
-      if (filterType === '2bhk') return bhk.includes('2')
-      if (filterType === '3bhk') return bhk.includes('3')
-      if (filterType === 'villa') {
-        return (
-          bhk.includes('villa') ||
-          (p.propertyType ?? '').toLowerCase().includes('villa')
-        )
+      const pt = (p.propertyType ?? '').toLowerCase()
+      const pkg = (p.packageLabel ?? '').trim().toLowerCase()
+      switch (filter) {
+        case '2bhk':
+          return bhk.includes('2') && !bhk.includes('3') && !bhk.includes('4')
+        case '3bhk':
+          return bhk.includes('3') && !bhk.includes('4')
+        case 'villa4':
+          return (
+            bhk.includes('villa') ||
+            bhk.includes('4') ||
+            pt.includes('villa')
+          )
+        case 'essential':
+          return pkg === 'essential'
+        case 'premium':
+          return pkg === 'premium'
+        case 'luxury':
+          return pkg === 'luxury'
+        default:
+          return true
       }
-      return true
     })
-  }
-
-  if (filterStyle !== 'all') {
-    result = result.filter((p) => p.styleLabel === filterStyle)
-  }
-
-  if (filterCity !== 'all') {
-    result = result.filter(
-      (p) => (p.city ?? '').toLowerCase() === filterCity.toLowerCase(),
-    )
   }
 
   result.sort((a, b) => {
@@ -124,64 +126,156 @@ function applyFilters(
   return result
 }
 
+function parseLocationToCityParts(location: string): {
+  locality: string | null
+  city: string | null
+} {
+  const s = (location || '').trim()
+  if (!s) return { locality: null, city: null }
+  const parts = s
+    .split(/\s*-\s*/)
+    .map((x) => x.trim())
+    .filter(Boolean)
+  if (parts.length >= 2) {
+    return {
+      locality: parts[0] ?? null,
+      city: parts[parts.length - 1] ?? null,
+    }
+  }
+  return { locality: null, city: s }
+}
+
+function bhkFromPropertyType(propertyType: string): string {
+  const t = (propertyType || '').toLowerCase()
+  if (t.includes('villa')) return 'Villa'
+  if (t.includes('3') && t.includes('bhk')) return '3BHK'
+  if (t.includes('2') && t.includes('bhk')) return '2BHK'
+  if (t.includes('4') && t.includes('bhk')) return '4BHK'
+  const first = (propertyType || '').split(/\s+/)[0]
+  return first || 'Home'
+}
+
+function cmsToPortfolioShape(c: InteriorProject): PortfolioProject {
+  const { locality, city } = parseLocationToCityParts(c.location)
+  return {
+    id: String(c.id),
+    bhk: bhkFromPropertyType(c.propertyType),
+    propertyType: c.propertyType,
+    totalAreaSqft: c.sqft ?? null,
+    locality,
+    city,
+    stylePreference: c.style,
+    scopesSelected: null,
+    packageTier: c.package,
+    deliveredInDays: c.deliveryDays ?? null,
+    projectStory: c.description,
+    customerTestimonial: null,
+    customerName: null,
+    customerRating: c.rating ?? null,
+    portfolioPhotoUrls:
+      c.images && c.images.length > 0 ? c.images : null,
+    actualEndDate: c.createdAt,
+    handoverDate: c.updatedAt,
+    isHandedOver: true,
+    rep: null,
+    trades: [],
+  }
+}
+
+function cmsToDerived(c: InteriorProject): DerivedProject {
+  const d = deriveProject(cmsToPortfolioShape(c))
+  return {
+    ...d,
+    displayName: c.title,
+    locationFull: c.location,
+  }
+}
+
+async function fetchCmsLiveProjects(apiBase: string): Promise<InteriorProject[]> {
+  const res = await fetch(
+    `${apiBase}/interior-projects/public?limit=200&page=1`,
+    {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    },
+  )
+  if (!res.ok) return []
+  const json: unknown = await res.json()
+  if (Array.isArray(json)) return json as InteriorProject[]
+  if (json && typeof json === 'object' && 'data' in json) {
+    const data = (json as { data?: unknown }).data
+    return Array.isArray(data) ? (data as InteriorProject[]) : []
+  }
+  return []
+}
+
 interface ProjectsPageProps {
-  projects: PortfolioProject[]
+  projects: InteriorProject[]
 }
 
 const PAGE_SIZE = 12
 
-export default function ProjectsPage({ projects: rawProjects }: ProjectsPageProps) {
-  const allDerived = useMemo(() => {
-    const list = Array.isArray(rawProjects) ? rawProjects : []
-    return list.map((r) => deriveProject(r))
-  }, [rawProjects])
+function getBrowserApiBase(): string {
+  if (typeof window === 'undefined') return ''
+  return (
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT ||
+    ''
+  )
+    .toString()
+    .trim()
+    .replace(/\/$/, '')
+}
 
-  const [filterType, setFilterType] = useState<FilterType>('all')
-  const [filterStyle, setFilterStyle] = useState<FilterStyle>('all')
-  const [filterCity, setFilterCity] = useState<FilterCity>('all')
+type ViewMode = 'grid' | 'list'
+
+export default function ProjectsPage({ projects: rawProjects }: ProjectsPageProps) {
+  const [projects, setProjects] = useState<InteriorProject[]>(() =>
+    Array.isArray(rawProjects) ? rawProjects : [],
+  )
+
+  useEffect(() => {
+    const base = getBrowserApiBase()
+    if (!base) return
+    let cancelled = false
+    void fetchCmsLiveProjects(base)
+      .then((data) => {
+        if (cancelled) return
+        setProjects(data)
+      })
+      .catch(() => undefined)
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const allDerived = useMemo(
+    () => projects.map((r) => cmsToDerived(r)),
+    [projects],
+  )
+
+  const [legacyFilter, setLegacyFilter] =
+    useState<ProjectsLegacyFilter>('all')
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest')
+  const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [page, setPage] = useState(1)
 
   const [selectedProject, setSelectedProject] = useState<DerivedProject | null>(
     null,
   )
 
-  const cities = useMemo(() => {
-    const s = new Set(allDerived.map((p) => p.city ?? '').filter(Boolean))
-    return Array.from(s).sort()
-  }, [allDerived])
-
-  const styles = useMemo(() => {
-    const s = new Set(allDerived.map((p) => p.styleLabel).filter(Boolean))
-    return Array.from(s).sort()
-  }, [allDerived])
-
   const filtered = useMemo(
-    () =>
-      applyFilters(
-        allDerived,
-        filterType,
-        filterStyle,
-        filterCity,
-        sortOrder,
-      ),
-    [allDerived, filterType, filterStyle, filterCity, sortOrder],
+    () => applyLegacyFilters(allDerived, legacyFilter, sortOrder),
+    [allDerived, legacyFilter, sortOrder],
   )
 
-  const handleTypeChange = useCallback((v: FilterType) => {
-    setFilterType(v)
+  const handleLegacyFilter = useCallback((f: ProjectsLegacyFilter) => {
+    setLegacyFilter(f)
     setPage(1)
   }, [])
-  const handleStyleChange = useCallback((v: FilterStyle) => {
-    setFilterStyle(v)
-    setPage(1)
-  }, [])
-  const handleCityChange = useCallback((v: FilterCity) => {
-    setFilterCity(v)
-    setPage(1)
-  }, [])
-  const handleSortChange = useCallback((v: SortOrder) => {
-    setSortOrder(v)
+
+  const handleSort = useCallback((s: SortOrder) => {
+    setSortOrder(s)
     setPage(1)
   }, [])
 
@@ -195,54 +289,67 @@ export default function ProjectsPage({ projects: rawProjects }: ProjectsPageProp
     <>
       <SeoHead
         title="Our Projects | Real Home Transformations | Houznext Hyderabad"
-        description="Browse 50+ completed home interior projects by Houznext across Hyderabad, Warangal and Karimnagar. Real homes, real transformations — 2BHK, 3BHK and villas."
+        description="Browse completed home interior projects by Houznext across Telangana. 2BHK, 3BHK and villas — fixed price, on-time delivery."
         canonical="/projects"
         ogImage="https://houznext.com/og-projects.jpg"
       />
       <Navbar />
-      <main style={{ background: '#f5f7fa' }}>
+      <main style={{ background: '#f8fafc' }}>
         <ProjectsHero totalCount={allDerived.length} />
 
-        <FilterBar
-          filterType={filterType}
-          filterStyle={filterStyle}
-          filterCity={filterCity}
+        <ProjectsLegacyToolbar
+          filter={legacyFilter}
           sortOrder={sortOrder}
-          cities={cities}
-          styles={styles}
-          onType={handleTypeChange}
-          onStyle={handleStyleChange}
-          onCity={handleCityChange}
-          onSort={handleSortChange}
+          viewMode={viewMode}
+          onFilter={handleLegacyFilter}
+          onSort={handleSort}
+          onViewMode={setViewMode}
         />
 
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 32px 0' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: 20,
-            }}
+        <div className="mx-auto max-w-6xl px-4 pb-2 pt-6 md:px-6">
+          <p
+            className="font-head font-bold text-slate-800"
+            style={{ fontSize: 16, marginBottom: 20 }}
           >
-            <div
-              className="font-head font-bold"
-              style={{ fontSize: 18, color: '#1f2933' }}
-            >
-              Completed projects{' '}
-              <span style={{ fontSize: 13, fontWeight: 400, color: '#5a6a7e' }}>
-                Showing {visibleProjects.length} of {filtered.length}
-              </span>
-            </div>
-          </div>
+            {filtered.length} project{filtered.length === 1 ? '' : 's'} found
+          </p>
 
-          <MasonryGrid projects={visibleProjects} onCardClick={openModal} />
+          {viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {visibleProjects.map((p) => (
+                <LegacyProjectCard
+                  key={p.id}
+                  project={p}
+                  onClick={() => openModal(p)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {visibleProjects.map((p) => (
+                <LegacyProjectListItem
+                  key={p.id}
+                  project={p}
+                  onClick={() => openModal(p)}
+                />
+              ))}
+            </div>
+          )}
+
+          {visibleProjects.length === 0 && (
+            <div
+              className="rounded-2xl border border-dashed border-slate-200 py-20 text-center text-slate-500"
+            >
+              <p className="font-head font-bold text-slate-700">No projects found</p>
+              <p className="mt-1 text-sm">Try a different filter above.</p>
+            </div>
+          )}
 
           {hasMore && (
-            <div style={{ textAlign: 'center', paddingBottom: 24 }}>
+            <div className="py-8 text-center">
               <button
                 type="button"
-                onClick={() => setPage((p) => p + 1)}
+                onClick={() => setPage((x) => x + 1)}
                 className="font-head font-bold"
                 style={{
                   padding: '12px 32px',
@@ -252,18 +359,7 @@ export default function ProjectsPage({ projects: rawProjects }: ProjectsPageProp
                   color: '#2f80ed',
                   fontSize: 14,
                   cursor: 'pointer',
-                  transition: 'all 0.2s',
                   fontFamily: 'inherit',
-                }}
-                onMouseEnter={(e) => {
-                  const b = e.currentTarget
-                  b.style.background = '#2f80ed'
-                  b.style.color = '#fff'
-                }}
-                onMouseLeave={(e) => {
-                  const b = e.currentTarget
-                  b.style.background = 'transparent'
-                  b.style.color = '#2f80ed'
                 }}
               >
                 Load more projects
@@ -277,7 +373,7 @@ export default function ProjectsPage({ projects: rawProjects }: ProjectsPageProp
             background: '#0f2a44',
             padding: '64px 32px',
             textAlign: 'center',
-            marginTop: 8,
+            marginTop: 24,
           }}
         >
           <div
@@ -343,18 +439,7 @@ export default function ProjectsPage({ projects: rawProjects }: ProjectsPageProp
                 fontSize: 14,
                 border: 'none',
                 cursor: 'pointer',
-                transition: 'all 0.2s',
                 fontFamily: 'inherit',
-              }}
-              onMouseEnter={(e) => {
-                const b = e.currentTarget
-                b.style.background = '#1a6dd6'
-                b.style.transform = 'translateY(-2px)'
-              }}
-              onMouseLeave={(e) => {
-                const b = e.currentTarget
-                b.style.background = '#2f80ed'
-                b.style.transform = 'translateY(0)'
               }}
             >
               Get free consultation →
@@ -374,25 +459,10 @@ export default function ProjectsPage({ projects: rawProjects }: ProjectsPageProp
                 color: '#fff',
                 fontSize: 14,
                 border: '1.5px solid rgba(255,255,255,0.3)',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                fontFamily: 'inherit',
                 textDecoration: 'none',
-              }}
-              onMouseEnter={(e) => {
-                const a = e.currentTarget
-                a.style.borderColor = '#fff'
-                a.style.background = 'rgba(255,255,255,0.1)'
-              }}
-              onMouseLeave={(e) => {
-                const a = e.currentTarget
-                a.style.borderColor = 'rgba(255,255,255,0.3)'
-                a.style.background = 'transparent'
+                fontFamily: 'inherit',
               }}
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-              </svg>
               Chat on WhatsApp
             </a>
           </div>
@@ -405,25 +475,24 @@ export default function ProjectsPage({ projects: rawProjects }: ProjectsPageProp
 }
 
 export async function getStaticProps() {
-  const raw = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+  const raw =
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT ||
+    'http://localhost:3001'
   const API = String(raw).replace(/\/$/, '')
   try {
-    const res = await fetch(`${API}/interiors/portfolio`, {
-      headers: { 'Content-Type': 'application/json' },
-    })
-    if (!res.ok) throw new Error(`Backend responded with ${res.status}`)
-    const data = (await res.json()) as unknown
-    const projects: PortfolioProject[] = Array.isArray(data)
-      ? (data as PortfolioProject[])
-      : []
+    const projects = await fetchCmsLiveProjects(API)
     return {
       props: { projects },
       revalidate: 60,
     }
   } catch (err) {
-    console.error('[projects/getStaticProps] Failed to fetch portfolio:', err)
+    console.error(
+      '[projects/getStaticProps] Failed to fetch interior-projects/public:',
+      err,
+    )
     return {
-      props: { projects: [] as PortfolioProject[] },
+      props: { projects: [] as InteriorProject[] },
       revalidate: 60,
     }
   }
