@@ -347,6 +347,20 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
   const goImg = (idx: number) => setCurrentImg(idx)
   const openFullscreen = (idx: number) => setFullscreenImg(idx)
   const closeFullscreen = () => setFullscreenImg(null)
+  const prevFullscreenImg = () =>
+    setFullscreenImg((i) => {
+      if (i === null) return null
+      const next = (i - 1 + totalPhotos) % totalPhotos
+      setCurrentImg(next)
+      return next
+    })
+  const nextFullscreenImg = () =>
+    setFullscreenImg((i) => {
+      if (i === null) return null
+      const next = (i + 1) % totalPhotos
+      setCurrentImg(next)
+      return next
+    })
 
   const ratingDisplay =
     project.customerRating != null ? String(project.customerRating) : '5.0'
@@ -549,6 +563,8 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                 type="button"
                 onClick={prevImg}
                 aria-label="Previous photo"
+                onMouseDown={(e) => e.stopPropagation()}
+                onClickCapture={(e) => e.stopPropagation()}
                 style={{
                   position: 'absolute',
                   left: 14,
@@ -584,6 +600,8 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                 type="button"
                 onClick={nextImg}
                 aria-label="Next photo"
+                onMouseDown={(e) => e.stopPropagation()}
+                onClickCapture={(e) => e.stopPropagation()}
                 style={{
                   position: 'absolute',
                   right: 14,
@@ -635,6 +653,8 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                     if (photos[i]) openFullscreen(i)
                   }}
                   aria-label={`Photo ${i + 1}`}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClickCapture={(e) => e.stopPropagation()}
                   style={{
                     width: 56,
                     height: 42,
@@ -1252,7 +1272,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
             {totalPhotos > 1 && (
               <button
                 type="button"
-                onClick={prevImg}
+                onClick={prevFullscreenImg}
                 aria-label="Previous full image"
                 style={{
                   position: 'absolute',
@@ -1289,7 +1309,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
             {totalPhotos > 1 && (
               <button
                 type="button"
-                onClick={nextImg}
+                onClick={nextFullscreenImg}
                 aria-label="Next full image"
                 style={{
                   position: 'absolute',
