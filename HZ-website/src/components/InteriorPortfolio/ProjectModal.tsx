@@ -261,6 +261,7 @@ const ROOM_EMOJIS: Record<string, string> = {
 export default function ProjectModal({ project, onClose }: ProjectModalProps) {
   const { openModal } = useQuoteModal()
   const [currentImg, setCurrentImg] = useState(0)
+  const [fullscreenImg, setFullscreenImg] = useState<number | null>(null)
   const [storyExpanded, setStoryExpanded] = useState(false)
   const [beforeAfter, setBeforeAfter] = useState<'after' | 'before'>('after')
   const modalRef = useRef<HTMLDivElement>(null)
@@ -272,6 +273,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
   useEffect(() => {
     if (project) {
       setCurrentImg(0)
+      setFullscreenImg(null)
       setStoryExpanded(false)
       setBeforeAfter('after')
       document.body.style.overflow = 'hidden'
@@ -291,6 +293,10 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
     (e: KeyboardEvent) => {
       if (!project) return
       if (e.key === 'Escape') {
+        if (fullscreenImg !== null) {
+          setFullscreenImg(null)
+          return
+        }
         onClose()
         return
       }
@@ -301,7 +307,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
         setCurrentImg((i) => (i + 1) % totalPhotos)
       }
     },
-    [project, onClose, totalPhotos],
+    [project, onClose, totalPhotos, fullscreenImg],
   )
 
   useEffect(() => {
@@ -339,6 +345,8 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
   const prevImg = () => setCurrentImg((i) => (i - 1 + totalPhotos) % totalPhotos)
   const nextImg = () => setCurrentImg((i) => (i + 1) % totalPhotos)
   const goImg = (idx: number) => setCurrentImg(idx)
+  const openFullscreen = (idx: number) => setFullscreenImg(idx)
+  const closeFullscreen = () => setFullscreenImg(null)
 
   const ratingDisplay =
     project.customerRating != null ? String(project.customerRating) : '5.0'
@@ -481,6 +489,18 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
               alignItems: 'center',
               justifyContent: 'center',
             }}
+            role={currentPhotoUrl ? 'button' : undefined}
+            tabIndex={currentPhotoUrl ? 0 : -1}
+            onClick={() => {
+              if (currentPhotoUrl) openFullscreen(currentImg)
+            }}
+            onKeyDown={(e) => {
+              if (!currentPhotoUrl) return
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                openFullscreen(currentImg)
+              }
+            }}
           >
             {!currentPhotoUrl && (
               <div
@@ -610,7 +630,10 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                 <button
                   key={i}
                   type="button"
-                  onClick={() => goImg(i)}
+                  onClick={() => {
+                    goImg(i)
+                    if (photos[i]) openFullscreen(i)
+                  }}
                   aria-label={`Photo ${i + 1}`}
                   style={{
                     width: 56,
@@ -1185,6 +1208,111 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
             </div>
           </div>
         </div>
+
+        {fullscreenImg !== null && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 10020,
+              background: 'rgba(8,15,28,0.96)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 16,
+            }}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) closeFullscreen()
+            }}
+            role="presentation"
+          >
+            <button
+              type="button"
+              onClick={closeFullscreen}
+              aria-label="Close full image"
+              style={{
+                position: 'absolute',
+                top: 14,
+                right: 14,
+                width: 42,
+                height: 42,
+                borderRadius: '50%',
+                border: '1.5px solid rgba(255,255,255,0.35)',
+                background: 'rgba(255,255,255,0.1)',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              <IconX />
+            </button>
+
+            {totalPhotos > 1 && (
+              <button
+                type="button"
+                onClick={prevImg}
+                aria-label="Previous full image"
+                style={{
+                  position: 'absolute',
+                  left: 10,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  border: '1.5px solid rgba(255,255,255,0.35)',
+                  background: 'rgba(255,255,255,0.1)',
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+              >
+                <IconChevronLeft />
+              </button>
+            )}
+
+            <img
+              src={photos[fullscreenImg] ?? ''}
+              alt={`${project.displayName} full view`}
+              style={{
+                maxWidth: '95vw',
+                maxHeight: '90vh',
+                objectFit: 'contain',
+                borderRadius: 10,
+              }}
+            />
+
+            {totalPhotos > 1 && (
+              <button
+                type="button"
+                onClick={nextImg}
+                aria-label="Next full image"
+                style={{
+                  position: 'absolute',
+                  right: 10,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  border: '1.5px solid rgba(255,255,255,0.35)',
+                  background: 'rgba(255,255,255,0.1)',
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+              >
+                <IconChevronRight />
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
