@@ -1,12 +1,54 @@
-import { Controller, Post, Delete, Get, Body, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Query,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+  BadRequestException,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { S3Service } from './s3.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GenerateUploadUrlDto } from './dto/s3.dto';
+import { ControllerAuthGuard } from '../../guard';
 
 @Controller('s3bucket')
 @ApiTags('s3bucket')
 export class S3Controller {
   constructor(private readonly s3Service: S3Service) { }
+
+  @Post('upload')
+  @UseGuards(ControllerAuthGuard)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 35 * 1024 * 1024 },
+    }),
+  )
+  @ApiOperation({
+    summary:
+      'Upload file through API to S3 (avoids CORS on direct browser → S3 uploads)',
+  })
+  @ApiResponse({ status: 201, description: 'File stored; returns publicUrl.' })
+  async uploadThroughApi(
+    @UploadedFile() file: { buffer?: Buffer; mimetype?: string; size?: number },
+    @Body('fileName') fileName: string,
+  ) {
+    if (!file?.buffer?.length) {
+      throw new BadRequestException('File is required');
+    }
+    const key = this.s3Service.normalizeObjectKey(fileName);
+    return this.s3Service.uploadObject(
+      key,
+      file.buffer,
+      file.mimetype || 'application/octet-stream',
+    );
+  }
 
   @Post('generate-upload-url')
   @ApiOperation({ summary: 'Generate S3 Signed Upload URL' })

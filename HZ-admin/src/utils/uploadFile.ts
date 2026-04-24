@@ -3,6 +3,34 @@ import apiClient from "./apiClient";
 
 const signedUrlCache = new Map<string, { url: string; expiresAt: number }>();
 
+function s3UploadApiUrl(): string {
+  const base = String(apiClient.URLS.s3bucket || "").replace(/\/$/, "");
+  return `${base}/upload`;
+}
+
+/** Same resolution order as apiClient (store → next-auth session). */
+async function getBearerTokenForUpload(): Promise<string | null> {
+  if (typeof window === "undefined") return null;
+  try {
+    const { useSessionStore } = require("@/src/stores/useSessionStore");
+    const t = useSessionStore.getState().token;
+    if (t) return String(t);
+  } catch {
+    /* optional store */
+  }
+  try {
+    const { getSession } = await import("next-auth/react");
+    const session = await getSession();
+    const t =
+      (session as { accessToken?: string } | null)?.accessToken ||
+      (session as { token?: string } | null)?.token ||
+      (session as { user?: { token?: string } } | null)?.user?.token;
+    return t ? String(t) : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getSignedImageUrl(
   publicUrl: string | undefined | null,
 ): Promise<string> {
@@ -51,24 +79,21 @@ export const uploadFile = async (
     ? `${folderName}/${cleanedFileName}`
     : cleanedFileName;
 
-  const fileType = file.type || "application/octet-stream";
-
   try {
-    const { body } = await apiClient.post(
-      `${apiClient.URLS.s3bucket}/generate-upload-url`,
-      { fileName, fileType },
-      true,
-    );
-
-    const uploadURL = body?.uploadURL;
-    if (!uploadURL) {
-      throw new Error("Upload URL not generated");
+    const token = await getBearerTokenForUpload();
+    if (!token) {
+      toast.error("Session expired — sign in again to upload files.");
+      return null;
     }
 
-    await new Promise<void>((resolve, reject) => {
+    const publicURL = await new Promise<string>((resolve, reject) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("fileName", fileName);
+
       const xhr = new XMLHttpRequest();
-      xhr.open("PUT", uploadURL);
-      xhr.setRequestHeader("Content-Type", fileType);
+      xhr.open("POST", s3UploadApiUrl());
+      xhr.setRequestHeader("Authorization", `Bearer ${token}`);
 
       xhr.upload.onprogress = (event) => {
         if (onProgress && event.lengthComputable) {
@@ -81,9 +106,22 @@ export const uploadFile = async (
 
       xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) {
-          resolve();
+          try {
+            const data = JSON.parse(xhr.responseText) as { publicUrl?: string };
+            if (!data?.publicUrl) {
+              reject(new Error("Upload response missing publicUrl"));
+              return;
+            }
+            resolve(data.publicUrl);
+          } catch {
+            reject(new Error("Invalid upload response"));
+          }
         } else {
-          reject(new Error(`File upload failed to S3 (status ${xhr.status})`));
+          reject(
+            new Error(
+              `Upload failed (${xhr.status})`,
+            ),
+          );
         }
       };
 
@@ -91,10 +129,8 @@ export const uploadFile = async (
         reject(new Error("Error during file upload"));
       };
 
-      xhr.send(file);
+      xhr.send(formData);
     });
-
-    const publicURL = uploadURL.split("?")[0];
 
     if (handleFormChange && name) {
       handleFormChange(name, publicURL);

@@ -969,11 +969,11 @@ interface MetricDef {
 }
 
 const METRICS: MetricDef[] = [
-  { num: 500,  decimals: 0, suffix: '+',  label: 'Homes Delivered',       sub: 'Across Telangana',      color: '#2f80ed', Icon: IconHome },
+  { num: 15,  decimals: 0, suffix: '+',  label: 'Homes Delivered',       sub: 'Across Telangana',      color: '#2f80ed', Icon: IconHome },
   { num: 4.8,  decimals: 1, suffix: '★',  label: 'Average Rating',        sub: '680+ verified reviews', color: '#f2994a', Icon: IconStar },
   { num: 45,   decimals: 0, suffix: 'd',  label: 'Avg. Delivery',         sub: 'Fastest in the market', color: '#2f80ed', Icon: IconClock },
   { num: 100,  decimals: 0, suffix: '%',  label: 'Fixed-Price Projects',  sub: 'Zero surprises',        color: '#f2994a', Icon: IconTag },
-  { num: 12,   decimals: 0, suffix: '+',  label: 'Cities Served',         sub: 'Growing every month',   color: '#2f80ed', Icon: IconMapPin },
+  { num: 4,   decimals: 0, suffix: '+',  label: 'Cities Served',         sub: 'Growing every month',   color: '#2f80ed', Icon: IconMapPin },
 ]
 
 function MetricItem({ m, visible, index }: { m: MetricDef; visible: boolean; index: number }) {
@@ -1319,10 +1319,10 @@ function BuildLivePreview() {
 interface StatDef { num: number; decimals: number; suffix: string; label: string }
 
 const STATS: StatDef[] = [
-  { num: 500, decimals: 0, suffix: '+',  label: 'Homes delivered' },
+  { num: 15, decimals: 0, suffix: '+',  label: 'Homes delivered' },
   { num: 48,  decimals: 0, suffix: 'd',  label: 'Average delivery' },
   { num: 4.8, decimals: 1, suffix: '★',  label: 'Customer rating' },
-  { num: 12,  decimals: 0, suffix: '+',  label: 'Cities served' },
+  { num: 4,  decimals: 0, suffix: '+',  label: 'Cities served' },
 ]
 
 function StatCounter({ stat, active }: { stat: StatDef; active: boolean }) {

@@ -1,5 +1,28 @@
 import toast from "react-hot-toast";
+import { getSession } from "next-auth/react";
+
 import apiClient from "./apiClient";
+import { getTokenFromStore } from "@/store/useSessionStore";
+
+function s3UploadApiUrl(): string {
+  const base = String(apiClient.URLS.s3bucket || "").replace(/\/$/, "");
+  return `${base}/upload`;
+}
+
+async function getBearerTokenForUpload(): Promise<string | null> {
+  if (typeof window === "undefined") return null;
+  const fromStore = getTokenFromStore();
+  if (fromStore) return fromStore;
+  const session = await getSession();
+  const s = session as {
+    accessToken?: string;
+    token?: string;
+    user?: { token?: string };
+  } | null;
+  return (
+    s?.accessToken || s?.token || s?.user?.token || null
+  );
+}
 
 export const uploadFile = async (
   file: File,
@@ -22,7 +45,59 @@ export const uploadFile = async (
   const fileType = file.type || "application/octet-stream";
 
   try {
-    // 1️⃣ Get presigned upload URL
+    const token = await getBearerTokenForUpload();
+
+    if (token) {
+      const publicURL = await new Promise<string>((resolve, reject) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("fileName", fileName);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", s3UploadApiUrl());
+        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+
+        xhr.upload.onprogress = (event) => {
+          if (onProgress && event.lengthComputable) {
+            const percentCompleted = Math.round(
+              (event.loaded / event.total) * 100
+            );
+            onProgress(percentCompleted);
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const data = JSON.parse(xhr.responseText) as {
+                publicUrl?: string;
+              };
+              if (!data?.publicUrl) {
+                reject(new Error("Upload response missing publicUrl"));
+                return;
+              }
+              resolve(data.publicUrl);
+            } catch {
+              reject(new Error("Invalid upload response"));
+            }
+          } else {
+            reject(new Error(`Upload failed (${xhr.status})`));
+          }
+        };
+
+        xhr.onerror = () => reject(new Error("Error during file upload"));
+
+        xhr.send(formData);
+      });
+
+      if (handleFormChange && name) {
+        handleFormChange(name, publicURL);
+      }
+
+      toast.success("File uploaded successfully!");
+      return publicURL;
+    }
+
     const { body } = await apiClient.post(
       `${apiClient.URLS.s3bucket}/generate-upload-url`,
       { fileName, fileType },
@@ -34,7 +109,6 @@ export const uploadFile = async (
       throw new Error("Upload URL not generated");
     }
 
-    // 2️⃣ Upload using XHR (single upload, progress supported)
     await new Promise<void>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open("PUT", uploadURL);
