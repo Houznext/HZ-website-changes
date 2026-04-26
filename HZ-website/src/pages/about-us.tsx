@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useRouter } from 'next/router'
 import type { GetStaticProps } from 'next'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
@@ -304,111 +304,86 @@ function HeroSection({
   )
 }
 
-function StorySection({ story, router }: { story: CmsStory; router: ReturnType<typeof useRouter> }) {
-  const goCta = () => {
-    if (story.ctaLink.startsWith('http')) {
-      if (typeof window !== 'undefined') window.open(story.ctaLink, '_blank', 'noopener,noreferrer')
-    } else {
-      void router.push(story.ctaLink)
-    }
-  }
+function StorySection({ story }: { story: CmsStory }) {
+  const bullets = story.bullets
+    .split('\n')
+    .map((b) => b.trim())
+    .filter(Boolean)
+
   return (
     <section style={{ background: '#fff', padding: '72px 24px' }}>
-      <Reveal variant="up" delay={100}>
-      <div className="mx-auto grid max-w-[1100px] grid-cols-1 items-center gap-[52px] md:grid-cols-2">
-        <div>
-          {story.imageUrl ? (
-            <div style={{ borderRadius: 16, overflow: 'hidden', height: 380 }}>
-              <img src={story.imageUrl} alt="Houznext story" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
-          ) : (
-            <div
-              style={{
-                borderRadius: 16,
-                height: 380,
-                background: 'linear-gradient(135deg,#1a3a5c,#0f2a44)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexDirection: 'column',
-                gap: 12,
-                border: '2px dashed rgba(255,255,255,0.15)',
-              }}
-            >
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-                <polyline points="9 22 9 12 15 12 15 22" />
-              </svg>
-              <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 14 }}>Founder / office photo</span>
-            </div>
-          )}
-        </div>
-        <div>
-          <EyebrowLabel className="mb-3">{story.eyebrow}</EyebrowLabel>
+      <div style={{ maxWidth: 800, margin: '0 auto' }}>
+        <Reveal variant="fade">
+          <div
+            className="flex max-md:justify-start md:justify-center"
+            style={{ marginBottom: 14 }}
+          >
+            <EyebrowLabel>{story.eyebrow}</EyebrowLabel>
+          </div>
+
           <h2
-            className="font-head"
-            style={{ fontSize: 28, fontWeight: 800, color: '#1f2933', marginBottom: 16, lineHeight: 1.2 }}
+            className="font-head font-black text-left md:text-center"
+            style={{
+              fontSize: 'clamp(24px, 3vw, 36px)',
+              color: '#1f2933',
+              lineHeight: 1.15,
+              marginBottom: 20,
+            }}
           >
             {story.heading}
           </h2>
+        </Reveal>
+
+        <Reveal variant="up" delay={100}>
           <p style={{ fontSize: 15, color: '#5a6a7e', lineHeight: 1.75, marginBottom: 14 }}>{story.paragraph1}</p>
-          <p style={{ fontSize: 15, color: '#5a6a7e', lineHeight: 1.75, marginBottom: 18 }}>{story.paragraph2}</p>
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            {story.bullets
-              .split('\n')
-              .filter(Boolean)
-              .map((line, i) => (
-                <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: '#1f2933', marginBottom: 10 }}>
-                  <span
-                    style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: '50%',
-                      background: '#e8f1fd',
-                      border: '2px solid #2f80ed',
-                      flexShrink: 0,
-                      marginTop: 2,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
+          <p style={{ fontSize: 15, color: '#5a6a7e', lineHeight: 1.75, marginBottom: 20 }}>{story.paragraph2}</p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
+            {bullets.map((b, i) => (
+              <div
+                key={i}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 10,
+                  fontSize: 14,
+                  color: '#1f2933',
+                  lineHeight: 1.55,
+                }}
+              >
+                <div
+                  style={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    background: '#e8f1fd',
+                    border: '2px solid #2f80ed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: 2,
+                  }}
+                >
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#2f80ed"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#2f80ed" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20 6L9 17l-5-5" />
-                    </svg>
-                  </span>
-                  <span>{line}</span>
-                </li>
-              ))}
-          </ul>
-          <button
-            type="button"
-            onClick={goCta}
-            className="font-head font-bold"
-            style={{
-              marginTop: 4,
-              display: 'inline-flex',
-              alignItems: 'center',
-              fontSize: 12,
-              padding: '10px 18px',
-              borderRadius: 8,
-              background: '#2f80ed',
-              color: '#fff',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.background = '#1a6dd6'
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.background = '#2f80ed'
-            }}
-          >
-            {story.ctaLabel}
-          </button>
-        </div>
+                    <path d="M9 11l3 3L22 4" />
+                  </svg>
+                </div>
+                <span>{b}</span>
+              </div>
+            ))}
+          </div>
+        </Reveal>
       </div>
-      </Reveal>
     </section>
   )
 }
@@ -613,195 +588,184 @@ function ProcessSection() {
 }
 
 function TeamSection({
-  currentTeam,
-  teamPage,
-  setTeamPage,
-  totalPages,
+  team,
   router,
 }: {
-  currentTeam: CmsTeamMember[]
-  teamPage: number
-  setTeamPage: React.Dispatch<React.SetStateAction<number>>
-  totalPages: number
+  team: CmsTeamMember[]
   router: ReturnType<typeof useRouter>
 }) {
+  const visibleMembers = team.filter((m) => m.visible)
+
   return (
     <section style={{ background: '#f5f7fa', padding: '80px 24px' }}>
-      <Reveal variant="up" delay={120}>
-      <div className="mb-12 text-center">
-        <EyebrowLabel className="mb-3 justify-center">The people</EyebrowLabel>
-        <h2 className="font-head" style={{ color: '#1f2933', fontSize: 28, fontWeight: 800, marginBottom: 12 }}>
-          Meet the team behind your home.
-        </h2>
-        <p className="mx-auto max-w-[640px] text-[15px]" style={{ color: '#5a6a7e' }}>
-          Designers, project managers, and site teams — all in-house, all accountable.
-        </p>
-      </div>
-      <div className="relative mx-auto max-w-[1100px]">
-        {totalPages > 1 ? (
-          <button
-            type="button"
-            aria-label="Previous team page"
-            onClick={() => setTeamPage((p) => Math.max(0, p - 1))}
-            className="absolute z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white transition-all duration-200"
-            style={{ top: '50%', left: -8, border: '1.5px solid #dde8f5', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = '#2f80ed'
-              e.currentTarget.style.background = '#e8f1fd'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = '#dde8f5'
-              e.currentTarget.style.background = '#fff'
-            }}
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0f2a44" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </button>
-        ) : null}
-        {totalPages > 1 ? (
-          <button
-            type="button"
-            aria-label="Next team page"
-            onClick={() => setTeamPage((p) => Math.min(totalPages - 1, p + 1))}
-            className="absolute z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white transition-all duration-200"
-            style={{ top: '50%', right: -8, border: '1.5px solid #dde8f5', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = '#2f80ed'
-              e.currentTarget.style.background = '#e8f1fd'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = '#dde8f5'
-              e.currentTarget.style.background = '#fff'
-            }}
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0f2a44" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 18l6-6-6-6" />
-            </svg>
-          </button>
-        ) : null}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-6">
-          {currentTeam.map((member) => (
-            <div
-              key={member.id}
-              className="text-center transition-all duration-300"
-              style={{ background: '#fff', border: '1.5px solid #dde8f5', borderRadius: 16, overflow: 'hidden', cursor: 'pointer' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = '#93c5fd'
-                e.currentTarget.style.transform = 'translateY(-6px)'
-                e.currentTarget.style.boxShadow = '0 14px 40px rgba(15,42,68,0.12)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = '#dde8f5'
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <Reveal variant="fade">
+          <div style={{ textAlign: 'center', marginBottom: 52 }}>
+            <EyebrowLabel className="justify-center mb-3">The people</EyebrowLabel>
+            <h2
+              className="font-head font-black"
+              style={{ fontSize: 'clamp(22px, 3vw, 34px)', color: '#1f2933', marginTop: 12, lineHeight: 1.15 }}
+            >
+              Meet the team behind your home.
+            </h2>
+            <p
+              style={{
+                fontSize: 15,
+                color: '#5a6a7e',
+                lineHeight: 1.7,
+                maxWidth: 580,
+                margin: '12px auto 0',
               }}
             >
+              Designers, project managers, and site supervisors — every person on the Houznext team is accountable to
+              one thing: your home, delivered right.
+            </p>
+          </div>
+        </Reveal>
+
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 16,
+            justifyContent: 'center',
+          }}
+        >
+          {visibleMembers.map((member, i) => (
+            <Reveal
+              key={member.id}
+              variant="up"
+              delay={i * 60}
+              className="w-[calc(50%-8px)] min-w-[140px] max-w-full sm:w-[calc(33.333%-11px)] lg:w-[calc(20%-14px)]"
+            >
               <div
-                className="group relative m-2.5 flex flex-col items-center justify-center transition-all duration-300"
                 style={{
-                  height: 160,
-                  borderRadius: 12,
+                  background: '#fff',
+                  border: '1.5px solid #dde8f5',
+                  borderRadius: 16,
                   overflow: 'hidden',
-                  border: '2px dashed #bfdbfe',
-                  background: 'linear-gradient(135deg,#e8f1fd,#dde8f5)',
+                  textAlign: 'center',
+                  transition: 'all 0.25s',
+                  cursor: 'pointer',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'linear-gradient(135deg,#dbeafe,#e8f1fd)'
+                  const el = e.currentTarget
+                  el.style.borderColor = '#93c5fd'
+                  el.style.transform = 'translateY(-6px)'
+                  el.style.boxShadow = '0 14px 40px rgba(15,42,68,0.12)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'linear-gradient(135deg,#e8f1fd,#dde8f5)'
+                  const el = e.currentTarget
+                  el.style.borderColor = '#dde8f5'
+                  el.style.transform = 'translateY(0)'
+                  el.style.boxShadow = 'none'
                 }}
               >
-                {member.photoUrl ? (
-                  <img
-                    src={member.photoUrl}
-                    alt={member.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 10 }}
-                  />
-                ) : (
-                  <>
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2f80ed" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                    <span style={{ fontSize: 9, color: '#5a6a7e', fontWeight: 500 }}>Photo</span>
-                  </>
-                )}
-              </div>
-              <div style={{ padding: '10px 10px 14px' }}>
-                <p className="font-head" style={{ fontSize: 13, fontWeight: 700, color: '#1f2933', marginBottom: 3 }}>
-                  {member.name}
-                </p>
-                <p style={{ fontSize: 11, color: '#5a6a7e', marginBottom: 6, fontWeight: 500 }}>{member.role}</p>
-                <span
-                  className="font-head"
+                <div
                   style={{
-                    display: 'inline-flex',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    padding: '3px 8px',
-                    borderRadius: 20,
-                    background: '#e8f1fd',
-                    color: '#2f80ed',
+                    height: 160,
+                    margin: 10,
+                    borderRadius: 12,
+                    overflow: 'hidden',
+                    border: '2px dashed #bfdbfe',
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexDirection: 'column',
+                    gap: 8,
+                    background: 'linear-gradient(135deg, #e8f1fd, #dde8f5)',
+                    transition: 'all 0.25s',
                   }}
                 >
-                  {member.city}
-                </span>
+                  {member.photoUrl ? (
+                    <img
+                      src={member.photoUrl}
+                      alt={member.name}
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: 10,
+                      }}
+                    />
+                  ) : (
+                    <>
+                      <svg
+                        width="36"
+                        height="36"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#2f80ed"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                      <span style={{ fontSize: 9, color: '#94a3b8', fontWeight: 600 }}>Photo</span>
+                    </>
+                  )}
+                </div>
+
+                <div style={{ padding: '10px 10px 14px' }}>
+                  <div className="font-head font-bold" style={{ fontSize: 13, color: '#1f2933', marginBottom: 3 }}>
+                    {member.name}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#5a6a7e', marginBottom: 6, fontWeight: 500 }}>{member.role}</div>
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      fontSize: 10,
+                      fontWeight: 700,
+                      padding: '3px 8px',
+                      borderRadius: 20,
+                      background: '#e8f1fd',
+                      color: '#2f80ed',
+                    }}
+                  >
+                    {member.city}
+                  </span>
+                </div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
-        {totalPages > 1 ? (
-          <div className="mt-5 flex justify-center" style={{ gap: 6 }}>
-            {Array.from({ length: totalPages }).map((_, i) => (
-              <button
-                type="button"
-                key={i}
-                aria-label={`Page ${i + 1}`}
-                onClick={() => setTeamPage(i)}
-                className="cursor-pointer border-0 p-0 transition-all duration-200"
-                style={{
-                  height: 8,
-                  width: i === teamPage ? 24 : 8,
-                  borderRadius: 4,
-                  background: i === teamPage ? '#2f80ed' : '#d1e0f2',
-                }}
-              />
-            ))}
-          </div>
-        ) : null}
-        <div className="mt-7 text-center">
+
+        <div style={{ textAlign: 'center', marginTop: 36 }}>
           <button
             type="button"
             onClick={() => void router.push('/careers')}
-            className="font-head"
+            className="font-head font-bold"
             style={{
-              display: 'inline-block',
-              marginTop: 8,
-              fontSize: 14,
-              fontWeight: 700,
-              color: '#2f80ed',
+              padding: '12px 28px',
+              borderRadius: 10,
               background: 'transparent',
+              color: '#2f80ed',
+              fontSize: 14,
               border: '2px solid #2f80ed',
-              borderRadius: 8,
-              padding: '10px 22px',
               cursor: 'pointer',
+              transition: 'all 0.2s',
+              fontFamily: 'inherit',
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.background = '#2f80ed'
-              ;(e.currentTarget as HTMLButtonElement).style.color = '#fff'
+              const b = e.currentTarget as HTMLButtonElement
+              b.style.background = '#2f80ed'
+              b.style.color = '#fff'
             }}
             onMouseLeave={(e) => {
-              ;(e.currentTarget as HTMLButtonElement).style.background = 'transparent'
-              ;(e.currentTarget as HTMLButtonElement).style.color = '#2f80ed'
+              const b = e.currentTarget as HTMLButtonElement
+              b.style.background = 'transparent'
+              b.style.color = '#2f80ed'
             }}
           >
             Join our team →
           </button>
         </div>
       </div>
-      </Reveal>
     </section>
   )
 }
@@ -926,7 +890,6 @@ export const getStaticProps: GetStaticProps<{ cms: AboutUsCms }> = async () => {
 export default function AboutUsPage({ cms }: { cms: AboutUsCms }) {
   const router = useRouter()
   const { openModal } = useQuoteModal()
-  const [teamPage, setTeamPage] = useState(0)
 
   const story: CmsStory = { ...FALLBACK_STORY, ...(cms?.story ?? {}) }
   const stats: CmsStatItem[] = cms?.stats?.length ? cms.stats : FALLBACK_STATS
@@ -934,15 +897,6 @@ export default function AboutUsPage({ cms }: { cms: AboutUsCms }) {
   const team: CmsTeamMember[] = cms?.team?.length ? cms.team : FALLBACK_TEAM
   const settings: CmsPageSettings = { ...FALLBACK_SETTINGS, ...(cms?.pageSettings ?? {}) }
   const seo: CmsSeo = { ...FALLBACK_SEO, ...(cms?.seo ?? {}) }
-
-  const visibleMembers = team.filter((m) => m.visible)
-  const totalPages = Math.max(1, Math.ceil(visibleMembers.length / 6))
-  const safePage = Math.min(teamPage, totalPages - 1)
-  const currentTeam = visibleMembers.slice(safePage * 6, (safePage + 1) * 6)
-
-  useEffect(() => {
-    setTeamPage((p) => Math.min(p, totalPages - 1))
-  }, [totalPages, visibleMembers.length])
 
   return (
     <>
@@ -955,18 +909,10 @@ export default function AboutUsPage({ cms }: { cms: AboutUsCms }) {
       <Navbar />
       <main style={{ background: '#f5f7fa' }}>
         {settings.showHero && <HeroSection stats={stats} seo={seo} openModal={openModal} router={router} />}
-        {settings.showStory && <StorySection story={story} router={router} />}
+        {settings.showStory && <StorySection story={story} />}
+        {settings.showTeam && <TeamSection team={team} router={router} />}
         {settings.showValues && <ValuesSection />}
         {settings.showProcess && <ProcessSection />}
-        {settings.showTeam && (
-          <TeamSection
-            currentTeam={currentTeam}
-            teamPage={safePage}
-            setTeamPage={setTeamPage}
-            totalPages={totalPages}
-            router={router}
-          />
-        )}
         {settings.showTrust && <TrustSection trust={trust} />}
         <CtaSection openModal={openModal} />
       </main>

@@ -14,6 +14,17 @@ const NAV_LINKS = [
   { label: 'Blog',        href: '/blog' },
 ]
 
+/** Main nav on md+: first four + LiveBuild as the fifth button. */
+const LIVEBUILD_LINK = NAV_LINKS.find((link) => link.label === 'LiveBuild')
+const PRIMARY_NAV_LINKS = [
+  ...NAV_LINKS.slice(0, 4),
+  ...(LIVEBUILD_LINK ? [LIVEBUILD_LINK] : []),
+]
+const MORE_NAV_LINKS = NAV_LINKS.filter((link) => !PRIMARY_NAV_LINKS.some((primary) => primary.href === link.href))
+
+/** Total height of the fixed bar (spacer + mobile menu top must match). */
+const NAV_OUTSET_PX = 76
+
 function readSavedCount(): number {
   if (typeof window === 'undefined') return 0
   try {
@@ -31,14 +42,21 @@ export default function Navbar() {
   const { openModal } = useQuoteModal()
   const { data: session, status } = useSession()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [savedCount, setSavedCount] = useState(0)
   const menuRef = useRef<HTMLDivElement>(null)
+  const moreRef = useRef<HTMLDivElement>(null)
 
   const isActive = useCallback(
     (href: string) =>
       href === '/' ? router.pathname === '/' : router.pathname.startsWith(href),
     [router.pathname],
+  )
+
+  const isMoreGroupActive = useCallback(
+    () => MORE_NAV_LINKS.some((l) => isActive(l.href)),
+    [isActive],
   )
 
   useEffect(() => {
@@ -57,6 +75,30 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleMouseDown)
   }, [profileOpen])
 
+  useEffect(() => {
+    if (!moreOpen) return
+    function handleMouseDown(e: MouseEvent) {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
+  }, [moreOpen])
+
+  useEffect(() => {
+    setMoreOpen(false)
+  }, [router.pathname])
+
+  useEffect(() => {
+    if (!moreOpen) return
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setMoreOpen(false)
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [moreOpen])
+
   const userName = session?.user
     ? [session.user.firstName, session.user.lastName].filter(Boolean).join(' ').trim()
       || session.user.email
@@ -67,10 +109,10 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className="fixed top-0 left-0 right-0 z-[200] isolate"
-        style={{ background: '#0f2a44', height: 60 }}
+        className="fixed top-0 left-0 right-0 z-[200] isolate flex items-center"
+        style={{ background: '#0f2a44', height: NAV_OUTSET_PX, boxSizing: 'border-box' }}
       >
-        <div className="relative z-10 max-w-7xl mx-auto px-4 h-full flex items-center justify-between gap-4">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 min-h-0 flex items-center justify-between gap-4">
           <a
             href="/"
             className="flex-shrink-0 cursor-pointer no-underline flex items-center"
@@ -83,8 +125,8 @@ export default function Navbar() {
             />
           </a>
 
-          <div className="hidden md:flex items-center gap-1 flex-1 min-w-0 justify-center">
-            {NAV_LINKS.map((link) => (
+          <div className="hidden md:flex items-center gap-3 md:gap-4 flex-1 min-w-0 justify-center">
+            {PRIMARY_NAV_LINKS.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
@@ -92,7 +134,7 @@ export default function Navbar() {
                   e.preventDefault()
                   void router.push(link.href)
                 }}
-                className="relative px-3 py-1.5 rounded text-[13px] font-[500] transition-colors duration-150 cursor-pointer no-underline inline-block"
+                className="relative px-3.5 sm:px-4 py-2 rounded text-[13px] font-[500] transition-colors duration-150 cursor-pointer no-underline inline-block"
                 style={{
                   color: isActive(link.href) ? '#fff' : 'rgba(255,255,255,0.75)',
                   background: 'transparent',
@@ -109,12 +151,116 @@ export default function Navbar() {
                 {link.label}
                 {isActive(link.href) && (
                   <span
-                    className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full pointer-events-none"
+                    className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full pointer-events-none"
                     style={{ background: '#2f80ed' }}
                   />
                 )}
               </a>
             ))}
+
+            <div
+              className="relative inline-block"
+              ref={moreRef}
+              onMouseEnter={() => setMoreOpen(true)}
+              onMouseLeave={() => setMoreOpen(false)}
+            >
+              <button
+                type="button"
+                onClick={() => setMoreOpen((o) => !o)}
+                className="relative flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded text-[13px] font-[500] transition-colors duration-150 cursor-pointer"
+                style={{
+                  color: isMoreGroupActive() || moreOpen ? '#fff' : 'rgba(255,255,255,0.75)',
+                  background: moreOpen ? 'rgba(255,255,255,0.1)' : 'transparent',
+                }}
+                aria-haspopup="menu"
+                aria-expanded={moreOpen}
+                aria-label="More navigation"
+                onMouseEnter={(e) => {
+                  if (!moreOpen) e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
+                }}
+                onMouseLeave={(e) => {
+                  if (!moreOpen) e.currentTarget.style.background = 'transparent'
+                }}
+              >
+                More
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="transition-transform duration-150"
+                  style={{ transform: moreOpen ? 'rotate(180deg)' : 'none' }}
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+                {(isMoreGroupActive() || moreOpen) && (
+                  <span
+                    className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full pointer-events-none"
+                    style={{ background: '#2f80ed' }}
+                  />
+                )}
+              </button>
+              {moreOpen && (
+                <div
+                  className="absolute z-[250] right-0 left-auto top-full w-max min-w-[220px] pt-1.5"
+                  style={{ marginTop: -2 }}
+                >
+                  <div
+                    role="menu"
+                    className="rounded-[10px] border overflow-hidden"
+                    style={{
+                      background: '#0f2a44',
+                      borderColor: 'rgba(255,255,255,0.15)',
+                      boxShadow: '0 12px 40px rgba(0,0,0,0.35)',
+                    }}
+                  >
+                    {MORE_NAV_LINKS.map((link) => (
+                      <a
+                        key={link.href}
+                        href={link.href}
+                        role="menuitem"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          setMoreOpen(false)
+                          void router.push(link.href)
+                        }}
+                        className="flex w-full min-w-0 items-center justify-between gap-3 px-4 py-2.5 text-left text-[13px] font-[500] no-underline transition-colors"
+                        style={{
+                          color: isActive(link.href) ? '#2f80ed' : 'rgba(255,255,255,0.9)',
+                          background: isActive(link.href) ? 'rgba(47,128,237,0.12)' : 'transparent',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = isActive(link.href) ? 'rgba(47,128,237,0.12)' : 'transparent'
+                        }}
+                      >
+                        <span className="min-w-0 flex-1">{link.label}</span>
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="flex-shrink-0 opacity-50"
+                          aria-hidden
+                        >
+                          <path d="M9 18l6-6-6-6" />
+                        </svg>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="hidden md:flex items-center gap-3 flex-shrink-0">
@@ -254,15 +400,18 @@ export default function Navbar() {
       {mobileOpen && (
         <div
           className="fixed inset-0 z-[190] md:hidden"
-          style={{ paddingTop: 60 }}
+          style={{ paddingTop: NAV_OUTSET_PX }}
           onClick={() => setMobileOpen(false)}
         >
           <div
-            className="absolute top-[60px] left-0 right-0 shadow-2xl z-10"
-            style={{ background: '#0f2a44' }}
+            className="absolute left-0 right-0 shadow-2xl z-10"
+            style={{ background: '#0f2a44', top: NAV_OUTSET_PX }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex flex-col py-3 max-h-[calc(100vh-60px)] overflow-y-auto">
+            <div
+              className="flex flex-col py-3 overflow-y-auto"
+              style={{ maxHeight: `calc(100vh - ${NAV_OUTSET_PX}px)` }}
+            >
               {NAV_LINKS.map((link) => (
                 <a
                   key={link.href}
@@ -325,7 +474,7 @@ export default function Navbar() {
         </div>
       )}
 
-      <div style={{ height: 60 }} />
+      <div style={{ height: NAV_OUTSET_PX }} />
     </>
   )
 }
