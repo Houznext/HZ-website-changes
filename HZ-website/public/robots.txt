@@ -2,11 +2,19 @@
 User-agent: *
 Allow: /
 
-# *
+# Non-SEO and account areas
 User-agent: *
-Disallow: /login
+Disallow: /user/
 Disallow: /portal/
 Disallow: /api/
+Disallow: /cart
+Disallow: /signup
+Disallow: /login
+Disallow: /verify-otp
+Disallow: /forgot-password
+Disallow: /saved-designs
+Disallow: /post-property
+Disallow: /post-property/
 
 # Host
 Host: https://houznext.com
