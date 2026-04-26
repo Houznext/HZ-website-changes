@@ -49,7 +49,7 @@ const DEFAULT_ROOMS: RoomCategory[] = [
 ];
 
 const DEFAULT_HEADER = {
-  eyebrow: "Inspiration",
+  eyebrow: "Design Ideas",
   heading: "Design ideas for every room.",
   subheading:
     "Explore real designs from Houznext homes across Hyderabad, Warangal and Karimnagar.",

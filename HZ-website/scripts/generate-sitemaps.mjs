@@ -234,10 +234,10 @@ async function main() {
     add(interiors, p)
   }
 
-  // ─── sitemap-inspiration.xml ───
-  const inspiration = []
+  // ─── sitemap-design-ideas.xml (Design Ideas page) ───
+  const designIdeas = []
   if (fs.existsSync(path.join(PAGES, 'design-ideas.tsx'))) {
-    add(inspiration, '/design-ideas')
+    add(designIdeas, '/design-ideas')
   }
 
   // ─── sitemap-blogs.xml ───
@@ -271,7 +271,7 @@ async function main() {
   const files = {
     'sitemap-main.xml': sortEntries(main),
     'sitemap-interiors.xml': sortEntries(interiors),
-    'sitemap-inspiration.xml': sortEntries(inspiration),
+    'sitemap-design-ideas.xml': sortEntries(designIdeas),
     'sitemap-blogs.xml': sortEntries(blogs),
     'sitemap-livebuild.xml': sortEntries(livebuild),
   }
@@ -284,7 +284,7 @@ async function main() {
   const indexNames = [
     'sitemap-main.xml',
     'sitemap-interiors.xml',
-    'sitemap-inspiration.xml',
+    'sitemap-design-ideas.xml',
     'sitemap-blogs.xml',
     'sitemap-livebuild.xml',
   ]
@@ -300,6 +300,11 @@ async function main() {
   if (fs.existsSync(legacy)) {
     fs.unlinkSync(legacy)
     console.log('[sitemap] Removed legacy sitemap-0.xml')
+  }
+  const legacyInspiration = path.join(PUBLIC, 'sitemap-inspiration.xml')
+  if (fs.existsSync(legacyInspiration)) {
+    fs.unlinkSync(legacyInspiration)
+    console.log('[sitemap] Removed legacy sitemap-inspiration.xml (renamed to sitemap-design-ideas.xml)')
   }
 }
 

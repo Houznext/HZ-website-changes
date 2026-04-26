@@ -19,6 +19,7 @@ import {
   LayoutGrid,
   UserPlus,
   Image as CmsDesignIdeasIcon,
+  Users,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useSidebarBadges } from "@/src/hooks/useSidebarBadges";
@@ -121,6 +122,7 @@ const NAV_STRUCTURE: NavItem[] = [
   { href: "/services-cms",     label: "Services CMS",  icon: NavServicesCmsIcon },
   { href: "/interiors-cms",      label: "Interiors CMS", icon: LayoutTemplate },
   { href: "/design-ideas-cms",  label: "Design ideas CMS", icon: CmsDesignIdeasIcon },
+  { href: "/about-us-cms",      label: "About us CMS",     icon: Users },
   { href: "/hero-carousel",      label: "Hero Carousel", icon: NavHeroCarouselIcon },
   { section: "LiveBuild" },
   { custom: "livebuild" },

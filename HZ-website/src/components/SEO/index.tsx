@@ -113,7 +113,7 @@ const SEO: React.FC<ISEO> = (props) => {
     ? Array.isArray(rawKw) ? rawKw.filter(Boolean).join(', ') : rawKw
     : DEFAULT_KEYWORDS;
   const imageURL = props.imageUrl || PRIMARY_IMAGE_URL;
-  const favicon = props.favicon || '/images/Houznext%20Logo.png';
+  const favicon = props.favicon || '/favicon.ico';
   const canonical = props.canonicalUrl || currentUrl;
   const noIndex = props.noIndex === true;
   const corporateContacts = props.corporateContact || CORPORATE_CONTACTS;

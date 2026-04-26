@@ -6,7 +6,7 @@ import { useQuoteModal } from './QuoteModal'
 const NAV_LINKS = [
   { label: 'Home',        href: '/' },
   { label: 'Interiors',   href: '/interiors' },
-  { label: 'Inspiration', href: '/design-ideas' },
+  { label: 'Design Ideas', href: '/design-ideas' },
   { label: 'Projects',    href: '/projects' },
   { label: 'Real Estate', href: '/real-estate' },
   { label: 'LiveBuild',   href: '/buildlive' },

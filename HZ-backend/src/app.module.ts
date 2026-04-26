@@ -79,6 +79,7 @@ import { InteriorProjectsModule } from './interior-projects/interior-projects.mo
 import { HeroCarouselModule } from './hero-carousel/hero-carousel.module';
 import { ServicesContentModule } from './services-content/services-content.module';
 import { CmsModule } from './cms/cms.module';
+import { SiteCmsModule } from './site-cms/site-cms.module';
 
 @Module({
   imports: [
@@ -167,6 +168,7 @@ import { CmsModule } from './cms/cms.module';
     HeroCarouselModule,
     ServicesContentModule,
     CmsModule,
+    SiteCmsModule,
   ],
   controllers: [AppController],
   providers: [

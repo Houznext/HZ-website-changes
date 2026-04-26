@@ -346,5 +346,6 @@ export const config = {
     "/testimonials/:path*",
     "/design-ideas-cms/:path*",
     "/interiors-cms/:path*",
+    "/about-us-cms",
   ],
 };
