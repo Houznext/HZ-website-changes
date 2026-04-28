@@ -29,7 +29,7 @@ const Homepage = ({ initialBlogs }: HomepageProps) => {
             <Link className="rounded-md bg-[#3586FF] px-5 py-2.5 text-sm font-medium text-white" href="/interiors">
               Explore Interiors
             </Link>
-            <Link className="rounded-md border border-white/30 px-5 py-2.5 text-sm font-medium text-white" href="/interiors/cost-estimator">
+            <Link className="rounded-md border border-white/30 px-5 py-2.5 text-sm font-medium text-white" href="/interiors/cost-calculator">
               Interior Cost Calculator
             </Link>
           </div>

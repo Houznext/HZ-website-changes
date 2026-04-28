@@ -3,6 +3,7 @@ export interface CEformValues {
   userId: string;
   firstname: string;
   lastname: string;
+  customerMobile: string;
   email: string;
   phone: number | null;
   date: string | null;
@@ -65,6 +66,7 @@ export const validateFormValues = (formValues: CEformValues) => {
   if (!formValues.lastname) errors.lastname = "Last name is required";
   if (!formValues.email) errors.email = "Email is required";
   if (!formValues.phone) errors.phone = "Phone number is required";
+  if (!formValues.customerMobile) errors.customerMobile = "User contact is required";
   if (!formValues.date) errors.date = "Date is required";
   if (!formValues.designerName) errors.designerName = "Designer name is required";
 

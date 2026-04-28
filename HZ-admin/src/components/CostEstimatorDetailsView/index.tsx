@@ -360,6 +360,10 @@ const CostEstimatorDetailsView = () => {
                 <p style={{ fontSize: '15px', fontWeight: 700, color: '#1f2937', lineHeight: 1.3, fontFamily: "'Montserrat', sans-serif" }}>
                   {details?.firstname} {details?.lastname}
                 </p>
+                <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '4px', fontFamily: "'Inter', sans-serif" }}>
+                  <span style={{ fontWeight: 600, color: '#374151' }}>User contact:</span>{' '}
+                  {(details as any)?.customerMobile || '—'}
+                </p>
                 {details?.bhk && (
                   <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '7px', fontFamily: "'Inter', sans-serif" }}>
                     <span style={{ fontWeight: 600, color: '#374151' }}>Property type:</span>{' '}{details.bhk}

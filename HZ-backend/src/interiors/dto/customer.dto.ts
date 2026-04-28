@@ -19,3 +19,17 @@ export class CreateCustomerDto {
   @IsString()
   locality?: string;
 }
+
+export class UpdateCustomerDto {
+  @IsOptional()
+  @IsString()
+  fullName?: string;
+
+  @IsOptional()
+  @IsString()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  city?: string;
+}

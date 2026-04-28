@@ -149,7 +149,7 @@ export const InteriorCalc = () => {
       ) : (
         <div
           className="w-full flex flex-row md:px-6  px-3 items-center justify-center cursor-pointer md:mt-0 mt-2"
-          onClick={() => router.push("/interiors/cost-estimator")}
+          onClick={() => router.push("/interiors/cost-calculator")}
         >
           <div className="w-[40%] h-[357px] relative md:block hidden">
             <Image

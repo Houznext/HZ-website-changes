@@ -76,7 +76,7 @@ export default async function handler(req, res) {
   // ===== SERVICE PAGES =====
   const servicePages = [
     { path: "/interiors", priority: "0.85" },
-    { path: "/interiors/cost-estimator", priority: "0.7" },
+    { path: "/interiors/cost-calculator", priority: "0.7" },
     { path: "/solar", priority: "0.8" },
     { path: "/solar/calculator", priority: "0.7" },
     { path: "/painting", priority: "0.75" },

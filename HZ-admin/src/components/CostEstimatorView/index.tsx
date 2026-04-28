@@ -195,6 +195,7 @@ const CostEstimatorView: React.FC = () => {
             e.firstname?.toLowerCase().includes(q) ||
             e.lastname?.toLowerCase().includes(q) ||
             e.email?.toLowerCase().includes(q) ||
+            String((e as any).customerMobile || "").includes(q) ||
             String(e.phone || "").includes(q) ||
             e.property_name?.toLowerCase().includes(q) ||
             e.location?.city?.toLowerCase().includes(q);
@@ -259,6 +260,7 @@ const CostEstimatorView: React.FC = () => {
       "First Name",
       "Last Name",
       "Email",
+      "User Contact",
       "Phone",
       "City",
       "State",
@@ -275,6 +277,7 @@ const CostEstimatorView: React.FC = () => {
       e.firstname || "",
       e.lastname || "",
       e.email || "",
+      (e as any).customerMobile || "",
       e.phone || "",
       e.location?.city || "",
       e.location?.state || "",
@@ -836,6 +839,11 @@ const CompactRow = ({
             </span>
           </div>
           <div className="mt-0.5 flex flex-wrap items-center gap-x-2.5 gap-y-0.5">
+            {(item as any)?.customerMobile && (
+              <span className="text-[12px] text-[#57606a]">
+                User: {(item as any).customerMobile}
+              </span>
+            )}
             <span className="text-[12px] text-[#57606a]">
               {item.location?.city}{item.location?.state ? `, ${item.location.state}` : ""}
             </span>

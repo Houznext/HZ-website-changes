@@ -1,0 +1,106 @@
+import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
+import SeoHead from '@/components/SeoHead'
+import { useCustomerGuard } from '@/hooks/useCustomerGuard'
+
+export default function MyAccountDashboard() {
+  const { customer, isLoading } = useCustomerGuard()
+  const router = useRouter()
+  const [savedCount, setSavedCount] = useState(0)
+  const [projectCount, setProjectCount] = useState<number | null>(null)
+  const [invoiceDue, setInvoiceDue] = useState(false)
+  const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('hz_saved_designs')
+      setSavedCount(raw ? Object.keys(JSON.parse(raw)).length : 0)
+    } catch {
+      setSavedCount(0)
+    }
+    if (customer) {
+      fetch(`${API}/interiors/customers/${customer.id}/projects`, {
+        headers: { Authorization: `Bearer ${customer.token}` },
+      }).then((r) => r.json()).then((projects: unknown[]) => setProjectCount(projects?.length ?? 0)).catch(() => setProjectCount(0))
+      fetch(`${API}/invoice-estimator/by-mobile/${customer.mobile}`)
+        .then((r) => r.json())
+        .then((invs: Array<{ invoiceDue?: string }>) => setInvoiceDue(invs?.some((i) => !!i.invoiceDue && new Date(i.invoiceDue) >= new Date()) ?? false))
+        .catch(() => setInvoiceDue(false))
+    }
+  }, [customer, API])
+
+  if (isLoading) return <><Navbar /><div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2f80ed]" /></div></>
+  if (!customer) return null
+
+  const initials = customer.name.split(' ').map((w) => w[0] ?? '').join('').toUpperCase().slice(0, 2) || 'HZ'
+
+  return (
+    <>
+      <SeoHead title="My Account | Houznext" description="Manage your quotations, invoices, saved designs and LiveBuild project." canonical="/my-account" />
+      <Navbar />
+      <main style={{ background: '#f5f7fa', minHeight: 'calc(100vh - 60px)' }}>
+        <div style={{ background: '#0f2a44', padding: '32px 24px 0', position: 'relative' }}>
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg,#2f80ed,#f2994a,#2f80ed)' }} />
+          <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 13, paddingBottom: 20 }}>
+            <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#2f80ed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Montserrat, system-ui', fontSize: 20, fontWeight: 800, color: '#fff', border: '3px solid rgba(255,255,255,.2)' }}>{initials}</div>
+            <div>
+              <div style={{ fontFamily: 'Montserrat, system-ui', fontSize: 21, fontWeight: 800, color: '#fff' }}>{customer.name}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,.55)' }}>{customer.mobile}</div>
+            </div>
+          </div>
+        </div>
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 24px' }}>
+          <div style={{ fontFamily: 'Montserrat, system-ui', fontSize: 17, fontWeight: 800, color: '#1f2933', marginBottom: 5 }}>My account</div>
+          <div style={{ fontSize: 12, color: '#5a6a7e', marginBottom: 24 }}>All your Houznext activity in one place - linked to your mobile number</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10 }}>
+            {[
+              {
+                val: '—',
+                lbl: 'My quotations',
+                sub: 'Interior cost estimates',
+                href: '/my-account/quotations',
+                accent: '#2f80ed',
+                icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2f80ed" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>,
+              },
+              {
+                val: invoiceDue ? '1 due' : '—',
+                lbl: 'Invoices',
+                sub: 'Payments & receipts',
+                href: '/my-account/invoices',
+                accent: invoiceDue ? '#dc2626' : '#d97706',
+                icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={invoiceDue ? '#dc2626' : '#d97706'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>,
+              },
+              {
+                val: String(savedCount),
+                lbl: 'Saved designs',
+                sub: 'From design ideas gallery',
+                href: '/my-account/saved-designs',
+                accent: '#db2777',
+                icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#db2777" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg>,
+              },
+              {
+                val: projectCount !== null ? String(projectCount) : '—',
+                lbl: 'My Home (LiveBuild)',
+                sub: 'Active interior projects',
+                href: '/my-account/livebuild',
+                accent: '#16a34a',
+                icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>,
+              },
+            ].map((card) => (
+              <div key={card.href} onClick={() => void router.push(card.href)} style={{ background: '#fff', border: '1px solid #dde8f5', borderRadius: 11, padding: '13px 15px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 6 }}>{card.icon}</div>
+                <div style={{ fontFamily: 'Montserrat, system-ui', fontSize: 24, fontWeight: 800, color: '#1f2933' }}>{card.val}</div>
+                <div style={{ fontSize: 11, color: '#5a6a7e', marginTop: 3, fontWeight: 600 }}>{card.lbl}</div>
+                <div style={{ fontSize: 10, color: '#5a6a7e', marginTop: 2 }}>{card.sub}</div>
+                <div style={{ marginTop: 10, fontSize: 11, fontWeight: 700, color: card.accent }}>View all →</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </>
+  )
+}

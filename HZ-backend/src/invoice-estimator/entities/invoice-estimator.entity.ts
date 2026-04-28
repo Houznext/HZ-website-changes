@@ -75,6 +75,9 @@ export class InvoiceEstimator {
   @Column('text')
   invoiceTerms: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  customerMobile: string | null;
+
   @Column('jsonb', { nullable: true })
   items: {
     item_name: string;

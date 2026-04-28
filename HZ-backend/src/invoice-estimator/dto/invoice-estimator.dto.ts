@@ -56,6 +56,10 @@ export class CreateInvoiceEstimatorDto {
 
   @ApiProperty()
   @IsString()
+  customerMobile: string;
+
+  @ApiProperty()
+  @IsString()
   billToAddress: string;
 
   @ApiProperty()
@@ -113,6 +117,11 @@ export class UpdateInvoiceEstimatorDto {
   @ApiProperty()
   @IsString()
   billToName: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  customerMobile?: string;
 
   @ApiProperty()
   @IsNumber()

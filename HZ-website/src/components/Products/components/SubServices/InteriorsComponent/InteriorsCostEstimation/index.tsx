@@ -72,7 +72,7 @@ export default function InteriorsCostEstimation() {
             <Button
               className="bg-[#3586FF]  md:px-20 px-6 md:py-3 py-2 md:rounded-[6px] uppercase rounded-[4px] md:text-[16px] text-[12px] font-bold text-white cursor-pointer"
               onClick={() =>
-                router.push("/interiors/cost-estimator")
+                router.push("/interiors/cost-calculator")
               }
             >
               {data.calculateBtnText}

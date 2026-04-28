@@ -134,6 +134,10 @@ export class CreateCostEstimatorDto {
 
   @ApiProperty()
   @IsString()
+  customerMobile: string;
+
+  @ApiProperty()
+  @IsString()
   date: string;
 
   @ApiProperty()
@@ -250,6 +254,11 @@ export class UpdateCostEstimatorDto {
   @Type(() => Number)
   @IsNumber({ allowNaN: false })
   phone?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  customerMobile?: string;
 
   @ApiProperty()
   @IsString()

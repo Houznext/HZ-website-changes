@@ -330,7 +330,7 @@ const CompanyDetailsPropertyView = ({ data }: any) => {
       heading: "Interiors Cost Estimator",
       description:
         "Plan your interiors with instant cost estimates that match your style, space, and budget.",
-      link: "/interiors/cost-estimator",
+      link: "/interiors/cost-calculator",
     },
     {
       imageUrl: "/home/insight-4.png",

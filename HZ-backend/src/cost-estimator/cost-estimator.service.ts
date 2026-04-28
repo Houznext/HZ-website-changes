@@ -90,6 +90,7 @@ export class CostEstimatorService {
     lastname?: string,
     email?: string,
     phone?: number | null,
+    customerMobile?: string,
     property_name?: string,
     bhk?: string,
     city?: string,
@@ -126,6 +127,12 @@ export class CostEstimatorService {
 
       if (phone) {
         queryBuilder.andWhere('costEstimator.phone = :phone', { phone });
+      }
+
+      if (customerMobile) {
+        queryBuilder.andWhere('costEstimator.customerMobile = :customerMobile', {
+          customerMobile,
+        });
       }
 
       if (property_name) {
@@ -397,6 +404,7 @@ export class CostEstimatorService {
       lastname?: string;
       email?: string;
       phone?: number;
+      customerMobile?: string;
       property_name?: string;
       bhk?: string;
       city?: string;
@@ -444,6 +452,12 @@ export class CostEstimatorService {
     if (filters.phone) {
       queryBuilder.andWhere('costEstimator.phone = :phone', {
         phone: filters.phone,
+      });
+    }
+
+    if (filters.customerMobile) {
+      queryBuilder.andWhere('costEstimator.customerMobile = :customerMobile', {
+        customerMobile: filters.customerMobile,
       });
     }
 

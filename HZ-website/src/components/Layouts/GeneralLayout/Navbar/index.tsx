@@ -134,7 +134,7 @@ const NavDropDown = ({ item, subLink }: any) => {
   };
 
   const handleGetEstimate = () => {
-    router.push("/interiors/cost-estimator");
+    router.push("/interiors/cost-calculator");
   };
   const handlePostProperty = handleGetEstimate;
   const [hoveredPropertyType, setHoveredPropertyType] = useState<string>("Buy");
@@ -380,7 +380,7 @@ const NavDropDown = ({ item, subLink }: any) => {
                                     </h1>
                                     <h1>
                                       <Link
-                                        href="/interiors/cost-estimator"
+                                        href="/interiors/cost-calculator"
                                         className="font-medium md:text-[12px] text-[10px] flex items-center gap-1"
                                       >
                                         <CheckCircle2 className="w-4 h-4 text-[#3586FF] mt-0.5" />
@@ -597,13 +597,13 @@ const Navbar = ({ isVisibleItems }: ShowItems) => {
     },
     {
       name: "Get Estimate",
-      link: "/interiors/cost-estimator",
-      isActive: router.pathname.startsWith("/interiors/cost-estimator"),
+      link: "/interiors/cost-calculator",
+      isActive: router.pathname.startsWith("/interiors/cost-calculator"),
     },
   ];
 
   const handleGetEstimate = () => {
-    router.push("/interiors/cost-estimator");
+    router.push("/interiors/cost-calculator");
   };
 
   const RenderNav = () => (

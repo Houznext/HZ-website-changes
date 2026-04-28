@@ -24,7 +24,7 @@ const insights = [
     heading: "Interiors Cost Estimator",
     description:
       "Get instant interior cost estimates based on your preferences, space, and style—designed to fit your budget and vision.",
-    link: "/interiors/cost-estimator",
+    link: "/interiors/cost-calculator",
   },
   {
     imageUrl: "/home/insight-4.png",

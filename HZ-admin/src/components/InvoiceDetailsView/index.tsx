@@ -258,6 +258,9 @@ export default function InvoiceDetailsView() {
                     {invoiceData?.billToName}
                   </p>
                   <p className="md:text-[12px]  font-regular text-[10px]">
+                    User contact: {invoiceData?.customerMobile || "—"}
+                  </p>
+                  <p className="md:text-[12px]  font-regular text-[10px]">
                     {invoiceData?.billToAddress}
                   </p>
                   <p className="md:text-[12px]  font-regular text-[10px]">

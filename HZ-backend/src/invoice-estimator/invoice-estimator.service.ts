@@ -300,6 +300,13 @@ export class InvoiceEstimatorService {
     });
   }
 
+  async findByCustomerMobile(mobile: string): Promise<InvoiceEstimator[]> {
+    return this.invoiceEstimatorRepository.find({
+      where: { customerMobile: mobile },
+      order: { invoiceDate: 'DESC' },
+    });
+  }
+
   // 🔹 NON-REGISTERED INVOICES, ALSO ROLE-AWARE
   async findInvoicesForNonExistingUsers(
     currentUser: RequestUser,

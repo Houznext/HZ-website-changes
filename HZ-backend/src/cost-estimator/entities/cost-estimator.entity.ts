@@ -41,6 +41,9 @@ export class CostEstimator {
   @Column('bigint', { nullable: true, default: null })
   phone: number;
 
+  @Column({ type: 'varchar', nullable: true })
+  customerMobile: string | null;
+
   @Column('text', { nullable: true, default: null })
   date: string;
 

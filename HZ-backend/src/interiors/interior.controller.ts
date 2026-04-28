@@ -37,6 +37,7 @@ import {
   GenerateDprDto,
   UpdateReferralStatusDto,
   UpdatePortfolioDto,
+  UpdateCustomerDto,
 } from './dto';
 
 type RequestWithUser = Request & { user: InteriorJwtPayload };
@@ -87,6 +88,15 @@ export class InteriorController {
   @Get('customers/:id')
   getCustomer(@Param('id') id: string) {
     return this.interiorService.getCustomer(id);
+  }
+
+  @UseGuards(InteriorJwtGuard)
+  @Patch('customers/:id')
+  updateCustomer(
+    @Param('id') id: string,
+    @Body() dto: UpdateCustomerDto,
+  ) {
+    return this.interiorService.updateCustomer(id, dto);
   }
 
   @Get('customers/:id/projects')

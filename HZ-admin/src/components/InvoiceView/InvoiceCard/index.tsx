@@ -29,6 +29,12 @@ export const InvoiceCard = ({ data, hasPermission }: any) => {
         </div>
         <div className="flex flex-col gap-0.5">
           <p className="flex items-center gap-1 text-[11px] text-[#6B7280]">
+            <FiHash className="h-3.5 w-3.5 text-[#6B7280]" /> User Contact
+          </p>
+          <p className="text-[13px] font-medium text-[#111827]">{data?.customerMobile || "—"}</p>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <p className="flex items-center gap-1 text-[11px] text-[#6B7280]">
             <FiHash className="h-3.5 w-3.5 text-[#6B7280]" /> Invoice No
           </p>
           <p className="text-[13px] font-medium text-[#111827]">{data?.invoiceNumber}</p>

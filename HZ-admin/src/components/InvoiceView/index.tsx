@@ -68,6 +68,7 @@ const effectiveBranchId = useMemo(() => {
       const matchesSearch =
         !lowerSearch ||
         item.billToName?.toLowerCase().includes(lowerSearch) ||
+        String(item.customerMobile || "").toLowerCase().includes(lowerSearch) ||
         item.billToAddress?.toLowerCase().includes(lowerSearch) ||
         item.billToCity?.toLowerCase().includes(lowerSearch) ||
         item.invoiceNumber?.toString().includes(lowerSearch) ||
@@ -246,6 +247,7 @@ export const InvoiceEstimatorForm = ({
   const [invoiceData, setInvoiceData] = useState({
     userId: userId,
     billToName: "",
+    customerMobile: "",
     billToAddress: "",
     billToCity: "",
     shipToAddress: "",
@@ -408,6 +410,7 @@ export const InvoiceEstimatorForm = ({
         userId: userId,
         subTotal: Number(initialData.subTotal) || 0,
         billToName: initialData.billToName || "",
+        customerMobile: initialData.customerMobile || "",
         billToAddress: initialData.billToAddress || "",
         billToCity: initialData.billToCity || "",
         shipToAddress: initialData.shipToAddress || "",
@@ -424,6 +427,7 @@ export const InvoiceEstimatorForm = ({
         userId: userId,
         subTotal: 0,
         billToName: "",
+        customerMobile: "",
         billToAddress: "",
         billToCity: "",
         shipToAddress: "",
@@ -574,6 +578,26 @@ export const InvoiceEstimatorForm = ({
                         "basicDetails",
                         "billToName",
                         e?.target?.value ?? ""
+                      )
+                    }
+                    required
+                  />
+                </div>
+                <div className="w-full">
+                  <CustomInput
+                    name="customerMobile"
+                    id="customerMobile"
+                    placeholder="Enter user contact"
+                    value={invoiceData.customerMobile}
+                    label="User Contact"
+                    labelCls="font-medium label-text"
+                    className="md:px-2 px-1 "
+                    type="text"
+                    onChange={(e) =>
+                      handleFormChange(
+                        "basicDetails",
+                        "customerMobile",
+                        (e?.target?.value ?? "").replace(/\D/g, "").slice(0, 15)
                       )
                     }
                     required

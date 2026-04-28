@@ -88,6 +88,11 @@ export class InvoiceEstimatorController {
     return this.invoiceEstimatorService.findByCustomBuilderId(id);
   }
 
+  @Get('by-mobile/:mobile')
+  findByMobile(@Param('mobile') mobile: string) {
+    return this.invoiceEstimatorService.findByCustomerMobile(mobile);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get an invoice estimator by ID' })
   @ApiResponse({

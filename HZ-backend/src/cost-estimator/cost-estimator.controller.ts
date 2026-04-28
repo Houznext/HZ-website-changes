@@ -54,6 +54,7 @@ export class CostEstimatorController {
   @ApiQuery({ name: 'lastname', required: false })
   @ApiQuery({ name: 'email', required: false })
   @ApiQuery({ name: 'phone', required: false })
+  @ApiQuery({ name: 'customerMobile', required: false })
   @ApiQuery({ name: 'property_name', required: false })
   @ApiQuery({ name: 'bhk', required: false })
   @ApiQuery({ name: 'city', required: false })
@@ -68,6 +69,7 @@ export class CostEstimatorController {
     @Query('lastname') lastname?: string,
     @Query('email') email?: string,
     @Query('phone') phone?: number,
+    @Query('customerMobile') customerMobile?: string,
     @Query('property_name') property_name?: string,
     @Query('bhk') bhk?: string,
     @Query('city') city?: string,
@@ -84,6 +86,7 @@ export class CostEstimatorController {
       lastname,
       email,
       phone,
+      customerMobile,
       property_name,
       bhk,
       city,
@@ -166,6 +169,7 @@ export class CostEstimatorController {
       lastname,
       email,
       phone,
+      customerMobile,
       property_name,
       bhk,
       city,
@@ -187,6 +191,7 @@ export class CostEstimatorController {
       lastname,
       email,
       phone: phone ? Number(phone) : undefined,
+      customerMobile,
       property_name,
       bhk,
       city,

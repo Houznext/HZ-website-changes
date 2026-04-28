@@ -22,6 +22,7 @@ import { ReferralLead } from './entities/referral-lead.entity';
 import { PaymentMilestone } from './entities/payment-milestone.entity';
 import {
   CreateCustomerDto,
+  UpdateCustomerDto,
   CreateProjectDto,
   CreateTradeTemplateDto,
   UpdateTradeDto,
@@ -156,6 +157,15 @@ export class InteriorService {
 
   async getCustomer(id: string): Promise<Customer | null> {
     return this.customerRepo.findOne({ where: { id } });
+  }
+
+  async updateCustomer(id: string, dto: UpdateCustomerDto): Promise<Customer> {
+    const customer = await this.customerRepo.findOne({ where: { id } });
+    if (!customer) throw new NotFoundException('Customer not found');
+    if (dto.fullName !== undefined) customer.fullName = dto.fullName;
+    if (dto.email !== undefined) customer.email = dto.email;
+    if (dto.city !== undefined) customer.city = dto.city;
+    return this.customerRepo.save(customer);
   }
 
   async createCustomer(dto: CreateCustomerDto): Promise<Customer> {

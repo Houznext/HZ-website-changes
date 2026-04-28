@@ -15,6 +15,7 @@ import { TourProvider } from "@/common/FeatureTour";
 import SocketInitializer from "../common/InitializeSocket";
 import SessionSync from "@/components/SessionSync";
 import { QuoteModalProvider } from "@/components/QuoteModal";
+import { CustomerAuthProvider } from "@/context/CustomerAuthContext";
 
 const NEXT_PUBLIC_GA4_ID = "G-MJ64LCY1PL";
 
@@ -116,10 +117,12 @@ const MyApp: AppType<{ session: Session | null }> = ({
         <AuthProvider>
           <TourProvider>
             <QuoteModalProvider>
-              <AuthGate />
-              <div>{getLayout(<Component {...pageProps} />)}</div>
-              <Analytics />
-              <Toaster position="top-right" reverseOrder={false} containerClassName="text-[12px]" />
+              <CustomerAuthProvider>
+                <AuthGate />
+                <div>{getLayout(<Component {...pageProps} />)}</div>
+                <Analytics />
+                <Toaster position="top-right" reverseOrder={false} containerClassName="text-[12px]" />
+              </CustomerAuthProvider>
             </QuoteModalProvider>
           </TourProvider>
         </AuthProvider>

@@ -68,7 +68,7 @@ const insertContext = (ctx: {
   <ul style="line-height:1.8; margin-left:16px;">
     <li><strong>Painting Cost Estimator</strong> – Estimate painting costs for your space: <Link href="${base}/painting/paint-cost-calculator" style="color:#3586FF;">Explore Now</Link></li>
     <li><strong>Vaastu Consultation</strong> – Align your property with Vaastu principles: <Link href="${base}/services/vaastu-consultation" style="color:#3586FF;">Explore Now</Link></li>
-    <li><strong>Interiors Cost Estimator</strong> – Instant interior cost estimates by BHK and style: <Link href="${base}/interiors/cost-estimator" style="color:#3586FF;">Explore Now</Link></li>
+    <li><strong>Interiors Cost Estimator</strong> – Instant interior cost estimates by BHK and style: <Link href="${base}/interiors/cost-calculator" style="color:#3586FF;">Explore Now</Link></li>
     <li><strong>Solar Panel Cost Calculator</strong> – Savings, energy output & ROI: <Link href="${base}/solar/calculator" style="color:#3586FF;">Explore Now</Link></li>
   </ul>
   `;

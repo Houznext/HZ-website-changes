@@ -391,7 +391,7 @@ const InteriorsComponent = ({
         <div className="max-w-[1600px]  w-full mx-auto  p-1 flex items-center justify-center">
           <Button
             className="bg-[#3586FF] font-medium md:px-5 px-3 md:py-3 py-1 md:text-[16px] text-[12px] rounded-[4px] text-white md:max-w-[50%] w-full flex items-center justify-center gap-2"
-            onClick={() => router.push("/interiors/cost-estimator")}
+            onClick={() => router.push("/interiors/cost-calculator")}
           >
             <FaCalculator />
             Get Estimate Now

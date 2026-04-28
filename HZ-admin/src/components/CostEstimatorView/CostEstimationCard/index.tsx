@@ -118,6 +118,12 @@ const CostEstimationCard = ({ key, data, onDuplicate, onEdit, onDelete, activeTa
               </h3>
               <div className="flex flex-wrap items-center gap-1.5 mt-0.5 text-[11.5px] text-[#8c959f]">
                 <span className="truncate max-w-[180px]">{data?.email}</span>
+                {(data as any)?.customerMobile && (
+                  <>
+                    <span className="text-[#d0d7de]">·</span>
+                    <span>User: {(data as any).customerMobile}</span>
+                  </>
+                )}
                 {data?.phone && (
                   <>
                     <span className="text-[#d0d7de]">·</span>

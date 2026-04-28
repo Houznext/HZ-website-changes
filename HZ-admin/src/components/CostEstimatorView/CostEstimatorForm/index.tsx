@@ -39,6 +39,7 @@ const CostEstimatorForm = ({
     userId,
     firstname: "",
     lastname: "",
+    customerMobile: "",
     email: "",
     phone: null,
     date: "",
@@ -127,6 +128,7 @@ useEffect(() => {
         firstname: editingEstimation.firstname,
         designerName: editingEstimation?.designerName,
         lastname: editingEstimation.lastname,
+        customerMobile: (editingEstimation as any).customerMobile || "",
         email: editingEstimation.email,
         phone: editingEstimation.phone,
         property_type: editingEstimation.property_type,
@@ -163,6 +165,7 @@ useEffect(() => {
         userId,
         firstname: "",
         lastname: "",
+        customerMobile: "",
         email: "",
         phone: null,
         date: new Date().toISOString().split("T")[0],
@@ -311,6 +314,7 @@ useEffect(() => {
     const payload = {
       ...updatedFormData,
       phone: Number(updatedFormData.phone),
+      customerMobile: String(updatedFormData.customerMobile || ""),
       discount: toDecimalString(updatedFormData.discount),
     };
 
@@ -417,6 +421,7 @@ useEffect(() => {
     const payLoad = {
       ...updatedFormData,
       phone: Number(updatedFormData.phone),
+      customerMobile: String(updatedFormData.customerMobile || ""),
       itemGroups: updatedFormData.itemGroups.map((group) => ({
         ...group,
         items: group.items.map((item) => ({
@@ -570,6 +575,7 @@ useEffect(() => {
       const payLoad = {
         ...formValues,
         phone: Number(formValues.phone),
+        customerMobile: String(formValues.customerMobile || ""),
         subTotal: Number(formValues.subTotal),
         details,
         discount: toDecimalString(formValues.discount),
@@ -751,72 +757,94 @@ useEffect(() => {
             </div>
           </div>
           <div className="p-5">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <CustomInput
-                type="text"
-                label="First Name"
-                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
-                value={formValues.firstname}
-                onChange={(e) => handleFormChange(e.target.name, e.target.value)}
-                required
-                placeholder="Enter first name"
-                errorMsg={error?.firstname}
-                name="firstname"
-              />
-              <CustomInput
-                type="text"
-                label="Last Name"
-                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
-                value={formValues.lastname}
-                onChange={(e) => handleFormChange(e.target.name, e.target.value)}
-                required
-                placeholder="Enter last name"
-                errorMsg={error?.lastname}
-                name="lastname"
-              />
-              <CustomInput
-                type="text"
-                rootCls="w-full"
-                label="Designer Name"
-                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
-                value={formValues.designerName}
-                onChange={(e) => handleFormChange("designerName", e.target.value)}
-                required
-                placeholder="Designer name"
-                errorMsg={error?.designerName}
-                name="designerName"
-              />
-              <CustomInput
-                label="Email"
-                type="email"
-                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
-                value={formValues.email}
-                onChange={(e) => handleFormChange(e.target.name, e.target.value)}
-                required
-                placeholder="Enter email"
-                errorMsg={error?.email}
-                name="email"
-              />
-              <CustomInput
-                label="Phone Number"
-                type="number"
-                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
-                value={formValues.phone}
-                onChange={(e) => handleFormChange(e.target.name, +e.target.value)}
-                required
-                placeholder="Phone number"
-                errorMsg={error?.phone}
-                name="phone"
-              />
-              <CustomDate
-                label="Date of Estimation"
-                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
-                value={formValues.date}
-                onChange={(e) => handleFormChange(e.target.name, e.target.value)}
-                placeholder="Date of estimation"
-                errorMsg={error?.date}
-                name="date"
-              />
+            <div className="space-y-4">
+              <div className="bg-gray-50 rounded-[10px] border border-gray-100 p-4">
+                <p className="text-[11px] font-semibold text-gray-500 mb-3 uppercase tracking-[0.06em]">Prepared For</p>
+                <div className="grid gap-4 md:grid-cols-3">
+                  <CustomInput
+                    type="text"
+                    label="First Name"
+                    labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                    value={formValues.firstname}
+                    onChange={(e) => handleFormChange(e.target.name, e.target.value)}
+                    required
+                    placeholder="Enter first name"
+                    errorMsg={error?.firstname}
+                    name="firstname"
+                  />
+                  <CustomInput
+                    type="text"
+                    label="Last Name"
+                    labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                    value={formValues.lastname}
+                    onChange={(e) => handleFormChange(e.target.name, e.target.value)}
+                    required
+                    placeholder="Enter last name"
+                    errorMsg={error?.lastname}
+                    name="lastname"
+                  />
+                  <CustomInput
+                    label="User Contact"
+                    type="text"
+                    labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                    value={formValues.customerMobile}
+                    onChange={(e) => handleFormChange(e.target.name, e.target.value.replace(/\D/g, "").slice(0, 15))}
+                    required
+                    placeholder="User mobile number"
+                    errorMsg={error?.customerMobile}
+                    name="customerMobile"
+                  />
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-[10px] border border-gray-100 p-4">
+                <p className="text-[11px] font-semibold text-gray-500 mb-3 uppercase tracking-[0.06em]">Prepared By</p>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <CustomInput
+                    type="text"
+                    rootCls="w-full"
+                    label="Designer Name"
+                    labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                    value={formValues.designerName}
+                    onChange={(e) => handleFormChange("designerName", e.target.value)}
+                    required
+                    placeholder="Designer name"
+                    errorMsg={error?.designerName}
+                    name="designerName"
+                  />
+                  <CustomInput
+                    label="Email"
+                    type="email"
+                    labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                    value={formValues.email}
+                    onChange={(e) => handleFormChange(e.target.name, e.target.value)}
+                    required
+                    placeholder="Enter email"
+                    errorMsg={error?.email}
+                    name="email"
+                  />
+                  <CustomInput
+                    label="Phone Number"
+                    type="number"
+                    labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                    value={formValues.phone}
+                    onChange={(e) => handleFormChange(e.target.name, +e.target.value)}
+                    required
+                    placeholder="Phone number"
+                    errorMsg={error?.phone}
+                    name="phone"
+                  />
+                  <CustomDate
+                    label="Date of Estimation"
+                    labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                    value={formValues.date}
+                    onChange={(e) => handleFormChange(e.target.name, e.target.value)}
+                    placeholder="Date of estimation"
+                    errorMsg={error?.date}
+                    name="date"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
