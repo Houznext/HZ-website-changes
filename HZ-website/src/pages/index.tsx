@@ -743,7 +743,7 @@ function Hero() {
               </h1>
 
               <p
-                className="text-[13px] sm:text-[14px] md:text-[15px] mb-7 sm:mb-8 leading-relaxed max-w-xl"
+                className="text-[16px] sm:text-[17px] md:text-[19px] mb-7 sm:mb-8 leading-relaxed max-w-xl"
                 style={{ color: 'rgba(255,255,255,0.62)', letterSpacing: '0.01em' }}
               >
                 Turnkey home interiors with real-time LiveBuild updates, ensuring everything stays on time and within budget.

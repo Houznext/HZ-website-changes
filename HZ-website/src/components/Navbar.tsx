@@ -149,7 +149,12 @@ export default function Navbar() {
             <button type="button" onClick={() => openModal('Navbar — Free consultation')} className="px-4 py-1.5 rounded-lg text-[13px] font-head font-bold text-white transition-all duration-200 hover:-translate-y-px hover:shadow-lg" style={{ background: '#2f80ed' }}>
               Free consultation
             </button>
-            <div className="relative" ref={profileRef}>
+            <div
+              className="relative"
+              ref={profileRef}
+              onMouseEnter={() => setProfileOpen(true)}
+              onMouseLeave={() => setProfileOpen(false)}
+            >
               {!isLoggedIn ? (
                 <>
                   <button
@@ -165,7 +170,8 @@ export default function Navbar() {
                     </svg>
                   </button>
                   {profileOpen && (
-                    <div style={{ position: 'absolute', top: 'calc(100% + 12px)', right: 0, background: '#fff', border: '1px solid #dde8f5', borderRadius: 14, width: 242, boxShadow: '0 14px 44px rgba(0,0,0,0.14)', overflow: 'hidden', zIndex: 500 }}>
+                    <div style={{ position: 'absolute', top: '100%', right: 0, paddingTop: 10, zIndex: 500 }}>
+                      <div style={{ background: '#fff', border: '1px solid #dde8f5', borderRadius: 14, width: 242, boxShadow: '0 14px 44px rgba(0,0,0,0.14)', overflow: 'hidden' }}>
                       <div style={{ padding: '14px 16px', background: '#f5f7fa', borderBottom: '1px solid #dde8f5' }}>
                         <div style={{ fontSize: 12, color: '#5a6a7e', marginBottom: 8 }}>Sign in to access your dashboard</div>
                         <button
@@ -203,6 +209,7 @@ export default function Navbar() {
                         <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#d97706' }}>Active</span>
                       </div>
                     </div>
+                    </div>
                   )}
                 </>
               ) : (
@@ -217,7 +224,8 @@ export default function Navbar() {
                     <span style={{ fontFamily: 'Montserrat, system-ui', fontSize: 12, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{getInitials(customer?.name ?? '')}</span>
                   </button>
                   {profileOpen && (
-                    <div style={{ position: 'absolute', top: 'calc(100% + 12px)', right: 0, background: '#fff', border: '1px solid #dde8f5', borderRadius: 14, width: 242, boxShadow: '0 14px 44px rgba(0,0,0,0.14)', overflow: 'hidden', zIndex: 500 }}>
+                    <div style={{ position: 'absolute', top: '100%', right: 0, paddingTop: 10, zIndex: 500 }}>
+                      <div style={{ background: '#fff', border: '1px solid #dde8f5', borderRadius: 14, width: 242, boxShadow: '0 14px 44px rgba(0,0,0,0.14)', overflow: 'hidden' }}>
                       <div
                         onClick={() => { setProfileOpen(false); void router.push('/my-account') }}
                         style={{ padding: '14px 16px', background: '#f5f7fa', borderBottom: '1px solid #dde8f5', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', transition: 'all 0.2s' }}
@@ -248,6 +256,7 @@ export default function Navbar() {
                       <div onClick={() => { setProfileOpen(false); setLogoutConfirmOpen(true) }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontSize: 13, color: '#5a6a7e', cursor: 'pointer', transition: 'all 0.2s' }}>
                         Log out
                       </div>
+                    </div>
                     </div>
                   )}
                 </>

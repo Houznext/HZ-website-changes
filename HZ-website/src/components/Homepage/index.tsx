@@ -22,7 +22,7 @@ const Homepage = ({ initialBlogs }: HomepageProps) => {
         >
           <p className="text-sm uppercase tracking-[0.16em] text-blue-200">Houznext Interiors</p>
           <h1 className="mt-2 text-3xl font-semibold md:text-5xl">Premium Interiors For Modern Homes</h1>
-          <p className="mt-4 max-w-2xl text-sm text-slate-200 md:text-base">
+          <p className="mt-4 max-w-2xl text-xl text-slate-200 md:text-2xl">
             Discover design-first interiors with transparent execution tracking and smart cost planning.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
