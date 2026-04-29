@@ -4,42 +4,26 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
 import { useCustomerGuard } from '@/hooks/useCustomerGuard'
-
-type SavedItem = {
-  id: string
-  title: string
-  imageUrl: string
-  room: string
-  style: string
-  clickAction: string
-  targetUrl: string
-}
+import { getSavedDesigns, removeSavedDesign, type SavedDesignItem } from '@/utils/savedDesigns'
 
 export default function SavedDesignsPage() {
   const { customer, isLoading } = useCustomerGuard()
-  const [saved, setSaved] = useState<SavedItem[]>([])
+  const [saved, setSaved] = useState<SavedDesignItem[]>([])
+  const [pendingUnsave, setPendingUnsave] = useState<SavedDesignItem | null>(null)
   const router = useRouter()
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem('hz_saved_designs')
-      if (!raw) return
-      const all = JSON.parse(raw) as Record<string, SavedItem>
-      setSaved(Object.values(all))
+      setSaved(getSavedDesigns())
     } catch {
       setSaved([])
     }
-  }, [])
+  }, [customer?.mobile])
 
   const unsave = (id: string) => {
     try {
-      const raw = localStorage.getItem('hz_saved_designs')
-      if (!raw) return
-      const all = JSON.parse(raw) as Record<string, SavedItem>
-      delete all[id]
-      localStorage.setItem('hz_saved_designs', JSON.stringify(all))
+      removeSavedDesign(id)
       setSaved((s) => s.filter((i) => i.id !== id))
-      window.dispatchEvent(new Event('saved-changed'))
     } catch {
       // ignore
     }
@@ -67,7 +51,7 @@ export default function SavedDesignsPage() {
                 <div key={item.id} className="rounded-[13px] border border-[#dde8f5] bg-white overflow-hidden cursor-pointer transition-all duration-200" onClick={() => void router.push(item.targetUrl || '/design-ideas')}>
                   <div className="relative h-[120px] bg-gradient-to-br from-[#e8f1fd] to-[#dde8f5]">
                     {item.imageUrl && <img src={item.imageUrl} alt={item.title} className="h-full w-full object-cover" />}
-                    <button onClick={(e) => { e.stopPropagation(); unsave(item.id) }} className="absolute right-2 top-2 rounded-full bg-white/90 px-2 py-1 text-xs font-bold text-[#dc2626] transition-all duration-200">♥</button>
+                    <button onClick={(e) => { e.stopPropagation(); setPendingUnsave(item) }} className="absolute right-2 top-2 rounded-full bg-white/90 px-2 py-1 text-xs font-bold text-[#dc2626] transition-all duration-200">♥</button>
                   </div>
                   <div className="p-3">
                     <div className="text-xs text-[#5a6a7e]">{item.room}</div>
@@ -79,6 +63,42 @@ export default function SavedDesignsPage() {
           )}
         </div>
       </main>
+      {pendingUnsave && (
+        <div
+          className="fixed inset-0 z-[650] flex items-center justify-center p-4"
+          style={{ background: 'rgba(15,42,68,0.45)' }}
+          onClick={() => setPendingUnsave(null)}
+        >
+          <div
+            className="w-full max-w-[360px] rounded-[14px] border bg-white p-5 shadow-2xl"
+            style={{ borderColor: '#dde8f5' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-[16px] font-[700] text-[#1f2933]">Are you sure want to unsave</h3>
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setPendingUnsave(null)}
+                className="rounded-lg border px-4 py-2 text-[13px] font-[600] text-[#5a6a7e] transition-all duration-200"
+                style={{ borderColor: '#dde8f5' }}
+              >
+                No
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  unsave(pendingUnsave.id)
+                  setPendingUnsave(null)
+                }}
+                className="rounded-lg px-4 py-2 text-[13px] font-[700] text-white transition-all duration-200"
+                style={{ background: '#2f80ed' }}
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <Footer />
     </>
   )

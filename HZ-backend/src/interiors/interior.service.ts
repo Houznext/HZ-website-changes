@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -80,9 +80,23 @@ export class InteriorService {
     );
   }
 
-  async sendOtp(mobile: string): Promise<{ sent: boolean; customerId: string }> {
+  async sendOtp(
+    mobile: string,
+    mode: 'login' | 'signup' = 'login',
+  ): Promise<{ sent: boolean; customerId: string }> {
     let customer = await this.customerRepo.findOne({ where: { mobile } });
-    if (!customer) {
+    const isRegisteredCustomer = Boolean(
+      customer &&
+      customer.isVerified &&
+      (customer.fullName ?? '').trim().length > 0,
+    );
+    if (mode === 'login' && !isRegisteredCustomer) {
+      throw new BadRequestException('This mobile number is not registered. Please sign up first.');
+    }
+    if (mode === 'signup' && isRegisteredCustomer) {
+      throw new BadRequestException('This mobile number is already registered. Please login.');
+    }
+    if (!customer && mode === 'signup') {
       customer = this.customerRepo.create({
         fullName: '',
         mobile,

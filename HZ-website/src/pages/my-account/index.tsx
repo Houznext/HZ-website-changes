@@ -4,23 +4,29 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
 import { useCustomerGuard } from '@/hooks/useCustomerGuard'
+import { useCustomerAuth } from '@/context/CustomerAuthContext'
+import { countSavedDesigns } from '@/utils/savedDesigns'
 
 export default function MyAccountDashboard() {
   const { customer, isLoading } = useCustomerGuard()
+  const { updateCustomerName } = useCustomerAuth()
   const router = useRouter()
   const [savedCount, setSavedCount] = useState(0)
   const [projectCount, setProjectCount] = useState<number | null>(null)
   const [invoiceDue, setInvoiceDue] = useState(false)
+  const [editingName, setEditingName] = useState(false)
+  const [nameDraft, setNameDraft] = useState('')
+  const [savingName, setSavingName] = useState(false)
   const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem('hz_saved_designs')
-      setSavedCount(raw ? Object.keys(JSON.parse(raw)).length : 0)
+      setSavedCount(countSavedDesigns())
     } catch {
       setSavedCount(0)
     }
     if (customer) {
+      setNameDraft(customer.name || '')
       fetch(`${API}/interiors/customers/${customer.id}/projects`, {
         headers: { Authorization: `Bearer ${customer.token}` },
       }).then((r) => r.json()).then((projects: unknown[]) => setProjectCount(projects?.length ?? 0)).catch(() => setProjectCount(0))
@@ -36,6 +42,32 @@ export default function MyAccountDashboard() {
 
   const initials = customer.name.split(' ').map((w) => w[0] ?? '').join('').toUpperCase().slice(0, 2) || 'HZ'
 
+  const saveName = async () => {
+    const nextName = nameDraft.trim()
+    if (!nextName || nextName === customer.name) {
+      setEditingName(false)
+      return
+    }
+    setSavingName(true)
+    try {
+      const res = await fetch(`${API}/interiors/customers/${customer.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${customer.token}`,
+        },
+        body: JSON.stringify({ fullName: nextName }),
+      })
+      if (!res.ok) throw new Error('Failed')
+      updateCustomerName(nextName)
+      setEditingName(false)
+    } catch {
+      // keep silent; user can retry
+    } finally {
+      setSavingName(false)
+    }
+  }
+
   return (
     <>
       <SeoHead title="My Account | Houznext" description="Manage your quotations, invoices, saved designs and LiveBuild project." canonical="/my-account" />
@@ -46,7 +78,45 @@ export default function MyAccountDashboard() {
           <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 13, paddingBottom: 20 }}>
             <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#2f80ed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Montserrat, system-ui', fontSize: 20, fontWeight: 800, color: '#fff', border: '3px solid rgba(255,255,255,.2)' }}>{initials}</div>
             <div>
-              <div style={{ fontFamily: 'Montserrat, system-ui', fontSize: 21, fontWeight: 800, color: '#fff' }}>{customer.name}</div>
+              {editingName ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <input
+                    value={nameDraft}
+                    onChange={(e) => setNameDraft(e.target.value)}
+                    className="rounded-md border px-2 py-1 text-[13px] outline-none"
+                    style={{ borderColor: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.95)', color: '#1f2933' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void saveName()}
+                    disabled={savingName}
+                    className="rounded-md px-2 py-1 text-[12px] font-bold text-white"
+                    style={{ background: '#2f80ed', opacity: savingName ? 0.7 : 1 }}
+                  >
+                    {savingName ? 'Saving...' : 'Save'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setEditingName(false); setNameDraft(customer.name || '') }}
+                    className="rounded-md border px-2 py-1 text-[12px] font-bold"
+                    style={{ borderColor: 'rgba(255,255,255,0.35)', color: '#fff' }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ fontFamily: 'Montserrat, system-ui', fontSize: 21, fontWeight: 800, color: '#fff' }}>{customer.name}</div>
+                  <button
+                    type="button"
+                    onClick={() => setEditingName(true)}
+                    className="rounded-md border px-2 py-1 text-[11px] font-bold"
+                    style={{ borderColor: 'rgba(255,255,255,0.35)', color: '#fff' }}
+                  >
+                    Edit
+                  </button>
+                </div>
+              )}
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,.55)' }}>{customer.mobile}</div>
             </div>
           </div>

@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
+import { getSavedDesigns, setSavedDesigns } from '@/utils/savedDesigns'
 
 const ROOM_LABELS: Record<string, string> = {
   living: 'Living room',
@@ -26,8 +27,7 @@ export default function SavedDesignsPage() {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem('hz_saved_designs')
-      setSavedCards(raw ? (JSON.parse(raw) as Saved[]) : [])
+      setSavedCards(getSavedDesigns() as Saved[])
     } catch {
       setSavedCards([])
     }
@@ -37,7 +37,7 @@ export default function SavedDesignsPage() {
   function unsave(id: string) {
     const next = savedCards.filter((c) => c.id !== id)
     setSavedCards(next)
-    localStorage.setItem('hz_saved_designs', JSON.stringify(next))
+    setSavedDesigns(next)
   }
 
   return (

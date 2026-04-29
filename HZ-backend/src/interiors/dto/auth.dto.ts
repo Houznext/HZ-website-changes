@@ -1,8 +1,12 @@
-import { IsString, IsOptional, IsEmail, MinLength } from 'class-validator';
+import { IsString, IsOptional, IsEmail, MinLength, IsIn } from 'class-validator';
 
 export class SendOtpDto {
   @IsString()
   mobile: string;
+
+  @IsOptional()
+  @IsIn(['login', 'signup'])
+  mode?: 'login' | 'signup';
 }
 
 export class VerifyOtpDto {

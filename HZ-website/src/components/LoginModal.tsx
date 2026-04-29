@@ -13,8 +13,10 @@ const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
   const router = useRouter()
   const { loginSuccess } = useCustomerAuth()
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [name, setName] = useState('')
+  const [welcomeName, setWelcomeName] = useState('Customer')
   const [mobile, setMobile] = useState('')
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [error, setError] = useState('')
@@ -26,16 +28,20 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
   const modalRef = useRef<HTMLDivElement | null>(null)
 
   const title = useMemo(() => {
-    if (step === 1) return 'Login to your account'
+    if (step === 1) return authMode === 'login' ? 'Login to your account' : 'Create your account'
     if (step === 2) return 'Verify OTP'
     return 'Success'
-  }, [step])
+  }, [step, authMode])
 
   const subtitle = useMemo(() => {
-    if (step === 1) return 'Access quotations, invoices, saved designs and LiveBuild.'
+    if (step === 1) {
+      return authMode === 'login'
+        ? 'Access quotations, invoices, saved designs and LiveBuild.'
+        : 'Sign up with your mobile number to create your Houznext account.'
+    }
     if (step === 2) return 'Enter the 6-digit OTP sent to your mobile number.'
     return 'Your account is now ready.'
-  }, [step])
+  }, [step, authMode])
 
   const stopTimer = () => {
     if (timerRef.current) {
@@ -59,7 +65,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
   }
 
   const sendOtp = async () => {
-    if (!name.trim()) {
+    if (authMode === 'signup' && !name.trim()) {
       setError('Full name is required.')
       return
     }
@@ -74,9 +80,23 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
       const res = await fetch(`${API}/interiors/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile: digits }),
+        body: JSON.stringify({ mobile: digits, mode: authMode }),
       })
-      if (!res.ok) throw new Error('Failed to send OTP. Try again.')
+      if (!res.ok) {
+        let msg = 'Failed to send OTP. Try again.'
+        try {
+          const err = await res.json() as { message?: string | string[] }
+          const raw = Array.isArray(err?.message) ? err.message[0] : err?.message
+          if (typeof raw === 'string' && raw.toLowerCase().includes('not registered')) {
+            msg = 'Please Sign up first'
+          } else if (typeof raw === 'string' && raw.trim()) {
+            msg = raw
+          }
+        } catch {
+          // ignore JSON parsing errors
+        }
+        throw new Error(msg)
+      }
       setStep(2)
       startTimer()
       setTimeout(() => otpRefs.current[0]?.focus(), 120)
@@ -107,7 +127,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
         token: string
         customer: { id: string; fullName: string | null; mobile: string }
       }
-      if (name.trim() && name.trim() !== data.customer.fullName) {
+      if (authMode === 'signup' && name.trim() && name.trim() !== data.customer.fullName) {
         await fetch(`${API}/interiors/customers/${data.customer.id}`, {
           method: 'PATCH',
           headers: {
@@ -117,7 +137,10 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
           body: JSON.stringify({ fullName: name.trim() }),
         }).catch(() => {})
       }
-      const finalName = name.trim() || data.customer.fullName || 'Customer'
+      const finalName = authMode === 'signup'
+        ? (name.trim() || data.customer.fullName || 'Customer')
+        : (data.customer.fullName || 'Customer')
+      setWelcomeName(finalName)
       loginSuccess({
         id: data.customer.id,
         name: finalName,
@@ -141,7 +164,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
       const res = await fetch(`${API}/interiors/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile: digits }),
+        body: JSON.stringify({ mobile: digits, mode: authMode }),
       })
       if (!res.ok) throw new Error('Failed to resend')
       startTimer()
@@ -174,8 +197,10 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
 
   useEffect(() => {
     if (isOpen) {
+      setAuthMode('login')
       setStep(1)
       setName('')
+      setWelcomeName('Customer')
       setMobile('')
       setOtp(['', '', '', '', '', ''])
       setError('')
@@ -217,7 +242,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
 
   if (!isOpen) return null
 
-  const firstName = name.trim().split(' ')[0] || 'Customer'
+  const firstName = welcomeName.trim().split(' ')[0] || 'Customer'
   const mm = String(Math.floor(seconds / 60)).padStart(2, '0')
   const ss = String(seconds % 60).padStart(2, '0')
 
@@ -274,14 +299,47 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
 
           {step === 1 && (
             <>
-              <label className="mb-[5px] block text-[10px] font-bold uppercase tracking-[.06em]" style={{ color: '#5a6a7e' }}>Full name</label>
-              <input ref={nameInputRef} value={name} onChange={(e) => setName(e.target.value)} className="mb-3 w-full rounded-[9px] border px-3 py-[10px] text-[14px] outline-none transition-all duration-200" style={{ borderColor: '#dde8f5', color: '#1f2933' }} />
+              {authMode === 'signup' && (
+                <>
+                  <label className="mb-[5px] block text-[10px] font-bold uppercase tracking-[.06em]" style={{ color: '#5a6a7e' }}>Full name</label>
+                  <input ref={nameInputRef} value={name} onChange={(e) => setName(e.target.value)} className="mb-3 w-full rounded-[9px] border px-3 py-[10px] text-[14px] outline-none transition-all duration-200" style={{ borderColor: '#dde8f5', color: '#1f2933' }} />
+                </>
+              )}
               <label className="mb-[5px] block text-[10px] font-bold uppercase tracking-[.06em]" style={{ color: '#5a6a7e' }}>Mobile number</label>
-              <input value={mobile} onChange={(e) => setMobile(e.target.value)} className="w-full rounded-[9px] border px-3 py-[10px] text-[14px] outline-none transition-all duration-200" style={{ borderColor: '#dde8f5', color: '#1f2933' }} />
+              <input ref={authMode === 'login' ? nameInputRef : undefined} value={mobile} onChange={(e) => setMobile(e.target.value)} className="w-full rounded-[9px] border px-3 py-[10px] text-[14px] outline-none transition-all duration-200" style={{ borderColor: '#dde8f5', color: '#1f2933' }} />
               <p className="mt-1 mb-3 text-[11px]" style={{ color: '#5a6a7e' }}>We will send a 6-digit OTP to your mobile.</p>
               <button disabled={loading} onClick={sendOtp} className="mb-[9px] w-full rounded-[10px] py-3 text-[14px] font-bold text-white transition-all duration-200 font-head disabled:cursor-not-allowed" style={{ background: '#2f80ed', opacity: loading ? 0.6 : 1 }}>
-                {loading ? 'Sending...' : 'Send OTP →'}
+                {loading ? 'Sending...' : authMode === 'login' ? 'Login →' : 'Sign up →'}
               </button>
+              {authMode === 'login' ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthMode('signup')
+                    setError('')
+                    setOtp(['', '', '', '', '', ''])
+                    setTimeout(() => nameInputRef.current?.focus(), 80)
+                  }}
+                  className="mb-[9px] w-full rounded-[10px] border py-3 text-[14px] font-bold transition-all duration-200 font-head"
+                  style={{ borderColor: '#2f80ed', color: '#2f80ed' }}
+                >
+                  Signup
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthMode('login')
+                    setError('')
+                    setOtp(['', '', '', '', '', ''])
+                    setTimeout(() => nameInputRef.current?.focus(), 80)
+                  }}
+                  className="mb-[9px] w-full rounded-[10px] border py-3 text-[14px] font-bold transition-all duration-200 font-head"
+                  style={{ borderColor: '#2f80ed', color: '#2f80ed' }}
+                >
+                  Back to Login
+                </button>
+              )}
               <p className="text-center text-[11px] leading-[1.55]" style={{ color: '#5a6a7e' }}>By continuing, you agree to our terms and privacy policy.</p>
             </>
           )}

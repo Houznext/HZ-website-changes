@@ -15,6 +15,7 @@ interface CustomerAuthContextValue {
   isLoggedIn: boolean
   isLoading: boolean
   loginSuccess: (user: CustomerUser) => void
+  updateCustomerName: (name: string) => void
   logout: () => void
 }
 
@@ -23,6 +24,7 @@ const CustomerAuthContext = createContext<CustomerAuthContextValue>({
   isLoggedIn: false,
   isLoading: true,
   loginSuccess: () => {},
+  updateCustomerName: () => {},
   logout: () => {},
 })
 
@@ -69,15 +71,30 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
     setCustomer(null)
   }, [])
 
+  const updateCustomerName = useCallback((name: string) => {
+    const normalized = name.trim()
+    setCustomer((prev) => {
+      if (!prev) return prev
+      const next = { ...prev, name: normalized }
+      try {
+        localStorage.setItem('hz_customer_name', normalized)
+      } catch {
+        // ignore
+      }
+      return next
+    })
+  }, [])
+
   const value = useMemo(
     () => ({
       customer,
       isLoggedIn: !!customer,
       isLoading,
       loginSuccess,
+      updateCustomerName,
       logout,
     }),
-    [customer, isLoading, loginSuccess, logout],
+    [customer, isLoading, loginSuccess, updateCustomerName, logout],
   )
 
   return (

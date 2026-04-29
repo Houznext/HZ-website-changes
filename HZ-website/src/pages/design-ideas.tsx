@@ -6,6 +6,7 @@ import SeoHead from '@/components/SeoHead'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import { useQuoteModal } from '@/components/QuoteModal'
 import { getCmsContent } from '@/lib/cms'
+import { getSavedDesigns, setSavedDesigns } from '@/utils/savedDesigns'
 
 interface Room {
   slug: string
@@ -527,17 +528,9 @@ export default function DesignIdeasPage({ cms }: { cms: any }) {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('hz_saved_designs')
-      if (stored) {
-        const arr = JSON.parse(stored) as { id: string }[]
-        setSavedIds(new Set(arr.map((x) => x.id)))
-      }
+      const arr = getSavedDesigns()
+      setSavedIds(new Set(arr.map((x) => x.id)))
     } catch { /* ignore */ }
-  }, [])
-
-  const persistSaved = useCallback((items: { id: string; title: string; imageUrl: string; room: string; style: string }[]) => {
-    if (typeof window === 'undefined') return
-    localStorage.setItem('hz_saved_designs', JSON.stringify(items))
   }, [])
 
   const toggleSave = useCallback((card: DesignCard) => {
@@ -545,15 +538,13 @@ export default function DesignIdeasPage({ cms }: { cms: any }) {
       const next = new Set(prev)
       let list: { id: string; title: string; imageUrl: string; room: string; style: string }[] = []
       try {
-        list = JSON.parse(
-          typeof window !== 'undefined' ? (localStorage.getItem('hz_saved_designs') || '[]') : '[]',
-        ) as { id: string; title: string; imageUrl: string; room: string; style: string }[]
+        list = getSavedDesigns()
       } catch {
         list = []
       }
       if (next.has(card.id)) {
         next.delete(card.id)
-        persistSaved(list.filter((x) => x.id !== card.id))
+        setSavedDesigns(list.filter((x) => x.id !== card.id))
       } else {
         next.add(card.id)
         const row = {
@@ -562,12 +553,14 @@ export default function DesignIdeasPage({ cms }: { cms: any }) {
           imageUrl: card.imageUrl,
           room: card.room,
           style: card.style,
+          clickAction: card.onclick,
+          targetUrl: card.onclickValue,
         }
-        persistSaved([...list.filter((x) => x.id !== card.id), row])
+        setSavedDesigns([...list.filter((x) => x.id !== card.id), row])
       }
       return next
     })
-  }, [persistSaved])
+  }, [])
 
   const tabCards = allCards.filter((c) => {
     if (c.room !== activeTab) return false

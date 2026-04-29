@@ -49,7 +49,7 @@ export class InteriorController {
   // —— Public auth (no guard) ——
   @Post('auth/send-otp')
   sendOtp(@Body() dto: SendOtpDto) {
-    return this.interiorService.sendOtp(dto.mobile);
+    return this.interiorService.sendOtp(dto.mobile, dto.mode ?? 'login');
   }
 
   @Post('auth/verify-otp')

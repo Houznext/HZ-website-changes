@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useQuoteModal } from './QuoteModal'
 import { useCustomerAuth } from '@/context/CustomerAuthContext'
 import LoginModal from './LoginModal'
+import { countSavedDesigns } from '@/utils/savedDesigns'
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
@@ -48,8 +49,7 @@ export default function Navbar() {
   useEffect(() => {
     const update = () => {
       try {
-        const raw = localStorage.getItem('hz_saved_designs')
-        setSavedCount(raw ? Object.keys(JSON.parse(raw)).length : 0)
+        setSavedCount(countSavedDesigns())
       } catch {
         setSavedCount(0)
       }
@@ -115,14 +115,14 @@ export default function Navbar() {
 
           <div className="hidden md:flex items-center gap-3 md:gap-4 flex-1 min-w-0 justify-center">
             {PRIMARY_NAV_LINKS.map((link) => (
-              <a key={link.href} href={link.href} onClick={(e) => { e.preventDefault(); void router.push(link.href) }} className="relative px-3.5 sm:px-4 py-2 rounded text-[13px] font-[500] transition-all duration-200 cursor-pointer no-underline inline-block" style={{ color: isActive(link.href) ? '#fff' : 'rgba(255,255,255,0.75)' }}>
+              <a key={link.href} href={link.href} onClick={(e) => { e.preventDefault(); void router.push(link.href) }} className="relative px-3.5 sm:px-4 py-2 rounded text-[13px] font-[500] transition-all duration-200 cursor-pointer no-underline inline-block hover:bg-[rgba(47,128,237,0.16)] hover:-translate-y-[1px]" style={{ color: isActive(link.href) ? '#fff' : 'rgba(255,255,255,0.75)' }}>
                 {link.label}
                 {isActive(link.href) && <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full pointer-events-none" style={{ background: '#2f80ed' }} />}
               </a>
             ))}
 
             <div className="relative inline-block" ref={moreRef} onMouseEnter={() => setMoreOpen(true)} onMouseLeave={() => setMoreOpen(false)}>
-              <button type="button" onClick={() => setMoreOpen((o) => !o)} className="relative flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded text-[13px] font-[500] transition-all duration-200 cursor-pointer" style={{ color: isMoreGroupActive() || moreOpen ? '#fff' : 'rgba(255,255,255,0.75)' }}>
+              <button type="button" onClick={() => setMoreOpen((o) => !o)} className="relative flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded text-[13px] font-[500] transition-all duration-200 cursor-pointer hover:bg-[rgba(47,128,237,0.16)] hover:-translate-y-[1px]" style={{ color: isMoreGroupActive() || moreOpen ? '#fff' : 'rgba(255,255,255,0.75)' }}>
                 More
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-200" style={{ transform: moreOpen ? 'rotate(180deg)' : 'none' }}>
                   <path d="M6 9l6 6 6-6" />
@@ -132,7 +132,7 @@ export default function Navbar() {
                 <div className="absolute z-[250] right-0 left-auto top-full w-max min-w-[220px] pt-1.5" style={{ marginTop: -2 }}>
                   <div role="menu" className="rounded-[10px] border overflow-hidden" style={{ background: '#0f2a44', borderColor: 'rgba(255,255,255,0.15)', boxShadow: '0 12px 40px rgba(0,0,0,0.35)' }}>
                     {MORE_NAV_LINKS.map((link) => (
-                      <a key={link.href} href={link.href} role="menuitem" onClick={(e) => { e.preventDefault(); setMoreOpen(false); void router.push(link.href) }} className="flex w-full min-w-0 items-center justify-between gap-3 px-4 py-2.5 text-left text-[13px] font-[500] no-underline transition-all duration-200" style={{ color: isActive(link.href) ? '#2f80ed' : 'rgba(255,255,255,0.9)' }}>
+                      <a key={link.href} href={link.href} role="menuitem" onClick={(e) => { e.preventDefault(); setMoreOpen(false); void router.push(link.href) }} className="flex w-full min-w-0 items-center justify-between gap-3 px-4 py-2.5 text-left text-[13px] font-[500] no-underline transition-all duration-200 hover:bg-[rgba(47,128,237,0.16)] hover:-translate-y-[1px]" style={{ color: isActive(link.href) ? '#2f80ed' : 'rgba(255,255,255,0.9)' }}>
                         <span className="min-w-0 flex-1">{link.label}</span>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 opacity-50" aria-hidden>
                           <path d="M9 18l6-6-6-6" />
