@@ -1,120 +1,37 @@
-import Button from "@/common/Button";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { FiHome, FiArrowLeft, } from "react-icons/fi";
+import Link from 'next/link'
 
-const Custom404 = () => {
-    const router = useRouter();
-    return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-            <main className="flex  items-center justify-start flex-1">
-                <div className="max-w-6xl mx-auto md:px-4 px-2 md:py-10 py-2 w-full">
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div className="grid md:grid-cols-2 gap-0">
-                            <div className="p-8 md:p-12">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#3586FF] text-xs font-medium">
-                                    <span className="w-2 h-2 rounded-full bg-[#3586FF]" />
-                                    Page not found
-                                </div>
+export default function Custom404() {
+  return (
+    <div
+      className="min-h-screen flex flex-col items-center justify-center px-6 py-16"
+      style={{ background: '#f5f7fa' }}
+    >
+      <div className="w-full max-w-[420px] text-center">
+        <p
+          className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em]"
+          style={{ background: 'rgba(47,128,237,0.12)', color: '#2f80ed' }}
+        >
+          <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: '#2f80ed' }} />
+          Page not found
+        </p>
 
-                                <h1 className="mt-4 text-4xl md:text-5xl font-bold text-gray-900">
-                                    404
-                                </h1>
+        <h1 className="font-head mt-6 text-[clamp(3.5rem,12vw,5rem)] font-black leading-none tracking-tight text-[#1f2933]">
+          404
+        </h1>
 
-                                <p className="mt-3 text-gray-600 label-text font-regular">
-                                    The page you’re looking for doesn’t exist or may have been moved.
-                                    Let’s get you back to something useful.
-                                </p>
+        <p className="mt-6 text-[15px] leading-relaxed md:text-[16px]" style={{ color: '#5a6a7e' }}>
+          The page you&apos;re looking for doesn&apos;t exist or may have been moved. Let&apos;s get you back to
+          something useful.
+        </p>
 
-                                <div className="mt-6">
-                                    <p className="text-xs text-gray-500 mt-2">
-                                        Press Enter to explore Properties
-                                    </p>
-                                </div>
-                                <div className="mt-8 flex flex-wrap gap-3">
-                                    <Button
-                                        onClick={() => router.back()}
-                                        className="inline-flex items-center gap-2 px-5 py-2 rounded-md btn-text border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium"
-                                    >
-                                        <FiArrowLeft />
-                                        Go back
-                                    </Button>
-
-                                    <Link
-                                        href="/"
-                                        className="inline-flex items-center gap-2 px-5 py-2 btn-text rounded-md bg-[#3586FF] text-white hover:opacity-95 font-medium"
-                                    >
-                                        <FiHome />
-                                        Home
-                                    </Link>
-
-                                    <Link
-                                        href="/properties"
-                                        className="inline-flex items-center gap-2 px-5 py-2 btn-text rounded-md bg-gray-900 text-white hover:opacity-95 font-medium"
-                                    >
-                                        Browse Properties
-                                    </Link>
-                                </div>
-
-                                <div className="mt-10">
-                                    <p className="subheading font-medium text-gray-900">
-                                        Quick links:
-                                    </p>
-                                    <div className=" flex flex-wrap gap-x-6 gap-y-2 label-text">
-                                        <Link href="/services" className="text-[#3586FF] hover:underline">
-                                            Services
-                                        </Link>
-                                        <Link href="/buildlive" className="text-[#3586FF] hover:underline">
-                                            LiveBuild
-                                        </Link>
-                                        <Link href="/blog" className="text-[#3586FF] hover:underline">
-                                            Blogs
-                                        </Link>
-                                        <Link href="/contact-us" className="text-[#3586FF] hover:underline">
-                                            Contact Us
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-gradient-to-br from-[#5e88c6] to-[#102a4e] p-8 md:p-12 text-white flex flex-col justify-between">
-                                <div>
-                                    <p className="text-white/80 font-medium">
-                                        Tip
-                                    </p>
-                                    <h2 className="mt-2 md:text-xl text-[14px] font-bold">
-                                        Check the URL or return to your dashboard
-                                    </h2>
-                                    <p className="text-white/70 sublabel-text font-regular">
-                                        If you were trying to open a protected page, please login again.
-                                    </p>
-
-                                    <div className="mt-6 flex flex-col gap-3">
-                                        <Link
-                                            href="/login"
-                                            className="w-full text-center px-5 py-2 btn-text rounded-md bg-white text-gray-900 font-medium hover:bg-white/95"
-                                        >
-                                            Go to Login
-                                        </Link>
-                                        <Link
-                                            href="/user/dashboard"
-                                            className="w-full text-center px-5 py-2 btn-text rounded-md border border-white/30 text-white font-medium hover:bg-white/10"
-                                        >
-                                            Client Dashboard
-                                        </Link>
-                                    </div>
-                                </div>
-
-                                <div className="pt-8 border-t border-white/15 text-xs text-white/60 font-regular">
-                                    © {new Date().getFullYear()} Houznext • One Roof Every Solution
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    );
+        <Link
+          href="/"
+          className="font-head mt-10 inline-flex min-h-[48px] min-w-[160px] items-center justify-center rounded-xl px-8 text-[15px] font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:opacity-[0.96]"
+          style={{ background: '#2f80ed', boxShadow: '0 8px 24px rgba(47,128,237,0.35)' }}
+        >
+          Home page
+        </Link>
+      </div>
+    </div>
+  )
 }
-
-export default Custom404
