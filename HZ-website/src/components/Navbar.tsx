@@ -14,6 +14,7 @@ const NAV_LINKS = [
   { label: 'LiveBuild', href: '/buildlive' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'Blog', href: '/blog' },
+  { label: 'About us', href: '/about-us' },
 ]
 
 const PRIMARY_NAV_LINKS = [

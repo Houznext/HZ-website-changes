@@ -1,10 +1,11 @@
 /**
- * Generates sitemap index + split sitemaps for houznext.com (sitemaps.org 0.9).
- * Run after `next build` via package.json postbuild.
+ * Generates static sitemap index + split sitemaps for houznext.com (sitemaps.org 0.9).
+ * Output: /public/*.xml only — no Next.js API sitemap.
+ * Run via package.json `postbuild`: node scripts/generate-sitemaps.mjs
  *
  * Env:
  *   SITE_URL — canonical origin (default https://houznext.com)
- *   NEXT_PUBLIC_API_URL | NEXT_PUBLIC_LOCAL_API_ENDPOINT — blog collection
+ *   NEXT_PUBLIC_API_URL | NEXT_PUBLIC_LOCAL_API_ENDPOINT — blog posts for sitemap-blogs.xml
  */
 
 import fs from 'fs'
@@ -67,8 +68,8 @@ ${body}
 `
 }
 
-function sitemapIndex(sitemaps) {
-  const items = sitemaps
+function sitemapIndex(sitemapFilenames) {
+  const items = sitemapFilenames
     .map(
       (name) => `  <sitemap>
     <loc>${xmlEscape(`${SITE}/${name}`)}</loc>
@@ -83,9 +84,7 @@ ${items}
 `
 }
 
-// ─── Discover static index routes (skip dynamic [param] segments) ───
-
-function walkIndexRoutes(absDir, urlSegments, outSet, { rootLabel }) {
+function walkIndexRoutes(absDir, urlSegments, outSet) {
   if (!fs.existsSync(absDir) || !fs.statSync(absDir).isDirectory()) return
 
   const indexFile = path.join(absDir, 'index.tsx')
@@ -104,29 +103,20 @@ function walkIndexRoutes(absDir, urlSegments, outSet, { rootLabel }) {
     if (!ent.isDirectory()) continue
     if (ent.name.startsWith('[') || ent.name.startsWith('.')) continue
     if (ent.name === 'api') continue
-    walkIndexRoutes(
-      path.join(absDir, ent.name),
-      [...urlSegments, ent.name],
-      outSet,
-      { rootLabel },
-    )
+    walkIndexRoutes(path.join(absDir, ent.name), [...urlSegments, ent.name], outSet)
   }
 }
 
-function discoverInteriorsExtraPaths() {
+function discoverInteriorsPaths() {
   const set = new Set()
-  // pages/interiors.tsx → /interiors
   if (fs.existsSync(path.join(PAGES, 'interiors.tsx'))) {
     set.add('/interiors')
   }
   const base = path.join(PAGES, 'interiors')
-  walkIndexRoutes(base, ['interiors'], set, { rootLabel: 'interiors' })
-  // Drop non-marketing or duplicate
+  walkIndexRoutes(base, ['interiors'], set)
   set.delete('/interiors/Privacy-policy')
   return Array.from(set).sort()
 }
-
-// ─── Blog (canonical /blog/{slug} only) ───
 
 async function fetchBlogPosts() {
   if (!API_BASE) {
@@ -154,6 +144,7 @@ function priorityForPath(p) {
   if (p === '/interiors' || p === '/design-ideas' || p === '/blog') return 0.9
   if (p.startsWith('/blog/')) return 0.7
   if (p === '/buildlive') return 0.85
+  if (p === '/about-us') return 0.8
   return 0.75
 }
 
@@ -179,7 +170,6 @@ async function main() {
   const add = (list, pathStr, meta = {}) => {
     const full = `${SITE}${pathStr}`
     if (seen.has(full)) return
-    // Hard excludes (non-SEO / private)
     if (
       pathStr.startsWith('/user') ||
       pathStr.startsWith('/portal') ||
@@ -205,28 +195,24 @@ async function main() {
     })
   }
 
-  // ─── sitemap-main.xml ───
+  // ─── sitemap-main.xml (core marketing pages only) ───
   const main = []
-  for (const p of [
-    '/',
-    '/about-us',
-    '/contact-us',
-    '/pricing',
-    '/projects',
-  ]) {
-    add(main, p)
-  }
+  add(main, '/', { changefreq: 'weekly', priority: 1.0 })
+  add(main, '/about-us', { changefreq: 'monthly', priority: 0.8 })
+  add(main, '/contact-us', { changefreq: 'monthly', priority: 0.75 })
+  add(main, '/pricing', { changefreq: 'monthly', priority: 0.75 })
+  add(main, '/projects', { changefreq: 'monthly', priority: 0.75 })
 
   // ─── sitemap-interiors.xml ───
   const interiors = []
-  for (const p of discoverInteriorsExtraPaths()) {
+  for (const p of discoverInteriorsPaths()) {
     add(interiors, p)
   }
 
-  // ─── sitemap-design-ideas.xml (Design Ideas page) ───
-  const designIdeas = []
+  // ─── sitemap-inspiration.xml (/design-ideas) ───
+  const inspiration = []
   if (fs.existsSync(path.join(PAGES, 'design-ideas.tsx'))) {
-    add(designIdeas, '/design-ideas')
+    add(inspiration, '/design-ideas', { changefreq: 'weekly', priority: 0.85 })
   }
 
   // ─── sitemap-blogs.xml ───
@@ -250,14 +236,12 @@ async function main() {
     add(livebuild, '/buildlive', { changefreq: 'monthly', priority: 0.85 })
   }
 
-  // Sort URL entries by loc for stable output
-  const sortEntries = (arr) =>
-    arr.sort((a, b) => a.loc.localeCompare(b.loc))
+  const sortEntries = (arr) => arr.sort((a, b) => a.loc.localeCompare(b.loc))
 
   const files = {
     'sitemap-main.xml': sortEntries(main),
     'sitemap-interiors.xml': sortEntries(interiors),
-    'sitemap-design-ideas.xml': sortEntries(designIdeas),
+    'sitemap-inspiration.xml': sortEntries(inspiration),
     'sitemap-blogs.xml': sortEntries(blogs),
     'sitemap-livebuild.xml': sortEntries(livebuild),
   }
@@ -270,27 +254,24 @@ async function main() {
   const indexNames = [
     'sitemap-main.xml',
     'sitemap-interiors.xml',
-    'sitemap-design-ideas.xml',
+    'sitemap-inspiration.xml',
     'sitemap-blogs.xml',
     'sitemap-livebuild.xml',
   ]
-  fs.writeFileSync(
-    path.join(PUBLIC, 'sitemap.xml'),
-    sitemapIndex(indexNames),
-    'utf8',
-  )
+  fs.writeFileSync(path.join(PUBLIC, 'sitemap.xml'), sitemapIndex(indexNames), 'utf8')
   console.log('[sitemap] Wrote sitemap.xml (index)')
 
-  // Remove legacy next-sitemap chunk if present
-  const legacy = path.join(PUBLIC, 'sitemap-0.xml')
-  if (fs.existsSync(legacy)) {
-    fs.unlinkSync(legacy)
-    console.log('[sitemap] Removed legacy sitemap-0.xml')
-  }
-  const legacyInspiration = path.join(PUBLIC, 'sitemap-inspiration.xml')
-  if (fs.existsSync(legacyInspiration)) {
-    fs.unlinkSync(legacyInspiration)
-    console.log('[sitemap] Removed legacy sitemap-inspiration.xml (renamed to sitemap-design-ideas.xml)')
+  // Remove obsolete split files / legacy chunks (single static pipeline)
+  for (const obsolete of [
+    'sitemap-about-us.xml',
+    'sitemap-design-ideas.xml',
+    'sitemap-0.xml',
+  ]) {
+    const p = path.join(PUBLIC, obsolete)
+    if (fs.existsSync(p)) {
+      fs.unlinkSync(p)
+      console.log(`[sitemap] Removed obsolete ${obsolete}`)
+    }
   }
 }
 

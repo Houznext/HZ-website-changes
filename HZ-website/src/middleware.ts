@@ -31,7 +31,7 @@ function isPublicFile(pathname: string) {
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon.ico") ||
     pathname.startsWith("/robots.txt") ||
-    pathname.startsWith("/sitemap.xml") ||
+    pathname.startsWith("/sitemap") ||
     pathname.match(/\.(png|jpg|jpeg|svg|webp|ico|css|js|map|txt)$/)
   );
 }
