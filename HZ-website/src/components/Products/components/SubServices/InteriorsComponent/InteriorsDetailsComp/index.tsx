@@ -174,7 +174,7 @@ const InteriorsDetailsComp: React.FC<InteriorsDetailsCompProps> = ({
         <div className="bg-[#F0F0F0] md:text-[20x] text-[10px]">
           <BreadCrumb
             steps={[
-              { label: "Our Services", link: "/services/custom-builder" },
+              { label: "Our Services", link: "/interiors" },
               { label: "Interiors", link: "/interiors" },
               {
                 label: lastSegment
@@ -229,7 +229,7 @@ const InteriorsDetailsComp: React.FC<InteriorsDetailsCompProps> = ({
                   <MdArrowForwardIos size="12px" />
                 </span>
                 <Link
-                  href="/services/custom-builder"
+                  href="/interiors"
                   className="underline underline-offset-2"
                 >
                   Our Services

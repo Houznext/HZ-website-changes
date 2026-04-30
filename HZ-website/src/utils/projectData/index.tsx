@@ -104,23 +104,23 @@ export const OnePlaceInHouseServicesData: IOnePlaceInHouseServicesprops = {
     subheading: "Services We Offer",
     listItems: [
         // ===== Phase 1 (LIVE) =====
-        { id: 2, image: "/home/oneplaceinhouseservices/constructionforbusiness.png", title: "Construction", href: "services/custom-builder", status: "live", phase: 1 },
+        { id: 2, image: "/home/oneplaceinhouseservices/constructionforbusiness.png", title: "Construction", href: "/buildlive", status: "live", phase: 1 },
         { id: 3, image: "/home/oneplaceinhouseservices/interiors.png", title: "Interiors", href: "/interiors", status: "live", phase: 1 },
-        { id: 8, image: "/home/oneplaceinhouseservices/civil.png", title: "Civil Engineering Structural Design", href: "/services/civilEngineering", status: "live", phase: 1 },
-        { id: 9, image: "/home/oneplaceinhouseservices/solar.png", title: "Solar", href: "/solar", status: "live", phase: 1 },
-        { id: 6, image: "/home/oneplaceinhouseservices/painting.png", title: "Painting", href: "/painting", status: "live", phase: 1 },
-        { id: 4, image: "/home/oneplaceinhouseservices/furniture.png", title: "Furniture", href: "/services/furnitures", status: "live", phase: 1 },
+        { id: 8, image: "/home/oneplaceinhouseservices/civil.png", title: "Civil Engineering Structural Design", href: "/contact-us", status: "live", phase: 1 },
+        { id: 9, image: "/home/oneplaceinhouseservices/solar.png", title: "Solar", href: "/contact-us", status: "live", phase: 1 },
+        { id: 6, image: "/home/oneplaceinhouseservices/painting.png", title: "Painting", href: "/contact-us", status: "live", phase: 1 },
+        { id: 4, image: "/home/oneplaceinhouseservices/furniture.png", title: "Furniture", href: "/interiors", status: "live", phase: 1 },
 
 
         // ===== Phase 2/3 (COMING SOON) =====
-        { id: 5, image: "/home/oneplaceinhouseservices/plumber.png", title: "Plumbing", href: "/services/plumbing", status: "coming", phase: 2 },
-        { id: 7, image: "/home/oneplaceinhouseservices/vaastuconsultation.png", title: "Vastu Consultation", href: "/services/vaastu-consultation", status: "coming", phase: 2 },
-        { id: 10, image: "/home/oneplaceinhouseservices/earthmovers.png", title: "Earth Movers", href: "/services/earthmovers", status: "coming", phase: 2 },
-        { id: 11, image: "/home/oneplaceinhouseservices/homeloan.png", title: "Home Loan", href: "/services/loans", status: "coming", phase: 2 },
-        { id: 12, image: "/home/oneplaceinhouseservices/legal.png", title: "Legal services", href: "/legalservices", status: "coming", phase: 2 },
-        { id: 13, image: "/home/oneplaceinhouseservices/homedecor.png", title: "Home Decor", href: "/services/homedecor", status: "coming", phase: 2 },
-        { id: 14, image: "/home/oneplaceinhouseservices/electronics.png", title: "Electronics", href: "/services/electronics", status: "coming", phase: 3 },
-        { id: 15, image: "/home/oneplaceinhouseservices/packersandmovers.png", title: "Packers And Movers", href: "/services/packersandmovers", status: "coming", phase: 3 },
+        { id: 5, image: "/home/oneplaceinhouseservices/plumber.png", title: "Plumbing", href: "/contact-us", status: "coming", phase: 2 },
+        { id: 7, image: "/home/oneplaceinhouseservices/vaastuconsultation.png", title: "Vastu Consultation", href: "/contact-us", status: "coming", phase: 2 },
+        { id: 10, image: "/home/oneplaceinhouseservices/earthmovers.png", title: "Earth Movers", href: "/contact-us", status: "coming", phase: 2 },
+        { id: 11, image: "/home/oneplaceinhouseservices/homeloan.png", title: "Home Loan", href: "/contact-us", status: "coming", phase: 2 },
+        { id: 12, image: "/home/oneplaceinhouseservices/legal.png", title: "Legal services", href: "/contact-us", status: "coming", phase: 2 },
+        { id: 13, image: "/home/oneplaceinhouseservices/homedecor.png", title: "Home Decor", href: "/contact-us", status: "coming", phase: 2 },
+        { id: 14, image: "/home/oneplaceinhouseservices/electronics.png", title: "Electronics", href: "/contact-us", status: "coming", phase: 3 },
+        { id: 15, image: "/home/oneplaceinhouseservices/packersandmovers.png", title: "Packers And Movers", href: "/contact-us", status: "coming", phase: 3 },
     ],
 };
 

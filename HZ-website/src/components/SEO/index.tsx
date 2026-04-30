@@ -193,7 +193,7 @@ const SEO: React.FC<ISEO> = (props) => {
                   '@type': 'SearchAction',
                   target: {
                     '@type': 'EntryPoint',
-                    urlTemplate: `${BASE_DEPLOYMENT_URL}/properties/buy/hyderabad?search={search_term_string}`,
+                    urlTemplate: `${BASE_DEPLOYMENT_URL}/real-estate?search={search_term_string}`,
                   },
                   'query-input': 'required name=search_term_string',
                 },

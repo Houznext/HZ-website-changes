@@ -14,7 +14,7 @@ const ServicesCard = () => {
     {
       image: "/images/services/business-residential.png",
       label: "Construction for Business",
-      href: "/services/construction-for-business",
+      href: "/contact-us",
     },
     {
       image: "/images/services/interiors.png",
@@ -24,7 +24,7 @@ const ServicesCard = () => {
     {
       image: "/images/services/furnitures.png",
       label: "Furniture",
-      href: "/services/furnitures",
+      href: "/interiors",
     },
   ];
 

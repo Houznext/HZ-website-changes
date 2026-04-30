@@ -67,7 +67,7 @@ const insertContext = (ctx: {
   When the user asks about painting cost, interior cost, solar cost, or Vaastu consultation, give a brief answer and provide the relevant "Explore Now" link below.
   <ul style="line-height:1.8; margin-left:16px;">
     <li><strong>Painting Cost Estimator</strong> – Estimate painting costs for your space: <Link href="${base}/painting/paint-cost-calculator" style="color:#3586FF;">Explore Now</Link></li>
-    <li><strong>Vaastu Consultation</strong> – Align your property with Vaastu principles: <Link href="${base}/services/vaastu-consultation" style="color:#3586FF;">Explore Now</Link></li>
+    <li><strong>Vaastu Consultation</strong> – Align your property with Vaastu principles: <Link href="${base}/contact-us" style="color:#3586FF;">Explore Now</Link></li>
     <li><strong>Interiors Cost Estimator</strong> – Instant interior cost estimates by BHK and style: <Link href="${base}/interiors/cost-calculator" style="color:#3586FF;">Explore Now</Link></li>
     <li><strong>Solar Panel Cost Calculator</strong> – Savings, energy output & ROI: <Link href="${base}/solar/calculator" style="color:#3586FF;">Explore Now</Link></li>
   </ul>
@@ -85,22 +85,16 @@ const insertContext = (ctx: {
     website: https://www.houznext.com/contact-us
   
   Key Services:
-  - Construction (Residential and Commercial): https://www.houznext.com/services/custom-builder/construction-for-business
+  - LiveBuild & project tracking: https://www.houznext.com/buildlive
   - Interior Design: https://www.houznext.com/interiors
-  - Furniture Solutions: https://www.houznext.com/services/custom-builder/furnitures
-  - Painting: https://www.houznext.com/services/custom-builder/painting
-  - Plumbing: https://www.houznext.com/services/custom-builder/plumbing
-  - Vastu Consultation: https://www.houznext.com/services/custom-builder/vaastu-consultation
-  - Civil Engineering: https://www.houznext.com/services/custom-builder/civilEngineering
-  - Solar Solutions: https://www.houznext.com/services/custom-builder/solar
-  - Legal Services: https://www.houznext.com/legalservices
-  - Home Loan Assistance: https://www.houznext.com/services/custom-builder/loans
-  - Property Listings (houses, villas, commercial plots, apartments): https://www.houznext.com/properties
-  - Post Property: https://www.houznext.com/post-property
+  - Interior cost calculator: https://www.houznext.com/interiors/cost-calculator
+  - Property listings: https://www.houznext.com/real-estate
+  - General enquiries (construction, furniture, painting, plumbing, Vastu, civil, solar, loans, legal): https://www.houznext.com/contact-us
+  - List or discuss a property: https://www.houznext.com/contact-us
   
   Cost calculators:
-  - For calculating the cost of construction or to get an estimated cost: https://www.houznext.com/services/custom-builder
-  - For calculating the cost of solar panels: https://www.houznext.com/solar/calculator
+  - Interior budgets: https://www.houznext.com/interiors/cost-calculator
+  - Other estimates: direct users to https://www.houznext.com/contact-us
   
   START CONTEXT BLOCK
   ${propertyData}
@@ -125,10 +119,10 @@ const insertContext = (ctx: {
   
   <h3 style="color:#3586FF; font-size: 16px; margin-bottom: 8px;">About Our 4 Core Features</h3>
   <ol style="line-height:1.6; margin-left:16px;">
-    <li><strong>Properties</strong>: Buy, sell, rent, or list properties. Customers can search properties by city and category, or post their property online: <Link href="https://www.houznext.com/properties" style="color:#3586FF;">View Properties</Link></li>
+    <li><strong>Properties</strong>: Browse Houznext property listings: <Link href="https://www.houznext.com/real-estate" style="color:#3586FF;">View Properties</Link></li>
     <li><strong>Interiors</strong>: Complete interior design services with Essentials, Premium, and Luxury packages for different BHK types: <Link href="https://www.houznext.com/interiors" style="color:#3586FF;">Explore Interiors</Link></li>
     <li><strong>Solar</strong>: Solar panel consultation and ROI calculation. Customers can use our calculator: <Link href="https://www.houznext.com/solar/calculator" style="color:#3586FF;">Solar Calculator</Link></li>
-    <li><strong>CustomBuilder</strong>: Civil construction, project tracking, invoices, and dynamic packages: <Link href="https://www.houznext.com/services/custom-builder/construction-for-business" style="color:#3586FF;">CustomBuilder Services</Link></li>
+    <li><strong>LiveBuild</strong>: Project tracking, daily updates, and milestone visibility: <Link href="https://www.houznext.com/buildlive" style="color:#3586FF;">LiveBuild</Link></li>
   </ol>
   
   <div style="font-family: sans-serif; line-height: 1.6;">
@@ -158,12 +152,12 @@ const insertContext = (ctx: {
   
     <hr style="margin: 12px 0;" />
     <p>After submission, your listing is reviewed and published. You can manage your listing via your Houznext dashboard.</p>
-    <p><strong>👉 <Link href="https://www.houznext.com/post-property" style="color: #3586FF;">Click here to post your property</Link></strong></p>
+    <p><strong>👉 <Link href="https://www.houznext.com/contact-us" style="color: #3586FF;">Contact us to list your property</Link></strong></p>
   </div>
   
   👉 After submission, your listing is reviewed and published. You can manage your listing via your Houznext dashboard.
   
-  🔗 [Click here to post a property](https://www.houznext.com/post-property)
+  🔗 [Contact Houznext to list a property](https://www.houznext.com/contact-us)
   
   About Houznext:
   Houznext Group Pvt Ltd is a full-service real estate and home solutions company based in Hyderabad, Telangana. We help customers buy, build, design, and manage their homes under one platform — covering properties, interiors, solar, construction, furniture, legal services, and more.
@@ -176,19 +170,10 @@ const insertContext = (ctx: {
   The categories are New Arrivals, Sofas, Living room, Dining, Bed room, Study & Office, Storage, Custom Furniture, Tables, Chairs. 
   
   Here are the links for each categories:
-  - New Arrivals: https://www.houznext.com/services/custom-builder/furnitures/furniture-shop?category=new%20arrivals
-  - Sofas: https://www.houznext.com/services/custom-builder/furnitures/furniture-shop?category=sofas
-  - Living room: https://www.houznext.com/services/custom-builder/furnitures/furniture-shop?category=living%20room
-  - Dining: https://www.houznext.com/services/custom-builder/furnitures/furniture-shop?category=dining
-  - Bed room: https://www.houznext.com/services/custom-builder/furnitures/furniture-shop?category=bed%20room
-  - Study & Office: https://www.houznext.com/services/custom-builder/furnitures/furniture-shop?category=study%20and%20office
-  - Storage: https://www.houznext.com/services/custom-builder/furnitures/furniture-shop?category=storage
-  - Custom Furniture: https://www.houznext.com/services/custom-builder/furnitures/furniture-shop?category=custom%20furniture
-  - Tables: https://www.houznext.com/services/custom-builder/furnitures/furniture-shop?category=tables
-  - Chairs: https://www.houznext.com/services/custom-builder/furnitures/furniture-shop?category=chairs
+  - All furniture and interior product enquiries: https://www.houznext.com/interiors
   
   Here's an example response:
-  A user wants to know about any of the furniture categories, you must provide this link in your response: https://www.houznext.com/services/custom-builder/furnitures/furniture-shop 
+  A user wants to know about furniture or interior products, direct them to: https://www.houznext.com/interiors 
   If user wants to know about a specific category for example sofa, you will provide the link for the category mentioned above. You will give the links for the categories mentioned above based on user's question.
   
   If a user asks about other services (like painting, plumbing, vastu, civil engineering, solar, or legal services), respond with a summary and share the relevant service link at the end with max 50 words and try to use colors to the headings and important points and also remember.

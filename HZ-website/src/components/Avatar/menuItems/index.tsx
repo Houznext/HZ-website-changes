@@ -41,7 +41,7 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         items: [
             {
                 label: "Properties",
-                href: "/properties",
+                href: "/real-estate",
                 icon: Home,
                 description: "Buy, rent, plots & more in one place",
             },
@@ -64,7 +64,7 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         items: [
             {
                 label: "Construction",
-                href: "/services/custom-builder",
+                href: "/buildlive",
                 icon: Hammer,
                 description: "End-to-end home construction & tracking",
             },
@@ -76,31 +76,31 @@ const SERVICE_GROUPS: ServiceGroup[] = [
             },
             {
                 label: "Civil Engineering Structural Design",
-                href: "/services/civil-engineering",
+                href: "/contact-us",
                 icon: Ruler,
                 description: "Structural design, drawings & vetting",
             },
             {
                 label: "Solar",
-                href: "/solar",
+                href: "/contact-us",
                 icon: SunMedium,
                 description: "Rooftop solar solutions & ROI planning",
             },
             {
                 label: "Painting",
-                href: "/painting",
+                href: "/contact-us",
                 icon: Paintbrush,
                 description: "Interior & exterior painting with warranty",
             },
             {
                 label: "Furniture",
-                href: "/services/furnitures",
+                href: "/interiors",
                 icon: Sofa,
                 description: "Custom furniture for every room",
             },
             {
                 label: "Plumbing",
-                href: "/services/plumbing",
+                href: "/contact-us",
                 icon: Droplets,
                 description: "Bathroom, kitchen & pipeline solutions",
                 launchingSoon: true,
@@ -112,14 +112,14 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         items: [
             {
                 label: "Vastu Consultation",
-                href: "/services/vaastu-consultation",
+                href: "/contact-us",
                 icon: Scale,
                 description: "Plan your spaces as per Vastu",
                 launchingSoon: true,
             },
             {
                 label: "Earth Movers",
-                href: "/services/earth-movers",
+                href: "/contact-us",
                 icon: Truck,
                 description: "Excavation & site development support",
                 launchingSoon: true,
@@ -140,21 +140,21 @@ const SERVICE_GROUPS: ServiceGroup[] = [
             },
             {
                 label: "Home Decor",
-                href: "/services/homedecor",
+                href: "/contact-us",
                 icon: Paintbrush,
                 description: "Décor, styling & accessories",
                 launchingSoon: true,
             },
             {
                 label: "Electronics",
-                href: "/services/electronics",
+                href: "/contact-us",
                 icon: SunMedium,
                 description: "Home appliances & installation",
                 launchingSoon: true,
             },
             {
                 label: "Packers And Movers",
-                href: "/services/packers-and-movers",
+                href: "/contact-us",
                 icon: Truck,
                 description: "Shifting, packing & relocation",
                 launchingSoon: true,

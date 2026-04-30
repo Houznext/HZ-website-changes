@@ -62,7 +62,7 @@ const VerifyStep = () => {
 
             if (!userResponse.body?.status) {
                 toast.error("Please create an account first");
-                router.push("/signup?redirect=/post-property/details");
+                router.push("/login");
                 return;
             }
 
@@ -70,7 +70,7 @@ const VerifyStep = () => {
                 redirect: true,
                 identifier,
                 otp: otpValue,
-                callbackUrl: "/post-property/details",
+                callbackUrl: "/",
             });
             return;
 
@@ -108,7 +108,7 @@ const VerifyStep = () => {
 
             if (!userResponse.body?.status) {
                 toast.error("Please create an account first");
-                router.push("/signup?redirect=/post-property/details");
+                router.push("/login");
                 return;
             }
 
@@ -120,7 +120,7 @@ const VerifyStep = () => {
 
             if (result?.ok) {
                 toast.success("Login successful!");
-                router.push("/post-property/details");
+                router.push("/contact-us");
             } else {
                 setError("Invalid credentials");
                 toast.error("Invalid credentials");

@@ -1,9 +1,6 @@
 const BASE_URL = "https://houznext.com";
 const API_BASE = process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT;
 
-const CITIES = ["hyderabad", "bangalore", "mumbai", "delhi", "chennai", "pune"];
-const CATEGORIES = ["buy", "rent", "flatshare", "plot"];
-
 async function fetchJSON(url) {
   try {
     const res = await fetch(url, { headers: { "Content-Type": "application/json" } });
@@ -37,13 +34,6 @@ function urlEntry(loc, opts = {}) {
   return entry;
 }
 
-function toSlug(str) {
-  return (str || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
-
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/xml; charset=utf-8");
   res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
@@ -53,166 +43,25 @@ export default async function handler(req, res) {
 
   // ===== STATIC PAGES =====
   urls.push(urlEntry(BASE_URL, { changefreq: "daily", priority: "1.0", lastmod: today }));
-  urls.push(urlEntry(`${BASE_URL}/properties`, { changefreq: "daily", priority: "0.9", lastmod: today }));
   urls.push(urlEntry(`${BASE_URL}/about-us`, { changefreq: "monthly", priority: "0.6", lastmod: today }));
   urls.push(urlEntry(`${BASE_URL}/contact-us`, { changefreq: "monthly", priority: "0.6", lastmod: today }));
   urls.push(urlEntry(`${BASE_URL}/blog`, { changefreq: "daily", priority: "0.7", lastmod: today }));
   urls.push(urlEntry(`${BASE_URL}/houznext-rewards`, { changefreq: "monthly", priority: "0.5", lastmod: today }));
-  urls.push(urlEntry(`${BASE_URL}/post-property`, { changefreq: "monthly", priority: "0.6", lastmod: today }));
+  urls.push(urlEntry(`${BASE_URL}/real-estate`, { changefreq: "weekly", priority: "0.85", lastmod: today }));
+  urls.push(urlEntry(`${BASE_URL}/design-ideas`, { changefreq: "weekly", priority: "0.8", lastmod: today }));
 
-  // ===== CITY x CATEGORY LISTING PAGES =====
-  for (const cat of CATEGORIES) {
-    for (const city of CITIES) {
-      urls.push(
-        urlEntry(`${BASE_URL}/properties/${cat}/${city}`, {
-          changefreq: "daily",
-          priority: "0.9",
-          lastmod: today,
-        })
-      );
-    }
-  }
-
-  // ===== SERVICE PAGES =====
-  const servicePages = [
+  const marketingPages = [
     { path: "/interiors", priority: "0.85" },
     { path: "/interiors/cost-calculator", priority: "0.7" },
-    { path: "/solar", priority: "0.8" },
-    { path: "/solar/calculator", priority: "0.7" },
-    { path: "/painting", priority: "0.75" },
-    { path: "/painting/paint-cost-calculator", priority: "0.7" },
-    { path: "/legalservices", priority: "0.75" },
-    { path: "/legalservices/packages", priority: "0.65" },
     { path: "/buildlive", priority: "0.85" },
-    { path: "/services/custom-builder", priority: "0.8" },
-    { path: "/services/furnitures", priority: "0.75" },
-    { path: "/services/furnitures/custom-furnitures", priority: "0.65" },
-    { path: "/services/electronics", priority: "0.75" },
-    { path: "/services/homedecor", priority: "0.75" },
-    { path: "/services/plumbing", priority: "0.7" },
-    { path: "/services/loans", priority: "0.7" },
-    { path: "/services/vaastu-consultation", priority: "0.7" },
-    { path: "/services/packersandmovers", priority: "0.7" },
-    { path: "/services/earthmovers", priority: "0.65" },
-    { path: "/services/civilEngineering", priority: "0.65" },
-    { path: "/services/construction-for-business", priority: "0.65" },
-    { path: "/services/invest-in-land", priority: "0.65" },
+    { path: "/pricing", priority: "0.75" },
   ];
 
-  // City-specific service landing URLs for local SEO
-  const citySpecificServices = [
-    "interiors",
-    "solar",
-    "painting",
-    "legalservices",
-    "services/plumbing",
-    "services/packersandmovers",
-  ];
-
-  for (const svc of servicePages) {
+  for (const svc of marketingPages) {
     urls.push(urlEntry(`${BASE_URL}${svc.path}`, { changefreq: "weekly", priority: svc.priority, lastmod: today }));
   }
 
-  // ===== DYNAMIC PROPERTY URLS =====
-  try {
-    const propertyRes = await fetchJSON(
-      `${API_BASE}property/get-all-properties?limit=500&page=1`
-    );
-    const properties = propertyRes?.data || propertyRes?.body?.data || propertyRes || [];
-    const propertyList = Array.isArray(properties) ? properties : [];
-
-    for (const prop of propertyList) {
-      if (!prop.isPosted && !prop.isApproved) continue;
-
-      const city = prop.locationDetails?.city || "";
-      const name = prop.propertyDetails?.propertyName || "";
-      const slug = toSlug(name);
-      const category = prop.basicDetails?.lookingType === "Rent" ? "rent" : "buy";
-      const citySlug = toSlug(city) || "hyderabad";
-
-      if (!slug || !prop.propertyId) continue;
-
-      const images = prop.mediaDetails?.propertyImages?.slice(0, 3) || [];
-      const lastmod = prop.updatedDate || prop.postedDate || today;
-      const modDate = typeof lastmod === "string" ? lastmod.split("T")[0] : today;
-
-      urls.push(
-        urlEntry(
-          `${BASE_URL}/properties/${category}/${citySlug}/details/${slug}?id=${prop.propertyId}&type=property`,
-          { changefreq: "weekly", priority: "0.8", lastmod: modDate, images }
-        )
-      );
-    }
-  } catch (e) {
-    console.error("Sitemap: Failed to fetch properties", e);
-  }
-
-  // ===== DYNAMIC FURNITURE URLS =====
-  try {
-    const furnitureRes = await fetchJSON(`${API_BASE}furniture?limit=500`);
-    const furnitureList = Array.isArray(furnitureRes) ? furnitureRes : furnitureRes?.data || furnitureRes?.body || [];
-
-    for (const item of (Array.isArray(furnitureList) ? furnitureList : [])) {
-      const slug = item.slug || toSlug(item.name);
-      if (!slug) continue;
-      const cat = toSlug(item.category) || "furniture";
-      const images = item.images?.map((img) => typeof img === "string" ? img : img.url).filter(Boolean).slice(0, 3) || [];
-      urls.push(
-        urlEntry(`${BASE_URL}/services/furnitures/${cat}/${slug}`, {
-          changefreq: "weekly",
-          priority: "0.7",
-          lastmod: today,
-          images,
-        })
-      );
-    }
-  } catch (e) {
-    console.error("Sitemap: Failed to fetch furniture", e);
-  }
-
-  // ===== DYNAMIC ELECTRONICS URLS =====
-  try {
-    const electronicsRes = await fetchJSON(`${API_BASE}electronics?limit=500`);
-    const electronicsList = Array.isArray(electronicsRes) ? electronicsRes : electronicsRes?.data || electronicsRes?.body || [];
-
-    for (const item of (Array.isArray(electronicsList) ? electronicsList : [])) {
-      const slug = item.slug || toSlug(item.name);
-      if (!slug) continue;
-      const cat = toSlug(item.category) || "electronics";
-      urls.push(
-        urlEntry(`${BASE_URL}/services/electronics/${cat}/${slug}`, {
-          changefreq: "weekly",
-          priority: "0.7",
-          lastmod: today,
-        })
-      );
-    }
-  } catch (e) {
-    console.error("Sitemap: Failed to fetch electronics", e);
-  }
-
-  // ===== DYNAMIC HOME DECOR URLS =====
-  try {
-    const hdRes = await fetchJSON(`${API_BASE}homeDecor?limit=500`);
-    const hdList = Array.isArray(hdRes) ? hdRes : hdRes?.data || hdRes?.body || [];
-
-    for (const item of (Array.isArray(hdList) ? hdList : [])) {
-      const slug = item.slug || toSlug(item.name);
-      if (!slug) continue;
-      const cat = toSlug(item.category) || "homedecor";
-      urls.push(
-        urlEntry(`${BASE_URL}/services/homedecor/${cat}/${slug}`, {
-          changefreq: "weekly",
-          priority: "0.7",
-          lastmod: today,
-        })
-      );
-    }
-  } catch (e) {
-    console.error("Sitemap: Failed to fetch home decor", e);
-  }
-
-  // ===== DYNAMIC BLOG URLS =====
+  // ===== DYNAMIC BLOG URLS (legacy /blogs/{id}) =====
   try {
     const blogRes = await fetchJSON(`${API_BASE}blog`);
     const blogs = Array.isArray(blogRes) ? blogRes : blogRes?.data || blogRes?.body || [];

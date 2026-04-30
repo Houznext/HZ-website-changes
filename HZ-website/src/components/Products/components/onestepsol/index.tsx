@@ -44,32 +44,32 @@ const services = [
   {
     image: "/images/services/furnitures.png",
     label: "Furniture",
-    href: "/services/furnitures",
+    href: "/interiors",
   },
   {
     image: "/images/services/plumbing.png",
     label: "Plumbing",
-    href: "/services/plumbing",
+    href: "/contact-us",
   },
   {
     image: "/images/services/painting.png",
     label: "Painting",
-    href: "/painting",
+    href: "/contact-us",
   },
   {
     image: "/images/services/vaastu.png",
     label: "Vastu Consultation",
-    href: "/services/vaastu-consultation",
+    href: "/contact-us",
   },
   {
     image: "/images/services/civilEngineering.png",
     label: "Civil Engineerings Design",
-    href: "/services/civilEngineering",
+    href: "/contact-us",
   },
   {
     image: "/images/services/loan.jpg",
     label: "Loans",
-    href: "/services/loans",
+    href: "/contact-us",
   },
 ];
 const OneStopSol = () => {

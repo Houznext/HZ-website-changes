@@ -33,7 +33,7 @@ export default function ExploreMore() {
           </p>
           <Button
             className="md:px-6 px-3 md:py-3 font-medium py-2 text-white md:text-[16px] text-[12px] bg-[#3586FF] hover:bg-[#3586FF] transition-colors md:rounded-[10px] rounded-[4px]"
-            onClick={() => router.push("/services/custom-builder")}
+            onClick={() => router.push("/interiors")}
           >
             Explore More
           </Button>

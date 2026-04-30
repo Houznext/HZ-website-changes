@@ -100,7 +100,7 @@ const VerifyOtpView = () => {
       );
       if (!userResponse.body?.status) {
         toast.success("Please create an account");
-        router.push("/signup");
+        router.push("/login");
         return;
       }
     } catch (error) {

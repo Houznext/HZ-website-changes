@@ -13,23 +13,23 @@ const GeneralFooter = () => {
       links: [
         {
           label: "Buy Properties",
-          url: "/properties",
+          url: "/real-estate",
         },
         {
           label: "Hyderabad Properties",
-          url: "/properties/hyderabad", // ← ADDED
+          url: "/real-estate",
         },
         {
           label: "Bangalore Properties",
-          url: "/properties/bangalore", // ← ADDED
+          url: "/real-estate",
         },
         {
           label: "Rent Properties",
-          url: "/properties?lookingType=rent", // ← ADDED
+          url: "/real-estate",
         },
         {
           label: "List Your Property",
-          url: "/post-property/details",
+          url: "/contact-us",
         },
       ],
     },
@@ -42,7 +42,7 @@ const GeneralFooter = () => {
         },
         {
           label: "Construction", // ← ADDED
-          url: "/services/construction-for-business",
+          url: "/contact-us",
         },
         {
           label: "LiveBuild",

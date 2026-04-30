@@ -81,7 +81,7 @@ export default function LoginComponent() {
         setRegisterState({ ...loginFormValues, callbackUrl: normalizedCallbackUrl });
         trackUserLogin(loginFormValues);
         toast.success("OTP sent successfully!");
-        router.push("/verify-otp");
+        router.push("/login");
       }
     } catch (error: any) {
       console.error("Error during OTP send:", error);

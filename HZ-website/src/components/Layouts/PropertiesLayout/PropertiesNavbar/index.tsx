@@ -321,11 +321,7 @@ export default function PropertiesNavbar({
   const { openAuth } = useAuthModal();
 
   const handlePostProperty = () => {
-    if (session.status !== "authenticated") {
-      router.push("/post-property");
-    } else {
-      router.push("/post-property/details");
-    }
+    void router.push("/contact-us");
   };
   useEffect(() => {
     if (session.status === "authenticated") {

@@ -179,7 +179,7 @@ export default function AboutHouznext() {
             our curated listings, builder network, and on‑call experts put you in control.
           </p>
           <div className="flex gap-3 max-md:justify-center">
-            <Button href="/services/custom-builder" className="inline-block bg-[#4388ef] text-white font-medium md:text-[14px] text-[12px] rounded-xl px-5 py-2">Explore Services</Button>
+            <Button href="/interiors" className="inline-block bg-[#4388ef] text-white font-medium md:text-[14px] text-[12px] rounded-xl px-5 py-2">Explore Services</Button>
             <Button href="/properties" className="inline-block bg-white border border-gray-300 font-medium md:text-[14px] text-[12px] rounded-xl px-5 py-2">Browse Properties</Button>
           </div>
         </div>

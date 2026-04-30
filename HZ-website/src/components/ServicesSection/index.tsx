@@ -9,10 +9,10 @@ import {
 } from '@/utils/servicesApi'
 
 const SLUG_TO_ROUTE: Record<string, string> = {
-  'full-home-interiors': '/services/full-home-interiors',
-  'modular-kitchen': '/services/modular-kitchen',
-  '2bhk-3bhk-packages': '/services/2bhk-3bhk-packages',
-  'commercial-interiors': '/services/commercial-interiors',
+  'full-home-interiors': '/interiors',
+  'modular-kitchen': '/interiors',
+  '2bhk-3bhk-packages': '/interiors',
+  'commercial-interiors': '/interiors',
 }
 
 const PLACEHOLDER_COLOURS: Record<

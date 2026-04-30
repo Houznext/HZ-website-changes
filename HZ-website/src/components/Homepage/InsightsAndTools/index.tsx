@@ -17,7 +17,7 @@ const insights = [
     heading: "Vaastu Consultation",
     description:
       "Get expert advice to align your property with Vaastu principles for enhanced harmony and prosperity.",
-    link: "/services/vaastu-consultation",
+    link: "/contact-us",
   },
   {
     imageUrl: "/home/insight-3.png",

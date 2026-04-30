@@ -113,13 +113,6 @@ function walkIndexRoutes(absDir, urlSegments, outSet, { rootLabel }) {
   }
 }
 
-function discoverServicesPaths() {
-  const set = new Set()
-  const base = path.join(PAGES, 'services')
-  walkIndexRoutes(base, ['services'], set, { rootLabel: 'services' })
-  return Array.from(set).sort()
-}
-
 function discoverInteriorsExtraPaths() {
   const set = new Set()
   // pages/interiors.tsx → /interiors
@@ -160,7 +153,6 @@ function priorityForPath(p) {
   if (p === '/') return 1.0
   if (p === '/interiors' || p === '/design-ideas' || p === '/blog') return 0.9
   if (p.startsWith('/blog/')) return 0.7
-  if (p.startsWith('/services/')) return 0.8
   if (p === '/buildlive') return 0.85
   return 0.75
 }
@@ -168,7 +160,7 @@ function priorityForPath(p) {
 function changefreqForPath(p) {
   if (p === '/' || p === '/blog' || p.startsWith('/blog/')) return 'weekly'
   if (p === '/design-ideas') return 'weekly'
-  if (p.startsWith('/services/') || p.startsWith('/interiors')) return 'weekly'
+  if (p.startsWith('/interiors')) return 'weekly'
   if (p === '/buildlive') return 'monthly'
   if (p === '/about-us' || p === '/contact-us') return 'monthly'
   return 'monthly'
@@ -228,9 +220,6 @@ async function main() {
   // ─── sitemap-interiors.xml ───
   const interiors = []
   for (const p of discoverInteriorsExtraPaths()) {
-    add(interiors, p)
-  }
-  for (const p of discoverServicesPaths()) {
     add(interiors, p)
   }
 

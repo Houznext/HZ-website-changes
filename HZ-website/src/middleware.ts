@@ -83,5 +83,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/user/:path*", "/post-property/details"],
+  matcher: ["/user/:path*"],
 };

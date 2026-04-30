@@ -377,7 +377,7 @@ const InteriorsComponent = ({
       <div>
         <BreadCrumb
           steps={[
-            { label: "Our Services", link: "/services/custom-builder" },
+            { label: "Our Services", link: "/interiors" },
             { label: "Interiors", link: "/interiors" },
           ]}
           currentStep="Interiors"
