@@ -486,6 +486,102 @@ export interface User {
 export interface ShowItems {
   isVisibleItems: Boolean;
 }
+
+const StoreNavButton = () => {
+  const storeUrl =
+    process.env.NEXT_PUBLIC_STORE_URL ?? "https://store.houznext.com";
+  return (
+    <a
+      href={storeUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "5px 12px",
+        borderRadius: 8,
+        background: "rgba(47,128,237,0.15)",
+        border: "1px solid rgba(47,128,237,0.35)",
+        color: "#fff",
+        textDecoration: "none",
+        transition: "all 0.2s",
+        position: "relative",
+        flexShrink: 0,
+      }}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget;
+        el.style.background = "rgba(47,128,237,0.28)";
+        el.style.borderColor = "rgba(47,128,237,0.7)";
+        el.style.transform = "translateY(-1px)";
+        const icon = el.querySelector(".store-icon") as HTMLElement;
+        if (icon) icon.style.transform = "scale(1.12) rotate(-5deg)";
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget;
+        el.style.background = "rgba(47,128,237,0.15)";
+        el.style.borderColor = "rgba(47,128,237,0.35)";
+        el.style.transform = "translateY(0)";
+        const icon = el.querySelector(".store-icon") as HTMLElement;
+        if (icon) icon.style.transform = "scale(1) rotate(0deg)";
+      }}
+    >
+      <span
+        style={{
+          position: "absolute",
+          top: -6,
+          right: -6,
+          background: "#f2994a",
+          color: "#fff",
+          fontSize: 8,
+          fontWeight: 800,
+          padding: "1px 5px",
+          borderRadius: 10,
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+          animation: "storeNewPulse 2s ease-in-out infinite",
+        }}
+      >
+        New
+      </span>
+      <svg
+        className="store-icon"
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{
+          transition: "transform 0.25s cubic-bezier(.34,1.56,.64,1)",
+          flexShrink: 0,
+        }}
+      >
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <path d="M16 10a4 4 0 01-8 0" />
+      </svg>
+      <span
+        style={{
+          fontSize: 13,
+          fontWeight: 700,
+          letterSpacing: "0.01em",
+          whiteSpace: "nowrap",
+        }}
+      >
+        Store
+      </span>
+      <style>{`
+        @keyframes storeNewPulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.7; transform: scale(1.08); }
+        }
+      `}</style>
+    </a>
+  );
+};
 const Navbar = ({ isVisibleItems }: ShowItems) => {
   const router = useRouter();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -647,6 +743,7 @@ const Navbar = ({ isVisibleItems }: ShowItems) => {
           </div>
           {
             <div className="flex items-center shrink-0 lg:gap-1 xl:gap-2">
+              <StoreNavButton />
               <Button
                 onClick={handleGetEstimate}
                 className="py-[3px] lg:px-[8px] xl:px-[10px] bg-white text-[#000000] font-medium rounded"
@@ -932,6 +1029,43 @@ const MobileMenu = ({
         })}
 
       <div className="mt-auto space-y-3 pb-3">
+        <a
+          href={
+            process.env.NEXT_PUBLIC_STORE_URL ?? "https://store.houznext.com"
+          }
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "10px 16px",
+            borderRadius: 10,
+            background: "rgba(47,128,237,0.15)",
+            border: "1px solid rgba(47,128,237,0.3)",
+            color: "#fff",
+            textDecoration: "none",
+            fontSize: 14,
+            fontWeight: 600,
+            marginBottom: 8,
+          }}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 01-8 0" />
+          </svg>
+          Houznext Store
+        </a>
         {!isAuthed ? (
           <Button
             onClick={handleLoginBtnClick}

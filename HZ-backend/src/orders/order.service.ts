@@ -19,6 +19,7 @@ import { Cart } from 'src/cart/entities/cart.entity';
 import { CartItem } from 'src/cartItems/entities/cartitem.entity';
 import { FurnitureVariant } from 'src/furnitures/entities/furniture-variant.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
+import { CartService } from 'src/cart/cart.service';
 import { BranchCategory } from 'src/branch/enum/branch.enum';
 import {
   CancelOrderDto,
@@ -77,6 +78,7 @@ export class OrdersService {
     private readonly branchRepo: Repository<Branch>,
 
     private readonly eventEmitter: EventEmitter2,
+    private readonly cartService: CartService,
   ) {}
 
   private isAdmin(user: RequestUser) {
@@ -549,6 +551,84 @@ export class OrdersService {
   // =========================
   // GET MY ORDERS (USER)
   // =========================
+
+  async findByCustomer(customerId: string) {
+    return this.orderRepo.find({
+      where: { meta: { customerId } as any },
+      relations: ['items'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async placeOrder(
+    customerId: string,
+    dto: {
+      type: OrderType;
+      couponCode?: string;
+      shippingDetails?: any;
+      billingDetails?: any;
+      paymentProvider?: string;
+    },
+  ) {
+    const cart = await this.cartService.getOrCreateCart(customerId);
+    if (!cart || !cart.items || cart.items.length === 0) {
+      throw new BadRequestException('Cart is empty');
+    }
+
+    const order = this.orderRepo.create({
+      orderNo: await this.generateOrderNo(),
+      type: OrderType.FURNITURE,
+      status: OrderStatusEnum.CREATED,
+      currency: cart.currency ?? 'INR',
+      couponCode: dto.couponCode ?? cart.couponCode ?? null,
+      couponDiscount: cart.couponDiscount ?? '0.00',
+      subTotal: cart.subTotal ?? '0.00',
+      discountTotal: cart.discountTotal ?? '0.00',
+      taxTotal: cart.taxTotal ?? '0.00',
+      shippingTotal: cart.shippingTotal ?? '0.00',
+      feeTotal: cart.feeTotal ?? '0.00',
+      grandTotal: cart.grandTotal ?? '0.00',
+      amountPaid: '0.00',
+      amountDue: cart.grandTotal ?? '0.00',
+      billingDetails: (dto.billingDetails ?? cart.billingDetails) as any,
+      shippingDetails: (dto.shippingDetails ?? cart.shippingDetails) as any,
+      meta: {
+        ...(cart.meta ?? {}),
+        customerId,
+        paymentProvider: dto.paymentProvider,
+      },
+    });
+    this.pushHistory(order, OrderStatusEnum.CREATED, customerId);
+    const savedOrder = await this.orderRepo.save(order);
+
+    const orderItems = (cart.items ?? []).map((ci) =>
+      this.orderItemRepo.create({
+        order: savedOrder,
+        productType: ci.productType,
+        productId: ci.productId,
+        name: ci.name,
+        description: ci.description,
+        mrp: ci.mrp,
+        sellingPrice: ci.sellingPrice,
+        unitDiscount: ci.unitDiscount,
+        quantity: ci.quantity,
+        itemSubTotal: ci.itemSubTotal,
+        taxPercent: ci.taxPercent,
+        taxAmount: ci.taxAmount,
+        discountAmount: ci.discountAmount,
+        itemTotal: ci.itemTotal,
+        snapshot: ci.snapshot,
+        meta: ci.meta ?? {},
+      }),
+    );
+    await this.orderItemRepo.save(orderItems);
+    await this.cartService.clear(customerId);
+
+    return this.orderRepo.findOne({
+      where: { id: savedOrder.id },
+      relations: ['items'],
+    });
+  }
 
   async getOrdersForUser(userId: string, filter: FilterOrdersDto) {
     const page = filter.page ?? 1;

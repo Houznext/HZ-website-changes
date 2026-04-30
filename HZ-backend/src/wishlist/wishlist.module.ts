@@ -7,13 +7,16 @@ import { User } from "src/user/entities/user.entity";
 import { WishlistItems } from "./entities/wishlistItems.entity";
 import { Furniture } from "src/furnitures/entities/furniture.entity";
 import { Property } from "src/property/entities/property.entity";
+import { JwtModule } from '@nestjs/jwt';
+import { AnyAuthGuard } from 'src/common/guards/any-auth.guard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Wishlist, User, WishlistItems, Property, Furniture])
+    TypeOrmModule.forFeature([Wishlist, User, WishlistItems, Property, Furniture]),
+    JwtModule,
   ],
   controllers: [WishlistController],
-  providers: [WishlistService],
+  providers: [WishlistService, AnyAuthGuard],
   exports: [WishlistService], 
 })
 

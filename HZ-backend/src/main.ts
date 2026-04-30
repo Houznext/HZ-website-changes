@@ -48,12 +48,14 @@ async function bootstrap() {
   const staticLocalOrigins = [
     'http://localhost:3000',
     'http://localhost:3001',
+    'http://localhost:3002',
   ];
 
   /** Public website + admin on Vercel / custom domain — must match browser Origin */
   const publicSiteOrigins = [
     'https://houznext.com',
     'https://www.houznext.com',
+    'https://store.houznext.com',
   ];
 
   const allowedOrigins = [

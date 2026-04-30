@@ -17,6 +17,8 @@ export default function MyAccountDashboard() {
   const [editingName, setEditingName] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
   const [savingName, setSavingName] = useState(false)
+  const [orderCount, setOrderCount] = useState<number | null>(null)
+  const [orders, setOrders] = useState<any[]>([])
   const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
   useEffect(() => {
@@ -34,6 +36,19 @@ export default function MyAccountDashboard() {
         .then((r) => r.json())
         .then((invs: Array<{ invoiceDue?: string }>) => setInvoiceDue(invs?.some((i) => !!i.invoiceDue && new Date(i.invoiceDue) >= new Date()) ?? false))
         .catch(() => setInvoiceDue(false))
+      fetch(`${API}/orders/customer/${customer.id}`, {
+        headers: { Authorization: `Bearer ${customer.token}` },
+      })
+        .then((r) => r.json())
+        .then((rows: any[]) => {
+          const list = Array.isArray(rows) ? rows : []
+          setOrders(list)
+          setOrderCount(list.length)
+        })
+        .catch(() => {
+          setOrders([])
+          setOrderCount(0)
+        })
     }
   }, [customer, API])
 
@@ -124,7 +139,7 @@ export default function MyAccountDashboard() {
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 24px' }}>
           <div style={{ fontFamily: 'Montserrat, system-ui', fontSize: 17, fontWeight: 800, color: '#1f2933', marginBottom: 5 }}>My account</div>
           <div style={{ fontSize: 12, color: '#5a6a7e', marginBottom: 24 }}>All your Houznext activity in one place - linked to your mobile number</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 10 }}>
             {[
               {
                 val: '—',
@@ -151,6 +166,14 @@ export default function MyAccountDashboard() {
                 icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#db2777" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg>,
               },
               {
+                val: orderCount !== null ? String(orderCount) : '—',
+                lbl: 'My orders',
+                sub: 'Furniture & home decor',
+                href: '/my-account?tab=orders',
+                accent: '#d97706',
+                icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>,
+              },
+              {
                 val: projectCount !== null ? String(projectCount) : '—',
                 lbl: 'My Home (LiveBuild)',
                 sub: 'Active interior projects',
@@ -168,6 +191,28 @@ export default function MyAccountDashboard() {
               </div>
             ))}
           </div>
+          {router.query.tab === 'orders' && (
+            <div style={{ marginTop: 18, background: '#fff', border: '1px solid #dde8f5', borderRadius: 11, padding: 14 }}>
+              <div style={{ fontFamily: 'Montserrat, system-ui', fontSize: 16, fontWeight: 800, color: '#1f2933', marginBottom: 8 }}>My orders</div>
+              {orders.length === 0 ? (
+                <div style={{ fontSize: 13, color: '#5a6a7e' }}>No store orders yet.</div>
+              ) : (
+                orders.map((o) => (
+                  <div key={o.id} style={{ borderTop: '1px solid #eef4fb', padding: '10px 0', fontSize: 13, color: '#1f2933' }}>
+                    <div style={{ fontWeight: 700 }}>{o.orderNo || o.id}</div>
+                    <div style={{ color: '#5a6a7e' }}>{o.status} · ₹{Number(o.grandTotal || 0).toLocaleString('en-IN')}</div>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                      <button style={{ border: '1px solid #c7daf3', borderRadius: 8, background: '#e8f1fd', color: '#0f2a44', padding: '5px 10px', fontSize: 11 }}>Track order</button>
+                      <button style={{ border: '1px solid #dde8f5', borderRadius: 8, background: '#fff', color: '#1f2933', padding: '5px 10px', fontSize: 11 }}>Download invoice</button>
+                      {['CREATED', 'PENDING', 'PROCESSING'].includes(String(o.status || '').toUpperCase()) && (
+                        <button style={{ border: '1px solid #fecaca', borderRadius: 8, background: '#fff1f2', color: '#dc2626', padding: '5px 10px', fontSize: 11 }}>Cancel</button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
       </main>
       <Footer />

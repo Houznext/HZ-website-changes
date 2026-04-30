@@ -21,20 +21,38 @@ import {
   CreatePaymentSessionDto,
   PaymentSummaryDto,
   PaymentVerificationDto,
+  VerifyRazorpayDto,
   RefundPaymentDto,
 } from './dto/payment.dto';
 import { PaymentsService } from './payment.service';
 import { ControllerAuthGuard } from 'src/guard';
+import { AnyAuthGuard } from 'src/common/guards/any-auth.guard';
 
 type RequestUser = { id: string; roles?: any[] };
 
 @ApiTags('Payments')
 @ApiBearerAuth()
 @Controller('payments')
-@UseGuards(ControllerAuthGuard)
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
+  @UseGuards(AnyAuthGuard)
+  @Post('customer/create-session')
+  createCustomerSession(
+    @Body() dto: CreatePaymentSessionDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.sub ?? req.user?.id;
+    return this.paymentsService.createPaymentSession(dto, userId);
+  }
+
+  @UseGuards(AnyAuthGuard)
+  @Post('customer/verify')
+  verifyCustomerPayment(@Body() dto: VerifyRazorpayDto) {
+    return this.paymentsService.verifyPaymentFromClient(dto);
+  }
+
+  @UseGuards(ControllerAuthGuard)
   @Post('session')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -50,6 +68,7 @@ export class PaymentsController {
   }
 
   // USER → Verify Payment (Frontend callback)
+  @UseGuards(ControllerAuthGuard)
   @Post('verify')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Verify Razorpay payment after checkout' })
@@ -60,6 +79,7 @@ export class PaymentsController {
   }
 
   // RAZORPAY → SERVER WEBHOOK
+  @UseGuards(ControllerAuthGuard)
   @Post('webhook/razorpay')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Razorpay webhook endpoint' })
@@ -71,6 +91,7 @@ export class PaymentsController {
   }
 
   // ADMIN → Payment audit report (must be before :id)
+  @UseGuards(ControllerAuthGuard)
   @Get('admin/audit-report')
   @ApiOperation({
     summary: 'Admin: Payment audit report – revenue and refunds by source/order type',
@@ -88,6 +109,7 @@ export class PaymentsController {
   }
 
   // ADMIN/USER → GET PAYMENTS FOR ORDER (must be before :id)
+  @UseGuards(ControllerAuthGuard)
   @Get('by-order/:orderId')
   @ApiOperation({ summary: 'Get all payment attempts for an order' })
   @ApiResponse({ status: HttpStatus.OK, type: [PaymentSummaryDto] })
@@ -96,6 +118,7 @@ export class PaymentsController {
   }
 
   // ADMIN → GET PAYMENT BY ID
+  @UseGuards(ControllerAuthGuard)
   @Get(':id')
   @ApiOperation({ summary: 'Admin: Get payment by id' })
   @ApiResponse({ status: HttpStatus.OK, type: PaymentSummaryDto })
@@ -104,6 +127,7 @@ export class PaymentsController {
   }
 
   // ADMIN → Refund (partial/full); body optional amount & reason (audit)
+  @UseGuards(ControllerAuthGuard)
   @Post(':id/refund')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Admin: Refund payment (full or partial with reason)' })

@@ -5,12 +5,15 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { CartController } from "./cart.controller";
 import { CartService } from "./cart.service";
 import { CartItem } from "src/cartItems/entities/cartitem.entity";
+import { JwtModule } from '@nestjs/jwt';
+import { AnyAuthGuard } from 'src/common/guards/any-auth.guard';
 
 
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Cart, User,CartItem])],
+    imports: [TypeOrmModule.forFeature([Cart, User, CartItem]), JwtModule],
     controllers: [CartController],
-    providers: [CartService],
+    providers: [CartService, AnyAuthGuard],
+    exports: [CartService],
 })
 export class CartModule { }

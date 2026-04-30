@@ -13,6 +13,8 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+import { PaymentProvider } from 'src/payment/enums/payment.enum';
+import { PartyJson, ShippingDetailsJson } from '../entities/order.entity';
 import {
   OrderItemType,
   OrderStatusEnum,
@@ -136,6 +138,31 @@ export class CreateOrderFromCartDto {
   @IsString()
   @IsIn(['RAZORPAY', 'COD'])
   paymentMethod?: 'RAZORPAY' | 'COD';
+}
+
+export class PlaceOrderDto {
+  @ApiProperty({ enum: OrderType, default: OrderType.FURNITURE })
+  @IsEnum(OrderType)
+  type: OrderType;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  couponCode?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsObject()
+  shippingDetails?: ShippingDetailsJson;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsObject()
+  billingDetails?: PartyJson;
+
+  @ApiProperty({ enum: PaymentProvider })
+  @IsEnum(PaymentProvider)
+  paymentProvider: PaymentProvider;
 }
 
 // -------------------- UPDATE STATUS --------------------

@@ -105,6 +105,22 @@ function NavHeroCarouselIcon(props: { className?: string }) {
     </svg>
   );
 }
+
+function StoreProductsIcon(props: { className?: string }) {
+  return <svg className={props.className} viewBox="0 0 24 24" width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M20 9V6a2 2 0 00-2-2H6a2 2 0 00-2 2v3M2 9h20M4 9v10a2 2 0 002 2h12a2 2 0 002-2V9" /></svg>;
+}
+function StoreCategIcon(props: { className?: string }) {
+  return <svg className={props.className} viewBox="0 0 24 24" width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>;
+}
+function StoreOrdersIcon(props: { className?: string }) {
+  return <svg className={props.className} viewBox="0 0 24 24" width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>;
+}
+function StoreInventoryIcon(props: { className?: string }) {
+  return <svg className={props.className} viewBox="0 0 24 24" width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" /></svg>;
+}
+function StoreCouponsIcon(props: { className?: string }) {
+  return <svg className={props.className} viewBox="0 0 24 24" width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M9 14.25l6-6" /><circle cx="9.75" cy="9" r=".75" /><circle cx="14.25" cy="14.25" r=".75" /><path d="M3.5 12l-.878-.878a2 2 0 010-2.828l7.072-7.072a2 2 0 012.828 0L21 9.7a2 2 0 010 2.828L13.928 19.6a2 2 0 01-2.828 0L9.5 18" /></svg>;
+}
 type NavItem = NavSection | NavLink | { custom: "livebuild" };
 
 const NAV_STRUCTURE: NavItem[] = [
@@ -133,6 +149,12 @@ const NAV_STRUCTURE: NavItem[] = [
   { section: "Settings" },
   { href: "/settings",           label: "Settings",      icon: Settings },
   { href: "/settings/branches",  label: "Branches",      icon: GitBranch },
+  { section: "Houznext Store" },
+  { href: "/store-admin/products",    label: "Products",       icon: StoreProductsIcon },
+  { href: "/store-admin/categories",  label: "Categories",     icon: StoreCategIcon },
+  { href: "/store-admin/orders",      label: "Store orders",   icon: StoreOrdersIcon },
+  { href: "/store-admin/inventory",   label: "Inventory",      icon: StoreInventoryIcon },
+  { href: "/store-admin/coupons",     label: "Coupons",        icon: StoreCouponsIcon },
 ];
 
 const badgeStyles: Record<BadgeColor, string> = {

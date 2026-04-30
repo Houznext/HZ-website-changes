@@ -21,6 +21,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ControllerAuthGuard } from 'src/guard';
+import { AnyAuthGuard } from 'src/common/guards/any-auth.guard';
 import { OrdersService } from './order.service';
 import {
   CancelOrderDto,
@@ -28,6 +29,7 @@ import {
   CreateOrderFromCartDto,
   ProcessReturnDto,
   RequestReturnDto,
+  PlaceOrderDto,
   UpdateOrderDto,
   UpdateOrderStatusDto,
 } from './dto/orders.dto';
@@ -49,13 +51,26 @@ type RequestUser = {
 @ApiTags('Orders')
 @ApiBearerAuth()
 @Controller('orders')
-@UseGuards(ControllerAuthGuard)
 export class OrdersController {
   constructor(
     private readonly ordersService: OrdersService,
     private readonly orderQueryService: OrderQueryService,
   ) {}
 
+  @UseGuards(AnyAuthGuard)
+  @Post('customer/place')
+  placeCustomerOrder(@Req() req: any, @Body() dto: PlaceOrderDto) {
+    const customerId = req.user?.sub ?? req.user?.id;
+    return this.ordersService.placeOrder(customerId, dto);
+  }
+
+  @UseGuards(AnyAuthGuard)
+  @Get('customer/:customerId')
+  getCustomerOrders(@Param('customerId') customerId: string) {
+    return this.ordersService.findByCustomer(customerId);
+  }
+
+  @UseGuards(ControllerAuthGuard)
   @Post()
   @ApiOperation({
     summary: 'Create order for store/services/legal/property premium/booking.',
@@ -70,6 +85,7 @@ export class OrdersController {
     return this.ordersService.createOrder(dto, userId, req.user);
   }
 
+  @UseGuards(ControllerAuthGuard)
   @Post('from-cart')
   @ApiOperation({
     summary: 'Create order from cart (user)',
@@ -89,6 +105,7 @@ export class OrdersController {
     return this.ordersService.createOrderFromCart(req.user.id, req.user, dto);
   }
 
+  @UseGuards(ControllerAuthGuard)
   @Get('my')
   @ApiOperation({ summary: 'Get current user orders' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Orders found' })
@@ -99,6 +116,7 @@ export class OrdersController {
     return this.ordersService.getOrdersForUser(req.user.id, filter);
   }
 
+  @UseGuards(ControllerAuthGuard)
   @Get('queries/all')
   @ApiOperation({ summary: 'Admin: List all order queries (optional filters)' })
   async getAllOrderQueries(
@@ -112,6 +130,7 @@ export class OrdersController {
     });
   }
 
+  @UseGuards(ControllerAuthGuard)
   @Get('queries/:queryId')
   @ApiOperation({ summary: 'Get single order query by id' })
   async getOrderQueryById(
@@ -121,6 +140,7 @@ export class OrdersController {
     return this.orderQueryService.getById(queryId, req.user);
   }
 
+  @UseGuards(ControllerAuthGuard)
   @Patch('queries/:queryId')
   @ApiOperation({ summary: 'Admin: Add reply and/or update status (ANSWERED, CLOSED)' })
   @ApiBody({ type: UpdateOrderQueryDto })
@@ -132,6 +152,7 @@ export class OrdersController {
     return this.orderQueryService.update(queryId, dto, req.user);
   }
 
+  @UseGuards(ControllerAuthGuard)
   @Get(':id/tracking')
   @ApiOperation({ summary: 'Get order tracking timeline (user)' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Tracking timeline returned' })
@@ -142,6 +163,7 @@ export class OrdersController {
     return this.ordersService.getOrderTracking(id, req.user.id);
   }
 
+  @UseGuards(ControllerAuthGuard)
   @Get(':id')
   @ApiOperation({ summary: 'Get single order by id (user/admin)' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Order found' })
@@ -154,6 +176,7 @@ export class OrdersController {
 
   // -------------------- UPDATE (DETAILS) --------------------
 
+  @UseGuards(ControllerAuthGuard)
   @Patch(':id')
   @ApiOperation({ summary: 'Update order details (user/admin)' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Order updated' })
@@ -167,6 +190,7 @@ export class OrdersController {
 
   // -------------------- CANCEL (USER) --------------------
 
+  @UseGuards(ControllerAuthGuard)
   @Delete(':id/cancel')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Cancel an order (user)' })
@@ -181,6 +205,7 @@ export class OrdersController {
 
   // -------------------- RETURN FLOW (USER) --------------------
 
+  @UseGuards(ControllerAuthGuard)
   @Post(':id/return')
   @ApiOperation({ summary: 'Request return (user)' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Return requested' })
@@ -193,6 +218,7 @@ export class OrdersController {
   }
 
   // -------------------- ADMIN --------------------
+  @UseGuards(ControllerAuthGuard)
   @Get()
   @ApiOperation({ summary: 'List all orders (admin/staff)' })
   @ApiResponse({ status: HttpStatus.OK, description: 'fetched all orders' })
@@ -203,6 +229,7 @@ export class OrdersController {
     return this.ordersService.getAllOrders(filter, req.user);
   }
 
+  @UseGuards(ControllerAuthGuard)
   @Patch(':id/status')
   @ApiOperation({ summary: 'Update order status (admin/staff)' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Order status updated' })
@@ -214,6 +241,7 @@ export class OrdersController {
     return this.ordersService.updateOrderStatus(id, dto, req.user);
   }
 
+  @UseGuards(ControllerAuthGuard)
   @Patch(':id/return/process')
   @ApiOperation({ summary: 'Approve / Reject return (admin/staff)' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Return processed' })
@@ -225,6 +253,7 @@ export class OrdersController {
     return this.ordersService.processReturn(id, dto, req.user);
   }
 
+  @UseGuards(ControllerAuthGuard)
   @Patch(':id/assign-agent')
   @ApiOperation({ summary: 'Assign service agent to an order (admin/staff)' })
   @ApiBody({ schema: { properties: { agentUserId: { type: 'string' } } } })
@@ -237,6 +266,7 @@ export class OrdersController {
     return this.ordersService.assignServiceAgent(id, body.agentUserId, req.user);
   }
 
+  @UseGuards(ControllerAuthGuard)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete order (admin only)' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Order deleted' })
@@ -249,6 +279,7 @@ export class OrdersController {
 
   // -------------------- ORDER QUERIES (user questions / admin replies) --------------------
 
+  @UseGuards(ControllerAuthGuard)
   @Post(':id/queries')
   @ApiOperation({ summary: 'User: Create a query about an order' })
   @ApiBody({ type: CreateOrderQueryDto })
@@ -260,6 +291,7 @@ export class OrdersController {
     return this.orderQueryService.create(id, dto, req.user.id);
   }
 
+  @UseGuards(ControllerAuthGuard)
   @Get(':id/queries')
   @ApiOperation({ summary: 'Get queries for an order (user: own; admin: all)' })
   async getOrderQueries(

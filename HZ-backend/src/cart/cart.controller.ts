@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ControllerAuthGuard } from 'src/guard';
+import { AnyAuthGuard } from 'src/common/guards/any-auth.guard';
 
 import { CartService } from './cart.service';
 import {
@@ -24,14 +24,14 @@ import { UpdateCartMetaDto } from './dtos/cart.dto';
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
-  @UseGuards(ControllerAuthGuard)
+  @UseGuards(AnyAuthGuard)
   @Get(':userId')
   @ApiOperation({ summary: 'Get cart (creates empty cart if not exists)' })
   getCart(@Param('userId') userId: string) {
     return this.cartService.getOrCreateCart(userId);
   }
 
-  @UseGuards(ControllerAuthGuard)
+  @UseGuards(AnyAuthGuard)
   @Post(':userId/items')
   @ApiOperation({
     summary: 'Add item to cart (merge by productId+variantId+productType)',
@@ -40,7 +40,7 @@ export class CartController {
     return this.cartService.addItem(userId, dto);
   }
 
-  @UseGuards(ControllerAuthGuard)
+  @UseGuards(AnyAuthGuard)
   @Patch(':userId/items/:itemId')
   @ApiOperation({ summary: 'Update a cart item (quantity/price/meta etc.)' })
   updateItem(
@@ -51,21 +51,21 @@ export class CartController {
     return this.cartService.updateItem(userId, itemId, dto);
   }
 
-  @UseGuards(ControllerAuthGuard)
+  @UseGuards(AnyAuthGuard)
   @Delete(':userId/items/:itemId')
   @ApiOperation({ summary: 'Remove one cart item' })
   removeItem(@Param('userId') userId: string, @Param('itemId') itemId: string) {
     return this.cartService.removeItem(userId, itemId);
   }
 
-  @UseGuards(ControllerAuthGuard)
+  @UseGuards(AnyAuthGuard)
   @Delete(':userId/clear')
   @ApiOperation({ summary: 'Clear cart items' })
   clear(@Param('userId') userId: string) {
     return this.cartService.clear(userId);
   }
 
-  @UseGuards(ControllerAuthGuard)
+  @UseGuards(AnyAuthGuard)
   @Patch(':userId/meta')
   @ApiOperation({
     summary:
@@ -75,7 +75,7 @@ export class CartController {
     return this.cartService.updateMeta(userId, dto);
   }
 
-  // @UseGuards(ControllerAuthGuard)
+  @UseGuards(AnyAuthGuard)
   @Patch(':userId/sync')
   @ApiOperation({
     summary: 'Replace cart items with given list (sync from frontend)',

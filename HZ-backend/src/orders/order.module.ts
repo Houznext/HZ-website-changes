@@ -11,12 +11,17 @@ import { Cart } from 'src/cart/entities/cart.entity';
 import { User } from 'src/user/entities/user.entity';
 import { FurnitureVariant } from 'src/furnitures/entities/furniture-variant.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
+import { CartModule } from 'src/cart/cart.module';
+import { JwtModule } from '@nestjs/jwt';
+import { AnyAuthGuard } from 'src/common/guards/any-auth.guard';
 @Module({
   imports: [
+    CartModule,
+    JwtModule,
     TypeOrmModule.forFeature([Order, OrderItem, OrderQuery, Cart, CartItem, User, FurnitureVariant, Branch]),
   ],
   controllers: [OrdersController],
-  providers: [OrdersService, OrderQueryService],
+  providers: [OrdersService, OrderQueryService, AnyAuthGuard],
   exports: [OrdersService, OrderQueryService],
 })
 export class OrdersModule { }

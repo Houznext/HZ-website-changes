@@ -8,6 +8,7 @@ import { FurnitureService } from './furniture.service';
 import { Notification } from 'src/notifications/entities/notification.entity';
 import { User } from 'src/user/entities/user.entity';
 import { S3Module } from 'src/common/s3/s3.module';
+import { BrowseHistory } from './entities/browse-history.entity';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { S3Module } from 'src/common/s3/s3.module';
       Furniture,
       FurnitureVariant,
       FurnitureImage,
+      BrowseHistory,
       Notification,
       User,
     ]),

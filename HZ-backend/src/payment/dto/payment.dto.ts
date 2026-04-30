@@ -39,6 +39,8 @@ export class PaymentVerificationDto {
   razorpay_signature: string;
 }
 
+export class VerifyRazorpayDto extends PaymentVerificationDto {}
+
 export class PaymentWebhookDto {
   @ApiPropertyOptional()
   @IsOptional()

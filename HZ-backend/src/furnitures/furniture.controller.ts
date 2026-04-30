@@ -78,6 +78,18 @@ export class FurnitureController {
     return this.furnitureService.findOne(id);
   }
 
+  @Post('browse-history')
+  recordBrowse(
+    @Body() body: { mobile: string; furnitureId: string; category?: string },
+  ) {
+    return this.furnitureService.recordBrowse(body.mobile, body.furnitureId, body.category);
+  }
+
+  @Get('recommended')
+  getRecommended(@Query('mobile') mobile?: string) {
+    return this.furnitureService.getRecommended(mobile);
+  }
+
   @UseGuards(ControllerAuthGuard)
   @Put(':id')
   @ApiOperation({ summary: 'Update furniture product' })
@@ -108,5 +120,15 @@ export class FurnitureController {
     @Req() req: { user: RequestUser },
   ): Promise<{ created: number; failed: number }> {
     return this.furnitureService.seedFurniture(req.user?.id, req.user?.activeBranchId);
+  }
+
+  @UseGuards(ControllerAuthGuard)
+  @Post('seed-houznext')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Seed 20 Houznext-branded furniture products (replaces old seed)' })
+  async seedHouznext(
+    @Req() req: { user: RequestUser },
+  ): Promise<{ created: number; failed: number; skipped: number }> {
+    return this.furnitureService.seedHouznextProducts(req.user?.id, req.user?.activeBranchId);
   }
 }

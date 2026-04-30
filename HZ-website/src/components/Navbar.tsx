@@ -30,6 +30,7 @@ function getInitials(name: string) {
 
 export default function Navbar() {
   const router = useRouter()
+  const storeUrl = process.env.NEXT_PUBLIC_STORE_URL ?? 'https://store.houznext.com'
   const { openModal } = useQuoteModal()
   const { customer, isLoggedIn, logout } = useCustomerAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -147,6 +148,23 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center gap-3 flex-shrink-0">
+            <a
+              href={storeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-[700] text-white no-underline transition-all duration-200 hover:-translate-y-px"
+              style={{ background: 'rgba(47,128,237,0.18)', border: '1px solid rgba(47,128,237,0.35)' }}
+            >
+              <span style={{ position: 'absolute', top: -6, right: -6, background: '#f2994a', color: '#fff', fontSize: 8, fontWeight: 800, padding: '1px 5px', borderRadius: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                New
+              </span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <path d="M16 10a4 4 0 01-8 0" />
+              </svg>
+              Store
+            </a>
             <button type="button" onClick={() => openModal('Navbar — Free consultation')} className="px-4 py-1.5 rounded-lg text-[13px] font-head font-bold text-white transition-all duration-200 hover:-translate-y-px hover:shadow-lg" style={{ background: '#2f80ed' }}>
               Free consultation
             </button>
@@ -296,6 +314,15 @@ export default function Navbar() {
                 </button>
               </div>
               <div className="px-6 pb-4 flex flex-col gap-2">
+                <a
+                  href={storeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2 text-[13px] font-[700] text-white rounded-lg border border-[#2f80ed]/60 no-underline text-center"
+                  style={{ background: 'rgba(47,128,237,0.2)' }}
+                >
+                  Houznext Store
+                </a>
                 <button type="button" onClick={() => { setMobileOpen(false); if (isLoggedIn) void router.push('/my-account'); else setLoginOpen(true) }} className="w-full py-2 text-[13px] font-[500] text-white rounded-lg border border-white/25 transition-all duration-200">
                   {isLoggedIn ? 'My account' : 'Sign in'}
                 </button>

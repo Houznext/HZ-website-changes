@@ -18,7 +18,8 @@ import { Category, FurnitureStatus, PriceRange, SortOption } from './enum/furnit
 import { Notification } from 'src/notifications/entities/notification.entity';
 import { S3Service } from 'src/common/s3/s3.service';
 import { Branch } from 'src/branch/entities/branch.entity';
-import { SEED_FURNITURE, buildFurnitureDto } from './furniture-seed-data';
+import { SEED_FURNITURE, buildFurnitureDto, buildHznSeedProducts } from './furniture-seed-data';
+import { BrowseHistory } from './entities/browse-history.entity';
 
 @Injectable()
 export class FurnitureService {
@@ -31,6 +32,8 @@ export class FurnitureService {
     private readonly imageRepo: Repository<FurnitureImage>,
     @InjectRepository(Notification)
     private readonly notificationRepo: Repository<Notification>,
+    @InjectRepository(BrowseHistory)
+    private readonly browseRepo: Repository<BrowseHistory>,
     private readonly s3Service: S3Service,
   ) {}
 
@@ -610,5 +613,90 @@ export class FurnitureService {
       }
     }
     return { created, failed };
+  }
+
+  async seedHouznextProducts(
+    userId?: string,
+    branchId?: string,
+  ): Promise<{ created: number; failed: number; skipped: number }> {
+    if (!branchId) {
+      const orgBranch = await this.furnitureRepo.manager
+        .getRepository(Branch)
+        .findOne({ where: { level: 'ORG' as any } });
+      branchId = orgBranch?.id;
+    }
+
+    const products = buildHznSeedProducts(userId, branchId);
+    let created = 0;
+    let failed = 0;
+    let skipped = 0;
+
+    for (const dto of products) {
+      try {
+        const existing = await this.furnitureRepo.findOne({ where: { slug: dto.slug } });
+        if (existing) {
+          skipped++;
+          continue;
+        }
+        await this.createFurniture(dto as CreateFurnitureDto, userId);
+        created++;
+      } catch (err) {
+        console.error(`[SeedHouznext] Failed "${dto.name}":`, (err as any)?.message ?? err);
+        failed++;
+      }
+    }
+
+    return { created, failed, skipped };
+  }
+
+  async recordBrowse(mobile: string, furnitureId: string, category?: string) {
+    const existing = await this.browseRepo.findOne({ where: { mobile, furnitureId } });
+    if (existing) {
+      existing.viewedAt = new Date();
+      if (category) existing.category = category;
+      return this.browseRepo.save(existing);
+    }
+    return this.browseRepo.save(this.browseRepo.create({ mobile, furnitureId, category }));
+  }
+
+  async getRecommended(mobile?: string) {
+    if (!mobile) {
+      return this.furnitureRepo.find({
+        where: { isFeatured: true, status: FurnitureStatus.ACTIVE },
+        relations: ['images', 'variants'],
+        take: 10,
+      });
+    }
+    const history = await this.browseRepo.find({
+      where: { mobile },
+      order: { viewedAt: 'DESC' },
+      take: 20,
+    });
+    if (!history.length) {
+      return this.furnitureRepo.find({
+        where: { isFeatured: true, status: FurnitureStatus.ACTIVE },
+        relations: ['images', 'variants'],
+        take: 10,
+      });
+    }
+    const browsedIds = history.map((h) => h.furnitureId);
+    const categories = [...new Set(history.map((h) => h.category).filter(Boolean))] as string[];
+    if (!categories.length) {
+      return this.furnitureRepo.find({
+        where: { isFeatured: true, status: FurnitureStatus.ACTIVE },
+        relations: ['images', 'variants'],
+        take: 10,
+      });
+    }
+    return this.furnitureRepo
+      .createQueryBuilder('f')
+      .leftJoinAndSelect('f.images', 'img')
+      .leftJoinAndSelect('f.variants', 'v')
+      .where('f.category IN (:...categories)', { categories: categories.slice(0, 3) })
+      .andWhere('f.id NOT IN (:...browsedIds)', { browsedIds: browsedIds.length ? browsedIds : [''] })
+      .andWhere('f.status = :status', { status: FurnitureStatus.ACTIVE })
+      .orderBy('f.averageRating', 'DESC')
+      .take(10)
+      .getMany();
   }
 }
