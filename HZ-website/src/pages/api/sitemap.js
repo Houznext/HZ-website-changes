@@ -83,7 +83,7 @@ export default async function handler(req, res) {
     { path: "/painting/paint-cost-calculator", priority: "0.7" },
     { path: "/legalservices", priority: "0.75" },
     { path: "/legalservices/packages", priority: "0.65" },
-    { path: "/livebuild", priority: "0.8" },
+    { path: "/buildlive", priority: "0.85" },
     { path: "/services/custom-builder", priority: "0.8" },
     { path: "/services/furnitures", priority: "0.75" },
     { path: "/services/furnitures/custom-furnitures", priority: "0.65" },

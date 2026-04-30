@@ -46,7 +46,7 @@ const GeneralFooter = () => {
         },
         {
           label: "LiveBuild",
-          url: "/livebuild",
+          url: "/buildlive",
         },
       ],
     },

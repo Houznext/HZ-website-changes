@@ -9,7 +9,7 @@ const ServicesCard = () => {
     {
       image: "/images/services/residential.png",
       label: "Construction",
-      href: "/livebuild",
+      href: "/buildlive",
     },
     {
       image: "/images/services/business-residential.png",

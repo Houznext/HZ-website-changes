@@ -34,7 +34,7 @@ const services = [
   {
     image: "/images/services/business-residential.png",
     label: "Construction",
-    href: "/livebuild",
+    href: "/buildlive",
   },
   {
     image: "/images/services/interiors.png",

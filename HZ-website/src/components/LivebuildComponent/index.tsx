@@ -144,7 +144,7 @@ const CustomBuilderView = () => {
         we&apos;ll help you every step of the way.
       </p>
       <Button
-        onClick={() => router.push("/livebuild")}
+        onClick={() => router.push("/buildlive")}
         className="mt-6 inline-flex items-center gap-2 bg-[#3586FF] text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-blue-700 active:bg-blue-800 transition-colors shadow-md hover:shadow-lg"
       >
         <svg

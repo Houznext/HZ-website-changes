@@ -64,7 +64,7 @@ const Custom404 = () => {
                                         <Link href="/services" className="text-[#3586FF] hover:underline">
                                             Services
                                         </Link>
-                                        <Link href="/livebuild" className="text-[#3586FF] hover:underline">
+                                        <Link href="/buildlive" className="text-[#3586FF] hover:underline">
                                             LiveBuild
                                         </Link>
                                         <Link href="/blog" className="text-[#3586FF] hover:underline">

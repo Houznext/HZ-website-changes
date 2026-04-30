@@ -161,7 +161,7 @@ function priorityForPath(p) {
   if (p === '/interiors' || p === '/design-ideas' || p === '/blog') return 0.9
   if (p.startsWith('/blog/')) return 0.7
   if (p.startsWith('/services/')) return 0.8
-  if (p === '/livebuild' || p === '/buildlive') return 0.8
+  if (p === '/buildlive') return 0.85
   return 0.75
 }
 
@@ -169,7 +169,7 @@ function changefreqForPath(p) {
   if (p === '/' || p === '/blog' || p.startsWith('/blog/')) return 'weekly'
   if (p === '/design-ideas') return 'weekly'
   if (p.startsWith('/services/') || p.startsWith('/interiors')) return 'weekly'
-  if (p === '/livebuild' || p === '/buildlive') return 'monthly'
+  if (p === '/buildlive') return 'monthly'
   if (p === '/about-us' || p === '/contact-us') return 'monthly'
   return 'monthly'
 }
@@ -257,9 +257,6 @@ async function main() {
 
   // ─── sitemap-livebuild.xml ───
   const livebuild = []
-  if (fs.existsSync(path.join(PAGES, 'livebuild', 'index.tsx'))) {
-    add(livebuild, '/livebuild', { changefreq: 'monthly', priority: 0.8 })
-  }
   if (fs.existsSync(path.join(PAGES, 'buildlive.tsx'))) {
     add(livebuild, '/buildlive', { changefreq: 'monthly', priority: 0.85 })
   }
