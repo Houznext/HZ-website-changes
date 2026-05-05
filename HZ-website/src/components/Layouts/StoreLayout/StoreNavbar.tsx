@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { useCustomerAuth } from '@/context/CustomerAuthContext'
+import LoginModal from '@/components/LoginModal'
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
@@ -29,6 +30,7 @@ export default function StoreNavbar() {
   const router = useRouter()
   const { customer, isLoggedIn, logout } = useCustomerAuth()
   const [profileOpen, setProfileOpen] = useState(false)
+  const [loginOpen, setLoginOpen] = useState(false)
   const [cartCount, setCartCount] = useState(0)
   const [wishlistCount, setWishlistCount] = useState(0)
   const profileRef = useRef<HTMLDivElement>(null)
@@ -138,8 +140,7 @@ export default function StoreNavbar() {
             <button
               onClick={() => {
                 if (!isLoggedIn) {
-                  try { sessionStorage.setItem('hz_login_redirect', router.asPath) } catch {}
-                  router.push('/?login=1')
+                  setLoginOpen(true)
                 } else setProfileOpen((v) => !v)
               }}
               style={{ width: 36, height: 36, borderRadius: '50%', background: isLoggedIn ? '#2f80ed' : 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)', color: '#fff', cursor: 'pointer' }}
@@ -172,6 +173,7 @@ export default function StoreNavbar() {
         </div>
       </div>
       <div style={{ height: 2, background: 'linear-gradient(90deg,#2f80ed,#f2994a,#2f80ed)' }} />
+      <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
     </div>
   )
 }
