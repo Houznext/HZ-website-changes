@@ -52,6 +52,15 @@ function redirectToHomeAfterSignout(req: NextRequest) {
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const host = req.headers.get("host")?.toLowerCase() ?? "";
+  const isStoreHost =
+    host === "store.houznext.com" || host.startsWith("store.houznext.com:");
+
+  if (isStoreHost && pathname === "/") {
+    const url = req.nextUrl.clone();
+    url.pathname = "/store";
+    return NextResponse.redirect(url);
+  }
 
   if (pathname.startsWith("/api")) return NextResponse.next();
   if (isPublicFile(pathname)) return NextResponse.next();
@@ -83,5 +92,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/user/:path*"],
+  matcher: ["/", "/user/:path*"],
 };
