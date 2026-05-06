@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { withStoreLayout } from '@/components/Layouts/StoreLayout'
 import { useCustomerAuth } from '@/context/CustomerAuthContext'
+import SeoHead from '@/components/SeoHead'
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
@@ -94,13 +95,20 @@ function CheckoutPage() {
   }
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: 20, display: 'grid', gridTemplateColumns: '1fr 320px', gap: 16 }}>
+    <>
+      <SeoHead
+        title="Checkout | Houznext Store"
+        description="Complete your Houznext Store purchase with secure payment and delivery details."
+        canonical="/store/checkout"
+        noIndex
+      />
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'clamp(10px, 3vw, 20px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
       <div style={{ background: '#fff', border: '1px solid #dde8f5', borderRadius: 12, padding: 14 }}>
         <h1 style={{ fontSize: 24, fontWeight: 800 }}>Checkout</h1>
         <div style={{ marginTop: 10 }}>Name: {customer?.name}</div>
         <div>Mobile: {customer?.mobile}</div>
         <textarea value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Delivery address" style={{ marginTop: 10, width: '100%', minHeight: 88, border: '1px solid #dde8f5', borderRadius: 10, padding: 10, fontSize: 13 }} />
-        <div style={{ marginTop: 10, display: 'flex', gap: 12 }}>
+        <div style={{ marginTop: 10, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           {(['RAZORPAY', 'EMI', 'COD'] as const).map((m) => (
             <label key={m} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
               <input type="radio" checked={paymentMethod === m} onChange={() => setPaymentMethod(m)} />
@@ -114,7 +122,8 @@ function CheckoutPage() {
         <div>₹{Number(cart?.grandTotal || 0).toLocaleString('en-IN')}</div>
         <button onClick={payNow} disabled={paying} style={{ marginTop: 10, width: '100%', border: 'none', borderRadius: 8, background: '#2f80ed', color: '#fff', padding: '10px 12px', cursor: 'pointer' }}>{paying ? 'Processing...' : 'Pay now'}</button>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
 

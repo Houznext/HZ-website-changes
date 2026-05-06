@@ -19,6 +19,7 @@ export default function StoreLayout({ children }: StoreLayoutProps) {
       <StoreNavbar />
       <main style={{ flex: 1 }}>{children}</main>
       <StoreFooter />
+      <div className="md:hidden" style={{ height: 'calc(64px + env(safe-area-inset-bottom))' }} />
     </div>
   )
 }

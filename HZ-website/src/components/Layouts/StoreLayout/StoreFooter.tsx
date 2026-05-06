@@ -15,7 +15,7 @@ export default function StoreFooter() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '2fr 1fr 1fr 1fr',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
             gap: 32,
             marginBottom: 28,
           }}

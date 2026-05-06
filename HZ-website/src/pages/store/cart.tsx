@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { withStoreLayout } from '@/components/Layouts/StoreLayout'
 import { useCustomerAuth } from '@/context/CustomerAuthContext'
+import SeoHead from '@/components/SeoHead'
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
@@ -72,7 +73,14 @@ function StoreCartPage() {
   if (!cart) return <div style={{ padding: 24 }}>Loading cart...</div>
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: 20, display: 'grid', gridTemplateColumns: '1fr 320px', gap: 16 }}>
+    <>
+      <SeoHead
+        title="Cart | Houznext Store"
+        description="Review items in your Houznext Store cart, apply coupons, and proceed to secure checkout."
+        canonical="/store/cart"
+        noIndex
+      />
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(10px, 3vw, 20px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
       <div style={{ background: '#fff', border: '1px solid #dde8f5', borderRadius: 12, padding: 14 }}>
         {(cart.items || []).map((item: any) => (
           <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eef4fb', padding: '10px 0' }}>
@@ -98,7 +106,8 @@ function StoreCartPage() {
         </div>
         <button onClick={() => router.push('/store/checkout')} style={{ marginTop: 10, width: '100%', border: 'none', borderRadius: 8, background: '#0f2a44', color: '#fff', padding: '10px 12px', cursor: 'pointer' }}>Proceed to checkout</button>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
 

@@ -5,6 +5,7 @@ import ProductCard from '@/components/Store/ProductCard'
 import { fetchProducts, fetchRecommended, FurnitureProduct } from '@/store/storeApi'
 import { useCustomerAuth } from '@/context/CustomerAuthContext'
 import { ProductSkeleton } from '@/components/Store/ProductSkeleton'
+import SeoHead from '@/components/SeoHead'
 
 function StoreHomePage() {
   const router = useRouter()
@@ -70,14 +71,20 @@ function StoreHomePage() {
   )
 
   return (
-    <div style={{ maxWidth: 1300, margin: '0 auto', padding: '18px 20px 30px' }}>
-      <section style={{ borderRadius: 16, padding: '26px 30px', color: '#fff', background: slides[slideIdx].bg, minHeight: 220, transition: 'all 0.2s' }}>
+    <>
+      <SeoHead
+        title="Houznext Store | Furniture, Decor & Interiors Shopping"
+        description="Shop Houznext Store for sofas, beds, dining tables, wardrobes, TV units and custom furniture. Premium designs, secure checkout, and curated picks for your home."
+        canonical="/store"
+      />
+      <div style={{ maxWidth: 1300, margin: '0 auto', padding: 'clamp(10px, 3vw, 18px) clamp(10px, 3vw, 20px) 30px' }}>
+        <section style={{ borderRadius: 16, padding: 'clamp(16px, 4vw, 26px) clamp(14px, 5vw, 30px)', color: '#fff', background: slides[slideIdx].bg, minHeight: 220, transition: 'all 0.2s' }}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <button onClick={() => setSlideIdx((i) => (i + 3) % 4)} style={{ border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.08)', color: '#fff', borderRadius: 8, width: 28, height: 28 }}>‹</button>
           <button onClick={() => setSlideIdx((i) => (i + 1) % 4)} style={{ border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.08)', color: '#fff', borderRadius: 8, width: 28, height: 28 }}>›</button>
         </div>
-        <h1 style={{ fontSize: 30, fontWeight: 800, marginBottom: 8 }}>{slides[slideIdx].title}</h1>
-        <p style={{ fontSize: 14, opacity: 0.92, maxWidth: 620 }}>{slides[slideIdx].sub}</p>
+        <h1 style={{ fontSize: 'clamp(28px, 5vw, 30px)', fontWeight: 800, marginBottom: 8 }}>{slides[slideIdx].title}</h1>
+        <p style={{ fontSize: 'clamp(13px, 2.8vw, 14px)', opacity: 0.92, maxWidth: 620 }}>{slides[slideIdx].sub}</p>
         <div style={{ display: 'flex', gap: 6, marginTop: 16 }}>
           {slides.map((_, i) => (
             <button key={i} onClick={() => setSlideIdx(i)} style={{ width: 9, height: 9, borderRadius: '50%', border: 'none', background: i === slideIdx ? '#f2994a' : 'rgba(255,255,255,0.45)' }} />
@@ -85,7 +92,7 @@ function StoreHomePage() {
         </div>
       </section>
 
-      <div style={{ marginTop: 18, display: 'grid', gridTemplateColumns: 'repeat(6, minmax(0,1fr))', gap: 10 }}>
+      <div style={{ marginTop: 18, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(86px,1fr))', gap: 10 }}>
         {[
           { label: 'Sofas', count: 48 },
           { label: 'Beds', count: 36 },
@@ -116,7 +123,7 @@ function StoreHomePage() {
       </div>
 
       <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1f2933', marginTop: 24, marginBottom: 10 }}>Best sellers</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px,1fr))', gap: 14 }}>
         {featuredLoading
           ? Array.from({ length: 4 }).map((_, i) => <ProductSkeleton key={i} />)
           : bestSellers.length
@@ -125,7 +132,7 @@ function StoreHomePage() {
       </div>
 
       <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1f2933', marginTop: 24, marginBottom: 10 }}>New arrivals</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0,1fr))', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px,1fr))', gap: 12 }}>
         {arrivalsLoading
           ? Array.from({ length: 5 }).map((_, i) => <ProductSkeleton key={i} height={170} />)
           : newArrivals.length
@@ -141,7 +148,7 @@ function StoreHomePage() {
       <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1f2933', marginTop: 24, marginBottom: 10 }}>
         {isLoggedIn && customer?.name ? `Picked for you · ${customer.name}` : 'Personalised recommendations'}
       </h2>
-      {isLoggedIn ? (
+        {isLoggedIn ? (
         <>
           {!!browseChips.length && (
             <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
@@ -149,7 +156,7 @@ function StoreHomePage() {
             </div>
           )}
           <button onClick={() => customer?.mobile && fetchRecommended(customer.mobile).then((list) => setRecommended(list.slice(0, 5)))} style={{ marginBottom: 10, border: '1px solid #c7daf3', borderRadius: 8, background: '#e8f1fd', color: '#0f2a44', padding: '7px 12px', fontSize: 12 }}>Refresh</button>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0,1fr))', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px,1fr))', gap: 12 }}>
             {recoLoading
               ? Array.from({ length: 5 }).map((_, i) => <ProductSkeleton key={i} height={170} />)
               : recommended.length
@@ -157,13 +164,14 @@ function StoreHomePage() {
                 : <div style={{ gridColumn: '1 / -1', color: '#5a6a7e' }}>No products found</div>}
           </div>
         </>
-      ) : (
+        ) : (
         <div style={{ background: '#fff', border: '1px solid #dde8f5', borderRadius: 14, padding: 18 }}>
           <div style={{ fontWeight: 700, color: '#1f2933' }}>Sign in for personalised picks</div>
           <button onClick={() => router.push('/?login=1')} style={{ marginTop: 8, border: 'none', borderRadius: 8, background: '#2f80ed', color: '#fff', padding: '8px 12px', cursor: 'pointer' }}>Sign in</button>
         </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   )
 }
 

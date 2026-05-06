@@ -4,6 +4,7 @@ import { withStoreLayout } from '@/components/Layouts/StoreLayout'
 import ProductCard from '@/components/Store/ProductCard'
 import { fetchProducts, FurnitureProduct } from '@/store/storeApi'
 import { ProductSkeleton } from '@/components/Store/ProductSkeleton'
+import SeoHead from '@/components/SeoHead'
 
 const PRICE_RANGES = [
   { label: 'Under ₹20,000', value: 'under20000' },
@@ -65,9 +66,15 @@ function StoreListingPage() {
   const selectedSubCats = selectedCategory ? (SUB_CATEGORIES[selectedCategory] ?? []) : []
 
   return (
-    <div style={{ maxWidth: 1300, margin: '0 auto', padding: '18px 20px 30px' }}>
+    <>
+      <SeoHead
+        title="Browse Products | Houznext Store"
+        description="Explore furniture collections by category, price, brand, and material on Houznext Store. Discover sofas, beds, wardrobes, dining tables and more."
+        canonical="/store"
+      />
+      <div style={{ maxWidth: 1300, margin: '0 auto', padding: 'clamp(10px, 3vw, 18px) clamp(10px, 3vw, 20px) 30px' }}>
       <h1 style={{ fontSize: 24, fontWeight: 800, color: '#1f2933', marginBottom: 12 }}>Store products</h1>
-      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
         <aside style={{ background: '#fff', border: '1px solid #dde8f5', borderRadius: 12, padding: 14, height: 'fit-content' }}>
           <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Filters</div>
           <div style={{ fontSize: 12, marginBottom: 6 }}>Price range</div>
@@ -134,7 +141,7 @@ function StoreListingPage() {
               })}
             </div>
           )}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px,1fr))', gap: 14 }}>
             {loading
               ? Array.from({ length: 9 }).map((_, i) => <ProductSkeleton key={i} />)
               : products.length
@@ -143,12 +150,13 @@ function StoreListingPage() {
           </div>
         </section>
       </div>
-      <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+        <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
         <button disabled={page <= 1} onClick={() => router.push({ pathname: '/store', query: { ...router.query, page: Math.max(page - 1, 1) } }, undefined, { shallow: true })} style={{ border: '1px solid #dde8f5', borderRadius: 8, padding: '8px 12px', background: '#fff' }}>Prev</button>
         <div style={{ padding: '8px 12px' }}>Page {page} / {totalPages}</div>
         <button disabled={page >= totalPages} onClick={() => router.push({ pathname: '/store', query: { ...router.query, page: page + 1 } }, undefined, { shallow: true })} style={{ border: '1px solid #dde8f5', borderRadius: 8, padding: '8px 12px', background: '#fff' }}>Next</button>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

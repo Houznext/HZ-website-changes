@@ -141,10 +141,13 @@ async function fetchBlogPosts() {
 
 function priorityForPath(p) {
   if (p === '/') return 1.0
-  if (p === '/interiors' || p === '/design-ideas' || p === '/blog') return 0.9
+  if (p === '/design-ideas') return 0.95
+  if (p === '/store') return 0.92
+  if (p === '/about-us') return 0.9
+  if (p === '/projects') return 0.88
+  if (p === '/interiors' || p === '/blog') return 0.85
   if (p.startsWith('/blog/')) return 0.7
   if (p === '/buildlive') return 0.85
-  if (p === '/about-us') return 0.8
   return 0.75
 }
 
@@ -198,10 +201,15 @@ async function main() {
   // ─── sitemap-main.xml (core marketing pages only) ───
   const main = []
   add(main, '/', { changefreq: 'weekly', priority: 1.0 })
-  add(main, '/about-us', { changefreq: 'monthly', priority: 0.8 })
+  // Keep this order intentional for sitelink hinting.
+  add(main, '/design-ideas', { changefreq: 'weekly', priority: 0.95 })
+  add(main, '/store', { changefreq: 'weekly', priority: 0.92 })
+  add(main, '/about-us', { changefreq: 'monthly', priority: 0.9 })
+  add(main, '/projects', { changefreq: 'monthly', priority: 0.88 })
+  add(main, '/interiors', { changefreq: 'weekly', priority: 0.85 })
+  add(main, '/blog', { changefreq: 'weekly', priority: 0.85 })
+  add(main, '/pricing', { changefreq: 'monthly', priority: 0.8 })
   add(main, '/contact-us', { changefreq: 'monthly', priority: 0.75 })
-  add(main, '/pricing', { changefreq: 'monthly', priority: 0.75 })
-  add(main, '/projects', { changefreq: 'monthly', priority: 0.75 })
 
   // ─── sitemap-interiors.xml ───
   const interiors = []
@@ -239,7 +247,8 @@ async function main() {
   const sortEntries = (arr) => arr.sort((a, b) => a.loc.localeCompare(b.loc))
 
   const files = {
-    'sitemap-main.xml': sortEntries(main),
+    // keep main order as authored above
+    'sitemap-main.xml': main,
     'sitemap-interiors.xml': sortEntries(interiors),
     'sitemap-inspiration.xml': sortEntries(inspiration),
     'sitemap-blogs.xml': sortEntries(blogs),
