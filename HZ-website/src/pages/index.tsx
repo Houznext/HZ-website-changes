@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router'
+import type { GetStaticProps } from 'next'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -21,6 +22,19 @@ import { HERO_CONSULTATION_CSS } from '@/components/HeroConsultation/keyframes'
 import HeroConsultationFormCard from '@/components/HeroConsultation/HeroConsultationFormCard'
 import HeroSuccessModal from '@/components/HeroConsultation/HeroSuccessModal'
 
+type ApiPackage = {
+  id?: string
+  name: string
+  price: string
+  suffix?: string
+  color?: string
+  features?: string[]
+  highlighted?: boolean
+  sortOrder?: number
+  isActive?: boolean
+  bhkType?: string | null
+}
+
 // ─── Count-up hook ────────────────────────────────────────────────────────────
 
 function useCountUp(end: number, decimals: number, active: boolean, duration = 1600): number {
@@ -41,7 +55,12 @@ function useCountUp(end: number, decimals: number, active: boolean, duration = 1
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function HomePage() {
+type HomePageProps = {
+  cmsPackages: ApiPackage[] | null
+}
+
+export default function HomePage({ cmsPackages }: HomePageProps) {
+  const packages = mergeDisplayPackages(cmsPackages)
   return (
     <>
       <SeoHead
@@ -425,7 +444,7 @@ export default function HomePage() {
             </div>
           </section>
         </>
-        <PackagesSection />
+        <PackagesSection packages={packages} />
         <BuildLivePreview />
         <StatsStrip />
         <WhyHouznext />
@@ -1156,7 +1175,14 @@ function HowItWorksCard({ step, isLast }: { step: StepDef; isLast: boolean }) {
 
 // ─── PackagesSection ──────────────────────────────────────────────────────────
 
-const PACKAGES = [
+const HARDCODED_PACKAGES: Array<{
+  name: string
+  price: string
+  suffix: string
+  color: string
+  features: string[]
+  highlighted: boolean
+}> = [
   {
     name: 'Essential',
     price: '₹4.5L',
@@ -1183,7 +1209,26 @@ const PACKAGES = [
   },
 ]
 
-function PackagesSection() {
+function mergeDisplayPackages(cms: ApiPackage[] | null) {
+  if (!cms || !Array.isArray(cms) || cms.length === 0) return HARDCODED_PACKAGES
+  const active = [...cms]
+    .filter((p) => p.isActive !== false)
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+  if (active.length === 0) return HARDCODED_PACKAGES
+  return active.map((row) => {
+    const fb = HARDCODED_PACKAGES.find((f) => f.name === row.name)
+    return {
+      name: row.name,
+      price: row.price,
+      suffix: row.suffix ?? 'onwards',
+      color: row.color || fb?.color || '#5a6a7e',
+      features: row.features?.length ? row.features : (fb?.features ?? []),
+      highlighted: typeof row.highlighted === 'boolean' ? row.highlighted : (fb?.highlighted ?? false),
+    }
+  })
+}
+
+function PackagesSection({ packages }: { packages: ReturnType<typeof mergeDisplayPackages> }) {
   const { openModal } = useQuoteModal()
   return (
     <section className="py-16 px-4" style={{ background: '#f5f7fa' }}>
@@ -1194,7 +1239,7 @@ function PackagesSection() {
           <p className="text-muted mt-2 text-sm">All packages are fixed-price with no hidden costs</p>
         </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          {PACKAGES.map((pkg, i) => (
+          {packages.map((pkg, i) => (
             <Reveal key={pkg.name} delay={i * 120} variant="zoom">
             <div
               key={pkg.name}
@@ -1238,7 +1283,7 @@ function PackagesSection() {
                       : { background: '#f5f7fa', color: '#2f80ed', border: '1px solid #dde8f5' }
                   }
                 >
-                  Request {pkg.name} consultation →
+                  Free Consultation
                 </button>
               </div>
             </div>
@@ -1248,6 +1293,27 @@ function PackagesSection() {
       </div>
     </section>
   )
+}
+
+export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
+  const raw =
+    process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT
+  const base = raw ? String(raw).replace(/\/$/, '') : null
+  let cmsPackages: ApiPackage[] | null = null
+
+  if (base) {
+    try {
+      const res = await fetch(`${base}/interior-packages?activeOnly=true`)
+      if (res.ok) cmsPackages = await res.json()
+    } catch {
+      cmsPackages = null
+    }
+  }
+
+  return {
+    props: { cmsPackages },
+    revalidate: 30,
+  }
 }
 
 // ─── LiveBuild Preview ────────────────────────────────────────────────────────

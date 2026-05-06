@@ -4,10 +4,10 @@ import { useQuoteModal } from './QuoteModal'
 import { useCustomerAuth } from '@/context/CustomerAuthContext'
 import LoginModal from './LoginModal'
 import { countSavedDesigns } from '@/utils/savedDesigns'
+import { fetchAllServices } from '@/utils/servicesApi'
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
-  { label: 'Interiors', href: '/interiors' },
   { label: 'Design Ideas', href: '/design-ideas' },
   { label: 'Projects', href: '/projects' },
   { label: 'Real Estate', href: '/real-estate' },
@@ -17,10 +17,40 @@ const NAV_LINKS = [
   { label: 'About us', href: '/about-us' },
 ]
 
-const PRIMARY_NAV_LINKS = [
-  ...NAV_LINKS.slice(0, 4),
-  ...NAV_LINKS.filter((link) => link.label === 'LiveBuild'),
+const INTERIORS_DROPDOWN_LINKS = [
+  {
+    slug: 'full-home-interiors',
+    label: 'Full Home Interiors',
+    subtitle: 'End-to-end home interiors',
+    href: '/interiors',
+    thumb: 'linear-gradient(135deg, #d8c4aa 0%, #9a7c58 100%)',
+  },
+  {
+    slug: 'commercial-interiors',
+    label: 'Commercial Interiors',
+    subtitle: 'Interiors designed for business spaces',
+    href: '/services/commercial-interiors',
+    thumb: 'linear-gradient(135deg, #9daac3 0%, #44506b 100%)',
+  },
+  {
+    slug: '2bhk-3bhk-packages',
+    label: '2BHK / 3BHK Interiors packages',
+    subtitle: 'Fixed-price solutions by home size',
+    href: '/services/2bhk-3bhk-packages',
+    thumb: 'linear-gradient(135deg, #90b3bf 0%, #335f77 100%)',
+  },
+  {
+    slug: 'modular-kitchen',
+    label: 'Modular Kitchen and wardrobes',
+    subtitle: 'Kitchens, wardrobes and smart storage',
+    href: '/services/modular-kitchen',
+    thumb: 'linear-gradient(135deg, #98c1e8 0%, #38689c 100%)',
+  },
 ]
+
+const PRIMARY_NAV_LINKS = NAV_LINKS.filter((link) =>
+  ['Home', 'Design Ideas', 'Projects', 'LiveBuild'].includes(link.label),
+)
 const MORE_NAV_LINKS = NAV_LINKS.filter((link) => !PRIMARY_NAV_LINKS.some((primary) => primary.href === link.href))
 const NAV_OUTSET_PX = 76
 
@@ -34,11 +64,14 @@ export default function Navbar() {
   const { openModal } = useQuoteModal()
   const { customer, isLoggedIn, logout } = useCustomerAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [interiorsOpen, setInteriorsOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [loginOpen, setLoginOpen] = useState(false)
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false)
   const [savedCount, setSavedCount] = useState(0)
+  const [interiorThumbs, setInteriorThumbs] = useState<Record<string, string>>({})
+  const interiorsRef = useRef<HTMLDivElement>(null)
   const moreRef = useRef<HTMLDivElement>(null)
   const profileRef = useRef<HTMLDivElement>(null)
 
@@ -47,6 +80,10 @@ export default function Navbar() {
     [router.pathname],
   )
   const isMoreGroupActive = useCallback(() => MORE_NAV_LINKS.some((l) => isActive(l.href)), [isActive])
+  const isInteriorsGroupActive = useCallback(
+    () => router.pathname.startsWith('/interiors') || INTERIORS_DROPDOWN_LINKS.some((l) => isActive(l.href)),
+    [isActive, router.pathname],
+  )
 
   useEffect(() => {
     const update = () => {
@@ -62,6 +99,27 @@ export default function Navbar() {
   }, [])
 
   useEffect(() => {
+    let alive = true
+    fetchAllServices()
+      .then((services) => {
+        if (!alive) return
+        const thumbs: Record<string, string> = {}
+        services.forEach((service) => {
+          if (service?.slug && typeof service.cardImageUrl === 'string' && service.cardImageUrl.trim()) {
+            thumbs[service.slug] = service.cardImageUrl
+          }
+        })
+        setInteriorThumbs(thumbs)
+      })
+      .catch(() => {
+        // keep fallback gradients if API data isn't available
+      })
+    return () => {
+      alive = false
+    }
+  }, [])
+
+  useEffect(() => {
     if (router.query.login === '1' && !isLoggedIn) {
       setLoginOpen(true)
       void router.replace(router.pathname, undefined, { shallow: true })
@@ -71,6 +129,7 @@ export default function Navbar() {
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false)
+      if (interiorsRef.current && !interiorsRef.current.contains(e.target as Node)) setInteriorsOpen(false)
       if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false)
     }
     document.addEventListener('mousedown', handler)
@@ -78,6 +137,7 @@ export default function Navbar() {
   }, [])
 
   useEffect(() => {
+    setInteriorsOpen(false)
     setMoreOpen(false)
     setProfileOpen(false)
   }, [router.pathname])
@@ -107,6 +167,13 @@ export default function Navbar() {
     setLoginOpen(true)
   }
 
+  const handleInteriorLinkClick = (href: string) => {
+    setInteriorsOpen(false)
+    void router.push(href).catch(() => {
+      if (typeof window !== 'undefined') window.location.href = href
+    })
+  }
+
   return (
     <>
       <style>{`
@@ -122,7 +189,74 @@ export default function Navbar() {
           </a>
 
           <div className="hidden md:flex items-center gap-3 md:gap-4 flex-1 min-w-0 justify-center">
-            {PRIMARY_NAV_LINKS.map((link) => (
+            {PRIMARY_NAV_LINKS.filter((link) => link.label === 'Home').map((link) => (
+              <a key={link.href} href={link.href} onClick={(e) => { e.preventDefault(); void router.push(link.href) }} className="relative px-3.5 sm:px-4 py-2 rounded text-[13px] font-[500] transition-all duration-200 cursor-pointer no-underline inline-block hover:bg-[rgba(47,128,237,0.16)] hover:-translate-y-[1px]" style={{ color: isActive(link.href) ? '#fff' : 'rgba(255,255,255,0.75)' }}>
+                {link.label}
+                {isActive(link.href) && <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full pointer-events-none" style={{ background: '#2f80ed' }} />}
+              </a>
+            ))}
+
+            <div className="relative inline-block" ref={interiorsRef} onMouseEnter={() => setInteriorsOpen(true)} onMouseLeave={() => setInteriorsOpen(false)}>
+              <button type="button" onClick={() => setInteriorsOpen((o) => !o)} className="relative flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded text-[13px] font-[500] transition-all duration-200 cursor-pointer hover:bg-[rgba(47,128,237,0.16)] hover:-translate-y-[1px]" style={{ color: isInteriorsGroupActive() || interiorsOpen ? '#fff' : 'rgba(255,255,255,0.75)' }}>
+                Interior Solutions
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-200" style={{ transform: interiorsOpen ? 'rotate(180deg)' : 'none' }}>
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+                {isInteriorsGroupActive() && <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full pointer-events-none" style={{ background: '#2f80ed' }} />}
+              </button>
+              {interiorsOpen && (
+                <div className="absolute z-[250] left-0 top-full w-[440px] pt-2" style={{ marginTop: -2 }}>
+                  <div role="menu" className="rounded-[14px] border p-3" style={{ background: '#0f2a44', borderColor: 'rgba(255,255,255,0.15)', boxShadow: '0 16px 44px rgba(0,0,0,0.35)' }}>
+                    <p className="px-2 pb-2 text-[11px] font-[700] uppercase tracking-[0.08em]" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                      Explore interior solutions
+                    </p>
+                    {INTERIORS_DROPDOWN_LINKS.map((link) => (
+                      <a
+                        key={link.href}
+                        href={link.href}
+                        role="menuitem"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          handleInteriorLinkClick(link.href)
+                        }}
+                        className="group mb-2 flex w-full min-w-0 items-center gap-3 rounded-[10px] border px-2.5 py-2 no-underline transition-all duration-200 hover:-translate-y-[1px] hover:shadow-sm"
+                        style={{
+                          borderColor: isActive(link.href) ? 'rgba(47,128,237,0.45)' : 'rgba(255,255,255,0.14)',
+                          background: isActive(link.href) ? 'rgba(47,128,237,0.18)' : 'rgba(255,255,255,0.04)',
+                        }}
+                      >
+                        {interiorThumbs[link.slug] ? (
+                          <img
+                            src={interiorThumbs[link.slug]}
+                            alt={link.label}
+                            className="h-[54px] w-[96px] flex-shrink-0 rounded-[8px] border object-cover"
+                            style={{ borderColor: 'rgba(255,255,255,0.18)' }}
+                          />
+                        ) : (
+                          <span
+                            className="h-[54px] w-[96px] flex-shrink-0 rounded-[8px] border"
+                            style={{
+                              background: link.thumb,
+                              borderColor: 'rgba(255,255,255,0.18)',
+                            }}
+                          />
+                        )}
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-[14px] font-[600] leading-tight" style={{ color: '#fff' }}>
+                            {link.label}
+                          </span>
+                          <span className="mt-1 block truncate text-[12px] leading-tight" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                            {link.subtitle}
+                          </span>
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {PRIMARY_NAV_LINKS.filter((link) => link.label !== 'Home').map((link) => (
               <a key={link.href} href={link.href} onClick={(e) => { e.preventDefault(); void router.push(link.href) }} className="relative px-3.5 sm:px-4 py-2 rounded text-[13px] font-[500] transition-all duration-200 cursor-pointer no-underline inline-block hover:bg-[rgba(47,128,237,0.16)] hover:-translate-y-[1px]" style={{ color: isActive(link.href) ? '#fff' : 'rgba(255,255,255,0.75)' }}>
                 {link.label}
                 {isActive(link.href) && <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full pointer-events-none" style={{ background: '#2f80ed' }} />}

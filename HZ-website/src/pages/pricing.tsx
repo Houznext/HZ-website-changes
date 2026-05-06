@@ -239,7 +239,7 @@ function PricingGrid({
                       : { background: '#f5f7fa', color: '#2f80ed', border: '1px solid #dde8f5' }
                     }
                   >
-                    Request {pkg.name} consultation →
+                    Free Consultation
                   </button>
                 </div>
               </div>
