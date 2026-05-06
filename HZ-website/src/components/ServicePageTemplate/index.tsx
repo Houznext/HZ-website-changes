@@ -294,6 +294,8 @@ interface ServicePageTemplateProps {
   includes: string[]
   why: string[]
   faqs: { q: string; a: string }[]
+  sidebarTitle?: string
+  sidebarSubtitle?: string
 }
 
 export default function ServicePageTemplate({
@@ -301,6 +303,8 @@ export default function ServicePageTemplate({
   includes,
   why,
   faqs,
+  sidebarTitle = 'Ready to get started?',
+  sidebarSubtitle = 'Free consultation, no commitment needed.',
 }: ServicePageTemplateProps) {
   const { openModal } = useQuoteModal()
   const hasHero =
@@ -673,7 +677,7 @@ export default function ServicePageTemplate({
                     marginBottom: 5,
                   }}
                 >
-                  Ready to get started?
+                  {sidebarTitle}
                 </p>
                 <p
                   style={{
@@ -683,7 +687,7 @@ export default function ServicePageTemplate({
                     marginBottom: 18,
                   }}
                 >
-                  Free consultation, no commitment needed.
+                  {sidebarSubtitle}
                 </p>
                 <button
                   type="button"

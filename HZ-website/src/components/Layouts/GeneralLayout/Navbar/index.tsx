@@ -641,27 +641,38 @@ const Navbar = ({ isVisibleItems }: ShowItems) => {
       link: "/interiors",
       subLink: [
         {
-          name: "3D Design",
-          link: "/interiors",
-          isActive: router.pathname === "/interiors",
+          name: "Full Home Interiors",
+          link: "/services/full-home-interiors",
+          isActive:
+            router.pathname.startsWith("/services/full-home-interiors"),
+        },
+        {
+          name: "Kitchen & Wardrobes",
+          link: "/services/modular-kitchen",
+          isActive:
+            router.pathname.startsWith("/services/modular-kitchen"),
+        },
+        {
+          name: "2BHK / 3BHK Packages",
+          link: "/services/2bhk-3bhk-packages",
+          isActive:
+            router.pathname.startsWith("/services/2bhk-3bhk-packages"),
+        },
+        {
+          name: "Commercial Interiors",
+          link: "/services/commercial-interiors",
+          isActive:
+            router.pathname.startsWith("/services/commercial-interiors"),
         },
         {
           name: "Architectural Design",
           link: "/contact-us",
           isActive: router.pathname.startsWith("/contact-us"),
         },
-        {
-          name: "Modular Furniture",
-          link: "/interiors",
-          isActive: router.pathname.startsWith("/interiors"),
-        },
-        {
-          name: "Interior Packages",
-          link: "/interiors",
-          isActive: router.pathname === "/interiors",
-        },
       ],
-      isActive: router.pathname.startsWith("/interiors"),
+      isActive:
+        router.pathname.startsWith("/interiors") ||
+        router.pathname.startsWith("/services"),
     },
     {
       name: "Blogs",

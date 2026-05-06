@@ -8,11 +8,12 @@ import {
   fetchAllServices,
 } from '@/utils/servicesApi'
 
+/** Each homepage service card lands on its own route (not the generic /interiors page). */
 const SLUG_TO_ROUTE: Record<string, string> = {
-  'full-home-interiors': '/interiors',
-  'modular-kitchen': '/interiors',
-  '2bhk-3bhk-packages': '/interiors',
-  'commercial-interiors': '/interiors',
+  'full-home-interiors': '/services/full-home-interiors',
+  'modular-kitchen': '/services/modular-kitchen',
+  '2bhk-3bhk-packages': '/services/2bhk-3bhk-packages',
+  'commercial-interiors': '/services/commercial-interiors',
 }
 
 const PLACEHOLDER_COLOURS: Record<

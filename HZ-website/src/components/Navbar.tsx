@@ -109,6 +109,12 @@ export default function Navbar() {
 
   return (
     <>
+      <style>{`
+        @keyframes hzStoreNewPulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.7; transform: scale(1.08); }
+        }
+      `}</style>
       <nav className="fixed top-0 left-0 right-0 z-[200] isolate flex items-center" style={{ background: '#0f2a44', height: NAV_OUTSET_PX, boxSizing: 'border-box' }}>
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 min-h-0 flex items-center justify-between gap-4">
           <a href="/" className="flex-shrink-0 cursor-pointer no-underline flex items-center" aria-label="Houznext home">
@@ -152,13 +158,62 @@ export default function Navbar() {
               href={storeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-[700] text-white no-underline transition-all duration-200 hover:-translate-y-px"
-              style={{ background: 'rgba(47,128,237,0.18)', border: '1px solid rgba(47,128,237,0.35)' }}
+              className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-[700] text-white no-underline"
+              style={{
+                background: 'rgba(47,128,237,0.15)',
+                border: '1px solid rgba(47,128,237,0.35)',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget
+                el.style.background = 'rgba(47,128,237,0.28)'
+                el.style.borderColor = 'rgba(47,128,237,0.7)'
+                el.style.transform = 'translateY(-1px)'
+                const icon = el.querySelector('.hz-store-nav-icon') as HTMLElement | null
+                if (icon) icon.style.transform = 'scale(1.12) rotate(-5deg)'
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget
+                el.style.background = 'rgba(47,128,237,0.15)'
+                el.style.borderColor = 'rgba(47,128,237,0.35)'
+                el.style.transform = 'translateY(0)'
+                const icon = el.querySelector('.hz-store-nav-icon') as HTMLElement | null
+                if (icon) icon.style.transform = 'scale(1) rotate(0deg)'
+              }}
             >
-              <span style={{ position: 'absolute', top: -6, right: -6, background: '#f2994a', color: '#fff', fontSize: 8, fontWeight: 800, padding: '1px 5px', borderRadius: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <span
+                style={{
+                  position: 'absolute',
+                  top: -6,
+                  right: -6,
+                  background: '#f2994a',
+                  color: '#fff',
+                  fontSize: 8,
+                  fontWeight: 800,
+                  padding: '1px 5px',
+                  borderRadius: 10,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  animation: 'hzStoreNewPulse 2s ease-in-out infinite',
+                }}
+              >
                 New
               </span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                className="hz-store-nav-icon"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{
+                  transition: 'transform 0.25s cubic-bezier(.34,1.56,.64,1)',
+                  flexShrink: 0,
+                }}
+              >
                 <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
                 <line x1="3" y1="6" x2="21" y2="6" />
                 <path d="M16 10a4 4 0 01-8 0" />
@@ -318,9 +373,66 @@ export default function Navbar() {
                   href={storeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-2 text-[13px] font-[700] text-white rounded-lg border border-[#2f80ed]/60 no-underline text-center"
-                  style={{ background: 'rgba(47,128,237,0.2)' }}
+                  className="relative w-full py-2.5 px-3 flex items-center justify-center gap-2 text-[13px] font-[700] text-white rounded-lg border no-underline text-center"
+                  style={{
+                    background: 'rgba(47,128,237,0.15)',
+                    borderColor: 'rgba(47,128,237,0.35)',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    const el = e.currentTarget
+                    el.style.background = 'rgba(47,128,237,0.28)'
+                    el.style.borderColor = 'rgba(47,128,237,0.7)'
+                    el.style.transform = 'translateY(-1px)'
+                    const icon = el.querySelector('.hz-store-nav-icon') as HTMLElement | null
+                    if (icon) icon.style.transform = 'scale(1.12) rotate(-5deg)'
+                  }}
+                  onMouseLeave={(e) => {
+                    const el = e.currentTarget
+                    el.style.background = 'rgba(47,128,237,0.15)'
+                    el.style.borderColor = 'rgba(47,128,237,0.35)'
+                    el.style.transform = 'translateY(0)'
+                    const icon = el.querySelector('.hz-store-nav-icon') as HTMLElement | null
+                    if (icon) icon.style.transform = 'scale(1) rotate(0deg)'
+                  }}
                 >
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: 4,
+                      right: 10,
+                      background: '#f2994a',
+                      color: '#fff',
+                      fontSize: 7,
+                      fontWeight: 800,
+                      padding: '1px 4px',
+                      borderRadius: 8,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      animation: 'hzStoreNewPulse 2s ease-in-out infinite',
+                    }}
+                  >
+                    New
+                  </span>
+                  <svg
+                    className="hz-store-nav-icon"
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{
+                      transition: 'transform 0.25s cubic-bezier(.34,1.56,.64,1)',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <path d="M16 10a4 4 0 01-8 0" />
+                  </svg>
                   Houznext Store
                 </a>
                 <button type="button" onClick={() => { setMobileOpen(false); if (isLoggedIn) void router.push('/my-account'); else setLoginOpen(true) }} className="w-full py-2 text-[13px] font-[500] text-white rounded-lg border border-white/25 transition-all duration-200">

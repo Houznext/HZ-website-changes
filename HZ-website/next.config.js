@@ -115,8 +115,10 @@ const nextConfig = {
       { source: '/properties', destination: '/real-estate', permanent: true },
       { source: '/properties/:path*', destination: '/real-estate', permanent: true },
       { source: '/company/:path*', destination: '/', permanent: true },
+      // Interiors service landings live at /services/[slug]; do not wildcard-redirect /services/* to /interiors.
       { source: '/services', destination: '/interiors', permanent: true },
-      { source: '/services/:path*', destination: '/interiors', permanent: true },
+      { source: '/interiors/kitchen', destination: '/services/modular-kitchen', permanent: true },
+      { source: '/commercial-interiors', destination: '/services/commercial-interiors', permanent: true },
     ]
   },
   webpack: (config, { isServer }) => {
