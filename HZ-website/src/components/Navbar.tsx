@@ -63,7 +63,8 @@ export default function Navbar() {
   const storeUrl = process.env.NEXT_PUBLIC_STORE_URL ?? 'https://store.houznext.com'
   const { openModal } = useQuoteModal()
   const { customer, isLoggedIn, logout } = useCustomerAuth()
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [mobileMoreOpen, setMobileMoreOpen] = useState(false)
+  const [mobileMoreView, setMobileMoreView] = useState<'root' | 'interiorSolutions'>('root')
   const [interiorsOpen, setInteriorsOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
@@ -74,6 +75,7 @@ export default function Navbar() {
   const interiorsRef = useRef<HTMLDivElement>(null)
   const moreRef = useRef<HTMLDivElement>(null)
   const profileRef = useRef<HTMLDivElement>(null)
+  const mobileProfileRef = useRef<HTMLDivElement>(null)
 
   const isActive = useCallback(
     (href: string) => (href === '/' ? router.pathname === '/' : router.pathname.startsWith(href)),
@@ -128,7 +130,9 @@ export default function Navbar() {
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false)
+      const inDesktopProfile = profileRef.current?.contains(e.target as Node)
+      const inMobileProfile = mobileProfileRef.current?.contains(e.target as Node)
+      if (!inDesktopProfile && !inMobileProfile) setProfileOpen(false)
       if (interiorsRef.current && !interiorsRef.current.contains(e.target as Node)) setInteriorsOpen(false)
       if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false)
     }
@@ -140,6 +144,8 @@ export default function Navbar() {
     setInteriorsOpen(false)
     setMoreOpen(false)
     setProfileOpen(false)
+    setMobileMoreOpen(false)
+    setMobileMoreView('root')
   }, [router.pathname])
 
   const handleLoginSuccess = () => {
@@ -182,10 +188,10 @@ export default function Navbar() {
           50% { opacity: 0.7; transform: scale(1.08); }
         }
       `}</style>
-      <nav className="fixed top-0 left-0 right-0 z-[200] isolate flex items-center" style={{ background: '#0f2a44', height: NAV_OUTSET_PX, boxSizing: 'border-box' }}>
+      <nav className="sticky md:fixed top-0 left-0 right-0 z-[200] isolate flex items-center" style={{ background: '#0f2a44', height: NAV_OUTSET_PX, boxSizing: 'border-box' }}>
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 min-h-0 flex items-center justify-between gap-4">
           <a href="/" className="flex-shrink-0 cursor-pointer no-underline flex items-center" aria-label="Houznext home">
-            <img src="/images/Houznext Logo.png" alt="Houznext" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+            <img src="/images/Houznext Logo.png" alt="Houznext" className="h-[26px] md:h-[32px] w-auto" style={{ objectFit: 'contain' }} />
           </a>
 
           <div className="hidden md:flex items-center gap-3 md:gap-4 flex-1 min-w-0 justify-center">
@@ -472,111 +478,223 @@ export default function Navbar() {
             </div>
           </div>
 
-          <button type="button" className="md:hidden text-white p-2" onClick={() => setMobileOpen((v) => !v)} aria-label="Toggle menu">
-            <svg width="22" height="18" viewBox="0 0 22 18" fill="none">
-              {mobileOpen ? (
-                <path d="M1 1L21 17M21 1L1 17" stroke="white" strokeWidth="2" strokeLinecap="round" />
-              ) : (
-                <>
-                  <line x1="0" y1="2" x2="22" y2="2" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                  <line x1="0" y1="9" x2="22" y2="9" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                  <line x1="0" y1="16" x2="22" y2="16" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                </>
-              )}
-            </svg>
-          </button>
-        </div>
-      </nav>
-
-      {mobileOpen && (
-        <div className="fixed inset-0 z-[190] md:hidden" style={{ paddingTop: NAV_OUTSET_PX }} onClick={() => setMobileOpen(false)}>
-          <div className="absolute left-0 right-0 shadow-2xl z-10" style={{ background: '#0f2a44', top: NAV_OUTSET_PX }} onClick={(e) => e.stopPropagation()}>
-            <div className="flex flex-col py-3 overflow-y-auto" style={{ maxHeight: `calc(100vh - ${NAV_OUTSET_PX}px)` }}>
-              {NAV_LINKS.map((link) => (
-                <a key={link.href} href={link.href} onClick={(e) => { e.preventDefault(); void router.push(link.href); setMobileOpen(false) }} className="text-left px-6 py-3 text-[14px] font-[500] transition-all duration-200 block w-full cursor-pointer no-underline" style={{ color: isActive(link.href) ? '#2f80ed' : 'rgba(255,255,255,0.8)' }}>
-                  {link.label}
-                </a>
-              ))}
-              <div className="px-6 py-3 border-t border-white/10">
-                <button type="button" onClick={() => { openModal('Navbar — Free consultation'); setMobileOpen(false) }} className="w-full py-2.5 text-[13px] font-head font-bold text-white rounded-lg transition-all duration-200" style={{ background: '#2f80ed' }}>
-                  Free consultation
-                </button>
-              </div>
-              <div className="px-6 pb-4 flex flex-col gap-2">
-                <a
-                  href={storeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="relative w-full py-2.5 px-3 flex items-center justify-center gap-2 text-[13px] font-[700] text-white rounded-lg border no-underline text-center"
-                  style={{
-                    background: 'rgba(47,128,237,0.15)',
-                    borderColor: 'rgba(47,128,237,0.35)',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={(e) => {
-                    const el = e.currentTarget
-                    el.style.background = 'rgba(47,128,237,0.28)'
-                    el.style.borderColor = 'rgba(47,128,237,0.7)'
-                    el.style.transform = 'translateY(-1px)'
-                    const icon = el.querySelector('.hz-store-nav-icon') as HTMLElement | null
-                    if (icon) icon.style.transform = 'scale(1.12) rotate(-5deg)'
-                  }}
-                  onMouseLeave={(e) => {
-                    const el = e.currentTarget
-                    el.style.background = 'rgba(47,128,237,0.15)'
-                    el.style.borderColor = 'rgba(47,128,237,0.35)'
-                    el.style.transform = 'translateY(0)'
-                    const icon = el.querySelector('.hz-store-nav-icon') as HTMLElement | null
-                    if (icon) icon.style.transform = 'scale(1) rotate(0deg)'
-                  }}
-                >
-                  <span
-                    style={{
-                      position: 'absolute',
-                      top: 4,
-                      right: 10,
-                      background: '#f2994a',
-                      color: '#fff',
-                      fontSize: 7,
-                      fontWeight: 800,
-                      padding: '1px 4px',
-                      borderRadius: 8,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.06em',
-                      animation: 'hzStoreNewPulse 2s ease-in-out infinite',
-                    }}
-                  >
-                    New
+          <div className="md:hidden flex items-center gap-2">
+            <a
+              href={storeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative inline-flex items-center justify-center h-9 min-w-[54px] px-2.5 rounded-lg text-white no-underline"
+              style={{ background: 'rgba(47,128,237,0.15)', border: '1px solid rgba(47,128,237,0.35)', transition: 'all 0.2s' }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget
+                el.style.background = 'rgba(47,128,237,0.28)'
+                el.style.borderColor = 'rgba(47,128,237,0.7)'
+                el.style.transform = 'translateY(-1px)'
+                const icon = el.querySelector('.hz-store-nav-icon') as HTMLElement | null
+                if (icon) icon.style.transform = 'scale(1.12) rotate(-5deg)'
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget
+                el.style.background = 'rgba(47,128,237,0.15)'
+                el.style.borderColor = 'rgba(47,128,237,0.35)'
+                el.style.transform = 'translateY(0)'
+                const icon = el.querySelector('.hz-store-nav-icon') as HTMLElement | null
+                if (icon) icon.style.transform = 'scale(1) rotate(0deg)'
+              }}
+              aria-label="Open store"
+            >
+              <span style={{ position: 'absolute', top: -5, right: -5, background: '#f2994a', color: '#fff', fontSize: 7, fontWeight: 800, padding: '1px 4px', borderRadius: 8, letterSpacing: '0.06em', textTransform: 'uppercase', animation: 'hzStoreNewPulse 2s ease-in-out infinite' }}>
+                New
+              </span>
+              <svg
+                className="hz-store-nav-icon"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ transition: 'transform 0.25s cubic-bezier(.34,1.56,.64,1)' }}
+              >
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <path d="M16 10a4 4 0 01-8 0" />
+              </svg>
+            </a>
+            <div className="relative" ref={mobileProfileRef}>
+              <button
+                type="button"
+                onClick={() => setProfileOpen((v) => !v)}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  background: isLoggedIn ? '#2f80ed' : 'rgba(255,255,255,0.12)',
+                  border: isLoggedIn ? '1.5px solid #2f80ed' : '1.5px solid rgba(255,255,255,0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  flexShrink: 0,
+                }}
+                title={isLoggedIn ? 'My account' : 'Login / Register'}
+                aria-label={isLoggedIn ? 'My account' : 'Login / Register'}
+              >
+                {isLoggedIn ? (
+                  <span style={{ fontFamily: 'Montserrat, system-ui', fontSize: 12, fontWeight: 800, color: '#fff', lineHeight: 1 }}>
+                    {getInitials(customer?.name ?? '')}
                   </span>
-                  <svg
-                    className="hz-store-nav-icon"
-                    width="15"
-                    height="15"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    style={{
-                      transition: 'transform 0.25s cubic-bezier(.34,1.56,.64,1)',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                    <line x1="3" y1="6" x2="21" y2="6" />
-                    <path d="M16 10a4 4 0 01-8 0" />
+                ) : (
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
                   </svg>
-                  Houznext Store
-                </a>
-                <button type="button" onClick={() => { setMobileOpen(false); if (isLoggedIn) void router.push('/my-account'); else setLoginOpen(true) }} className="w-full py-2 text-[13px] font-[500] text-white rounded-lg border border-white/25 transition-all duration-200">
-                  {isLoggedIn ? 'My account' : 'Sign in'}
-                </button>
-              </div>
+                )}
+              </button>
+              {profileOpen && (
+                <div style={{ position: 'absolute', top: '100%', right: 0, paddingTop: 10, zIndex: 500 }}>
+                  <div style={{ background: '#fff', border: '1px solid #dde8f5', borderRadius: 14, width: 242, boxShadow: '0 14px 44px rgba(0,0,0,0.14)', overflow: 'hidden' }}>
+                    {!isLoggedIn ? (
+                      <>
+                        <div style={{ padding: '14px 16px', background: '#f5f7fa', borderBottom: '1px solid #dde8f5' }}>
+                          <div style={{ fontSize: 12, color: '#5a6a7e', marginBottom: 8 }}>Sign in to access your dashboard</div>
+                          <button type="button" onClick={() => openLoginFor('/my-account')} style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: 'none', background: '#2f80ed', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>Login</button>
+                        </div>
+                        <div onClick={() => openLoginFor('/my-account/quotations')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>My quotations</span></div>
+                        <div onClick={() => openLoginFor('/my-account/invoices')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>Invoices</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fee2e2', color: '#dc2626' }}>Due</span></div>
+                        <div onClick={() => openLoginFor('/my-account/saved-designs')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>Saved designs</span></div>
+                        <div onClick={() => openLoginFor('/my-account/livebuild')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s' }}><span>My Home (LiveBuild)</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#d97706' }}>Active</span></div>
+                      </>
+                    ) : (
+                      <>
+                        <div onClick={() => { setProfileOpen(false); void router.push('/my-account') }} style={{ padding: '14px 16px', background: '#f5f7fa', borderBottom: '1px solid #dde8f5', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', transition: 'all 0.2s' }}>
+                          <div style={{ width: 38, height: 38, borderRadius: '50%', background: '#2f80ed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Montserrat, system-ui', fontSize: 14, fontWeight: 800, color: '#fff', flexShrink: 0 }}>{getInitials(customer?.name ?? '')}</div>
+                          <div><div style={{ fontSize: 13, fontWeight: 700, color: '#1f2933' }}>{customer?.name || 'Profile'}</div><div style={{ fontSize: 11, color: '#5a6a7e' }}>{customer?.mobile}</div></div>
+                        </div>
+                        <div onClick={() => { setProfileOpen(false); void router.push('/my-account/quotations') }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}>My quotations</div>
+                        <div onClick={() => { setProfileOpen(false); void router.push('/my-account/invoices') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>Invoices</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fee2e2', color: '#dc2626' }}>Due</span></div>
+                        <div onClick={() => { setProfileOpen(false); void router.push('/my-account/saved-designs') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>Saved designs</span>{savedCount > 0 && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#e8f1fd', color: '#2f80ed' }}>{savedCount}</span>}</div>
+                        <div onClick={() => { setProfileOpen(false); void router.push('/my-account/livebuild') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>My Home (LiveBuild)</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#d97706' }}>Active</span></div>
+                        <div style={{ padding: '10px 16px', borderTop: '0.5px solid #dde8f5' }}>
+                          <button type="button" onClick={() => { logout(); setProfileOpen(false); void router.push('/') }} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #dbe4f1', background: '#fff', color: '#5a6a7e', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Logout</button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
+      </nav>
+
+      {mobileMoreOpen && (
+        <div className="fixed inset-0 z-[300] md:hidden" style={{ paddingTop: NAV_OUTSET_PX, background: 'rgba(15,42,68,0.25)' }} onClick={() => { setMobileMoreOpen(false); setMobileMoreView('root') }}>
+          <div className="absolute left-0 right-0 bottom-[78px] bg-white border-t" style={{ maxHeight: `calc(100vh - ${NAV_OUTSET_PX + 78}px)`, borderColor: '#dde8f5' }} onClick={(e) => e.stopPropagation()}>
+            {mobileMoreView === 'root' ? (
+              <div className="overflow-y-auto" style={{ maxHeight: `calc(100vh - ${NAV_OUTSET_PX + 78}px)` }}>
+                <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: '#edf2f7' }}>
+                  <button
+                    type="button"
+                    onClick={() => { setMobileMoreOpen(false); setMobileMoreView('root') }}
+                    className="w-8 h-8 rounded-full border flex items-center justify-center"
+                    style={{ borderColor: '#dde8f5', color: '#5a6a7e' }}
+                    aria-label="Close menu"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                  <p className="text-[15px] font-[700]" style={{ color: '#0f2a44' }}>More</p>
+                  <div className="w-8 h-8" />
+                </div>
+                <button type="button" onClick={() => setMobileMoreView('interiorSolutions')} className="w-full px-5 py-4 border-b text-left flex items-center justify-between" style={{ borderColor: '#edf2f7', color: '#0f2a44' }}>
+                  <span className="text-[15px] font-[600]">Interior Solutions</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M9 18l6-6-6-6" /></svg>
+                </button>
+                {MORE_NAV_LINKS.map((link) => (
+                  <button
+                    key={link.href}
+                    type="button"
+                    onClick={() => { setMobileMoreOpen(false); setMobileMoreView('root'); void router.push(link.href) }}
+                    className="w-full px-5 py-4 border-b text-left flex items-center justify-between"
+                    style={{ borderColor: '#edf2f7', color: isActive(link.href) ? '#2f80ed' : '#334155' }}
+                  >
+                    <span className="text-[15px] font-[500]">{link.label}</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M9 18l6-6-6-6" /></svg>
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => { setMobileMoreOpen(false); setMobileMoreView('root'); if (isLoggedIn) void router.push('/my-account'); else setLoginOpen(true) }}
+                  className="w-full px-5 py-4 border-b text-left flex items-center justify-between"
+                  style={{ borderColor: '#edf2f7', color: '#334155' }}
+                >
+                  <span className="text-[15px] font-[500]">{isLoggedIn ? 'My account' : 'Login / Register'}</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M9 18l6-6-6-6" /></svg>
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-y-auto" style={{ maxHeight: `calc(100vh - ${NAV_OUTSET_PX + 78}px)` }}>
+                <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: '#edf2f7' }}>
+                  <p className="text-[16px] font-[700]" style={{ color: '#0f2a44' }}>Interior Solutions</p>
+                  <button
+                    type="button"
+                    onClick={() => setMobileMoreView('root')}
+                    className="text-[14px] font-[500] flex items-center gap-1"
+                    style={{ color: '#5a6a7e' }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 18l-6-6 6-6" /></svg>
+                    Back
+                  </button>
+                </div>
+                {INTERIORS_DROPDOWN_LINKS.map((link) => (
+                  <button
+                    key={link.href}
+                    type="button"
+                    onClick={() => { setMobileMoreOpen(false); setMobileMoreView('root'); void router.push(link.href) }}
+                    className="w-full px-5 py-4 border-b text-left flex items-center justify-between"
+                    style={{ borderColor: '#edf2f7', color: isActive(link.href) ? '#2f80ed' : '#334155' }}
+                  >
+                    <span className="text-[15px] font-[500]">{link.label}</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M9 18l6-6-6-6" /></svg>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       )}
+
+      <div className="fixed bottom-0 left-0 right-0 z-[310] md:hidden border-t bg-white" style={{ borderColor: '#dbe6f3' }}>
+        <div className="grid grid-cols-5 items-end pt-1 pb-2" style={{ paddingBottom: 'calc(8px + env(safe-area-inset-bottom))' }}>
+          <button type="button" onClick={() => void router.push('/')} className="flex flex-col items-center gap-1 py-1" style={{ color: isActive('/') ? '#2f80ed' : '#64748b' }}>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 10.5L12 3l9 7.5V21a1 1 0 01-1 1h-5v-6h-6v6H4a1 1 0 01-1-1v-10.5z" /></svg>
+            <span className="text-[11px] font-[500]">Home</span>
+          </button>
+          <button type="button" onClick={() => void router.push('/design-ideas')} className="flex flex-col items-center gap-1 py-1" style={{ color: isActive('/design-ideas') ? '#2f80ed' : '#64748b' }}>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="4" y="4" width="16" height="16" rx="2" /><path d="M8 8h8M8 12h8M8 16h5" /></svg>
+            <span className="text-[11px] font-[500]">Design Ideas</span>
+          </button>
+          <button type="button" onClick={() => openModal('Navbar — Free consultation')} className="flex flex-col items-center gap-1 -mt-6">
+            <span className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg border-4" style={{ background: '#2f80ed', borderColor: '#fff', color: '#fff' }}>
+              <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.32 1.78.59 2.62a2 2 0 0 1-.45 2.11L8 9.85a16 16 0 0 0 6.15 6.15l1.4-1.25a2 2 0 0 1 2.11-.45c.84.27 1.72.47 2.62.59A2 2 0 0 1 22 16.92z" /></svg>
+            </span>
+            <span className="text-[11px] font-[600]" style={{ color: '#0f2a44' }}>Lets Talk</span>
+          </button>
+          <button type="button" onClick={() => void router.push('/projects')} className="flex flex-col items-center gap-1 py-1" style={{ color: isActive('/projects') ? '#2f80ed' : '#64748b' }}>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 9h18M8 4v5" /></svg>
+            <span className="text-[11px] font-[500]">Projects</span>
+          </button>
+          <button type="button" onClick={() => { setMobileMoreOpen((v) => !v); setMobileMoreView('root') }} className="flex flex-col items-center gap-1 py-1" style={{ color: mobileMoreOpen ? '#2f80ed' : '#64748b' }}>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" /></svg>
+            <span className="text-[11px] font-[500]">More</span>
+          </button>
+        </div>
+      </div>
 
       <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} onSuccess={handleLoginSuccess} />
       {logoutConfirmOpen && (
@@ -617,7 +735,8 @@ export default function Navbar() {
           </div>
         </div>
       )}
-      <div style={{ height: NAV_OUTSET_PX }} />
+      <div className="hidden md:block" style={{ height: NAV_OUTSET_PX }} />
+      <div className="md:hidden" style={{ height: 'calc(78px + env(safe-area-inset-bottom))' }} />
     </>
   )
 }

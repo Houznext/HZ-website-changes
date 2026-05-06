@@ -23,6 +23,21 @@ body {
     Droid Sans,
     Helvetica Neue,
     sans-serif;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+#__next {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 strong,
