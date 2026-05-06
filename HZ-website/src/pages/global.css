@@ -34,10 +34,12 @@ body {
   overflow-x: clip;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+@media (max-width: 767px) {
+  html,
+  body,
+  #__next {
+    overflow-x: hidden;
+  }
 }
 
 strong,

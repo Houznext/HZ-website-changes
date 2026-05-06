@@ -736,7 +736,6 @@ export default function Navbar() {
         </div>
       )}
       <div className="hidden md:block" style={{ height: NAV_OUTSET_PX }} />
-      <div className="md:hidden" style={{ height: 'calc(78px + env(safe-area-inset-bottom))' }} />
     </>
   )
 }
