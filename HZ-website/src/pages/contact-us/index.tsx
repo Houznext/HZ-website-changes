@@ -9,7 +9,7 @@ import toast from 'react-hot-toast'
 
 const SERVICES = [
   { key: 'interiors',   label: 'Home Interiors',   icon: '🏠' },
-  { key: 'real-estate', label: 'Real Estate',       icon: '🏘' },
+  { key: 'store',       label: 'Houznext Store',   icon: '🛒' },
   { key: 'buildlive',   label: 'BuildLive Tracking',icon: '📲' },
   { key: 'other',       label: 'Something else',    icon: '💬' },
 ]
@@ -54,8 +54,8 @@ export default function ContactUs() {
   return (
     <>
       <SeoHead
-        title="Contact Houznext | Free Interior Design & Real Estate Consultation | Hyderabad"
-        description="Get in touch with Houznext for fixed-price home interiors, RERA-verified real estate, and BuildLive project tracking in Hyderabad, Telangana. Free consultation, same-day callback."
+        title="Contact Houznext | Free Interior Design Consultation | Hyderabad"
+        description="Get in touch with Houznext for fixed-price home interiors, design ideas, the Houznext Store, and BuildLive project tracking in Hyderabad, Telangana. Free consultation, same-day callback."
         canonical="/contact-us"
       />
       <Navbar />
@@ -74,7 +74,7 @@ export default function ContactUs() {
                   <span style={{ color: '#2f80ed' }}>dream home.</span>
                 </h1>
                 <p className="text-[16px] mb-8" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                  Whether it's interiors, a property purchase, or tracking your project —
+                  Whether it's interiors, the Store, or tracking your project —
                   our team responds within 24 hours.
                 </p>
                 <div className="space-y-3">

@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import BlogRemoteImage from "@/components/BlogRemoteImage";
 import { HiOutlineCalendar, HiArrowRight } from "react-icons/hi";
 
 interface BlogCardData {
@@ -47,11 +47,10 @@ export default function MobileBlogCard({ data }: { data: BlogCardData }) {
           {/* Image Container */}
           <div className="relative w-24 h-24 min-w-[96px] rounded-lg overflow-hidden bg-gray-100">
             {thumbnailImageUrl ? (
-              <Image
+              <BlogRemoteImage
                 src={thumbnailImageUrl}
                 alt={title || "Blog image"}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                className="group-hover:scale-105 transition-transform duration-300"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">

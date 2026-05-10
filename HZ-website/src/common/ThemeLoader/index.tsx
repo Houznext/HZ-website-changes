@@ -21,7 +21,7 @@ const RING_BORDER = "border-blue-600";
 const FILL_BLUE = "bg-[#3586FF]";
 
 const icons = [
-    { id: 1, Icon: HiOutlineHome, label: "Real Estate" },
+    { id: 1, Icon: HiOutlineHome, label: "Home" },
     { id: 2, Icon: GiSofa, label: "Interiors" },
     { id: 3, Icon: GiPaintRoller, label: "Painting" },
     { id: 4, Icon: GiSolarPower, label: "Solar" },

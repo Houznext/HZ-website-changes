@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
-import Image from 'next/image'
 import type { GetServerSideProps } from 'next'
+import BlogRemoteImage from '@/components/BlogRemoteImage'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
@@ -88,7 +88,7 @@ export default function BlogIndex({ initialBlogs }: BlogIndexProps) {
   return (
     <>
       <SeoHead
-        title="Home Design Blog | Interiors, Construction & Real Estate | Houznext"
+        title="Home Design Blog | Interiors, Construction & Home Design | Houznext"
         description="Expert guides on modular kitchens, interior costs, RERA compliance, and home design for Indian homeowners in Telangana. Tips from 500+ delivered projects."
         canonical="/blog"
       />
@@ -102,7 +102,7 @@ export default function BlogIndex({ initialBlogs }: BlogIndexProps) {
               <span style={{ color: '#2f80ed' }}>dream home.</span>
             </h1>
             <p className="text-[15px] mb-8 max-w-lg mx-auto" style={{ color: 'rgba(255,255,255,0.65)' }}>
-              Interior design tips, construction guides, and real estate insights for homeowners across Telangana.
+              Interior design tips, construction guides, and home design ideas for homeowners across Telangana.
             </p>
             <div className="max-w-lg mx-auto relative">
               <input
@@ -174,12 +174,9 @@ export default function BlogIndex({ initialBlogs }: BlogIndexProps) {
               >
                 <div className="relative h-56 w-full" style={{ background: 'linear-gradient(135deg, #1a3a5c, #0f2a44)' }}>
                   {cover(featured) ? (
-                    <Image
+                    <BlogRemoteImage
                       src={cover(featured)}
-                      alt=""
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 66vw"
+                      alt={featured.title ? String(featured.title) : ''}
                     />
                   ) : null}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0f2a44]/90 to-transparent" />
@@ -245,12 +242,9 @@ export default function BlogIndex({ initialBlogs }: BlogIndexProps) {
                 >
                   <div className="relative h-36 w-full" style={{ background: 'linear-gradient(135deg, #1a3a5c, #0f2a44)' }}>
                     {cover(post) ? (
-                      <Image
+                      <BlogRemoteImage
                         src={cover(post)}
-                        alt=""
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 100vw, 33vw"
+                        alt={post.title ? String(post.title) : ''}
                       />
                     ) : null}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0f2a44]/80 to-transparent" />

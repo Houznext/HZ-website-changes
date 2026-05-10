@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import BlogRemoteImage from "@/components/BlogRemoteImage";
 
 function estimateReadMin(content: string, preview: string): string {
   const len = (content?.length || 0) + (preview?.length || 0);
@@ -86,12 +86,9 @@ const BlogsDetails = ({ blog, similarBlogs = [] }: { blog: any; similarBlogs?: a
         >
           {cover ? (
             <div className="relative w-full aspect-[21/9] max-h-[280px] bg-[#0f2a44]">
-              <Image
+              <BlogRemoteImage
                 src={cover}
-                alt=""
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 768px"
+                alt={blog?.title ? String(blog.title) : ''}
                 priority
               />
             </div>
@@ -153,13 +150,7 @@ const BlogsDetails = ({ blog, similarBlogs = [] }: { blog: any; similarBlogs?: a
                       style={{ background: "linear-gradient(135deg, #1a3a5c, #0f2a44)" }}
                     >
                       {img ? (
-                        <Image
-                          src={img}
-                          alt=""
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 640px) 100vw, 25vw"
-                        />
+                        <BlogRemoteImage src={img} alt={b.title ? String(b.title) : ''} />
                       ) : null}
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0f2a44]/85 to-transparent" />
                       <div className="absolute bottom-3 left-3 right-3">

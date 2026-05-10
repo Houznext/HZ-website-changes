@@ -7,7 +7,6 @@ import Reveal from '@/components/ui/Reveal'
 const OPEN_ROLES = [
   { title: 'Interior Design Consultant', type: 'Full-time', location: 'Hyderabad', dept: 'Interiors' },
   { title: 'Site Project Manager', type: 'Full-time', location: 'Hyderabad', dept: 'BuildLive' },
-  { title: 'Real Estate Executive', type: 'Full-time', location: 'Hyderabad', dept: 'Real Estate' },
   { title: 'Customer Success Manager', type: 'Full-time', location: 'Hyderabad', dept: 'Operations' },
   { title: 'Digital Marketing Executive', type: 'Full-time', location: 'Hyderabad', dept: 'Marketing' },
 ]
@@ -23,8 +22,8 @@ export default function Careers() {
   return (
     <>
       <SeoHead
-        title="Careers at Houznext | Interior Design & Real Estate Jobs in Hyderabad"
-        description="Join Houznext — Hyderabad's fastest-growing home interiors and real estate company. Open roles in interior design, project management, real estate, and more. Apply now."
+        title="Careers at Houznext | Interior Design & BuildLive Jobs in Hyderabad"
+        description="Join Houznext — Hyderabad's fastest-growing home interiors company. Open roles in interior design, project management, operations, and more. Apply now."
         canonical="/careers"
       />
       <Navbar />
@@ -40,7 +39,7 @@ export default function Careers() {
                 <span style={{ color: '#2f80ed' }}>Build your career.</span>
               </h1>
               <p className="text-[16px] max-w-xl mx-auto mb-8" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                Join a team that's redefining how Telangana families design, buy, and
+                Join a team that's redefining how Telangana families design and
                 track their homes. Fast growth. Real impact.
               </p>
               <a href="mailto:business@houznext.com?subject=Job Application – Houznext"

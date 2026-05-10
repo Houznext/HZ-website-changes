@@ -1,0 +1,14 @@
+# *
+User-agent: *
+Allow: /
+
+# *
+User-agent: *
+Disallow: /api
+
+# Host
+Host: https://infra.houznext.com
+
+# Sitemaps
+Sitemap: https://infra.houznext.com/sitemap.xml
+Sitemap: https://infra.houznext.com/server-sitemap.xml

@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const isVercel = process.env.VERCEL === '1'
+/** Optional: Houznext Infra (property) site origin for /real-estate legacy redirects. */
+const infraBase = (process.env.NEXT_PUBLIC_INFRA_URL || '').trim().replace(/\/$/, '')
+const legacyRealEstateRoot = infraBase || '/'
+const legacyRealEstateDeep = infraBase ? `${infraBase}/:path*` : '/'
 
 const nextConfig = {
   reactStrictMode: true,
@@ -92,10 +96,13 @@ const nextConfig = {
       { source: '/services/invest-in-land/:path*', destination: '/', permanent: false },
       { source: '/gallery', destination: '/', permanent: false },
       { source: '/gallery/:path*', destination: '/', permanent: false },
-      { source: '/propshome', destination: '/real-estate', permanent: true },
-      { source: '/propshome/:path*', destination: '/real-estate', permanent: true },
-      { source: '/recentproperties', destination: '/real-estate', permanent: true },
-      { source: '/recentproperties/:path*', destination: '/real-estate', permanent: true },
+      // Property marketing moved to Houznext Infra — optional NEXT_PUBLIC_INFRA_URL, else home.
+      { source: '/real-estate', destination: legacyRealEstateRoot, permanent: true },
+      { source: '/real-estate/:path*', destination: legacyRealEstateDeep, permanent: true },
+      { source: '/propshome', destination: '/', permanent: true },
+      { source: '/propshome/:path*', destination: '/', permanent: true },
+      { source: '/recentproperties', destination: '/', permanent: true },
+      { source: '/recentproperties/:path*', destination: '/', permanent: true },
       { source: '/emicalculator', destination: '/', permanent: false },
       { source: '/ga4dashboard', destination: '/', permanent: false },
       { source: '/ga4dashboard/:path*', destination: '/', permanent: false },
@@ -112,8 +119,8 @@ const nextConfig = {
       { source: '/forgot-password/:path*', destination: '/login', permanent: true },
       { source: '/post-property', destination: '/', permanent: true },
       { source: '/post-property/:path*', destination: '/', permanent: true },
-      { source: '/properties', destination: '/real-estate', permanent: true },
-      { source: '/properties/:path*', destination: '/real-estate', permanent: true },
+      { source: '/properties', destination: '/', permanent: true },
+      { source: '/properties/:path*', destination: '/', permanent: true },
       { source: '/company/:path*', destination: '/', permanent: true },
       // Interiors service landings live at /services/[slug]; do not wildcard-redirect /services/* to /interiors.
       { source: '/services', destination: '/interiors', permanent: true },

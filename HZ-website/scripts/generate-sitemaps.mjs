@@ -6,6 +6,9 @@
  * Env:
  *   SITE_URL — canonical origin (default https://houznext.com)
  *   NEXT_PUBLIC_API_URL | NEXT_PUBLIC_LOCAL_API_ENDPOINT — blog posts for sitemap-blogs.xml
+ *
+ * sitemap-main.xml URL order matches primary nav / sitelink hinting:
+ *   Home → Design ideas → Full home interiors → About → Store → Projects → Blog → Pricing → Contact
  */
 
 import fs from 'fs'
@@ -139,15 +142,36 @@ async function fetchBlogPosts() {
   }
 }
 
+function shouldSkipPath(pathStr) {
+  return (
+    pathStr.startsWith('/user') ||
+    pathStr.startsWith('/portal') ||
+    pathStr.startsWith('/api') ||
+    pathStr === '/cart' ||
+    pathStr === '/signup' ||
+    pathStr === '/login' ||
+    pathStr.startsWith('/verify-otp') ||
+    pathStr.startsWith('/forgot-password') ||
+    pathStr === '/saved-designs' ||
+    pathStr.startsWith('/post-property') ||
+    pathStr.startsWith('/company/') ||
+    pathStr.startsWith('/properties') ||
+    pathStr.startsWith('/real-estate')
+  )
+}
+
 function priorityForPath(p) {
   if (p === '/') return 1.0
   if (p === '/design-ideas') return 0.95
-  if (p === '/store') return 0.92
-  if (p === '/about-us') return 0.9
-  if (p === '/projects') return 0.88
-  if (p === '/interiors' || p === '/blog') return 0.85
-  if (p.startsWith('/blog/')) return 0.7
-  if (p === '/buildlive') return 0.85
+  if (p === '/interiors') return 0.94
+  if (p === '/about-us') return 0.92
+  if (p === '/store') return 0.91
+  if (p === '/projects') return 0.89
+  if (p === '/blog') return 0.87
+  if (p.startsWith('/blog/')) return 0.68
+  if (p === '/pricing') return 0.84
+  if (p === '/contact-us') return 0.72
+  if (p === '/buildlive') return 0.8
   return 0.75
 }
 
@@ -167,28 +191,13 @@ function lastmodForBlogRow(row) {
   return TODAY
 }
 
-async function main() {
+/** Per-sitemap dedupe (URLs may repeat across different sitemap files). */
+function createAdder() {
   const seen = new Set()
-
-  const add = (list, pathStr, meta = {}) => {
+  return (list, pathStr, meta = {}) => {
+    if (shouldSkipPath(pathStr)) return
     const full = `${SITE}${pathStr}`
     if (seen.has(full)) return
-    if (
-      pathStr.startsWith('/user') ||
-      pathStr.startsWith('/portal') ||
-      pathStr.startsWith('/api') ||
-      pathStr === '/cart' ||
-      pathStr === '/signup' ||
-      pathStr === '/login' ||
-      pathStr.startsWith('/verify-otp') ||
-      pathStr.startsWith('/forgot-password') ||
-      pathStr === '/saved-designs' ||
-      pathStr.startsWith('/post-property') ||
-      pathStr.startsWith('/company/') ||
-      pathStr.startsWith('/properties')
-    ) {
-      return
-    }
     seen.add(full)
     list.push({
       loc: full,
@@ -197,83 +206,87 @@ async function main() {
       priority: meta.priority != null ? meta.priority : priorityForPath(pathStr),
     })
   }
+}
 
-  // ─── sitemap-main.xml (core marketing pages only) ───
+function sortEntries(arr) {
+  return [...arr].sort((a, b) => a.loc.localeCompare(b.loc))
+}
+
+async function main() {
+  const addMain = createAdder()
+  const addInteriors = createAdder()
+  const addBlogs = createAdder()
+  const addLivebuild = createAdder()
+
+  // ─── sitemap-main.xml — order = primary marketing / sitelink hinting ───
   const main = []
-  add(main, '/', { changefreq: 'weekly', priority: 1.0 })
-  // Keep this order intentional for sitelink hinting.
-  add(main, '/design-ideas', { changefreq: 'weekly', priority: 0.95 })
-  add(main, '/store', { changefreq: 'weekly', priority: 0.92 })
-  add(main, '/about-us', { changefreq: 'monthly', priority: 0.9 })
-  add(main, '/projects', { changefreq: 'monthly', priority: 0.88 })
-  add(main, '/interiors', { changefreq: 'weekly', priority: 0.85 })
-  add(main, '/blog', { changefreq: 'weekly', priority: 0.85 })
-  add(main, '/pricing', { changefreq: 'monthly', priority: 0.8 })
-  add(main, '/contact-us', { changefreq: 'monthly', priority: 0.75 })
+  addMain(main, '/', { changefreq: 'weekly', priority: 1.0 })
+  addMain(main, '/design-ideas', { changefreq: 'weekly', priority: 0.95 })
+  addMain(main, '/interiors', { changefreq: 'weekly', priority: 0.94 })
+  addMain(main, '/about-us', { changefreq: 'monthly', priority: 0.92 })
+  addMain(main, '/store', { changefreq: 'weekly', priority: 0.91 })
+  addMain(main, '/projects', { changefreq: 'monthly', priority: 0.89 })
+  addMain(main, '/blog', { changefreq: 'weekly', priority: 0.87 })
+  addMain(main, '/pricing', { changefreq: 'monthly', priority: 0.84 })
+  addMain(main, '/contact-us', { changefreq: 'monthly', priority: 0.72 })
 
-  // ─── sitemap-interiors.xml ───
+  // ─── sitemap-interiors.xml — interior tool & subpages (/interiors is in main) ───
   const interiors = []
   for (const p of discoverInteriorsPaths()) {
-    add(interiors, p)
+    if (p === '/interiors') continue
+    addInteriors(interiors, p)
   }
 
-  // ─── sitemap-inspiration.xml (/design-ideas) ───
-  const inspiration = []
-  if (fs.existsSync(path.join(PAGES, 'design-ideas.tsx'))) {
-    add(inspiration, '/design-ideas', { changefreq: 'weekly', priority: 0.85 })
-  }
-
-  // ─── sitemap-blogs.xml ───
+  // ─── sitemap-blogs.xml — own dedupe set so /blog + slugs are not skipped by main ───
   const blogs = []
-  add(blogs, '/blog', { changefreq: 'daily', priority: 0.9 })
+  addBlogs(blogs, '/blog', { changefreq: 'weekly', priority: 0.9 })
   const blogRows = await fetchBlogPosts()
   for (const row of blogRows) {
     const slug = row?.slug
     if (typeof slug !== 'string' || !slug.trim()) continue
     const pathStr = `/blog/${encodeURIComponent(slug.trim())}`
-    add(blogs, pathStr, {
+    addBlogs(blogs, pathStr, {
       lastmod: lastmodForBlogRow(row),
       changefreq: 'monthly',
-      priority: 0.65,
+      priority: 0.68,
     })
   }
 
   // ─── sitemap-livebuild.xml ───
   const livebuild = []
   if (fs.existsSync(path.join(PAGES, 'buildlive.tsx'))) {
-    add(livebuild, '/buildlive', { changefreq: 'monthly', priority: 0.85 })
+    addLivebuild(livebuild, '/buildlive', { changefreq: 'monthly', priority: 0.8 })
   }
 
-  const sortEntries = (arr) => arr.sort((a, b) => a.loc.localeCompare(b.loc))
+  const writtenIndexNames = []
 
-  const files = {
-    // keep main order as authored above
-    'sitemap-main.xml': main,
-    'sitemap-interiors.xml': sortEntries(interiors),
-    'sitemap-inspiration.xml': sortEntries(inspiration),
-    'sitemap-blogs.xml': sortEntries(blogs),
-    'sitemap-livebuild.xml': sortEntries(livebuild),
+  const writeIfNonEmpty = (name, entries, { sort = false } = {}) => {
+    const list = sort ? sortEntries(entries) : entries
+    if (list.length === 0) {
+      console.warn(`[sitemap] Skipped ${name} (no URLs)`)
+      return
+    }
+    fs.writeFileSync(path.join(PUBLIC, name), urlset(list), 'utf8')
+    writtenIndexNames.push(name)
+    console.log(`[sitemap] Wrote ${name} (${list.length} URLs)`)
   }
 
-  for (const [name, entries] of Object.entries(files)) {
-    fs.writeFileSync(path.join(PUBLIC, name), urlset(entries), 'utf8')
-    console.log(`[sitemap] Wrote ${name} (${entries.length} URLs)`)
-  }
+  writeIfNonEmpty('sitemap-main.xml', main, { sort: false })
+  writeIfNonEmpty('sitemap-interiors.xml', interiors, { sort: true })
+  writeIfNonEmpty('sitemap-blogs.xml', blogs, { sort: true })
+  writeIfNonEmpty('sitemap-livebuild.xml', livebuild, { sort: true })
 
-  const indexNames = [
-    'sitemap-main.xml',
-    'sitemap-interiors.xml',
-    'sitemap-inspiration.xml',
-    'sitemap-blogs.xml',
-    'sitemap-livebuild.xml',
-  ]
-  fs.writeFileSync(path.join(PUBLIC, 'sitemap.xml'), sitemapIndex(indexNames), 'utf8')
+  fs.writeFileSync(
+    path.join(PUBLIC, 'sitemap.xml'),
+    sitemapIndex(writtenIndexNames),
+    'utf8',
+  )
   console.log('[sitemap] Wrote sitemap.xml (index)')
 
-  // Remove obsolete split files / legacy chunks (single static pipeline)
   for (const obsolete of [
     'sitemap-about-us.xml',
     'sitemap-design-ideas.xml',
+    'sitemap-inspiration.xml',
     'sitemap-0.xml',
   ]) {
     const p = path.join(PUBLIC, obsolete)

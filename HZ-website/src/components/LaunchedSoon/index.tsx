@@ -54,11 +54,11 @@ export default function LaunchedSoon({
           </Link>
 
           <Link
-            href="/properties"
+            href="/design-ideas"
             className="group inline-flex items-center justify-center gap-2 md:rounded-[10px] rounded-[4px] bg-gradient-to-r from-yellow-200 to-yellow-400 md:px-4 px-2 md:py-2.5 py-1 text-[12px] md:text-[14px] font-medium text-nowrap text-white shadow-lg shadow-emerald-600/10 transition hover:shadow-xl"
-            aria-label="Explore Properties"
+            aria-label="Explore design ideas"
           >
-            Explore Properties
+            Design ideas
             <ArrowRight className="h-3 w-3 transition group-hover:translate-x-1 md:h-5 md:w-5" />
           </Link>
         </div>

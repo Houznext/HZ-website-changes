@@ -245,7 +245,7 @@ export default function SignUpComponent() {
 
 
               <div className="mb-6">
-                <p className="text-[14px] mb-2 font-medium">Are you a Real Estate Agent?</p>
+                <p className="text-[14px] mb-2 font-medium">Are you a business partner (builder / vendor)?</p>
                 <div className="flex gap-4">
                   <Button
                     className={`w-[75px] h-[40px] rounded-md border-2 border-black font-medium ${signUpDetails.agent === true

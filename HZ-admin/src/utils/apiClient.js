@@ -18,14 +18,37 @@ const SESSION_CACHE_MS = 5000; // 5 seconds
 let cachedSessionToken = null;
 let cachedSessionAt = 0;
 
-async function getSessionTokenOnce() {
+/** Bust cache when SessionSync applies a new login (see SessionSync). */
+export function clearSessionTokenCache() {
+  cachedSessionToken = null;
+  cachedSessionAt = 0;
+}
+
+function bearerFromSession(session) {
+  if (!session) return null;
+  const raw =
+    session.accessToken ??
+    session.token ??
+    (session.user && session.user.token) ??
+    "";
+  const s = typeof raw === "string" ? raw.trim() : "";
+  return s.length > 0 ? s : null;
+}
+
+async function getSessionTokenOnce(options = {}) {
+  const force = Boolean(options.force);
   const now = Date.now();
-  if (cachedSessionToken && now - cachedSessionAt < SESSION_CACHE_MS) {
+  if (!force && cachedSessionToken && now - cachedSessionAt < SESSION_CACHE_MS) {
     return cachedSessionToken;
   }
-  const session = await getSession();
-  const token = session?.token ?? session?.user?.token ?? session?.accessToken ?? "";
-  const resolved = token ? String(token) : null;
+  let session = await getSession();
+  let resolved = bearerFromSession(session);
+  // NextAuth can briefly return no custom fields right after navigation/hydration.
+  if (!resolved && typeof window !== "undefined") {
+    await new Promise((r) => setTimeout(r, 120));
+    session = await getSession();
+    resolved = bearerFromSession(session);
+  }
   // Do not cache a missing token — session may still be hydrating right after sign-in.
   if (!resolved) {
     cachedSessionToken = null;
@@ -63,8 +86,13 @@ export function tryParseJSON(json) {
     throw new Error(`Failed to parse unexpected JSON response: ${json}`);
   }
 }
-const base_url =
-  process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT;
+const rawApiBase =
+  process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT || "";
+const base_url = rawApiBase
+  ? rawApiBase.endsWith("/")
+    ? rawApiBase
+    : `${rawApiBase}/`
+  : "";
 
 const URLS = {
   blogs: `${base_url}blog`,
@@ -174,13 +202,10 @@ ResponseError.prototype = Error.prototype;
 export const retrieveToken = async (ctx = undefined) => {
   if (ctx?.req) {
     const session = await getSession(ctx);
-    // @ts-ignore
-    return session?.accessToken || "";
-  } else {
-    const session = await getSession();
-    // @ts-ignore
-    return session?.accessToken || "";
+    return bearerFromSession(session) || "";
   }
+  const session = await getSession();
+  return bearerFromSession(session) || "";
 };
 
 const makeHeadersAndParams = async (params, auth, type, ctx = undefined) => {
@@ -198,9 +223,12 @@ const makeHeadersAndParams = async (params, auth, type, ctx = undefined) => {
     if (!bearer && typeof window !== "undefined") {
       bearer = await getSessionTokenOnce();
     }
+    if (!bearer && typeof window !== "undefined") {
+      bearer = await getSessionTokenOnce({ force: true });
+    }
     if (!bearer && ctx) {
       const session = await getSession(ctx);
-      bearer = session?.token || session?.user?.token || session?.accessToken || "";
+      bearer = bearerFromSession(session) || "";
     }
     if (bearer) {
       headerConfig.set("Authorization", `Bearer ${bearer}`);

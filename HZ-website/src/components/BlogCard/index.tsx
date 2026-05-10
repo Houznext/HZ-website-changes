@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
-import Image from "next/legacy/image";
 import Link from "next/link";
+import BlogRemoteImage from "@/components/BlogRemoteImage";
 import { HiOutlineCalendar, HiArrowRight } from "react-icons/hi";
 
 interface BlogCardData {
@@ -50,11 +50,9 @@ const BlogCard = ({ data }: { data: BlogCardData }) => {
       >
         <div className="relative h-44 w-full overflow-hidden bg-[#f5f7fa]">
           {thumbnailImageUrl ? (
-            <Image
+            <BlogRemoteImage
               src={thumbnailImageUrl}
               alt={title || "Blog image"}
-              layout="fill"
-              objectFit="cover"
               className="group-hover:scale-105 transition-transform duration-500"
             />
           ) : (

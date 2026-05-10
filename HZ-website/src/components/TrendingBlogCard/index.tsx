@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import BlogRemoteImage from "@/components/BlogRemoteImage";
 import { HiOutlineCalendar, HiArrowRight, HiOutlineTrendingUp } from "react-icons/hi";
 
 interface TrendingBlogData {
@@ -37,11 +37,10 @@ const TrendingBlogCard = ({ data }: { data: TrendingBlogData }) => {
         <div className="flex flex-col md:flex-row">
           {/* Image Container */}
           <div className="relative w-full md:w-48 h-40 md:h-auto md:min-h-[160px] overflow-hidden bg-gray-100">
-            <Image
+            <BlogRemoteImage
               src={imageUrl}
               alt={title || "Blog image"}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              className="group-hover:scale-105 transition-transform duration-500"
             />
             
             {/* Trending indicator */}

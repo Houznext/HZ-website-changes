@@ -4,7 +4,7 @@ const SERVICES = [
   { label: 'Home Interiors',   href: '/interiors' },
   { label: 'Our Projects', href: '/projects' },
   { label: 'Pricing Packages', href: '/pricing' },
-  { label: 'Real Estate',      href: '/real-estate' },
+  { label: 'Design Ideas', href: '/design-ideas' },
   { label: 'LiveBuild Tracking', href: '/buildlive' },
   { label: 'Interior Calculator', href: '/pricing' },
 ]

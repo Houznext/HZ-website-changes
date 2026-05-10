@@ -54,7 +54,7 @@ const ContactSellerForm = ({ company }: any) => {
             </div>
 
             <p className="text-[14px] mb-2 font-medium">
-                Are you a Real Estate Agent? <span className="text-red-500">*</span>
+                Are you a business partner (builder / vendor)? <span className="text-red-500">*</span>
             </p>
             <div className="flex gap-4 mb-4">
                 <Button

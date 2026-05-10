@@ -9,7 +9,7 @@ const ApplyCareer = () => {
     <div>
       <SEO
         title="Apply Now | Start Your Career at Houznext"
-        description="Apply for exciting roles at Houznext — Hyderabad's home interiors and real estate company. Join our growing team."
+        description="Apply for exciting roles at Houznext — Hyderabad's home interiors and BuildLive team. Join our growing team."
       />
       <ApplyCareerView />
     </div>

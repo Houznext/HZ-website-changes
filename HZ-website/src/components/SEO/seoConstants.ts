@@ -2,7 +2,7 @@
 
 // Base constants
 export const BASE_DEPLOYMENT_URL = "https://www.houznext.com";
-export const PROJECT_NAME = "Houznext Real Estate";
+export const PROJECT_NAME = "Houznext";
 export const PRIMARY_IMAGE_URL = `${BASE_DEPLOYMENT_URL}/images/logobb.png`;
 export const PRIMARY_PHONE = "+919759750770";
 
@@ -55,60 +55,10 @@ export const DEFAULT_OPENING_HOURS = "Mo-Su 09:00-18:00";
 
 const _BRAND = [
   "Houznext", "houznext", "Houz next", "houznext.com", "www.houznext.com",
-  "Houznext India", "Houznext real estate", "Houznext interiors",
+  "Houznext India", "Houznext interiors",
   "Houznext solar", "Houznext construction", "Houznext furniture",
   "one stop home solution India", "all in one home services India",
   "Houznext app", "Houznext reviews", "Houznext contact",
-];
-
-const _REAL_ESTATE = [
-  // Actions × property types
-  "buy property India", "sell property India", "rent property India",
-  "buy flat", "buy apartment", "buy villa", "buy plot", "buy land",
-  "buy independent house", "buy duplex house", "buy penthouse",
-  "buy farmhouse", "buy row house", "buy studio apartment",
-  "rent apartment", "rent flat", "rent house", "rent villa",
-  "rent office space", "rent shop", "rent warehouse",
-  "lease commercial property", "rent co-working space",
-  // Sharing / PG
-  "flatshare India", "PG accommodation", "shared apartment",
-  "paying guest near me", "coliving spaces India",
-  "boys PG", "girls PG", "co-living for students",
-  // Property categories
-  "residential property", "commercial property",
-  "affordable housing India", "luxury apartments India",
-  "premium villas India", "budget flats India",
-  "gated community villas", "gated community apartments",
-  "township projects India", "integrated township",
-  // Transaction types
-  "new launch projects", "pre launch projects",
-  "resale property", "resale flats", "resale apartments",
-  "under construction flats", "ready to move flats",
-  "RERA approved projects", "RERA registered property",
-  "builder floor", "society flats",
-  // Plot / land
-  "residential plot", "commercial plot", "agricultural land",
-  "HMDA approved plots", "DTCP approved plots",
-  "NA plots", "farmland for sale",
-  "plot for sale near me", "land for sale India",
-  // Investment
-  "real estate investment India", "property investment",
-  "best property to invest", "rental yield India",
-  "NRI property investment", "NRI buy property India",
-  "capital appreciation real estate",
-  // Pricing & comparison
-  "property rates India", "flat price per sqft",
-  "house price India", "property valuation",
-  "cheapest flats India", "affordable apartments",
-  "property price comparison", "EMI calculator property",
-  // General
-  "property listings India", "real estate platform India",
-  "property dealer", "real estate agent near me",
-  "property consultant India", "real estate broker",
-  "property for sale", "property for rent", "house for sale India",
-  "best real estate website India", "online property search",
-  "property search India", "property portal India",
-  "real estate marketplace India",
 ];
 
 const _INTERIORS = [
@@ -505,7 +455,6 @@ const _INTENT_KEYWORDS = [
 
 export const DEFAULT_KEYWORDS = [
   ..._BRAND,
-  ..._REAL_ESTATE,
   ..._INTERIORS,
   ..._CONSTRUCTION,
   ..._SOLAR,

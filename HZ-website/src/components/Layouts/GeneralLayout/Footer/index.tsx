@@ -9,27 +9,27 @@ const GeneralFooter = () => {
 
   const CompanyHouznextLinks = [
     {
-      heading: "PROPERTY SERVICES", // ← CHANGED
+      heading: "EXPLORE",
       links: [
         {
-          label: "Buy Properties",
-          url: "/real-estate",
+          label: "Design Ideas",
+          url: "/design-ideas",
         },
         {
-          label: "Hyderabad Properties",
-          url: "/real-estate",
+          label: "Houznext Store",
+          url: "/store",
         },
         {
-          label: "Bangalore Properties",
-          url: "/real-estate",
+          label: "Projects",
+          url: "/projects",
         },
         {
-          label: "Rent Properties",
-          url: "/real-estate",
+          label: "Blog",
+          url: "/blog",
         },
         {
-          label: "List Your Property",
-          url: "/contact-us",
+          label: "Home Interiors",
+          url: "/interiors",
         },
       ],
     },

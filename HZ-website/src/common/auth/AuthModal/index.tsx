@@ -583,7 +583,7 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
 
               <div>
                 <p className="mb-2 label-text text-black">
-                  Are you a Real Estate Agent?
+                  Are you a business partner (builder / vendor)?
                 </p>
                 <div className="flex gap-3">
                   <Button

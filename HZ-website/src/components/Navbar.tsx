@@ -10,7 +10,6 @@ const NAV_LINKS = [
   { label: 'Home', href: '/' },
   { label: 'Design Ideas', href: '/design-ideas' },
   { label: 'Projects', href: '/projects' },
-  { label: 'Real Estate', href: '/real-estate' },
   { label: 'LiveBuild', href: '/buildlive' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'Blog', href: '/blog' },

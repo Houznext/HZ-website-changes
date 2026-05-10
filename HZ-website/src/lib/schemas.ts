@@ -17,7 +17,7 @@ export const localBusinessSchema = {
   logo: 'https://houznext.com/logo.png',
   image: 'https://houznext.com/og-default.jpg',
   description:
-    'Fixed-price home interiors, RERA-verified real estate, and live BuildLive construction tracking for homeowners across Telangana.',
+    'Fixed-price home interiors, design ideas, and live BuildLive construction tracking for homeowners across Telangana.',
   address: {
     '@type': 'PostalAddress',
     addressLocality: 'Hyderabad',

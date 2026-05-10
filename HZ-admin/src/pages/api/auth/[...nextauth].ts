@@ -193,6 +193,8 @@ const authOptions: NextAuthOptions = {
 
         session.user = token.user;
         session.token = token.user.token;
+        // Some clients (and older helpers) read `accessToken`; keep in sync with `token`.
+        (session as any).accessToken = token.user.token;
         session.branchMemberships = token.user.branchMemberships ?? [];
         session.lastLogin = decoded.lastLogin;
         return session;

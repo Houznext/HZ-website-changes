@@ -29,7 +29,7 @@ export interface ISEO {
     name: string;
     description: string;
     areaServed?: string[];
-    providerType?: "LocalBusiness" | "RealEstateAgent" | "HomeAndConstructionBusiness";
+    providerType?: "LocalBusiness" | "HomeAndConstructionBusiness";
   };
   realEstateListing?: {
     name: string;
@@ -107,7 +107,7 @@ const SEO: React.FC<ISEO> = (props) => {
   const description =
     props.description ||
     props.markdownText ||
-    'Houznext is India\'s leading platform for Real Estate, Construction, Interiors, Solar, Furniture & More.';
+    'Houznext is India\'s leading platform for home interiors, construction tracking, design ideas, furniture & more.';
   const rawKw = props.keywords;
   const keywords = rawKw
     ? Array.isArray(rawKw) ? rawKw.filter(Boolean).join(', ') : rawKw
@@ -189,14 +189,6 @@ const SEO: React.FC<ISEO> = (props) => {
                 '@type': 'WebSite',
                 name: PROJECT_NAME,
                 url: BASE_DEPLOYMENT_URL,
-                potentialAction: {
-                  '@type': 'SearchAction',
-                  target: {
-                    '@type': 'EntryPoint',
-                    urlTemplate: `${BASE_DEPLOYMENT_URL}/real-estate?search={search_term_string}`,
-                  },
-                  'query-input': 'required name=search_term_string',
-                },
               }),
             }}
           />
@@ -245,7 +237,7 @@ const SEO: React.FC<ISEO> = (props) => {
                   '@type': 'City',
                   name: area,
                 })),
-                serviceType: props.service.providerType || 'RealEstateAgent',
+                serviceType: props.service.providerType || 'HomeAndConstructionBusiness',
               }),
             }}
           />
@@ -416,10 +408,10 @@ const SEO: React.FC<ISEO> = (props) => {
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               '@context': 'https://schema.org',
-              '@type': 'RealEstateAgent',
+              '@type': 'HomeAndConstructionBusiness',
               '@id': `${BASE_DEPLOYMENT_URL}#organization`,
               name: 'Houznext',
-              description: 'India\'s leading platform for Real Estate, Construction, Interiors, Solar, Furniture & Electronics.',
+              description: 'India\'s leading platform for home interiors, BuildLive construction tracking, design ideas, furniture & home services.',
               url: BASE_DEPLOYMENT_URL,
               telephone: '+919759750770',
               address,

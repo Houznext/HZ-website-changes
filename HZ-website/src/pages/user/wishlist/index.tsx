@@ -9,8 +9,8 @@ const Wishlist = () => {
     <div className="w-full">
       <SEO
         title="Wishlist | Houznext"
-        description="Save your favorite properties with Houznext's Wishlist. Easily track, manage, and revisit your saved real estate listings anytime."
-        keywords="Wishlist, Saved Properties, Favorite Listings, Houznext Wishlist, Real Estate Favorites, Property Tracking, Home Listings"
+        description="Save your favorite items with Houznext's wishlist. Easily track and revisit saved picks anytime."
+        keywords="Wishlist, Saved items, Favorites, Houznext Wishlist, Home shopping, Saved picks"
 />
 
       <WishListComponent />

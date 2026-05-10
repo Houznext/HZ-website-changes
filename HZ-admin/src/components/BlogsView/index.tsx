@@ -3,12 +3,11 @@ import CustomInput from "@/src/common/FormElements/CustomInput";
 import apiClient from "@/src/utils/apiClient";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { FaBloggerB } from "react-icons/fa";
-import Image from "next/image";
 import toast from "react-hot-toast";
 import Button from "@/src/common/Button";
 import PaginationControls from "@/src/components/CrmView/pagination";
 import { FaEdit, FaTrash, FaEye, FaPlus, FaExternalLinkAlt } from "react-icons/fa";
-import { FiCalendar, FiClock, FiX, FiLink } from "react-icons/fi";
+import { FiCalendar, FiX, FiLink } from "react-icons/fi";
 import Loader from "@/src/common/Loader";
 import FileInput from "@/src/common/FileInput";
 import SingleSelect from "@/src/common/FormElements/SingleSelect";
@@ -29,6 +28,42 @@ const PUBLIC_BLOG_URL = `${(
   process.env.NEXT_PUBLIC_MARKETING_SITE_URL ||
   "https://houznext.com"
 ).replace(/\/$/, "")}/blog`;
+
+/**
+ * Blog images come from S3/CDN or arbitrary URLs. `next/image` requires each hostname
+ * in `next.config.js`; using `<img>` keeps the admin Blogs UI error-free for any URL.
+ */
+function BlogImageFill({
+  src,
+  alt,
+  className = "",
+}: {
+  src?: string | null;
+  alt: string;
+  className?: string;
+}) {
+  const url = typeof src === "string" ? src.trim() : "";
+  if (!url) {
+    return (
+      <div
+        className={`absolute inset-0 flex items-center justify-center bg-[#e8f1fd] text-[#94a3b8] ${className}`}
+        aria-hidden
+      >
+        <FaBloggerB className="h-10 w-10 opacity-40" />
+      </div>
+    );
+  }
+  return (
+    <img
+      src={url}
+      alt={alt}
+      loading="lazy"
+      decoding="async"
+      referrerPolicy="no-referrer"
+      className={`absolute inset-0 h-full w-full object-cover ${className}`}
+    />
+  );
+}
 
 const BlogsView = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -107,9 +142,13 @@ const BlogsView = () => {
         resetFormValues();
         setOpenModal(false);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error during form submission: ", err);
-      toast.error("Failed to save blog!");
+      const message =
+        err?.body?.message ||
+        err?.message ||
+        "Failed to save blog. Please check all required fields.";
+      toast.error(Array.isArray(message) ? message.join(", ") : String(message));
     } finally {
       setLoading(false);
     }
@@ -409,11 +448,10 @@ const BlogsView = () => {
             >
               {/* Image Section */}
               <div className="relative w-full h-[160px] md:h-[180px] overflow-hidden">
-                <Image
+                <BlogImageFill
                   src={b.thumbnailImageUrl}
-                  alt={b.title}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  alt={b.title || "Blog thumbnail"}
+                  className="transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
@@ -571,11 +609,10 @@ const BlogsView = () => {
             <div className="flex-1 overflow-y-auto px-6 py-6">
               {/* Cover Image */}
               <div className="relative w-full h-[250px] md:h-[300px] rounded-2xl overflow-hidden mb-6">
-                <Image
+                <BlogImageFill
                   src={viewBlog.CoverImageUrl || viewBlog.thumbnailImageUrl}
-                  alt={viewBlog.title}
-                  fill
-                  className="object-cover"
+                  alt={viewBlog.title || "Blog cover"}
+                  className="rounded-2xl"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
@@ -880,8 +917,8 @@ const BlogsView = () => {
                   </Button>
                   <Button
                     key={"submitbutton"}
+                    type="submit"
                     className="flex-1 md:flex-none px-4 py-2 rounded-[8px] bg-[#2f80ed] hover:bg-[#2568c4] text-white text-[13px] font-medium transition-colors flex items-center justify-center gap-2"
-                    onClick={handleSubmit}
                   >
                     {updateBlogId ? (
                       <>

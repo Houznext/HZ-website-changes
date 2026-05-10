@@ -40,10 +40,10 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         title: "Explore Houznext",
         items: [
             {
-                label: "Properties",
-                href: "/real-estate",
+                label: "Design Ideas",
+                href: "/design-ideas",
                 icon: Home,
-                description: "Buy, rent, plots & more in one place",
+                description: "Browse looks, layouts & inspiration",
             },
             {
                 label: "Houznext Rewards",
