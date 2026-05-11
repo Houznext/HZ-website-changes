@@ -9,6 +9,7 @@ import { useQuoteModal } from '@/components/QuoteModal'
 import { interiorServiceSchema } from '@/lib/schemas'
 import Reveal from '@/components/ui/Reveal'
 import { getCmsContent } from '@/lib/cms'
+import HomeWhyHouznextSection from '@/components/HomeWhyHouznextSection'
 
 interface ApiPackage {
   id?: string;
@@ -105,7 +106,7 @@ export default function InteriorsPage({ cmsPackages, cms }: InteriorsPageProps) 
       <Navbar />
       <main style={{ background: '#f5f7fa' }}>
         <InteriorsHero cms={cms} />
-        <WhyChooseUs />
+        <HomeWhyHouznextSection eyebrow="Why choose us" heading="The Houznext difference" />
         <PackagesSection packages={packages} />
         <RoomCategories cms={cms} />
         <ProcessTimeline />
@@ -270,36 +271,6 @@ function InteriorsHero({ cms }: { cms: any }) {
               ))}
             </div>
           </Reveal>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function WhyChooseUs() {
-  const cards = [
-    { icon: '🎨', title: '3D design first', desc: 'Photorealistic 3D design for every room before work begins. Free revisions.' },
-    { icon: '🔒', title: 'Fixed price',      desc: 'Your quote is your final price. No escalations, no hidden charges.' },
-    { icon: '⚡', title: '45-day delivery',  desc: 'We commit to delivery timelines backed by a written guarantee.' },
-    { icon: '🛡️', title: '1-year warranty',  desc: 'All workmanship is covered for 12 months after handover.' },
-  ]
-  return (
-    <section className="py-16 px-4 bg-white">
-      <div className="max-w-7xl mx-auto">
-        <Reveal variant="fade" className="text-center mb-12">
-          <EyebrowLabel className="justify-center mb-3">Why choose us</EyebrowLabel>
-          <h2 className="font-head font-bold text-[28px] md:text-[34px] text-charcoal">The Houznext difference</h2>
-        </Reveal>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
-          {cards.map((c, i) => (
-            <Reveal key={c.title} delay={i * 110} variant="up">
-              <div className="p-6 rounded-2xl border text-center h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-md" style={{ borderColor: '#dde8f5' }}>
-                <span className="text-3xl mb-4 block">{c.icon}</span>
-                <h3 className="font-head font-bold text-[15px] text-charcoal mb-2">{c.title}</h3>
-                <p className="text-[13px] leading-relaxed" style={{ color: '#5a6a7e' }}>{c.desc}</p>
-              </div>
-            </Reveal>
-          ))}
         </div>
       </div>
     </section>

@@ -20,6 +20,8 @@ import {
   UserPlus,
   Image as CmsDesignIdeasIcon,
   Users,
+  Star,
+  Sparkles,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useSidebarBadges } from "@/src/hooks/useSidebarBadges";
@@ -139,6 +141,8 @@ const NAV_STRUCTURE: NavItem[] = [
   { href: "/interiors-cms",      label: "Interiors CMS", icon: LayoutTemplate },
   { href: "/design-ideas-cms",  label: "Design ideas CMS", icon: CmsDesignIdeasIcon },
   { href: "/about-us-cms",      label: "About us CMS",     icon: Users },
+  { href: "/homepage-reviews",  label: "Homepage reviews", icon: Star },
+  { href: "/homepage-interiors-offers", label: "Interiors offers banner", icon: Sparkles },
   { href: "/hero-carousel",      label: "Hero Carousel", icon: NavHeroCarouselIcon },
   { section: "LiveBuild" },
   { custom: "livebuild" },

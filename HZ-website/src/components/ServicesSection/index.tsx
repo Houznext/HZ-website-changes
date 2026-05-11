@@ -8,9 +8,9 @@ import {
   fetchAllServices,
 } from '@/utils/servicesApi'
 
-/** Each homepage service card lands on its own route (not the generic /interiors page). */
+/** Service card routes — full home matches navbar “Interior Solutions” → Full Home Interiors (`/interiors`). */
 const SLUG_TO_ROUTE: Record<string, string> = {
-  'full-home-interiors': '/services/full-home-interiors',
+  'full-home-interiors': '/interiors',
   'modular-kitchen': '/services/modular-kitchen',
   '2bhk-3bhk-packages': '/services/2bhk-3bhk-packages',
   'commercial-interiors': '/services/commercial-interiors',

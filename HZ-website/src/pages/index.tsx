@@ -12,7 +12,6 @@ import {
   AnimatedIconBox,
   IconHome, IconStar, IconClock, IconTag, IconMapPin,
   IconPhone, IconLayers, IconCheckCircle, IconTool,
-  IconShield, IconSmartphone, IconCreditCard,
   IconZap, IconLock, IconTrophy, IconCheck, IconCamera,
 } from '@/components/ui/Icons'
 import Reveal from '@/components/ui/Reveal'
@@ -21,6 +20,8 @@ import ServicesSection from '@/components/ServicesSection'
 import { HERO_CONSULTATION_CSS } from '@/components/HeroConsultation/keyframes'
 import HeroConsultationFormCard from '@/components/HeroConsultation/HeroConsultationFormCard'
 import HeroSuccessModal from '@/components/HeroConsultation/HeroSuccessModal'
+import HomeOffersCarousel, { type HomeOfferSlide } from '@/components/HomeOffersCarousel'
+import HomeWhyHouznextSection from '@/components/HomeWhyHouznextSection'
 
 type ApiPackage = {
   id?: string
@@ -55,11 +56,103 @@ function useCountUp(end: number, decimals: number, active: boolean, duration = 1
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-type HomePageProps = {
-  cmsPackages: ApiPackage[] | null
+type HomeReview = {
+  name: string
+  location: string
+  rating: number
+  text: string
+  package: string
 }
 
-export default function HomePage({ cmsPackages }: HomePageProps) {
+type HomePageProps = {
+  cmsPackages: ApiPackage[] | null
+  homeReviews: HomeReview[]
+  homeOfferSlides: HomeOfferSlide[]
+}
+
+const DEFAULT_HOME_REVIEWS: HomeReview[] = [
+  { name: 'Priya Reddy',    location: 'Hyderabad',  rating: 5, text: 'Absolutely loved the experience. Our 3BHK looked stunning and was delivered in exactly 44 days. LiveBuild kept us in the loop every single day.', package: 'Premium Package' },
+  { name: 'Suresh Naidu',   location: 'Warangal',   rating: 5, text: 'The fixed pricing was the main reason we chose Houznext. No hidden charges, no last-minute surprises. Exactly what we paid at the start.', package: 'Essential Package' },
+  { name: 'Kavitha Sharma', location: 'Karimnagar', rating: 5, text: 'The 3D designs were photorealistic — I could visualise the space before work started. The kitchen came out even better than I imagined.', package: 'Luxury Package' },
+]
+
+function normalizeHomeReviews(raw: unknown): HomeReview[] {
+  const list =
+    raw &&
+    typeof raw === 'object' &&
+    Array.isArray((raw as { reviews?: unknown }).reviews)
+      ? (raw as { reviews: unknown[] }).reviews
+      : []
+  const out: HomeReview[] = []
+  for (let i = 0; i < 3; i++) {
+    const d = DEFAULT_HOME_REVIEWS[i]
+    const src = list[i] && typeof list[i] === 'object' ? (list[i] as Record<string, unknown>) : {}
+    const ratingNum = Number(src.rating)
+    out.push({
+      name: typeof src.name === 'string' && src.name.trim() ? src.name.trim() : d.name,
+      location: typeof src.location === 'string' && src.location.trim() ? src.location.trim() : d.location,
+      rating: Number.isFinite(ratingNum) && ratingNum >= 1 && ratingNum <= 5 ? Math.round(ratingNum) : d.rating,
+      text: typeof src.text === 'string' && src.text.trim() ? src.text.trim() : d.text,
+      package: typeof src.package === 'string' && src.package.trim() ? src.package.trim() : d.package,
+    })
+  }
+  return out
+}
+
+/** Interiors offers carousel (Design-ideas–style imagery defaults). CMS: site-cms `home_interiors_offers`. */
+const DEFAULT_HOME_OFFER_SLIDES: HomeOfferSlide[] = [
+  {
+    imageUrl:
+      'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1600&q=80',
+    title: 'Monsoon interior packages',
+    subtitle: 'Save up to 15% on full-home packages booked this month. Fixed price from day one.',
+    ctaLabel: 'Explore packages',
+    ctaHref: '/pricing',
+  },
+  {
+    imageUrl:
+      'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1600&q=80',
+    title: 'Free 3D design before you commit',
+    subtitle: 'See every room in photorealistic renders. Revisions included — then a locked BOQ.',
+    ctaLabel: 'Design ideas',
+    ctaHref: '/design-ideas',
+  },
+  {
+    imageUrl:
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1600&q=80',
+    title: '45-day delivery · LiveBuild tracking',
+    subtitle: 'Daily site photos, milestone payments, and a 10-year workmanship warranty on Houznext interiors.',
+    ctaLabel: 'How it works',
+    ctaHref: '/#process',
+  },
+]
+
+function normalizeHomeOfferSlides(raw: unknown): HomeOfferSlide[] {
+  const list =
+    raw &&
+    typeof raw === 'object' &&
+    Array.isArray((raw as { slides?: unknown }).slides)
+      ? (raw as { slides: unknown[] }).slides
+      : []
+  const out: HomeOfferSlide[] = []
+  for (let i = 0; i < 3; i++) {
+    const d = DEFAULT_HOME_OFFER_SLIDES[i]
+    const src = list[i] && typeof list[i] === 'object' ? (list[i] as Record<string, unknown>) : {}
+    const imageUrl =
+      typeof src.imageUrl === 'string' && src.imageUrl.trim() ? src.imageUrl.trim() : d.imageUrl
+    const title = typeof src.title === 'string' && src.title.trim() ? src.title.trim() : d.title
+    const subtitle =
+      typeof src.subtitle === 'string' && src.subtitle.trim() ? src.subtitle.trim() : d.subtitle
+    const ctaLabel =
+      typeof src.ctaLabel === 'string' && src.ctaLabel.trim() ? src.ctaLabel.trim() : d.ctaLabel
+    const ctaHref =
+      typeof src.ctaHref === 'string' && src.ctaHref.trim() ? src.ctaHref.trim() : d.ctaHref
+    out.push({ imageUrl, title, subtitle, ctaLabel, ctaHref })
+  }
+  return out
+}
+
+export default function HomePage({ cmsPackages, homeReviews, homeOfferSlides }: HomePageProps) {
   const packages = mergeDisplayPackages(cmsPackages)
   return (
     <>
@@ -75,6 +168,9 @@ export default function HomePage({ cmsPackages }: HomePageProps) {
         <Hero />
         <MetricsStrip />
         <ServicesSection />
+        <div className="max-w-7xl mx-auto px-4 md:px-6 pb-2 md:pb-4">
+          <HomeOffersCarousel slides={homeOfferSlides} />
+        </div>
         <HowItWorks />
         <>
           <style>{`
@@ -447,8 +543,8 @@ export default function HomePage({ cmsPackages }: HomePageProps) {
         <PackagesSection packages={packages} />
         <BuildLivePreview />
         <StatsStrip />
-        <WhyHouznext />
-        <ReviewsSection />
+        <HomeWhyHouznextSection eyebrow="Why Houznext" heading="Why 500+ families chose us" />
+        <ReviewsSection reviews={homeReviews} />
         <FaqSection />
         <WaBar />
       </main>
@@ -1113,7 +1209,7 @@ const STEPS: StepDef[] = [
 
 function HowItWorks() {
   return (
-    <section className="py-16 px-4" style={{ background: '#f5f7fa' }}>
+    <section id="process" className="py-16 px-4" style={{ background: '#f5f7fa' }}>
       <div className="max-w-7xl mx-auto">
         <Reveal variant="fade" className="text-center mb-12">
           <EyebrowLabel className="justify-center mb-3">The Process</EyebrowLabel>
@@ -1300,6 +1396,8 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
     process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT
   const base = raw ? String(raw).replace(/\/$/, '') : null
   let cmsPackages: ApiPackage[] | null = null
+  let homeReviews: HomeReview[] = DEFAULT_HOME_REVIEWS
+  let homeOfferSlides: HomeOfferSlide[] = DEFAULT_HOME_OFFER_SLIDES
 
   if (base) {
     try {
@@ -1308,10 +1406,28 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
     } catch {
       cmsPackages = null
     }
+    try {
+      const res = await fetch(`${base}/site-cms/home_reviews`)
+      if (res.ok) {
+        const json = (await res.json()) as { data?: unknown }
+        homeReviews = normalizeHomeReviews(json?.data)
+      }
+    } catch {
+      homeReviews = DEFAULT_HOME_REVIEWS
+    }
+    try {
+      const resOffers = await fetch(`${base}/site-cms/home_interiors_offers`)
+      if (resOffers.ok) {
+        const jsonOffers = (await resOffers.json()) as { data?: unknown }
+        homeOfferSlides = normalizeHomeOfferSlides(jsonOffers?.data)
+      }
+    } catch {
+      homeOfferSlides = DEFAULT_HOME_OFFER_SLIDES
+    }
   }
 
   return {
-    props: { cmsPackages },
+    props: { cmsPackages, homeReviews, homeOfferSlides },
     revalidate: 30,
   }
 }
@@ -1435,74 +1551,7 @@ function StatsStrip() {
   )
 }
 
-// ─── Why Houznext ─────────────────────────────────────────────────────────────
-
-interface WhyDef {
-  title: string
-  desc: string
-  Icon: React.ComponentType<{ size?: number; stroke?: string; strokeWidth?: number }>
-  color: string
-}
-
-const WHY: WhyDef[] = [
-  { Icon: IconLayers,     color: '#2f80ed', title: '3D design first',       desc: 'See your room before a single nail is hammered. Revisions are always free.' },
-  { Icon: IconLock,       color: '#2f80ed', title: 'Fixed pricing',          desc: 'Quote = Invoice. No surprises, no escalations, ever.' },
-  { Icon: IconZap,        color: '#f2994a', title: '45-day delivery',        desc: 'We commit to delivery dates and stick to them — guaranteed.' },
-  { Icon: IconSmartphone, color: '#2f80ed', title: 'LiveBuild tracking',     desc: 'Daily photos and progress updates from your site.' },
-  { Icon: IconShield,     color: '#2f80ed', title: '10 years warranty',      desc: 'All work is covered for 10 years - Terms and conditions apply' },
-  { Icon: IconCreditCard, color: '#f2994a', title: 'EMI options available',  desc: 'Zero-cost EMI plans through leading banks and NBFCs.' },
-]
-
-function WhyCard({ item }: { item: WhyDef }) {
-  const [hovered, setHovered] = useState(false)
-  return (
-    <div
-      className="p-6 rounded-2xl border cursor-default transition-all duration-300"
-      style={{
-        borderColor: hovered ? item.color : '#dde8f5',
-        background: '#fff',
-        boxShadow: hovered ? `0 8px 30px ${item.color}18` : 'none',
-        transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <AnimatedIconBox color={item.color} size="md" hovered={hovered} className="mb-4">
-        <item.Icon size={20} strokeWidth={1.7} />
-      </AnimatedIconBox>
-      <h3 className="font-head font-bold text-[15px] text-charcoal mb-2">{item.title}</h3>
-      <p className="text-[13px] leading-relaxed" style={{ color: '#5a6a7e' }}>{item.desc}</p>
-    </div>
-  )
-}
-
-function WhyHouznext() {
-  return (
-    <section className="py-16 px-4 bg-white">
-      <div className="max-w-7xl mx-auto">
-        <Reveal variant="fade" className="text-center mb-12">
-          <EyebrowLabel className="justify-center mb-3">Why Houznext</EyebrowLabel>
-          <h2 className="font-head font-bold text-[28px] md:text-[36px] text-charcoal">Why 500+ families chose us</h2>
-        </Reveal>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-          {WHY.map((w, i) => (
-            <Reveal key={w.title} delay={i * 90}>
-              <WhyCard item={w} />
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
 // ─── Reviews ──────────────────────────────────────────────────────────────────
-
-const REVIEWS = [
-  { name: 'Priya Reddy',    location: 'Hyderabad',  rating: 5, text: 'Absolutely loved the experience. Our 3BHK looked stunning and was delivered in exactly 44 days. LiveBuild kept us in the loop every single day.', package: 'Premium Package' },
-  { name: 'Suresh Naidu',   location: 'Warangal',   rating: 5, text: 'The fixed pricing was the main reason we chose Houznext. No hidden charges, no last-minute surprises. Exactly what we paid at the start.', package: 'Essential Package' },
-  { name: 'Kavitha Sharma', location: 'Karimnagar', rating: 5, text: 'The 3D designs were photorealistic — I could visualise the space before work started. The kitchen came out even better than I imagined.', package: 'Luxury Package' },
-]
 
 function StarRating({ count }: { count: number }) {
   return (
@@ -1520,7 +1569,7 @@ function StarRating({ count }: { count: number }) {
   )
 }
 
-function ReviewsSection() {
+function ReviewsSection({ reviews }: { reviews: HomeReview[] }) {
   return (
     <section className="py-16 px-4" style={{ background: '#f5f7fa' }}>
       <div className="max-w-7xl mx-auto">
@@ -1529,10 +1578,9 @@ function ReviewsSection() {
           <h2 className="font-head font-bold text-[28px] md:text-[36px] text-charcoal">What our homeowners say</h2>
         </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {REVIEWS.map((r, i) => (
-            <Reveal key={r.name} delay={i * 120} variant="zoom">
+          {reviews.map((r, i) => (
+            <Reveal key={`home-review-${i}`} delay={i * 120} variant="zoom">
             <div
-              key={r.name}
               className="p-6 rounded-2xl bg-white border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
               style={{ borderColor: '#dde8f5' }}
             >
