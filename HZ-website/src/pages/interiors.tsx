@@ -9,6 +9,7 @@ import { useQuoteModal } from '@/components/QuoteModal'
 import { interiorServiceSchema } from '@/lib/schemas'
 import Reveal from '@/components/ui/Reveal'
 import { getCmsContent } from '@/lib/cms'
+import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
 import HomeWhyHouznextSection from '@/components/HomeWhyHouznextSection'
 
 interface ApiPackage {
@@ -83,9 +84,10 @@ function mergeDisplayPackages(cms: ApiPackage[] | null): ApiPackage[] {
 type InteriorsPageProps = {
   cmsPackages: ApiPackage[] | null
   cms: Record<string, any> | null
+  pageSeo: PageSeoPublic | null
 }
 
-export default function InteriorsPage({ cmsPackages, cms }: InteriorsPageProps) {
+export default function InteriorsPage({ cmsPackages, cms, pageSeo }: InteriorsPageProps) {
   const packages = mergeDisplayPackages(cmsPackages)
 
   const defaultDesc =
@@ -95,13 +97,20 @@ export default function InteriorsPage({ cmsPackages, cms }: InteriorsPageProps) 
     <>
       <SeoHead
         title={
+          pageSeo?.metaTitle ??
           cms?.seo?.metaTitle ??
           'Home Interiors Hyderabad | Fixed-Price Packages | Houznext'
         }
-        description={cms?.seo?.metaDescription ?? defaultDesc}
+        description={
+          pageSeo?.metaDescription ?? cms?.seo?.metaDescription ?? defaultDesc
+        }
         canonical={cms?.seo?.canonical ?? '/interiors'}
         schema={interiorServiceSchema}
-        ogImage={cms?.seo?.ogImage || 'https://houznext.com/og-interiors.jpg'}
+        ogImage={
+          pageSeo?.ogImageUrl ??
+          cms?.seo?.ogImage ??
+          'https://houznext.com/og-interiors.jpg'
+        }
       />
       <Navbar />
       <main style={{ background: '#f5f7fa' }}>
@@ -368,6 +377,12 @@ export async function getStaticProps() {
   const base = raw ? String(raw).replace(/\/$/, '') : null
   let cmsPackages: ApiPackage[] | null = null
   const cms: Record<string, any> | null = await getCmsContent('interiors_page')
+  let pageSeo: PageSeoPublic | null = null
+  try {
+    pageSeo = await fetchPageSeo('/interiors')
+  } catch {
+    pageSeo = null
+  }
   if (base) {
     try {
       const pRes = await fetch(`${base}/interior-packages?activeOnly=true`)
@@ -379,7 +394,7 @@ export async function getStaticProps() {
     }
   }
   return {
-    props: { cmsPackages, cms },
+    props: { cmsPackages, cms, pageSeo },
     revalidate: 60,
   }
 }

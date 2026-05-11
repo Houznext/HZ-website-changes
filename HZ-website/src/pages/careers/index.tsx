@@ -1,8 +1,10 @@
+import type { GetStaticProps } from 'next'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import Reveal from '@/components/ui/Reveal'
+import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
 
 const OPEN_ROLES = [
   { title: 'Interior Design Consultant', type: 'Full-time', location: 'Hyderabad', dept: 'Interiors' },
@@ -18,13 +20,20 @@ const PERKS = [
   { icon: '🤝', title: 'Great culture', body: 'Collaborative, transparent, and people-first team.' },
 ]
 
-export default function Careers() {
+export default function Careers({ pageSeo }: { pageSeo: PageSeoPublic | null }) {
   return (
     <>
       <SeoHead
-        title="Careers at Houznext | Interior Design & BuildLive Jobs in Hyderabad"
-        description="Join Houznext — Hyderabad's fastest-growing home interiors company. Open roles in interior design, project management, operations, and more. Apply now."
+        title={
+          pageSeo?.metaTitle ??
+          'Careers at Houznext | Interior Design & BuildLive Jobs in Hyderabad'
+        }
+        description={
+          pageSeo?.metaDescription ??
+          "Join Houznext — Hyderabad's fastest-growing home interiors company. Open roles in interior design, project management, operations, and more. Apply now."
+        }
         canonical="/careers"
+        ogImage={pageSeo?.ogImageUrl ?? undefined}
       />
       <Navbar />
       <main style={{ background: '#f5f7fa' }}>
@@ -122,4 +131,14 @@ export default function Careers() {
       <Footer />
     </>
   )
+}
+
+export const getStaticProps: GetStaticProps<{ pageSeo: PageSeoPublic | null }> = async () => {
+  let pageSeo: PageSeoPublic | null = null
+  try {
+    pageSeo = await fetchPageSeo('/careers')
+  } catch {
+    pageSeo = null
+  }
+  return { props: { pageSeo }, revalidate: 120 }
 }

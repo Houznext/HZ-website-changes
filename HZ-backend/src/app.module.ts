@@ -61,6 +61,7 @@ import { PaymentTrackingModule } from './livebuild/payment-tracking/payment-trac
 import { CityModule } from './geography/city/city.module';
 import { StateModule } from './geography/state/state.module';
 import { OrdersModule } from './orders/order.module';
+import { PaymentsModule } from './payment/payment.module';
 import { HouznextRewardsModule } from './houznext-rewards/houznext-rewards.module';
 import { PropertyPremiumPlansModule } from './property-premium-plans/property-premium-plans.module';
 import { ChatModule } from './chat/chat.module';
@@ -81,6 +82,7 @@ import { HeroCarouselModule } from './hero-carousel/hero-carousel.module';
 import { ServicesContentModule } from './services-content/services-content.module';
 import { CmsModule } from './cms/cms.module';
 import { SiteCmsModule } from './site-cms/site-cms.module';
+import { PageSeoModule } from './page-seo/page-seo.module';
 
 @Module({
   imports: [
@@ -122,6 +124,7 @@ import { SiteCmsModule } from './site-cms/site-cms.module';
     FurnitureModule,
     CartModule,
     OrdersModule,
+    PaymentsModule,
     CareerAdminModule,
     CareerModule,
     WhatsAppModule,
@@ -178,6 +181,7 @@ import { SiteCmsModule } from './site-cms/site-cms.module';
     ServicesContentModule,
     CmsModule,
     SiteCmsModule,
+    PageSeoModule,
   ],
   controllers: [AppController],
   providers: [

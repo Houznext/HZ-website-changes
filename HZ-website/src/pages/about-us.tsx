@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar'
 import Reveal from '@/components/ui/Reveal'
 import SeoHead from '@/components/SeoHead'
 import { useQuoteModal } from '@/components/QuoteModal'
+import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
 
 // ----- CMS types -----
 interface CmsTeamMember {
@@ -874,20 +875,37 @@ function CtaSection({ openModal }: { openModal: () => void }) {
   )
 }
 
-export const getStaticProps: GetStaticProps<{ cms: AboutUsCms }> = async () => {
+export const getStaticProps: GetStaticProps<{
+  cms: AboutUsCms
+  pageSeo: PageSeoPublic | null
+}> = async () => {
   const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+  let cms: AboutUsCms = {}
   try {
     const base = String(API).replace(/\/$/, '')
     const res = await fetch(`${base}/site-cms/about_us`)
     if (!res.ok) throw new Error('CMS fetch failed')
     const json = (await res.json()) as { data?: unknown }
-    return { props: { cms: (json?.data as AboutUsCms) ?? {} }, revalidate: 60 }
+    cms = (json?.data as AboutUsCms) ?? {}
   } catch {
-    return { props: { cms: {} }, revalidate: 60 }
+    cms = {}
   }
+  let pageSeo: PageSeoPublic | null = null
+  try {
+    pageSeo = await fetchPageSeo('/about-us')
+  } catch {
+    pageSeo = null
+  }
+  return { props: { cms, pageSeo }, revalidate: 60 }
 }
 
-export default function AboutUsPage({ cms }: { cms: AboutUsCms }) {
+export default function AboutUsPage({
+  cms,
+  pageSeo,
+}: {
+  cms: AboutUsCms
+  pageSeo: PageSeoPublic | null
+}) {
   const router = useRouter()
   const { openModal } = useQuoteModal()
 
@@ -901,10 +919,10 @@ export default function AboutUsPage({ cms }: { cms: AboutUsCms }) {
   return (
     <>
       <SeoHead
-        title={seo.metaTitle}
-        description={seo.metaDescription}
+        title={pageSeo?.metaTitle ?? seo.metaTitle}
+        description={pageSeo?.metaDescription ?? seo.metaDescription}
         canonical={seo.canonical}
-        ogImage={seo.ogImageUrl || undefined}
+        ogImage={pageSeo?.ogImageUrl ?? seo.ogImageUrl || undefined}
       />
       <Navbar />
       <main style={{ background: '#f5f7fa' }}>

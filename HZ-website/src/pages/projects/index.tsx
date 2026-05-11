@@ -16,6 +16,7 @@ import Footer from '@/components/Footer'
 import Navbar from '@/components/Navbar'
 import SeoHead from '@/components/SeoHead'
 import type { InteriorProject } from '@/types/interior-project'
+import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
 
 function getCardHeight(id: string): number {
   let hash = 0
@@ -211,6 +212,7 @@ async function fetchCmsLiveProjects(apiBase: string): Promise<InteriorProject[]>
 
 interface ProjectsPageProps {
   projects: InteriorProject[]
+  pageSeo: PageSeoPublic | null
 }
 
 const PAGE_SIZE = 12
@@ -229,7 +231,10 @@ function getBrowserApiBase(): string {
 
 type ViewMode = 'grid' | 'list'
 
-export default function ProjectsPage({ projects: rawProjects }: ProjectsPageProps) {
+export default function ProjectsPage({
+  projects: rawProjects,
+  pageSeo,
+}: ProjectsPageProps) {
   const [projects, setProjects] = useState<InteriorProject[]>(() =>
     Array.isArray(rawProjects) ? rawProjects : [],
   )
@@ -288,10 +293,16 @@ export default function ProjectsPage({ projects: rawProjects }: ProjectsPageProp
   return (
     <>
       <SeoHead
-        title="Our Projects | Real Home Transformations | Houznext Hyderabad"
-        description="Browse completed home interior projects by Houznext across Telangana. 2BHK, 3BHK and villas — fixed price, on-time delivery."
+        title={
+          pageSeo?.metaTitle ??
+          'Our Projects | Real Home Transformations | Houznext Hyderabad'
+        }
+        description={
+          pageSeo?.metaDescription ??
+          'Browse completed home interior projects by Houznext across Telangana. 2BHK, 3BHK and villas — fixed price, on-time delivery.'
+        }
         canonical="/projects"
-        ogImage="https://houznext.com/og-projects.jpg"
+        ogImage={pageSeo?.ogImageUrl ?? 'https://houznext.com/og-projects.jpg'}
       />
       <Navbar />
       <main style={{ background: '#f8fafc' }}>
@@ -480,10 +491,16 @@ export async function getStaticProps() {
     process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT ||
     'http://localhost:3001'
   const API = String(raw).replace(/\/$/, '')
+  let pageSeo: PageSeoPublic | null = null
+  try {
+    pageSeo = await fetchPageSeo('/projects')
+  } catch {
+    pageSeo = null
+  }
   try {
     const projects = await fetchCmsLiveProjects(API)
     return {
-      props: { projects },
+      props: { projects, pageSeo },
       revalidate: 60,
     }
   } catch (err) {
@@ -492,7 +509,7 @@ export async function getStaticProps() {
       err,
     )
     return {
-      props: { projects: [] as InteriorProject[] },
+      props: { projects: [] as InteriorProject[], pageSeo },
       revalidate: 60,
     }
   }

@@ -141,6 +141,9 @@ const URLS = {
 
   // Interiors (LiveBuild) base
   interiors: `${base_url}interiors`,
+
+  /** Global per-path SEO (meta + OG); admin list/upsert + public by-path for marketing site */
+  page_seo: `${base_url}page-seo`,
 };
 
 const getResponseBody = (response) => {

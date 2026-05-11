@@ -108,6 +108,26 @@ function NavHeroCarouselIcon(props: { className?: string }) {
   );
 }
 
+/** Globe + meridian — SEO / discoverability */
+function NavSeoSettingsIcon(props: { className?: string }) {
+  return (
+    <svg
+      className={props.className}
+      viewBox="0 0 24 24"
+      width={15}
+      height={15}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+    </svg>
+  );
+}
+
 function StoreProductsIcon(props: { className?: string }) {
   return <svg className={props.className} viewBox="0 0 24 24" width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M20 9V6a2 2 0 00-2-2H6a2 2 0 00-2 2v3M2 9h20M4 9v10a2 2 0 002 2h12a2 2 0 002-2V9" /></svg>;
 }
@@ -144,6 +164,7 @@ const NAV_STRUCTURE: NavItem[] = [
   { href: "/homepage-reviews",  label: "Homepage reviews", icon: Star },
   { href: "/homepage-interiors-offers", label: "Interiors offers banner", icon: Sparkles },
   { href: "/hero-carousel",      label: "Hero Carousel", icon: NavHeroCarouselIcon },
+  { href: "/seo-settings",       label: "SEO settings",  icon: NavSeoSettingsIcon },
   { section: "LiveBuild" },
   { custom: "livebuild" },
   { section: "CRM" },

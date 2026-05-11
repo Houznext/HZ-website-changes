@@ -6,6 +6,7 @@ import SeoHead from '@/components/SeoHead'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import { useQuoteModal } from '@/components/QuoteModal'
 import { getCmsContent } from '@/lib/cms'
+import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
 import { getSavedDesigns, setSavedDesigns } from '@/utils/savedDesigns'
 
 interface Room {
@@ -71,7 +72,13 @@ function stableLikeCount(id: string): number {
 
 export async function getStaticProps() {
   const cms = await getCmsContent('design_ideas_page')
-  return { props: { cms: cms ?? null }, revalidate: 60 }
+  let pageSeo: PageSeoPublic | null = null
+  try {
+    pageSeo = await fetchPageSeo('/design-ideas')
+  } catch {
+    pageSeo = null
+  }
+  return { props: { cms: cms ?? null, pageSeo }, revalidate: 60 }
 }
 
 function DesignCardItem({
@@ -491,7 +498,13 @@ function DesignDetailPanel({
   )
 }
 
-export default function DesignIdeasPage({ cms }: { cms: any }) {
+export default function DesignIdeasPage({
+  cms,
+  pageSeo,
+}: {
+  cms: any
+  pageSeo: PageSeoPublic | null
+}) {
   const router = useRouter()
   const { openModal } = useQuoteModal()
   const [activeTab, setActiveTab] = useState('living')
@@ -516,7 +529,13 @@ export default function DesignIdeasPage({ cms }: { cms: any }) {
   const allCards: DesignCard[] = (cms?.cards ?? []).filter((c: DesignCard) => c.status === 'published')
   const header = cms?.header ?? DEFAULT_HEADER
   const settings = { ...DEFAULT_SETTINGS, ...(cms?.settings ?? {}) }
-  const seo = { ...DEFAULT_SEO, ...(cms?.seo ?? {}) }
+  const baseSeo = { ...DEFAULT_SEO, ...(cms?.seo ?? {}) }
+  const metaTitle = pageSeo?.metaTitle ?? baseSeo.metaTitle
+  const metaDescription = pageSeo?.metaDescription ?? baseSeo.metaDescription
+  const ogImage =
+    pageSeo?.ogImageUrl ??
+    (baseSeo.ogImage && String(baseSeo.ogImage).trim()) ||
+    'https://houznext.com/og-default.jpg'
 
   useEffect(() => {
     if (!router.isReady) return
@@ -582,10 +601,10 @@ export default function DesignIdeasPage({ cms }: { cms: any }) {
   return (
     <>
       <SeoHead
-        title={seo.metaTitle}
-        description={seo.metaDescription}
+        title={metaTitle}
+        description={metaDescription}
         canonical="/design-ideas"
-        ogImage={seo.ogImage || 'https://houznext.com/og-default.jpg'}
+        ogImage={ogImage}
       />
       <Navbar />
       <main>

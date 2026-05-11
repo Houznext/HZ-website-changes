@@ -6,6 +6,7 @@ import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import InteriorCalculator from '@/components/InteriorCalculator'
 import { useQuoteModal } from '@/components/QuoteModal'
 import { pricingFaqSchema } from '@/lib/schemas'
+import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
 
 import Reveal from '@/components/ui/Reveal'
 
@@ -106,18 +107,26 @@ function mergePricingForBhk(
 
 type PricingPageProps = {
   cmsPackages: CmsInteriorPackage[] | null
+  pageSeo: PageSeoPublic | null
 }
 
-export default function PricingPage({ cmsPackages }: PricingPageProps) {
+export default function PricingPage({ cmsPackages, pageSeo }: PricingPageProps) {
   const [bhk, setBhk] = useState<BHKType>('2bhk')
 
   return (
     <>
       <SeoHead
-        title="Interior Design Cost in Hyderabad 2025 | Houznext Pricing"
-        description="Houznext interior packages: Essential from ₹4.5L, Premium from ₹7.5L, Luxury from ₹13L for 2BHK. All-inclusive fixed price — materials, labour, and 1-year warranty included."
+        title={
+          pageSeo?.metaTitle ??
+          'Interior Design Cost in Hyderabad 2025 | Houznext Pricing'
+        }
+        description={
+          pageSeo?.metaDescription ??
+          'Houznext interior packages: Essential from ₹4.5L, Premium from ₹7.5L, Luxury from ₹13L for 2BHK. All-inclusive fixed price — materials, labour, and 1-year warranty included.'
+        }
         canonical="/pricing"
         schema={pricingFaqSchema}
+        ogImage={pageSeo?.ogImageUrl ?? undefined}
       />
       <Navbar />
       <main style={{ background: '#f5f7fa' }}>
@@ -325,6 +334,12 @@ export async function getStaticProps() {
   const raw =
     process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT
   let cmsPackages: CmsInteriorPackage[] | null = null
+  let pageSeo: PageSeoPublic | null = null
+  try {
+    pageSeo = await fetchPageSeo('/pricing')
+  } catch {
+    pageSeo = null
+  }
   if (raw) {
     const base = String(raw).replace(/\/$/, '')
     try {
@@ -337,7 +352,7 @@ export async function getStaticProps() {
     }
   }
   return {
-    props: { cmsPackages },
+    props: { cmsPackages, pageSeo },
     revalidate: 30,
   }
 }

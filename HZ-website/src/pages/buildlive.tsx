@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router'
+import type { GetStaticProps } from 'next'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
@@ -6,15 +7,23 @@ import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import Reveal from '@/components/ui/Reveal'
 import { buildliveSchema } from '@/lib/schemas'
 import LiveBuildHeroGraph from '@/components/LiveBuildHeroGraph'
+import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
 
-export default function BuildLivePage() {
+export default function BuildLivePage({ pageSeo }: { pageSeo: PageSeoPublic | null }) {
   return (
     <>
       <SeoHead
-        title="LiveBuild — Track Your Interior Live Daily | Houznext"
-        description="Room-by-room live photo updates, design approvals, milestone payments and snag management. Know exactly what's happening at your site every day — from your phone."
+        title={
+          pageSeo?.metaTitle ??
+          'LiveBuild — Track Your Interior Live Daily | Houznext'
+        }
+        description={
+          pageSeo?.metaDescription ??
+          "Room-by-room live photo updates, design approvals, milestone payments and snag management. Know exactly what's happening at your site every day — from your phone."
+        }
         canonical="/buildlive"
         schema={buildliveSchema}
+        ogImage={pageSeo?.ogImageUrl ?? undefined}
       />
       <Navbar />
       <main style={{ background: '#f5f7fa' }}>
@@ -152,4 +161,14 @@ function WaBar() {
       </Reveal>
     </section>
   )
+}
+
+export const getStaticProps: GetStaticProps<{ pageSeo: PageSeoPublic | null }> = async () => {
+  let pageSeo: PageSeoPublic | null = null
+  try {
+    pageSeo = await fetchPageSeo('/buildlive')
+  } catch {
+    pageSeo = null
+  }
+  return { props: { pageSeo }, revalidate: 60 }
 }

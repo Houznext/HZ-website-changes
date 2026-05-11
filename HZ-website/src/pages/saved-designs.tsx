@@ -5,6 +5,8 @@ import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import { getSavedDesigns, setSavedDesigns } from '@/utils/savedDesigns'
+import type { GetStaticProps } from 'next'
+import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
 
 const ROOM_LABELS: Record<string, string> = {
   living: 'Living room',
@@ -20,7 +22,7 @@ const ROOM_LABELS: Record<string, string> = {
 
 type Saved = { id: string; title: string; imageUrl: string; room: string; style: string }
 
-export default function SavedDesignsPage() {
+export default function SavedDesignsPage({ pageSeo }: { pageSeo: PageSeoPublic | null }) {
   const router = useRouter()
   const [savedCards, setSavedCards] = useState<Saved[]>([])
   const [loaded, setLoaded] = useState(false)
@@ -147,6 +149,12 @@ export default function SavedDesignsPage() {
   )
 }
 
-export async function getStaticProps() {
-  return { props: {} }
+export const getStaticProps: GetStaticProps<{ pageSeo: PageSeoPublic | null }> = async () => {
+  let pageSeo: PageSeoPublic | null = null
+  try {
+    pageSeo = await fetchPageSeo('/saved-designs')
+  } catch {
+    pageSeo = null
+  }
+  return { props: { pageSeo }, revalidate: 120 }
 }

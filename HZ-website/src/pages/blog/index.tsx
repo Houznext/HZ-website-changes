@@ -7,6 +7,7 @@ import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import apiClient from '@/utils/apiClient'
+import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
 
 export interface ApiBlogRow {
   id: number | string
@@ -23,6 +24,7 @@ export interface ApiBlogRow {
 
 interface BlogIndexProps {
   initialBlogs: ApiBlogRow[]
+  pageSeo: PageSeoPublic | null
 }
 
 function estimateReadMin(b: ApiBlogRow): string {
@@ -38,7 +40,7 @@ function formatDate(iso?: string): string {
   return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-export default function BlogIndex({ initialBlogs }: BlogIndexProps) {
+export default function BlogIndex({ initialBlogs, pageSeo }: BlogIndexProps) {
   const router = useRouter()
   const [activeCategory, setActiveCategory] = useState('All')
   const [search, setSearch] = useState('')
@@ -88,9 +90,16 @@ export default function BlogIndex({ initialBlogs }: BlogIndexProps) {
   return (
     <>
       <SeoHead
-        title="Home Design Blog | Interiors, Construction & Home Design | Houznext"
-        description="Expert guides on modular kitchens, interior costs, RERA compliance, and home design for Indian homeowners in Telangana. Tips from 500+ delivered projects."
+        title={
+          pageSeo?.metaTitle ??
+          'Home Design Blog | Interiors, Construction & Home Design | Houznext'
+        }
+        description={
+          pageSeo?.metaDescription ??
+          'Expert guides on modular kitchens, interior costs, RERA compliance, and home design for Indian homeowners in Telangana. Tips from 500+ delivered projects.'
+        }
         canonical="/blog"
+        ogImage={pageSeo?.ogImageUrl ?? undefined}
       />
       <Navbar />
       <main style={{ background: '#f5f7fa' }}>
@@ -286,6 +295,12 @@ export default function BlogIndex({ initialBlogs }: BlogIndexProps) {
 }
 
 export const getServerSideProps: GetServerSideProps<BlogIndexProps> = async () => {
+  let pageSeo: PageSeoPublic | null = null
+  try {
+    pageSeo = await fetchPageSeo('/blog')
+  } catch {
+    pageSeo = null
+  }
   try {
     const res = await apiClient.get(apiClient.URLS.blogs, {
       sortBy: 'createdAt',
@@ -294,9 +309,9 @@ export const getServerSideProps: GetServerSideProps<BlogIndexProps> = async () =
     const raw = Array.isArray(res.body) ? res.body : res.body?.blogs || []
     const initialBlogs: ApiBlogRow[] = (raw as ApiBlogRow[]).filter((b) => b?.id != null)
 
-    return { props: { initialBlogs } }
+    return { props: { initialBlogs, pageSeo } }
   } catch (e) {
     console.error('[blog index] fetch failed', e)
-    return { props: { initialBlogs: [] } }
+    return { props: { initialBlogs: [], pageSeo } }
   }
 }

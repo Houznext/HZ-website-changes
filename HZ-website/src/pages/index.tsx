@@ -8,6 +8,7 @@ import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import InteriorCalculator from '@/components/InteriorCalculator'
 import { useQuoteModal } from '@/components/QuoteModal'
 import { localBusinessSchema, pricingFaqSchema } from '@/lib/schemas'
+import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
 import {
   AnimatedIconBox,
   IconHome, IconStar, IconClock, IconTag, IconMapPin,
@@ -68,6 +69,7 @@ type HomePageProps = {
   cmsPackages: ApiPackage[] | null
   homeReviews: HomeReview[]
   homeOfferSlides: HomeOfferSlide[]
+  pageSeo: PageSeoPublic | null
 }
 
 const DEFAULT_HOME_REVIEWS: HomeReview[] = [
@@ -152,16 +154,22 @@ function normalizeHomeOfferSlides(raw: unknown): HomeOfferSlide[] {
   return out
 }
 
-export default function HomePage({ cmsPackages, homeReviews, homeOfferSlides }: HomePageProps) {
+export default function HomePage({ cmsPackages, homeReviews, homeOfferSlides, pageSeo }: HomePageProps) {
   const packages = mergeDisplayPackages(cmsPackages)
   return (
     <>
       <SeoHead
-        title="Home Interiors in Hyderabad | Houznext"
-        description="Interior design for 2BHK, 3BHK and villas across Telangana. 45–60 day delivery, LiveBuild live tracking, 1-year warranty. Packages from ₹4.5L. 15+ homes delivered."
+        title={
+          pageSeo?.metaTitle ??
+          'Home Interiors in Hyderabad | Houznext'
+        }
+        description={
+          pageSeo?.metaDescription ??
+          'Interior design for 2BHK, 3BHK and villas across Telangana. 45–60 day delivery, LiveBuild live tracking, 1-year warranty. Packages from ₹4.5L. 15+ homes delivered.'
+        }
         canonical="/"
         schema={[localBusinessSchema, pricingFaqSchema]}
-        ogImage="https://houznext.com/og-home.jpg"
+        ogImage={pageSeo?.ogImageUrl ?? 'https://houznext.com/og-home.jpg'}
       />
       <Navbar />
       <main style={{ background: '#f5f7fa' }}>
@@ -1398,6 +1406,7 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
   let cmsPackages: ApiPackage[] | null = null
   let homeReviews: HomeReview[] = DEFAULT_HOME_REVIEWS
   let homeOfferSlides: HomeOfferSlide[] = DEFAULT_HOME_OFFER_SLIDES
+  let pageSeo: PageSeoPublic | null = null
 
   if (base) {
     try {
@@ -1425,9 +1434,14 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
       homeOfferSlides = DEFAULT_HOME_OFFER_SLIDES
     }
   }
+  try {
+    pageSeo = await fetchPageSeo('/')
+  } catch {
+    pageSeo = null
+  }
 
   return {
-    props: { cmsPackages, homeReviews, homeOfferSlides },
+    props: { cmsPackages, homeReviews, homeOfferSlides, pageSeo },
     revalidate: 30,
   }
 }

@@ -1,4 +1,5 @@
 import { useState, useMemo, type ChangeEvent, type FormEvent } from 'react'
+import type { GetStaticProps } from 'next'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
@@ -6,6 +7,7 @@ import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import Reveal from '@/components/ui/Reveal'
 import apiClient from '@/utils/apiClient'
 import toast from 'react-hot-toast'
+import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
 
 const SERVICES = [
   { key: 'interiors',   label: 'Home Interiors',   icon: '🏠' },
@@ -14,7 +16,7 @@ const SERVICES = [
   { key: 'other',       label: 'Something else',    icon: '💬' },
 ]
 
-export default function ContactUs() {
+export default function ContactUs({ pageSeo }: { pageSeo: PageSeoPublic | null }) {
   const [service, setService] = useState('')
   const [form, setForm] = useState({ firstName: '', lastName: '', phone: '', email: '', message: '' })
   const [loading, setLoading] = useState(false)
@@ -54,9 +56,16 @@ export default function ContactUs() {
   return (
     <>
       <SeoHead
-        title="Contact Houznext | Free Interior Design Consultation | Hyderabad"
-        description="Get in touch with Houznext for fixed-price home interiors, design ideas, the Houznext Store, and BuildLive project tracking in Hyderabad, Telangana. Free consultation, same-day callback."
+        title={
+          pageSeo?.metaTitle ??
+          'Contact Houznext | Free Interior Design Consultation | Hyderabad'
+        }
+        description={
+          pageSeo?.metaDescription ??
+          'Get in touch with Houznext for fixed-price home interiors, design ideas, the Houznext Store, and BuildLive project tracking in Hyderabad, Telangana. Free consultation, same-day callback.'
+        }
         canonical="/contact-us"
+        ogImage={pageSeo?.ogImageUrl ?? undefined}
       />
       <Navbar />
       <main style={{ background: '#f5f7fa' }}>
@@ -250,4 +259,14 @@ export default function ContactUs() {
       <Footer />
     </>
   )
+}
+
+export const getStaticProps: GetStaticProps<{ pageSeo: PageSeoPublic | null }> = async () => {
+  let pageSeo: PageSeoPublic | null = null
+  try {
+    pageSeo = await fetchPageSeo('/contact-us')
+  } catch {
+    pageSeo = null
+  }
+  return { props: { pageSeo }, revalidate: 60 }
 }

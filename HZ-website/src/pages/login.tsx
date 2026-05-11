@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
+import type { GetStaticProps } from 'next'
 import SeoHead from '@/components/SeoHead'
 import LoginModal from '@/components/LoginModal'
 import { useQuoteModal } from '@/components/QuoteModal'
@@ -11,6 +12,7 @@ import {
   IconMessageCircle,
 } from '@/components/ui/Icons'
 import type { IconProps } from '@/components/ui/Icons'
+import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
 
 // ─── Feature items for the left panel ────────────────────────────────────────
 
@@ -118,17 +120,21 @@ function FeatureItem({ item }: { item: FeatureDef }) {
   )
 }
 
-export default function LoginPage() {
+export default function LoginPage({ pageSeo }: { pageSeo: PageSeoPublic | null }) {
   const router = useRouter()
   const { openModal } = useQuoteModal()
 
   return (
     <>
       <SeoHead
-        title="Login | My Home Portal | Houznext"
-        description="Login to your Houznext portal. Track your interior project live, approve designs, view payments, and manage snags from your phone."
+        title={pageSeo?.metaTitle ?? 'Login | My Home Portal | Houznext'}
+        description={
+          pageSeo?.metaDescription ??
+          'Login to your Houznext portal. Track your interior project live, approve designs, view payments, and manage snags from your phone.'
+        }
         canonical="/login"
         noIndex
+        ogImage={pageSeo?.ogImageUrl ?? undefined}
       />
       <div className="min-h-screen flex" style={{ background: '#f5f7fa' }}>
         {/* Left brand panel */}
@@ -184,4 +190,14 @@ export default function LoginPage() {
       </div>
     </>
   )
+}
+
+export const getStaticProps: GetStaticProps<{ pageSeo: PageSeoPublic | null }> = async () => {
+  let pageSeo: PageSeoPublic | null = null
+  try {
+    pageSeo = await fetchPageSeo('/login')
+  } catch {
+    pageSeo = null
+  }
+  return { props: { pageSeo }, revalidate: 300 }
 }

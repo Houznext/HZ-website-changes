@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -25,7 +26,8 @@ import { PromotionTypeEnum } from 'src/company-onboarding/Enum/company.enum';
 
 @Injectable()
 export class PaymentsService {
-  private razorpay: Razorpay;
+  /** Lazily created when `RAZORPAY_KEY_ID` + `RAZORPAY_KEY_SECRET` are set; otherwise null (app still boots). */
+  private razorpay: Razorpay | null = null;
 
   constructor(
     @InjectRepository(Payment)
@@ -46,20 +48,28 @@ export class PaymentsService {
     private readonly propertyService: PropertyService,
     private readonly plansService: PropertyPremiumPlansService,
   ) {
-    const key = process.env.RAZORPAY_KEY_ID;
-    const secret = process.env.RAZORPAY_KEY_SECRET;
+    const key = process.env.RAZORPAY_KEY_ID?.trim();
+    const secret = process.env.RAZORPAY_KEY_SECRET?.trim();
+    if (key && secret) {
+      this.razorpay = new Razorpay({
+        key_id: key,
+        key_secret: secret,
+      });
+    }
+  }
 
-
-    if (!key || !secret) {
-      throw new Error(
-        'Razorpay keys not found. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in backend .env',
+  private requireRazorpayClient(): Razorpay {
+    if (!this.razorpay) {
+      throw new ServiceUnavailableException(
+        'Razorpay is not configured. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in the backend environment to enable payments.',
       );
     }
+    return this.razorpay;
+  }
 
-    this.razorpay = new Razorpay({
-      key_id: key,
-      key_secret: secret,
-    });
+  /** True when checkout / order creation against Razorpay is possible. */
+  isRazorpayEnabled(): boolean {
+    return this.razorpay != null;
   }
 
   // CREATE PAYMENT SESSION
@@ -82,8 +92,9 @@ export class PaymentsService {
     });
 
     if (existingPending) {
+      this.requireRazorpayClient();
       return {
-        key: process.env.RAZORPAY_KEY,
+        key: process.env.RAZORPAY_KEY ?? process.env.RAZORPAY_KEY_ID,
         amount: Number(existingPending.amount) * 100,
         currency: existingPending.currency,
         order_id: existingPending.providerOrderId,
@@ -92,7 +103,7 @@ export class PaymentsService {
 
     const amountToPay = Number(order.amountDue);
 
-    const rzOrder = await this.razorpay.orders.create({
+    const rzOrder = await this.requireRazorpayClient().orders.create({
       amount: Math.round(amountToPay * 100),
       currency: order.currency,
       receipt: String(order.id).slice(0, 40),
@@ -187,8 +198,15 @@ export class PaymentsService {
   async handleRazorpayWebhook(rawBody: any, signature?: string) {
     if (!signature) throw new BadRequestException('Missing webhook signature');
 
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET?.trim();
+    if (!webhookSecret) {
+      throw new ServiceUnavailableException(
+        'Razorpay webhooks are not configured. Set RAZORPAY_WEBHOOK_SECRET in the backend environment.',
+      );
+    }
+
     const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_WEBHOOK_SECRET!)
+      .createHmac('sha256', webhookSecret)
       .update(JSON.stringify(rawBody))
       .digest('hex');
 
@@ -359,7 +377,7 @@ export class PaymentsService {
       throw new BadRequestException('Invalid refund amount');
     }
 
-    await this.razorpay.payments.refund(payment.providerPaymentId!, {
+    await this.requireRazorpayClient().payments.refund(payment.providerPaymentId!, {
       amount: Math.round(refundAmount * 100),
     });
 
