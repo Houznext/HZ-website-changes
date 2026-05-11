@@ -86,6 +86,8 @@ import { SiteCmsModule } from './site-cms/site-cms.module';
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
+      // Env is loaded in `main.ts` from project root; avoid a second implicit `.env` load from cwd only.
+      ignoreEnvFile: true,
     }),
     TypeOrmModule.forRoot({
       ...dataSourceOptions,

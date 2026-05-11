@@ -17,6 +17,7 @@ import { InvoiceEstimator } from './entities/invoice-estimator.entity';
 import { CustomBuilder } from 'src/livebuild/entities/custom-builder.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
 import { RequestUser } from 'src/guard';
+import { MailerService } from 'src/sendEmail.service';
 
 @Injectable()
 export class InvoiceEstimatorService {
@@ -34,9 +35,13 @@ export class InvoiceEstimatorService {
     private readonly branchRepository: Repository<Branch>,
 
     private notificationService: NotificationService,
+    private readonly mailerService: MailerService,
   ) { }
 
-  async create(dto: CreateInvoiceEstimatorDto): Promise<InvoiceEstimator> {
+  async create(
+    dto: CreateInvoiceEstimatorDto,
+    actor?: RequestUser,
+  ): Promise<InvoiceEstimator> {
     try {
       const { userId, customBuilderId, branchId } = dto;
 
@@ -74,7 +79,22 @@ export class InvoiceEstimatorService {
         branch,
       });
 
-      return await this.invoiceEstimatorRepository.save(invoice);
+      const saved = await this.invoiceEstimatorRepository.save(invoice);
+      try {
+        await this.mailerService.notifyAdminsInvoiceAdminPanel({
+          action: 'created',
+          invoiceId: saved.id,
+          invoiceNumber: saved.invoiceNumber,
+          billToName: saved.billToName,
+          actorName: actor?.fullName ?? actor?.email ?? null,
+        });
+      } catch (e) {
+        console.error(
+          'InvoiceEstimator create: admin email failed (invoice saved):',
+          e instanceof Error ? e.message : e,
+        );
+      }
+      return saved;
     } catch (error) {
       console.error('Error creating InvoiceEstimator:', error);
       throw error;
@@ -234,7 +254,7 @@ export class InvoiceEstimatorService {
     }
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, actor?: RequestUser): Promise<void> {
     try {
       const invoiceEstimator = await this.invoiceEstimatorRepository.findOne({
         where: { id },
@@ -243,6 +263,21 @@ export class InvoiceEstimatorService {
 
       if (!invoiceEstimator) {
         throw new BadRequestException(`Estimation not found with id: ${id}`);
+      }
+
+      try {
+        await this.mailerService.notifyAdminsInvoiceAdminPanel({
+          action: 'deleted',
+          invoiceId: invoiceEstimator.id,
+          invoiceNumber: invoiceEstimator.invoiceNumber,
+          billToName: invoiceEstimator.billToName,
+          actorName: actor?.fullName ?? actor?.email ?? null,
+        });
+      } catch (e) {
+        console.error(
+          'InvoiceEstimator delete: admin email failed (continuing delete):',
+          e instanceof Error ? e.message : e,
+        );
       }
 
       const user = await this.userRepository.findOne({

@@ -68,7 +68,11 @@ export class MailerService {
       html,
     };
 
-    return this.transporter.sendMail(mailOptions);
+    return this.transporter.sendMail(mailOptions).catch((err: unknown) => {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[Mailer] Failed to send mail to ${to}:`, msg);
+      throw err;
+    });
   }
 
   async sendUserConfirmationEmail(property: Property, user: User) {
@@ -265,7 +269,7 @@ export class MailerService {
       <body style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #333; background-color: #e9edf8;">
         <div style="max-width: 680px; margin: 40px auto; padding: 40px; background-color: #bfdbfe; border-radius: 8px;">
           <h2>🗑️ Cost Estimator Deleted</h2>
-          <p>Cost Estimator <strong>${estimatorFirstName}</strong>  with ID <strong>${deletedEstimatorId}</strong> was deleted by <strong>${deletedBy. username}</strong> on ${formattedDate}.</p>
+          <p>Quotation / cost estimate <strong>${estimatorFirstName}</strong> with ID <strong>${deletedEstimatorId}</strong> was deleted by <strong>${deletedBy.username}</strong> on ${formattedDate}.</p>
         </div>
       </body>
     </html>
@@ -277,9 +281,90 @@ export class MailerService {
     for (const email of adminEmails) {
       await this.sendMail(
         email,
-        'Cost Estimator Deleted',
-        `Estimator  ${estimatorFirstName} ID ${deletedEstimatorId} deleted by ${deletedBy.username}`,
+        'Quotation deleted (admin)',
+        `Quotation ${estimatorFirstName} ID ${deletedEstimatorId} deleted by ${deletedBy.username}`,
         populatedTemplate,
+      );
+    }
+  }
+
+  async notifyAdminsQuotationCreated(params: {
+    id: string;
+    quotationNumber: number | null | undefined;
+    customerFirstName?: string | null;
+    postedByName?: string | null;
+  }): Promise<void> {
+    const qn =
+      params.quotationNumber != null
+        ? `QT-${String(params.quotationNumber).padStart(4, '0')}`
+        : '—';
+    const when = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+    const html = `
+    <html>
+      <body style="font-family: system-ui, sans-serif; font-size: 14px; color: #1f2933;">
+        <div style="max-width: 640px; margin: 24px auto; padding: 24px; border: 1px solid #dbe4f1; border-radius: 10px;">
+          <h2 style="margin: 0 0 12px;">New quotation (admin)</h2>
+          <p style="margin: 0 0 8px;">A new cost estimate / quotation was created from the admin panel.</p>
+          <ul style="margin: 0; padding-left: 18px;">
+            <li><strong>Quotation #:</strong> ${qn}</li>
+            <li><strong>Record ID:</strong> ${params.id}</li>
+            <li><strong>Customer (first name):</strong> ${params.customerFirstName ?? '—'}</li>
+            <li><strong>Created by:</strong> ${params.postedByName ?? '—'}</li>
+            <li><strong>Time:</strong> ${when} (IST)</li>
+          </ul>
+        </div>
+      </body>
+    </html>`;
+    const adminEmails = ['business@houznext.com'];
+    for (const email of adminEmails) {
+      await this.sendMail(
+        email,
+        `New quotation ${qn} — admin`,
+        `New quotation ${qn} (id ${params.id}) created in admin.`,
+        html,
+      );
+    }
+  }
+
+  async notifyAdminsInvoiceAdminPanel(params: {
+    action: 'created' | 'deleted';
+    invoiceId: string;
+    invoiceNumber: string;
+    billToName: string;
+    actorName?: string | null;
+  }): Promise<void> {
+    const when = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+    const verb =
+      params.action === 'created'
+        ? 'created'
+        : 'deleted';
+    const html = `
+    <html>
+      <body style="font-family: system-ui, sans-serif; font-size: 14px; color: #1f2933;">
+        <div style="max-width: 640px; margin: 24px auto; padding: 24px; border: 1px solid #dbe4f1; border-radius: 10px;">
+          <h2 style="margin: 0 0 12px;">Invoice ${verb} (admin)</h2>
+          <ul style="margin: 0; padding-left: 18px;">
+            <li><strong>Action:</strong> ${verb}</li>
+            <li><strong>Invoice #:</strong> ${params.invoiceNumber}</li>
+            <li><strong>Bill to:</strong> ${params.billToName}</li>
+            <li><strong>Record ID:</strong> ${params.invoiceId}</li>
+            <li><strong>Admin user:</strong> ${params.actorName ?? '—'}</li>
+            <li><strong>Time:</strong> ${when} (IST)</li>
+          </ul>
+        </div>
+      </body>
+    </html>`;
+    const adminEmails = ['business@houznext.com'];
+    const subject =
+      params.action === 'created'
+        ? `New invoice ${params.invoiceNumber} — admin`
+        : `Invoice deleted ${params.invoiceNumber} — admin`;
+    for (const email of adminEmails) {
+      await this.sendMail(
+        email,
+        subject,
+        `Invoice ${params.invoiceNumber} (${params.invoiceId}) ${verb}.`,
+        html,
       );
     }
   }

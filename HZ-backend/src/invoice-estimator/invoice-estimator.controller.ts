@@ -11,7 +11,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import {
   CreateInvoiceEstimatorDto,
   InvoiceFilterDto,
@@ -22,12 +27,14 @@ import { InvoiceEstimatorService } from './invoice-estimator.service';
 import { ControllerAuthGuard, RequestUser } from 'src/guard';
 
 @ApiTags('invoice-estimator')
+@ApiBearerAuth()
 @Controller('invoice-estimator')
 export class InvoiceEstimatorController {
   constructor(
     private readonly invoiceEstimatorService: InvoiceEstimatorService,
   ) { }
 
+  @UseGuards(ControllerAuthGuard)
   @Post()
   @ApiOperation({ summary: 'Create a new invoice estimator' })
   @ApiResponse({
@@ -38,8 +45,12 @@ export class InvoiceEstimatorController {
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   async create(
     @Body() createInvoiceEstimatorDto: CreateInvoiceEstimatorDto,
+    @Req() req: { user: RequestUser },
   ): Promise<InvoiceEstimator> {
-    return this.invoiceEstimatorService.create(createInvoiceEstimatorDto);
+    return this.invoiceEstimatorService.create(
+      createInvoiceEstimatorDto,
+      req.user,
+    );
   }
 
   @Get()
@@ -156,6 +167,7 @@ export class InvoiceEstimatorController {
     );
   }
 
+  @UseGuards(ControllerAuthGuard)
   @Put(':id')
   @ApiOperation({ summary: 'Update an invoice estimator by ID' })
   @ApiResponse({
@@ -171,6 +183,7 @@ export class InvoiceEstimatorController {
     return this.invoiceEstimatorService.update(id, updateInvoiceEstimatorDto);
   }
 
+  @UseGuards(ControllerAuthGuard)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete an invoice estimator by ID' })
   @ApiResponse({
@@ -178,7 +191,10 @@ export class InvoiceEstimatorController {
     description: 'The invoice estimator has been successfully deleted.',
   })
   @ApiResponse({ status: 404, description: 'Invoice estimator not found.' })
-  async delete(@Param('id') id: string): Promise<void> {
-    return this.invoiceEstimatorService.delete(id);
+  async delete(
+    @Param('id') id: string,
+    @Req() req: { user: RequestUser },
+  ): Promise<void> {
+    return this.invoiceEstimatorService.delete(id, req.user);
   }
 }

@@ -11,6 +11,7 @@ import { Branch } from 'src/branch/entities/branch.entity';
 
 import { NotificationModule } from 'src/notifications/notification.module';
 import { ControllerAuthGuard } from 'src/guard';
+import { MailerService } from 'src/sendEmail.service';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ControllerAuthGuard } from 'src/guard';
   providers: [
     InvoiceEstimatorService,
     ControllerAuthGuard,
+    MailerService,
   ],
 
   exports: [InvoiceEstimatorService],

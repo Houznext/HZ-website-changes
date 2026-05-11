@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+import * as fs from 'fs';
 import * as path from 'path';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -8,14 +9,31 @@ import compression from 'compression';
 import helmet from 'helmet';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
-dotenv.config({
-  path: path.resolve(
-    __dirname,
-    '..',
-    `.env.${process.env.NODE_ENV || 'development'}`,
-  ),
-});
-dotenv.config();
+/** Project root (works for `nest start` from src/ and `node dist/main.js` from dist/). */
+const rootDir = path.resolve(__dirname, '..');
+const nodeEnv = process.env.NODE_ENV || 'development';
+
+function loadEnvFile(relPath: string) {
+  const full = path.join(rootDir, relPath);
+  if (!fs.existsSync(full)) return false;
+  dotenv.config({ path: full });
+  return true;
+}
+
+// Order: mode-specific first, then base `.env` (dotenv does not override keys already set).
+loadEnvFile(`.env.${nodeEnv}.local`);
+loadEnvFile(`.env.${nodeEnv}`);
+loadEnvFile('.env.local');
+loadEnvFile('.env');
+
+if (!process.env.SMTP_PASS?.trim()) {
+  console.warn(
+    `[Env] SMTP_PASS is not set after loading env files under ${rootDir}. ` +
+      `Use file names .env.development / .env (not env.development). Keys: SMTP_USER, SMTP_PASS.`,
+  );
+} else {
+  console.log('[Env] SMTP_PASS is set (outbound mail enabled).');
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

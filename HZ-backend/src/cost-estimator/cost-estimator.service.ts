@@ -77,6 +77,20 @@ export class CostEstimatorService {
       const savedEstimator =
         await this.costEstimatorRepository.save(costEstimator);
 
+      try {
+        await this.mailerService.notifyAdminsQuotationCreated({
+          id: savedEstimator.id,
+          quotationNumber: savedEstimator.quotationNumber,
+          customerFirstName: savedEstimator.firstname,
+          postedByName: user.fullName || user.username,
+        });
+      } catch (e) {
+        console.error(
+          'CostEstimator create: admin quotation email failed (record saved):',
+          e instanceof Error ? e.message : e,
+        );
+      }
+
       // ✅ This removes all circular refs before returning
       return instanceToPlain(savedEstimator);
     } catch (error) {
