@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useSessionStore } from "@/src/stores/useSessionStore";
 import { usePermissionStore } from "@/src/stores/usePermissions";
-import { clearSessionTokenCache } from "@/src/utils/apiClient";
+import { clearSessionTokenCache } from "@/src/utils/sessionTokenCache";
 
 export default function SessionSync() {
   const { data, status } = useSession();

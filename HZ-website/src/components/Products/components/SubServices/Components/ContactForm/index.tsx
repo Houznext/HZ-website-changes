@@ -24,13 +24,23 @@ const ContactForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const normalizedName = formData.name.trim().replace(/\s+/g, " ");
+      const [firstName, ...rest] = normalizedName.split(" ");
+      const lastName = rest.join(" ").trim() || "-";
       const payload = {
-        name: formData.name,
-        phonenumber: formData.phonenumber,
-        description: formData.description,
+        firstName: firstName || "Customer",
+        lastName,
+        contactNumber: formData.phonenumber,
+        emailAddress: `noreply+service${formData.phonenumber}@houznext.com`,
+        tellUsMore: [
+          "Form type: Free consultation | Source: Service page contact form",
+          formData.description ? `Requirement: ${formData.description}` : "",
+        ]
+          .filter(Boolean)
+          .join(" | "),
         serviceType: formData.services,
       };
-      const res = await apiClient.post(apiClient.URLS.servicecustomlead, payload);
+      const res = await apiClient.post(apiClient.URLS.contact_us, payload);
 
       if (res.status === 201) {
         setShowConfirmation(true);

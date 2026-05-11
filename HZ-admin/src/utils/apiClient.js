@@ -2,6 +2,12 @@ import fetch from "isomorphic-unfetch";
 // @ts-ignore
 import merge from "lodash/merge";
 import { getSession } from "next-auth/react";
+import {
+  bearerFromSession,
+  getSessionTokenOnce,
+} from "./sessionTokenCache";
+
+export { clearSessionTokenCache } from "./sessionTokenCache";
 
 function getTokenFromStore() {
   if (typeof window === "undefined") return null;
@@ -11,53 +17,6 @@ function getTokenFromStore() {
   } catch {
     return null;
   }
-}
-
-// Dedupe session fetches: avoid multiple /api/auth/session calls when store is not yet populated
-const SESSION_CACHE_MS = 5000; // 5 seconds
-let cachedSessionToken = null;
-let cachedSessionAt = 0;
-
-/** Bust cache when SessionSync applies a new login (see SessionSync). */
-export function clearSessionTokenCache() {
-  cachedSessionToken = null;
-  cachedSessionAt = 0;
-}
-
-function bearerFromSession(session) {
-  if (!session) return null;
-  const raw =
-    session.accessToken ??
-    session.token ??
-    (session.user && session.user.token) ??
-    "";
-  const s = typeof raw === "string" ? raw.trim() : "";
-  return s.length > 0 ? s : null;
-}
-
-async function getSessionTokenOnce(options = {}) {
-  const force = Boolean(options.force);
-  const now = Date.now();
-  if (!force && cachedSessionToken && now - cachedSessionAt < SESSION_CACHE_MS) {
-    return cachedSessionToken;
-  }
-  let session = await getSession();
-  let resolved = bearerFromSession(session);
-  // NextAuth can briefly return no custom fields right after navigation/hydration.
-  if (!resolved && typeof window !== "undefined") {
-    await new Promise((r) => setTimeout(r, 120));
-    session = await getSession();
-    resolved = bearerFromSession(session);
-  }
-  // Do not cache a missing token — session may still be hydrating right after sign-in.
-  if (!resolved) {
-    cachedSessionToken = null;
-    cachedSessionAt = 0;
-    return null;
-  }
-  cachedSessionToken = resolved;
-  cachedSessionAt = now;
-  return cachedSessionToken;
 }
 
 export function encodeQueryData(data = {}) {

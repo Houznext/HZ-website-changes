@@ -79,8 +79,11 @@ export class ContactUsService {
             : digits.startsWith('91')
               ? digits
               : digits;
+        const leadLabel = savedContact.serviceType?.includes('Calculator')
+          ? 'Contact / calculator form'
+          : 'Contact / free-consultation form';
         const adminLeadMsg =
-          `*New Houznext — Contact / hero form*\n\n` +
+          `*New Houznext — ${leadLabel}*\n\n` +
           `*Name:* ${savedContact.firstName} ${savedContact.lastName}\n` +
           `*Phone:* +91 ${savedContact.contactNumber}\n` +
           `*Email:* ${savedContact.emailAddress}\n` +

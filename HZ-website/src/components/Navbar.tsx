@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { label: 'Design Ideas', href: '/design-ideas' },
   { label: 'Projects', href: '/projects' },
   { label: 'LiveBuild', href: '/buildlive' },
+  { label: 'Interiors Cost Calculator', href: '/interiors/cost-calculator' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'Blog', href: '/blog' },
   { label: 'About us', href: '/about-us' },
