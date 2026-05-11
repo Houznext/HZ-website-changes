@@ -21,11 +21,13 @@ import {
   BulkCreateLeadsDto,
   BulkSendLeadsDto,
   CreateCrmLeadDto,
+  CreateCrmLeadStatusDefinitionDto,
   FindLeadsDto,
   QueryCrmLeadDto,
   ReturnCrmLeadDto,
   UpdateCrmLeadDto,
   UpdateCrmLeadstatusDto,
+  UpdateCrmLeadStatusDefinitionDto,
 } from './dto/crm.dto';
 import { CRMLead } from './entities/crm.entity';
 
@@ -98,6 +100,34 @@ export class CrmLeadController {
     return this.crmleadservice.findLeadsByUser(req.user, dto);
   }
 
+  @Get('status-definitions')
+  @ApiOperation({ summary: 'List CRM lead status definitions (for admin pickers)' })
+  async listStatusDefinitions() {
+    return this.crmleadservice.listStatusDefinitions();
+  }
+
+  @Post('status-definitions')
+  @ApiOperation({ summary: 'Add a custom lead status' })
+  async createStatusDefinition(@Body() dto: CreateCrmLeadStatusDefinitionDto) {
+    return this.crmleadservice.createStatusDefinition(dto);
+  }
+
+  @Patch('status-definitions/:defId')
+  @ApiOperation({ summary: 'Update label/sort (or value for custom statuses)' })
+  async updateStatusDefinition(
+    @Param('defId') defId: string,
+    @Body() dto: UpdateCrmLeadStatusDefinitionDto,
+  ) {
+    return this.crmleadservice.updateStatusDefinition(defId, dto);
+  }
+
+  @Delete('status-definitions/:defId')
+  @ApiOperation({ summary: 'Delete a custom lead status (must not be in use)' })
+  async deleteStatusDefinition(@Param('defId') defId: string) {
+    await this.crmleadservice.deleteStatusDefinition(defId);
+    return { ok: true };
+  }
+
   @Delete('bulk')
   @ApiOperation({ summary: 'Delete multiple leads (branch-scoped)' })
   @ApiResponse({
@@ -154,25 +184,6 @@ export class CrmLeadController {
   ): Promise<CRMLead> {
     return this.crmleadservice.update(id, dto, req.user);
   }
-  @Get(':id')
-@ApiOperation({ summary: 'Get a CRM lead by id (branch-scoped)' })
-@ApiResponse({
-  status: 200,
-  description: 'Return CRM lead.',
-  type: CRMLead,
-})
-@ApiResponse({
-  status: 404,
-  description: 'CRM lead not found.',
-})
-async findOne(
-  @Req() req: RequestWithUser,
-  @Param('id') id: string,
-  @Query('branchId') branchId?: string,
-): Promise<CRMLead> {
-  return this.crmleadservice.findOneById(req.user, id, branchId);
-}
-
 
   @Patch(':id/leadstatus')
   @ApiOperation({ summary: 'Update a lead status (branch-scoped)' })
@@ -242,7 +253,28 @@ async findOne(
     );
   }
 
-  // Timeline
+  @Get('overdue-count')
+  @ApiOperation({
+    summary: 'Count overdue Follow-up leads (same rules as CRM sidebar)',
+  })
+  async overdueCount(
+    @Req() req: RequestWithUser,
+    @Query('userId') userId: string,
+    @Query('branchId') branchId: string,
+  ) {
+    return this.crmleadservice.countOverdueFollowUps(req.user, userId, branchId);
+  }
+
+  @Get('activity')
+  @ApiOperation({ summary: 'Recent CRM status activity in a branch (dashboard feed)' })
+  async activity(
+    @Req() req: RequestWithUser,
+    @Query('branchId') branchId?: string,
+  ) {
+    return this.crmleadservice.getBranchActivityFeed(req.user, branchId);
+  }
+
+  // Timeline — must be registered before bare `:id` so paths are not swallowed as UUIDs.
   @Get(':id/timeline')
   @ApiOperation({ summary: 'Get lead timeline (branch-scoped)' })
   async getTimeline(
@@ -251,5 +283,24 @@ async findOne(
     @Query('branchId') branchId?: string,
   ) {
     return this.crmleadservice.getTimeline(req.user, id, branchId);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get a CRM lead by id (branch-scoped)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return CRM lead.',
+    type: CRMLead,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'CRM lead not found.',
+  })
+  async findOne(
+    @Req() req: RequestWithUser,
+    @Param('id') id: string,
+    @Query('branchId') branchId?: string,
+  ): Promise<CRMLead> {
+    return this.crmleadservice.findOneById(req.user, id, branchId);
   }
 }

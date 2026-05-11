@@ -51,6 +51,14 @@ export class MailerService {
     return template.replace(/\$\{(.*?)\}/g, (_, key) => data[key] || '');
   }
 
+  private escapeHtml(s: string): string {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
   async sendMail(to: string, subject: string, text: string, html: string) {
     const pass = process.env.SMTP_PASS?.trim();
     if (!pass) {
@@ -199,6 +207,75 @@ export class MailerService {
       );
     }
   }
+
+  /**
+   * Sent after a CRM lead is deleted from the admin app.
+   * Recipients: `CRM_LEAD_DELETE_NOTIFY_EMAIL` (comma-separated), else `SMTP_USER`, else business@houznext.com.
+   */
+  async notifyCrmLeadDeleted(
+    lead: CRMLead,
+    deletedBy: { email?: string; fullName?: string },
+  ): Promise<void> {
+    const raw =
+      process.env.CRM_LEAD_DELETE_NOTIFY_EMAIL?.trim() ||
+      process.env.SMTP_USER?.trim() ||
+      'business@houznext.com';
+    const recipients = Array.from(
+      new Set(
+        raw
+          .split(/[,;]+/)
+          .map((e) => e.trim())
+          .filter(Boolean),
+      ),
+    );
+
+    const assignee =
+      lead.assignedTo && typeof (lead.assignedTo as User).fullName === 'string'
+        ? (lead.assignedTo as User).fullName
+        : '—';
+
+    const cityState = [lead.city, lead.state].filter(Boolean).join(', ') || '—';
+
+    const rows: [string, string][] = [
+      ['Name', lead.Fullname || '—'],
+      ['Lead ID', String(lead.id)],
+      ['Phone', lead.Phonenumber || '—'],
+      ['Email', lead.email || '—'],
+      ['Status', String(lead.leadstatus || '—')],
+      ['Service', String(lead.serviceType || '—')],
+      ['Property type', String(lead.propertytype || '—')],
+      ['BHK', lead.bhk || '—'],
+      ['City / State', cityState],
+      ['Platform', String(lead.platform || '—')],
+      ['Assigned to', assignee],
+    ];
+
+    const tableHtml = rows
+      .map(
+        ([k, v]) =>
+          `<tr><td style="padding:8px;border-bottom:1px solid #f1f5f9;font-weight:600;width:140px;">${this.escapeHtml(k)}</td><td style="padding:8px;border-bottom:1px solid #f1f5f9;">${this.escapeHtml(v)}</td></tr>`,
+      )
+      .join('');
+
+    const who = deletedBy.fullName || deletedBy.email || 'an admin user';
+    const html = `<html><body style="font-family:system-ui,sans-serif;font-size:14px;color:#1f2933;">
+<div style="max-width:640px;margin:24px auto;padding:24px;border:1px solid #e2e8f0;border-radius:10px;">
+<h2 style="margin:0 0 12px;">CRM lead deleted</h2>
+<p style="margin:0 0 16px;">The following lead was removed from the CRM by <strong>${this.escapeHtml(who)}</strong>.</p>
+<table style="border-collapse:collapse;width:100%;">${tableHtml}</table>
+<p style="margin:16px 0 0;font-size:12px;color:#64748b;">${this.escapeHtml(
+      new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+    )}</p>
+</div></body></html>`;
+
+    const subject = `CRM lead deleted: ${lead.Fullname || lead.id}`;
+    const text = `Lead deleted: ${lead.Fullname} (ID ${lead.id}). Phone: ${lead.Phonenumber}. Deleted by: ${who}.`;
+
+    for (const email of recipients) {
+      await this.sendMail(email, subject, text, html);
+    }
+  }
+
   async notifyAdminsAboutContactLead(contact: ContactUs): Promise<void> {
     const populatedTemplate = this.populateTemplate(
       ADMIN_CONTACT_NOTIFICATION_TEMPLATE,

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Modal from "@/src/common/Modal";
 import Button from "@/src/common/Button";
 import apiClient from "@/src/utils/apiClient";
+import { openWhatsAppToNumber } from "@/src/utils/openWhatsAppChat";
 import { Lead, GetDateshow } from "./types";
 import LeadStatusSelect from "./LeadStatusSelect";
 import {
@@ -84,23 +85,9 @@ export default function LeadDetailsModal({
     }
   };
 
-  const handleWhatsappSend = async () => {
-    try {
-      const payload = {
-        name: lead.Fullname,
-        phone: lead.Phonenumber,
-      };
-      const res = await apiClient.post(
-        `${apiClient.URLS.whatsappSend}/document`,
-        payload,
-        true,
-      );
-      if (res.status === 201) {
-        toast.success("WhatsApp message sent successfully");
-      }
-    } catch (error) {
-      console.error("Error sending WhatsApp:", error);
-      toast.error("Failed to send WhatsApp message");
+  const handleWhatsappSend = () => {
+    if (!openWhatsAppToNumber(lead.Phonenumber)) {
+      toast.error("Add a valid phone number to open WhatsApp.");
     }
   };
 

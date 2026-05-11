@@ -14,6 +14,8 @@ import {
   IsBoolean,
   Min,
   Max,
+  MaxLength,
+  MinLength,
 } from 'class-validator';
 import {
   Categories,
@@ -159,10 +161,13 @@ export class CreateCrmLeadDto {
   @IsOptional()
   review?: string;
 
-  @ApiPropertyOptional({ enum: LeadStatus })
-  @IsEnum(LeadStatus)
+  @ApiPropertyOptional({
+    description: 'Lead status (must match a row in crm_lead_status_definition or legacy value)',
+  })
+  @IsString()
+  @MaxLength(120)
   @IsOptional()
-  leadstatus?: LeadStatus;
+  leadstatus?: string;
 
   @ApiPropertyOptional()
   @IsString()
@@ -285,10 +290,13 @@ export class UpdateCrmLeadDto {
   @IsOptional()
   pincode?: string;
 
-  @ApiPropertyOptional({ enum: LeadStatus })
-  @IsEnum(LeadStatus)
+  @ApiPropertyOptional({
+    description: 'Lead status (must match a row in crm_lead_status_definition or legacy value)',
+  })
+  @IsString()
+  @MaxLength(120)
   @IsOptional()
-  leadstatus?: LeadStatus;
+  leadstatus?: string;
 
   @ApiPropertyOptional({ type: Number })
   @Type(() => Number)
@@ -380,7 +388,7 @@ export class ReturnCrmLeadDto {
   city: string;
   state: string;
   package: string;
-  leadstatus: LeadStatus;
+  leadstatus: string;
   rooms?: RoomsDto;
   createdAt: Date;
   updatedAt?: Date;
@@ -401,10 +409,11 @@ export class ReturnCrmLeadDto {
 }
 
 export class UpdateCrmLeadstatusDto {
-  @ApiProperty()
-  @IsEnum(LeadStatus)
+  @ApiProperty({ description: 'New lead status value' })
+  @IsString()
   @IsNotEmpty()
-  leadstatus: LeadStatus;
+  @MaxLength(120)
+  leadstatus: string;
 
   @ApiProperty({
     required: false,
@@ -497,10 +506,11 @@ export class QueryCrmLeadDto {
   @IsOptional()
   limit?: number = 10;
 
-  @ApiPropertyOptional({ description: 'Filter by status', enum: LeadStatus })
-  @IsEnum(LeadStatus)
+  @ApiPropertyOptional({ description: 'Filter by status (exact value match)' })
+  @IsString()
+  @MaxLength(120)
   @IsOptional()
-  status?: LeadStatus;
+  status?: string;
 
   @ApiPropertyOptional({ description: 'Free text: name/phone/email/city' })
   @IsString()
@@ -616,4 +626,48 @@ export class BulkSendLeadsDto {
   @IsString()
   @IsOptional()
   branchId?: string;
+}
+
+export class CreateCrmLeadStatusDefinitionDto {
+  @ApiProperty({ description: 'Unique status value stored on leads' })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @MaxLength(120)
+  value: string;
+
+  @ApiPropertyOptional({ description: 'Display label (defaults to value)' })
+  @IsString()
+  @MaxLength(200)
+  @IsOptional()
+  label?: string;
+
+  @ApiPropertyOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  sortOrder?: number;
+}
+
+export class UpdateCrmLeadStatusDefinitionDto {
+  @ApiPropertyOptional({ description: 'Only allowed for non-builtin rows' })
+  @IsString()
+  @MinLength(1)
+  @MaxLength(120)
+  @IsOptional()
+  value?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @MaxLength(200)
+  @IsOptional()
+  label?: string;
+
+  @ApiPropertyOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  sortOrder?: number;
 }

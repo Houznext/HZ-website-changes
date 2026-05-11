@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { Categories, LeadStatus, PropertyTypeEnum } from '../enums/crm.enum';
+import { Categories, PropertyTypeEnum } from '../enums/crm.enum';
 import { User } from 'src/user/entities/user.entity';
 import { LeadStatusLog } from './leadStatus.entity';
 import { Branch } from 'src/branch/entities/branch.entity'; // <-- new
@@ -82,13 +82,9 @@ export class CRMLead {
   @Column({ nullable: true })
   package: string;
 
-  @Column({
-    type: 'enum',
-    enum: LeadStatus,
-    default: LeadStatus.New,
-    nullable: true,
-  })
-  leadstatus?: LeadStatus;
+  /** Free-form status string (see `crm_lead_status_definition` for allowed values in admin UI). */
+  @Column({ type: 'varchar', length: 120, nullable: true, default: 'New' })
+  leadstatus?: string;
 
   @Column({ nullable: true })
   paintArea?: string;

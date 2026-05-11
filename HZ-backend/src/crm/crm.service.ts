@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserRole } from 'src/user/enum/user.enum';
@@ -16,6 +17,7 @@ import {
 } from 'typeorm';
 
 import { CRMLead } from './entities/crm.entity';
+import { CrmLeadStatusDefinition } from './entities/crm-lead-status-definition.entity';
 import { LeadStatusLog } from './entities/leadStatus.entity';
 import { User } from 'src/user/entities/user.entity';
 
@@ -26,6 +28,8 @@ import {
   QueryCrmLeadDto,
   ReturnCrmLeadDto,
   FindLeadsDto,
+  CreateCrmLeadStatusDefinitionDto,
+  UpdateCrmLeadStatusDefinitionDto,
 } from './dto/crm.dto';
 import { LeadStatus } from './enums/crm.enum';
 
@@ -38,12 +42,14 @@ import { SmsService } from 'src/sms.service';
 import { BulkMessageChannel } from './dto/crm.dto';
 
 @Injectable()
-export class CrmLeadService {
+export class CrmLeadService implements OnModuleInit {
   constructor(
     @InjectRepository(CRMLead)
     private readonly crmRepo: Repository<CRMLead>,
     @InjectRepository(LeadStatusLog)
     private readonly logRepo: Repository<LeadStatusLog>,
+    @InjectRepository(CrmLeadStatusDefinition)
+    private readonly statusDefRepo: Repository<CrmLeadStatusDefinition>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     private readonly notificationService: NotificationService,
@@ -51,6 +57,91 @@ export class CrmLeadService {
     private readonly whatsAppService: WhatsAppMsgService,
     private readonly smsService: SmsService,
   ) {}
+
+  async onModuleInit() {
+    const count = await this.statusDefRepo.count();
+    if (count > 0) return;
+    const values = Object.values(LeadStatus);
+    let order = 0;
+    for (const value of values) {
+      await this.statusDefRepo.save(
+        this.statusDefRepo.create({
+          value,
+          label: value,
+          sortOrder: order++,
+          isBuiltin: true,
+        }),
+      );
+    }
+  }
+
+  async listStatusDefinitions(): Promise<CrmLeadStatusDefinition[]> {
+    return this.statusDefRepo.find({ order: { sortOrder: 'ASC', value: 'ASC' } });
+  }
+
+  async createStatusDefinition(
+    dto: CreateCrmLeadStatusDefinitionDto,
+  ): Promise<CrmLeadStatusDefinition> {
+    const value = dto.value.trim();
+    const dup = await this.statusDefRepo.findOne({ where: { value } });
+    if (dup) {
+      throw new ConflictException(`Status "${value}" already exists.`);
+    }
+    const row = this.statusDefRepo.create({
+      value,
+      label: (dto.label?.trim() || value).slice(0, 200),
+      sortOrder: dto.sortOrder ?? (await this.statusDefRepo.count()),
+      isBuiltin: false,
+    });
+    return this.statusDefRepo.save(row);
+  }
+
+  async updateStatusDefinition(
+    id: string,
+    dto: UpdateCrmLeadStatusDefinitionDto,
+  ): Promise<CrmLeadStatusDefinition> {
+    const row = await this.statusDefRepo.findOne({ where: { id } });
+    if (!row) throw new NotFoundException('Status definition not found');
+    if (dto.value !== undefined && dto.value.trim() !== row.value) {
+      if (row.isBuiltin) {
+        throw new BadRequestException('Cannot change value of a built-in status.');
+      }
+      const next = dto.value.trim();
+      const dup = await this.statusDefRepo.findOne({ where: { value: next } });
+      if (dup && dup.id !== id) {
+        throw new ConflictException(`Status "${next}" already exists.`);
+      }
+      const used = await this.crmRepo.count({ where: { leadstatus: row.value } });
+      if (used > 0) {
+        throw new BadRequestException(
+          'Cannot rename value while leads still use this status.',
+        );
+      }
+      row.value = next;
+    }
+    if (dto.label !== undefined) {
+      row.label = dto.label.trim().slice(0, 200) || row.value;
+    }
+    if (dto.sortOrder !== undefined) {
+      row.sortOrder = dto.sortOrder;
+    }
+    return this.statusDefRepo.save(row);
+  }
+
+  async deleteStatusDefinition(id: string): Promise<void> {
+    const row = await this.statusDefRepo.findOne({ where: { id } });
+    if (!row) throw new NotFoundException('Status definition not found');
+    if (row.isBuiltin) {
+      throw new BadRequestException('Cannot delete a built-in status.');
+    }
+    const used = await this.crmRepo.count({ where: { leadstatus: row.value } });
+    if (used > 0) {
+      throw new BadRequestException(
+        'Cannot delete a status that is still assigned to leads.',
+      );
+    }
+    await this.statusDefRepo.remove(row);
+  }
 
   
 
@@ -94,7 +185,7 @@ export class CrmLeadService {
 
   private async appendStatusLog(
     leadId: string,
-    status: LeadStatus,
+    status: string,
     branchId: string,
     opts?: { at?: Date; changedById?: string; changeReason?: string },
   ) {
@@ -475,6 +566,66 @@ export class CrmLeadService {
     });
   }
 
+  /** Follow-ups past due date while still in Follow-up (matches admin CRM sidebar rules). */
+  async countOverdueFollowUps(
+    currentUser: RequestUser,
+    userId: string,
+    branchId: string,
+  ): Promise<{ count: number }> {
+    if (!userId?.trim() || !branchId?.trim()) {
+      throw new BadRequestException('userId and branchId are required.');
+    }
+    const leads = await this.findLeadsByUser(currentUser, { userId, branchId });
+    const now = new Date();
+    const count = leads.filter((l) => {
+      if (!l.followUpDate) return false;
+      return (
+        new Date(l.followUpDate) < now &&
+        String(l.leadstatus) === LeadStatus.Follow_up
+      );
+    }).length;
+    return { count };
+  }
+
+  /** Recent status changes in the branch for dashboard activity (newest first). */
+  async getBranchActivityFeed(
+    currentUser: RequestUser,
+    branchId?: string,
+  ): Promise<{ items: { id: string; text: string; at: string; icon: string }[] }> {
+    const resolvedBranch =
+      branchId?.trim() ||
+      currentUser.branchMembership?.branchId ||
+      currentUser.activeBranchId;
+    if (!resolvedBranch) {
+      throw new BadRequestException('branchId is required for activity feed.');
+    }
+    const { effectiveBranchId } = this.getRoleContext(
+      currentUser,
+      resolvedBranch,
+    );
+    const bid = effectiveBranchId ?? resolvedBranch;
+
+    const logs = await this.logRepo.find({
+      where: { branchId: bid },
+      relations: ['lead', 'changedBy'],
+      order: { changedAt: 'DESC' },
+      take: 24,
+    });
+
+    const items = logs.map((log) => {
+      const lead = log.lead as CRMLead | undefined;
+      const text = lead?.Fullname
+        ? `${lead.Fullname} → ${log.status}`
+        : `Status → ${log.status}`;
+      const at =
+        log.changedAt instanceof Date
+          ? log.changedAt.toISOString()
+          : String(log.changedAt ?? new Date().toISOString());
+      return { id: String(log.id), text, at, icon: '📌' };
+    });
+    return { items };
+  }
+
   async findOne(id: string, branchId: string): Promise<CRMLead> {
     const lead = await this.crmRepo.findOne({
       where: { id, branchId },
@@ -493,9 +644,24 @@ export class CrmLeadService {
   ): Promise<void> {
     const { effectiveBranchId } = this.getRoleContext(currentUser, branchId);
 
-    const lead = await this.crmRepo.findOne({ where: { id } });
+    const lead = await this.crmRepo.findOne({
+      where: { id },
+      relations: ['assignedTo'],
+    });
     this.ensureBranchMatch(lead, effectiveBranchId);
     await this.crmRepo.delete(id);
+
+    try {
+      await this.mailerService.notifyCrmLeadDeleted(lead, {
+        email: currentUser.email,
+        fullName: currentUser.fullName,
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.warn(
+        `[CRM] Lead ${id} deleted but delete notification email failed: ${msg}`,
+      );
+    }
   }
 
   async deleteMoreLeads(
@@ -718,7 +884,7 @@ export class CrmLeadService {
 
     if (
       [LeadStatus.Follow_up, LeadStatus.SiteVisit, LeadStatus.Interested].includes(
-        updated.leadstatus,
+        updated.leadstatus as LeadStatus,
       )
     ) {
       const formatted = formatDate(dateToFormat);

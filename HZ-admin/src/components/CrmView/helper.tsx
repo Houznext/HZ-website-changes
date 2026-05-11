@@ -175,16 +175,6 @@ export const statesOptions = ["Andhra Pradesh", "Telangana", "Maharastra", "Karn
 export const categoryData = [
   { id: 1, role: "RealEstate" },
   { id: 2, role: "Interiors" },
-  { id: 3, role: "CustomBuilder" },
-  { id: 4, role: "Solar" },
-  { id: 5, role: "PackersAndMovers" },
-  { id: 6, role: "Painting" },
-  { id: 7, role: "Plumber" },
-  { id: 8, role: "EarthMovers" },
-  { id: 9, role: "Home Decor" },
-  { id: 10, role: "Furniture" },
-  { id: 11, role: "Civil Engineering Design" },
-  { id: 12, role: "Vaastu Consultation" },
 ];
 export const propertytypedata = [
   { id: 1, propertytype: "Flat" },

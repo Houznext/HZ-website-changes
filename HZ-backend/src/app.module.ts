@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { runPreTypeOrmSynchronizePatches } from '../db/preTypeOrmSyncPatches';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
@@ -89,13 +90,19 @@ import { SiteCmsModule } from './site-cms/site-cms.module';
       // Env is loaded in `main.ts` from project root; avoid a second implicit `.env` load from cwd only.
       ignoreEnvFile: true,
     }),
-    TypeOrmModule.forRoot({
-      ...dataSourceOptions,
-      autoLoadEntities: true,
-      synchronize: true,
-      logging: false,
-      migrations: [],
-      migrationsRun: false,
+    TypeOrmModule.forRootAsync({
+      useFactory: async () => {
+        const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+        await runPreTypeOrmSynchronizePatches(url);
+        return {
+          ...dataSourceOptions,
+          autoLoadEntities: true,
+          synchronize: true,
+          logging: false,
+          migrations: [],
+          migrationsRun: false,
+        };
+      },
     }),
     ScheduleModule.forRoot(),
     RealtimeModule,

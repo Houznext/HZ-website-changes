@@ -33,7 +33,7 @@ type NavLink = {
   href: string;
   label: string;
   icon: React.ElementType;
-  badgeKey?: "buildlive" | "blog" | "ga4";
+  badgeKey?: "buildlive" | "blog" | "ga4" | "crmOverdue";
 };
 
 function NavCalculatorLeadsIcon(props: { className?: string }) {
@@ -147,7 +147,7 @@ const NAV_STRUCTURE: NavItem[] = [
   { section: "LiveBuild" },
   { custom: "livebuild" },
   { section: "CRM" },
-  { href: "/crm",                label: "CRM Leads",     icon: MessageSquare },
+  { href: "/crm",                label: "CRM Leads",     icon: MessageSquare, badgeKey: "crmOverdue" },
   { href: "/generalenquires",    label: "Enquiries",     icon: Inbox },
   { href: "/calculator-leads",   label: "Calculator Leads", icon: NavCalculatorLeadsIcon },
   { section: "Settings" },
@@ -172,7 +172,7 @@ const badgeStyles: Record<BadgeColor, string> = {
 export default function Sidebar() {
   const router = useRouter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const { activeLiveCount, regularBlogCount, ga4Live } = useSidebarBadges();
+  const { activeLiveCount, regularBlogCount, ga4Live, crmOverdueCount } = useSidebarBadges();
 
   /** Resolve dynamic badge text + color for a given badgeKey */
   const resolveBadge = (
@@ -197,6 +197,16 @@ export default function Sidebar() {
       return ga4Live
         ? { text: "Live", color: "blue" }
         : { text: "Not live", color: "slate" };
+    }
+
+    if (key === "crmOverdue") {
+      if (crmOverdueCount > 0) {
+        return {
+          text: `${crmOverdueCount} overdue`,
+          color: "red",
+        };
+      }
+      return null;
     }
 
     return null;

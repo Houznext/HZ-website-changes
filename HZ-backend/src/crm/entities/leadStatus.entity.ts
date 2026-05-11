@@ -7,7 +7,6 @@ import {
   Index,
 } from 'typeorm';
 import { CRMLead } from './crm.entity';
-import { LeadStatus } from '../enums/crm.enum';
 import { User } from 'src/user/entities/user.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
 
@@ -21,11 +20,9 @@ export class LeadStatusLog {
   @ManyToOne(() => CRMLead, (lead) => lead.statusLogs, { onDelete: 'CASCADE' })
   lead: CRMLead;
 
-  @Column({
-    type: 'enum',
-    enum: LeadStatus,
-  })
-  status: LeadStatus;
+  /** Stored value must match `crm.leadstatus` / status definitions; default avoids NULL during schema sync. */
+  @Column({ type: 'varchar', length: 120, default: 'New' })
+  status: string;
 
   @CreateDateColumn({
     type: 'timestamptz',

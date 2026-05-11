@@ -26,6 +26,10 @@ interface LeadFormDrawerProps {
   formData: any;
   setFormData: any;
   branchOptions: any;
+  /** Centered modal instead of right drawer (Interiors CRM quick add). */
+  presentation?: "drawer" | "modal";
+  /** When creating from modal, optional post-create assign (same API as LeadsOverview). */
+  staffOptions?: { id: string; name: string }[];
 }
 
 interface FormData {
@@ -45,6 +49,7 @@ interface FormData {
   areaName?: string;
   pincode?: string;
   isFuturePotential?: boolean;
+  followUpDate?: string;
 }
 
 export default function LeadFormDrawer({
@@ -55,11 +60,14 @@ export default function LeadFormDrawer({
   setFormData,
   formData,
   branchOptions,
+  presentation = "drawer",
+  staffOptions,
 }: LeadFormDrawerProps) {
   const session = useSession();
   const user = session?.data?.user;
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [assignAfterCreateUserId, setAssignAfterCreateUserId] = useState("");
   const membership =
   (session?.data?.user as any)?.branchMemberships?.find((m: any) => m.isPrimary) ||
   (session?.data?.user as any)?.branchMemberships?.[0];
@@ -105,7 +113,10 @@ const canShowBranchFilter =
           apartmentName: res.body.apartmentName || "",
           areaName: res.body.areaName || "",
           pincode: res.body.pincode || "",
-          branchId: res.body.branchId || ""
+          branchId: res.body.branchId || "",
+          followUpDate: res.body.followUpDate
+            ? String(res.body.followUpDate).slice(0, 16)
+            : "",
         });
       }
     } catch (error) {
@@ -201,6 +212,9 @@ const canShowBranchFilter =
         branchId: branchIdToSend,
         isFuturePotential: formData.isFuturePotential ?? false,
         createdById: (user as any)?.id,
+        ...(formData.followUpDate?.trim()
+          ? { followUpDate: formData.followUpDate.trim() }
+          : {}),
       };
 
       let res;
@@ -221,11 +235,23 @@ const canShowBranchFilter =
       }
 
       if (res.status === 200 || res.status === 201) {
+        const saved = res.body as Lead;
+        if (!leadId && assignAfterCreateUserId && saved?.id) {
+          try {
+            await apiClient.post(
+              `${apiClient.URLS.crmlead}/assign/${saved.id}/${assignAfterCreateUserId}/3`,
+              true,
+            );
+          } catch {
+            toast.error("Lead saved but assign failed");
+          }
+        }
         toast.success(
           leadId ? "Lead updated successfully!" : "Lead created successfully!"
         );
-        onSuccess(res.body);
+        onSuccess(saved);
         resetForm();
+        setAssignAfterCreateUserId("");
       }
     } catch (error: any) {
       console.error("Error saving lead:", error);
@@ -254,20 +280,12 @@ const canShowBranchFilter =
 
   const handleClose = () => {
     resetForm();
+    setAssignAfterCreateUserId("");
     onClose();
   };
 
-  return (
-    <Drawer
-      open={open}
-      handleDrawerToggle={handleClose}
-      closeIconCls="text-slate-500 hover:text-slate-800"
-      openVariant="right"
-      rootCls="z-[99999999]"
-      panelCls="w-[95%] md:w-[80%] lg:w-[calc(82%-190px)] shadow-2xl z-[9999999]"
-      overLayCls="bg-slate-900/60 backdrop-blur-sm"
-    >
-      <div className="flex flex-col h-full">
+  const panel = (
+      <div className="flex flex-col h-full max-h-[90vh]">
         {/* Header */}
         <div className="sticky top-0 bg-white z-10 border-b border-slate-100 px-6 py-5">
           <div className="flex items-center justify-between">
@@ -620,6 +638,42 @@ const canShowBranchFilter =
                 </div>
               </div>
             </div>
+
+            {presentation === "modal" && (
+              <div className="px-6 pb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="mb-1.5 inline-block text-[13px] font-semibold text-slate-700">
+                    Follow-up date / time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    name="followUpDate"
+                    value={formData.followUpDate || ""}
+                    onChange={handleInputChange}
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-[13px] text-slate-800"
+                  />
+                </div>
+                {staffOptions && staffOptions.length > 0 && !leadId ? (
+                  <div>
+                    <label className="mb-1.5 inline-block text-[13px] font-semibold text-slate-700">
+                      Assign to
+                    </label>
+                    <select
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-[13px] text-slate-800 bg-white"
+                      value={assignAfterCreateUserId}
+                      onChange={(e) => setAssignAfterCreateUserId(e.target.value)}
+                    >
+                      <option value="">— Optional —</option>
+                      {staffOptions.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : null}
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}
@@ -662,6 +716,39 @@ const canShowBranchFilter =
           </div>
         </form>
       </div>
+  );
+
+  if (presentation === "modal") {
+    if (!open) return null;
+    return (
+      <div
+        className="fixed inset-0 z-[99999999] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 transition-opacity duration-200"
+        role="presentation"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) handleClose();
+        }}
+      >
+        <div
+          className="w-full max-w-[620px] max-h-[90vh] overflow-hidden rounded-xl bg-white shadow-2xl border border-[#e2e8f0] transition-all duration-200"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {panel}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Drawer
+      open={open}
+      handleDrawerToggle={handleClose}
+      closeIconCls="text-slate-500 hover:text-slate-800"
+      openVariant="right"
+      rootCls="z-[99999999]"
+      panelCls="w-[95%] md:w-[80%] lg:w-[calc(82%-190px)] shadow-2xl z-[9999999]"
+      overLayCls="bg-slate-900/60 backdrop-blur-sm"
+    >
+      {panel}
     </Drawer>
   );
 }

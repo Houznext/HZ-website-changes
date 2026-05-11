@@ -14,6 +14,7 @@ import { CSVLink } from "react-csv";
 import { LuDownload } from "react-icons/lu";
 import { Delete } from "@mui/icons-material";
 import apiClient from "@/src/utils/apiClient";
+import { openWhatsAppToNumber } from "@/src/utils/openWhatsAppChat";
 import LeadTimelineStepper from "./LeadTimelineStepper";
 import toast from "react-hot-toast";
 import Papa from "papaparse";
@@ -757,28 +758,9 @@ export default function CrmView() {
   const handleuserMenuClose = () => {
     setAnchor(null);
   };
-  const handleWhatsappSend = async (name: string, phone: string) => {
-    setLoading(true);
-    try {
-      const payload = {
-        name: name,
-        phone: phone,
-      };
-      const res = await apiClient.post(
-        `${apiClient.URLS.whatsappSend}/document `,
-        {
-          ...payload,
-        },
-        true
-      );
-      if (res.status === 201) {
-        toast.success("whatsapp send successfully");
-        setLoading(false);
-      }
-    } catch (error) {
-      console.log("error occuured while whatsapp ", error);
-      toast.error("error occuured while whatsapp");
-      setLoading(false);
+  const handleWhatsappSend = (_name: string, phone: string) => {
+    if (!openWhatsAppToNumber(phone)) {
+      toast.error("Invalid or missing phone number for WhatsApp.");
     }
   };
   type LeadStatusPayload = {
