@@ -318,6 +318,18 @@ export class OtpService {
     };
   }
 
+  /** Validates phone OTP and deletes the OTP row (no token issued). */
+  async consumePhoneOtpIfValid(phone: string, otp: string): Promise<void> {
+    const existingOtp = await this.otpRepository.findOne({ where: { phone } });
+    if (!existingOtp) {
+      throw new UnauthorizedException('No OTP found for this phone number.');
+    }
+    if (existingOtp.otp !== otp) {
+      throw new UnauthorizedException('Invalid OTP.');
+    }
+    await this.otpRepository.remove(existingOtp);
+  }
+
   private mapToReturnUserDto(user: User): ReturnUserDto {
     const {
       id,

@@ -6,8 +6,10 @@ import React, {
 export interface CustomerUser {
   id: string
   name: string
-  mobile: string
   token: string
+  /** Present after mobile OTP or linked phone; quotations/invoices use this. */
+  mobile?: string | null
+  email?: string | null
 }
 
 interface CustomerAuthContextValue {
@@ -16,6 +18,7 @@ interface CustomerAuthContextValue {
   isLoading: boolean
   loginSuccess: (user: CustomerUser) => void
   updateCustomerName: (name: string) => void
+  updateCustomerMobile: (mobile: string) => void
   logout: () => void
 }
 
@@ -25,6 +28,7 @@ const CustomerAuthContext = createContext<CustomerAuthContextValue>({
   isLoading: true,
   loginSuccess: () => {},
   updateCustomerName: () => {},
+  updateCustomerMobile: () => {},
   logout: () => {},
 })
 
@@ -38,8 +42,15 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
       const id = localStorage.getItem('hz_customer_id')
       const name = localStorage.getItem('hz_customer_name')
       const mobile = localStorage.getItem('hz_customer_mobile')
-      if (token && id && mobile) {
-        setCustomer({ id, name: name ?? '', mobile, token })
+      const email = localStorage.getItem('hz_customer_email')
+      if (token && id) {
+        setCustomer({
+          id,
+          name: name ?? '',
+          token,
+          mobile: mobile && mobile.length > 0 ? mobile : null,
+          email: email && email.length > 0 ? email : null,
+        })
       }
     } catch {
       // ignore
@@ -52,7 +63,16 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
       localStorage.setItem('hz_customer_token', user.token)
       localStorage.setItem('hz_customer_id', user.id)
       localStorage.setItem('hz_customer_name', user.name)
-      localStorage.setItem('hz_customer_mobile', user.mobile)
+      if (user.mobile && String(user.mobile).trim()) {
+        localStorage.setItem('hz_customer_mobile', String(user.mobile).trim())
+      } else {
+        localStorage.removeItem('hz_customer_mobile')
+      }
+      if (user.email && String(user.email).trim()) {
+        localStorage.setItem('hz_customer_email', String(user.email).trim().toLowerCase())
+      } else {
+        localStorage.removeItem('hz_customer_email')
+      }
     } catch {
       // ignore
     }
@@ -65,6 +85,7 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
       localStorage.removeItem('hz_customer_id')
       localStorage.removeItem('hz_customer_name')
       localStorage.removeItem('hz_customer_mobile')
+      localStorage.removeItem('hz_customer_email')
     } catch {
       // ignore
     }
@@ -85,16 +106,35 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
     })
   }, [])
 
+  const updateCustomerMobile = useCallback((mobile: string) => {
+    const normalized = mobile.replace(/\D/g, '').slice(-10)
+    setCustomer((prev) => {
+      if (!prev) return prev
+      const next = { ...prev, mobile: normalized || null }
+      try {
+        if (normalized) {
+          localStorage.setItem('hz_customer_mobile', normalized)
+        } else {
+          localStorage.removeItem('hz_customer_mobile')
+        }
+      } catch {
+        // ignore
+      }
+      return next
+    })
+  }, [])
+
   const value = useMemo(
     () => ({
       customer,
-      isLoggedIn: !!customer,
+      isLoggedIn: !!(customer?.token && customer?.id),
       isLoading,
       loginSuccess,
       updateCustomerName,
+      updateCustomerMobile,
       logout,
     }),
-    [customer, isLoading, loginSuccess, updateCustomerName, logout],
+    [customer, isLoading, loginSuccess, updateCustomerName, updateCustomerMobile, logout],
   )
 
   return (

@@ -16,7 +16,7 @@ export class Customer extends BaseEntity {
   @Column({ type: 'varchar', unique: true, nullable: true })
   mobile: string | null;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'varchar', unique: true, nullable: true })
   email: string | null;
 
   @Column({ type: 'varchar', nullable: true })

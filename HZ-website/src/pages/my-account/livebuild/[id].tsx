@@ -21,8 +21,7 @@ export default function LivebuildDetailPage() {
   useEffect(() => {
     if (!customer || !id || Array.isArray(id)) return
     Promise.all([
-      fetch(`${API}/interiors/projects/${id}`, { headers: { Authorization: `Bearer ${customer.token}` } }),
-      fetch(`${API}/invoice-estimator/by-mobile/${customer.mobile}`),
+      fetch(`${API}/interiors/projects/${id}`, { headers: { Authorization: `Bearer ${customer.token}` } } ),
     ])
       .then(async ([pRes]) => {
         if (!pRes.ok) throw new Error('Project not found')

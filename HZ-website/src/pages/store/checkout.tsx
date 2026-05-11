@@ -106,7 +106,7 @@ function CheckoutPage() {
       <div style={{ background: '#fff', border: '1px solid #dde8f5', borderRadius: 12, padding: 14 }}>
         <h1 style={{ fontSize: 24, fontWeight: 800 }}>Checkout</h1>
         <div style={{ marginTop: 10 }}>Name: {customer?.name}</div>
-        <div>Mobile: {customer?.mobile}</div>
+        <div>Contact: {customer?.mobile?.trim() || customer?.email || '—'}</div>
         <textarea value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Delivery address" style={{ marginTop: 10, width: '100%', minHeight: 88, border: '1px solid #dde8f5', borderRadius: 10, padding: 10, fontSize: 13 }} />
         <div style={{ marginTop: 10, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           {(['RAZORPAY', 'EMI', 'COD'] as const).map((m) => (

@@ -11,6 +11,7 @@ import { HiOutlineBriefcase } from "react-icons/hi";
 import Drawer from "@/common/Drawer";
 import DeleteAccount from "../DeleteAccount";
 import toast from "react-hot-toast";
+import { useSession } from "next-auth/react";
 import { useAuthUser } from "@/utils/useAuthUser";
 import { deleteFile, uploadFile } from "@/utils/uploadFile";
 import BackRoute from "@/common/BackRoute";
@@ -40,6 +41,7 @@ export interface IUser {
 
 export default function ProfileView() {
   const [userData, setUserData] = useState<IUser | null>(null);
+  const { update: updateSession } = useSession();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "hr">("profile");
   const [uploadLoading, setUploadLoading] = useState(false);
@@ -70,6 +72,9 @@ export default function ProfileView() {
 
   // Modal States
   const [editPersonalModal, setEditPersonalModal] = useState(false);
+  const [pendingProfilePhone, setPendingProfilePhone] = useState("");
+  const [profilePhoneOtp, setProfilePhoneOtp] = useState("");
+  const [profilePhoneOtpBusy, setProfilePhoneOtpBusy] = useState(false);
   const [editAddressModal, setEditAddressModal] = useState(false);
   const [editPasswordModal, setEditPasswordModal] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<IAddress | null>(null);
@@ -108,6 +113,13 @@ export default function ProfileView() {
       fetchUserData();
     }
   }, [isAuthenticated, userId]);
+
+  useEffect(() => {
+    if (editPersonalModal) {
+      setPendingProfilePhone(personalInfo.phone || "");
+      setProfilePhoneOtp("");
+    }
+  }, [editPersonalModal, personalInfo.phone]);
 
   // Get initials for avatar
   const getInitials = () => {
@@ -170,7 +182,6 @@ export default function ProfileView() {
         {
           firstName: personalInfo.firstName,
           lastName: personalInfo.lastName,
-          phone: personalInfo.phone,
         },
         true
       );
@@ -183,6 +194,58 @@ export default function ProfileView() {
       toast.error(error?.body?.message || "Failed to update");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const digits10 = (v: string) => v.replace(/\D/g, "").slice(-10);
+
+  const sendProfilePhoneOtp = async () => {
+    const d = digits10(pendingProfilePhone);
+    if (!/^[6-9]\d{9}$/.test(d)) {
+      toast.error("Enter a valid 10-digit mobile number");
+      return;
+    }
+    setProfilePhoneOtpBusy(true);
+    try {
+      await apiClient.post(
+        `${apiClient.URLS.user}/profile/phone/send-otp`,
+        { phone: d },
+        true
+      );
+      toast.success("OTP sent to your phone");
+    } catch (error: any) {
+      toast.error(error?.body?.message || "Could not send OTP");
+    } finally {
+      setProfilePhoneOtpBusy(false);
+    }
+  };
+
+  const verifyProfilePhoneOtp = async () => {
+    const d = digits10(pendingProfilePhone);
+    if (!/^\d{6}$/.test(profilePhoneOtp)) {
+      toast.error("Enter the 6-digit OTP");
+      return;
+    }
+    setProfilePhoneOtpBusy(true);
+    try {
+      const res = await apiClient.post(
+        `${apiClient.URLS.user}/profile/phone/verify`,
+        { phone: d, otp: profilePhoneOtp },
+        true
+      );
+      if (res.status === 200) {
+        const newPhone = res.body?.phone ?? d;
+        await updateSession?.({ phone: newPhone });
+        setPersonalInfo((p) => ({ ...p, phone: newPhone }));
+        toast.success("Mobile number verified and saved");
+        setProfilePhoneOtp("");
+        setEditPersonalModal(false);
+        fetchUserData();
+      }
+    } catch (error: any) {
+      toast.error(error?.body?.message || "Invalid OTP or phone in use");
+    } finally {
+      setProfilePhoneOtpBusy(false);
     }
   };
 
@@ -345,6 +408,17 @@ export default function ProfileView() {
 
 
         </div>
+
+        {userData && !userData.phone && (
+          <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <p className="font-semibold">Add your mobile number</p>
+            <p className="mt-1 text-amber-800/90">
+              You can view your quotations, invoices, store orders, and other activity linked to your mobile number after you verify and save it in{" "}
+              <span className="font-medium">Edit</span> under Personal Information.
+            </p>
+          </div>
+        )}
+
         <div className="space-y-5">
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
@@ -557,13 +631,45 @@ export default function ProfileView() {
               disabled
               rootCls="opacity-60"
             />
-            <CustomInput
-              type="number"
-              label="Phone Number"
-              value={personalInfo.phone}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, phone: e.target.value })}
-              placeholder="Enter phone number"
-            />
+            <div className="rounded-xl border border-gray-100 bg-gray-50/80 p-4 space-y-3">
+              <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
+                Mobile number (OTP verification)
+              </p>
+              <CustomInput
+                type="tel"
+                label="Phone Number"
+                value={pendingProfilePhone}
+                onChange={(e) => setPendingProfilePhone(e.target.value)}
+                placeholder="10-digit mobile"
+              />
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  onClick={() => void sendProfilePhoneOtp()}
+                  disabled={profilePhoneOtpBusy}
+                  className="px-4 py-2 rounded-lg bg-white border border-gray-200 text-sm font-medium text-gray-800 hover:bg-gray-50"
+                >
+                  Send OTP
+                </Button>
+              </div>
+              <CustomInput
+                type="text"
+                label="OTP"
+                value={profilePhoneOtp}
+                onChange={(e) =>
+                  setProfilePhoneOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                }
+                placeholder="6-digit code"
+              />
+              <Button
+                type="button"
+                onClick={() => void verifyProfilePhoneOtp()}
+                disabled={profilePhoneOtpBusy}
+                className="w-full py-2 rounded-lg bg-[#3586FF] text-white text-sm font-medium hover:bg-[#2d75e6] disabled:opacity-50"
+              >
+                {profilePhoneOtpBusy ? "Please wait…" : "Verify & save mobile number"}
+              </Button>
+            </div>
             <SingleSelect
               type="single-select"
               name="role"

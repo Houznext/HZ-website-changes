@@ -122,10 +122,13 @@ export default function Navbar() {
   }, [])
 
   useEffect(() => {
-    if (router.query.login === '1' && !isLoggedIn) {
-      setLoginOpen(true)
-      void router.replace(router.pathname, undefined, { shallow: true })
+    if (router.query.login !== '1' || isLoggedIn) return
+    if (router.pathname === '/login') {
+      void router.replace({ pathname: '/login' }, undefined, { shallow: true })
+      return
     }
+    setLoginOpen(true)
+    void router.replace(router.pathname, undefined, { shallow: true })
   }, [router.query.login, isLoggedIn, router])
 
   useEffect(() => {
@@ -449,7 +452,7 @@ export default function Navbar() {
                         </div>
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 700, color: '#1f2933' }}>{customer?.name || 'Profile'}</div>
-                          <div style={{ fontSize: 11, color: '#5a6a7e' }}>{customer?.mobile}</div>
+                          <div style={{ fontSize: 11, color: '#5a6a7e' }}>{customer?.mobile?.trim() || customer?.email || ''}</div>
                         </div>
                       </div>
                       <div onClick={() => { setProfileOpen(false); void router.push('/my-account/quotations') }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}>
@@ -572,7 +575,7 @@ export default function Navbar() {
                       <>
                         <div onClick={() => { setProfileOpen(false); void router.push('/my-account') }} style={{ padding: '14px 16px', background: '#f5f7fa', borderBottom: '1px solid #dde8f5', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', transition: 'all 0.2s' }}>
                           <div style={{ width: 38, height: 38, borderRadius: '50%', background: '#2f80ed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Montserrat, system-ui', fontSize: 14, fontWeight: 800, color: '#fff', flexShrink: 0 }}>{getInitials(customer?.name ?? '')}</div>
-                          <div><div style={{ fontSize: 13, fontWeight: 700, color: '#1f2933' }}>{customer?.name || 'Profile'}</div><div style={{ fontSize: 11, color: '#5a6a7e' }}>{customer?.mobile}</div></div>
+                          <div><div style={{ fontSize: 13, fontWeight: 700, color: '#1f2933' }}>{customer?.name || 'Profile'}</div><div style={{ fontSize: 11, color: '#5a6a7e' }}>{customer?.mobile?.trim() || customer?.email || ''}</div></div>
                         </div>
                         <div onClick={() => { setProfileOpen(false); void router.push('/my-account/quotations') }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}>My quotations</div>
                         <div onClick={() => { setProfileOpen(false); void router.push('/my-account/invoices') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>Invoices</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fee2e2', color: '#dc2626' }}>Due</span></div>

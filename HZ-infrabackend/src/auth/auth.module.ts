@@ -4,13 +4,14 @@ import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { InfraAdmin } from '../admin/entities/infra-admin.entity';
 import { InfraDeveloper } from '../developer/entities/infra-developer.entity';
+import { InfraCustomer } from '../customer/entities/infra-customer.entity';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([InfraAdmin, InfraDeveloper]),
+    TypeOrmModule.forFeature([InfraAdmin, InfraDeveloper, InfraCustomer]),
     PassportModule,
     JwtModule.register({
       global: true,

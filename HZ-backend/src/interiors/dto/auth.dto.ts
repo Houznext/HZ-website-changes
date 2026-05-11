@@ -1,5 +1,38 @@
 import { IsString, IsOptional, IsEmail, MinLength, IsIn } from 'class-validator';
 
+export class RegisterCustomerEmailDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @MinLength(6)
+  password: string;
+}
+
+export class LoginCustomerEmailDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @MinLength(6)
+  password: string;
+}
+
+export class GoogleCustomerIdTokenDto {
+  @IsString()
+  idToken: string;
+}
+
+export class GoogleCustomerAccessTokenDto {
+  @IsString()
+  accessToken: string;
+}
+
+export class SendMobileLinkOtpDto {
+  @IsString()
+  newMobile: string;
+}
+
 export class SendOtpDto {
   @IsString()
   mobile: string;

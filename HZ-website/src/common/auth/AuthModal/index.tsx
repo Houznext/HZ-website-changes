@@ -84,6 +84,9 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
 
   const identifier = method === "email" ? email : phone;
 
+  const emailLooksValid =
+    method === "email" && /^\S+@\S+\.\S+$/.test(email.trim());
+
   const [otpVerified, setOtpVerified] = useState(false);
 
   const [loading, setLoading] = useState(false);
@@ -128,12 +131,17 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
     if (step === "OTP" && timeLeft <= 0) setCanResend(true);
   }, [step, timeLeft]);
 
+  useEffect(() => {
+    if (step === "OTP" && method === "email") {
+      setStep("LOGIN");
+      setOtp(["", "", "", ""]);
+      setError("");
+    }
+  }, [method, step]);
+
   // ---------- Actions ----------
   const sendOtp = async () => {
     if (!identifier) return setError(`Please enter your ${method}.`);
-    if (method === "email" && !/^\S+@\S+\.\S+$/.test(email)) {
-      return setError("Please enter a valid email address.");
-    }
     if (method === "phone" && phone.replace(/\D/g, "").length < 10) {
       return setError("Please enter a valid phone number.");
     }
@@ -141,7 +149,7 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
     setLoading(true);
     setError("");
     try {
-      const payload = method === "email" ? { email } : { phone };
+      const payload = { phone };
       const res = await apiClient.post(`${apiClient.URLS.otp}/send`, payload);
       if (res.status === 201) {
         toast.success("OTP sent!");
@@ -160,7 +168,7 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
 
   const resendOtp = async () => {
     try {
-      const payload = method === "email" ? { email } : { phone };
+      const payload = { phone };
       await apiClient.post(`${apiClient.URLS.otp}/resend`, payload);
       toast.success("OTP resent");
       setTimeLeft(30);
@@ -171,7 +179,7 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
   };
 
   const checkUserExists = async () => {
-    const payload = method === "email" ? { email } : { phone };
+    const payload = { phone };
     const res = await apiClient.post(
       `${apiClient.URLS.otp}/check-user`,
       payload
@@ -214,6 +222,43 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
       setTimeout(() => setBusy(false), 800);
     }
   };
+
+  const submitLoginStep = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (method === "phone") {
+      await sendOtp();
+      return;
+    }
+    if (!emailLooksValid) {
+      return setError("Please enter a valid email address.");
+    }
+    if (!password) {
+      return setError("Please enter your password.");
+    }
+    setLoading(true);
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        identifier: email.trim(),
+        password,
+      });
+      if (result?.ok) {
+        toast.success("Welcome back!");
+        setBusy(true);
+        closeModal();
+        router.push(safeTarget);
+      } else {
+        setError("Invalid email or password.");
+      }
+    } catch {
+      setError("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+      setTimeout(() => setBusy(false), 800);
+    }
+  };
+
   const completeSignup = async () => {
     if (!fullName.trim()) return setError("Full name is required.");
     if (!email.trim()) return setError("Email is required.");
@@ -359,17 +404,12 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
         <div className="h-px w-full bg-gray-100" />
         <div className="px-6 md:py-6 py-4 md:px-8">
           {step === "LOGIN" && (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                sendOtp();
-              }}
-              className="space-y-5"
-            >
+            <form onSubmit={(e) => void submitLoginStep(e)} className="space-y-5">
               <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
                 <Button
                   onClick={() => {
                     setMethod("phone");
+                    setPassword("");
                     setError("");
                   }}
                   className={`px-3  py-1 rounded-md label-text font-medium transition
@@ -384,6 +424,7 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
                 <Button
                   onClick={() => {
                     setMethod("email");
+                    setPassword("");
                     setError("");
                   }}
                   className={`px-3 py-1 rounded-md label-text transition font-medium
@@ -416,12 +457,40 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
                 className="py-1 md:py-1"
               />
 
+              {method === "email" && emailLooksValid && (
+                <CustomInput
+                  name="password"
+                  label="Password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setError("");
+                    setPassword(e.target.value);
+                  }}
+                  placeholder="Enter your password"
+                  errorMsg=""
+                  required
+                  className="py-1 md:py-1"
+                />
+              )}
+
               <Button
                 type="submit"
                 className="w-full bg-[#3586FF] md:text-[16px] text-[14px] hover:bg-[#3586FF] text-white md:py-2 py-1 rounded-lg font-medium shadow-sm transition disabled:opacity-60"
-                disabled={loading || !identifier}
+                disabled={
+                  loading ||
+                  (method === "phone"
+                    ? !phone.trim()
+                    : !emailLooksValid || !password)
+                }
               >
-                {loading ? "Sending OTP…" : "Login"}
+                {loading
+                  ? method === "phone"
+                    ? "Sending OTP…"
+                    : "Signing in…"
+                  : method === "phone"
+                    ? "Send OTP"
+                    : "Log in"}
               </Button>
 
               <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
@@ -441,6 +510,34 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
                   Sign Up
                 </Button>
               </div>
+
+              <div className="relative py-2">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-white px-2 text-gray-500 uppercase tracking-wide">
+                    or
+                  </span>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                onClick={() =>
+                  void signIn("google", { callbackUrl: safeTarget })
+                }
+                className="w-full flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white py-2.5 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 transition"
+              >
+                <Image
+                  src="/icons/google-icon.svg"
+                  alt=""
+                  width={18}
+                  height={18}
+                  className="shrink-0"
+                />
+                Continue with Google
+              </Button>
             </form>
           )}
 
@@ -455,9 +552,7 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
 
               <p className="text-gray-700 text-[12px]">
                 Enter the 4-digit code sent to{" "}
-                <span className="font-medium text-[#3586FF]">
-                  {identifier}
-                </span>
+                <span className="font-medium text-[#3586FF]">{phone}</span>
               </p>
 
               {OTPBoxes()}
@@ -485,7 +580,7 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
                   onClick={() => setStep("LOGIN")}
                   className="text-gray-600 hover:text-gray-900"
                 >
-                  Change email/phone
+                  Change phone number
                 </Button>
               </div>
 
@@ -608,6 +703,34 @@ const AuthModal = ({ isOpen, closeModal, callbackUrl }: AuthModalProps) => {
                   </Button>
                 </div>
               </div>
+
+              <div className="relative py-1">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-white px-2 text-gray-500 uppercase tracking-wide">
+                    or
+                  </span>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                onClick={() =>
+                  void signIn("google", { callbackUrl: safeTarget })
+                }
+                className="w-full flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white py-2.5 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 transition"
+              >
+                <Image
+                  src="/icons/google-icon.svg"
+                  alt=""
+                  width={18}
+                  height={18}
+                  className="shrink-0"
+                />
+                Continue with Google
+              </Button>
 
               {error && (
                 <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 label-text text-red-700">

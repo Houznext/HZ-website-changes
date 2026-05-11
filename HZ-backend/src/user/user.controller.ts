@@ -9,6 +9,7 @@ import {
   Patch,
   UseGuards,
   Query,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -17,7 +18,12 @@ import {
   ApiTags,
   ApiOkResponse,
 } from '@nestjs/swagger';
-import { ControllerAuthGuard, AdminPortal, Permissions } from 'src/guard';
+import {
+  ControllerAuthGuard,
+  AdminPortal,
+  Permissions,
+  RequestUser,
+} from 'src/guard';
 import {
   CreateUserDto,
   UpdateUserDto,
@@ -31,6 +37,9 @@ import {
   ForgotPasswordDto,
   ResetPasswordDto,
   SeedAdminDto,
+  GoogleIdTokenDto,
+  ProfilePhoneSendDto,
+  ProfilePhoneVerifyDto,
 } from './dto/user.dto';
 import { AddressService } from 'src/Address/address.service';
 import {
@@ -117,6 +126,40 @@ export class UserController {
     @Body() createUserDto: LoginUserDto,
   ): Promise<userTokenReponse> {
     return this.userService.loginUser(createUserDto);
+  }
+
+  @Post('google-auth')
+  @ApiOperation({ summary: 'Login or register with Google ID token' })
+  @ApiResponse({ status: 201, description: 'JWT issued' })
+  @HttpCode(201)
+  async googleAuth(@Body() dto: GoogleIdTokenDto): Promise<userTokenReponse> {
+    return this.userService.loginOrRegisterWithGoogleIdToken(dto.idToken);
+  }
+
+  @UseGuards(ControllerAuthGuard)
+  @Post('profile/phone/send-otp')
+  @ApiOperation({ summary: 'Send OTP to link phone to the logged-in account' })
+  @HttpCode(200)
+  async profilePhoneSendOtp(
+    @Req() req: { user: RequestUser },
+    @Body() dto: ProfilePhoneSendDto,
+  ): Promise<{ message: string }> {
+    return this.userService.requestProfilePhoneOtp(req.user.id, dto.phone);
+  }
+
+  @UseGuards(ControllerAuthGuard)
+  @Post('profile/phone/verify')
+  @ApiOperation({ summary: 'Verify OTP and save phone on the account' })
+  @HttpCode(200)
+  async profilePhoneVerify(
+    @Req() req: { user: RequestUser },
+    @Body() dto: ProfilePhoneVerifyDto,
+  ): Promise<ReturnUserDto> {
+    return this.userService.verifyProfilePhoneAndSave(
+      req.user.id,
+      dto.phone,
+      dto.otp,
+    );
   }
 
   @Post('seed-admin')

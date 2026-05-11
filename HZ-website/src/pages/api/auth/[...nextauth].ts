@@ -164,6 +164,9 @@ const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60,
   },
   callbacks: {
+    async signIn() {
+      return true;
+    },
     async session({ token, session }: any) {
       if (!token.user) {
         return null;
@@ -196,7 +199,52 @@ const authOptions: NextAuthOptions = {
 
       return session;
     },
-    async jwt({ token, user }: any) {
+    async jwt({ token, user, account, trigger, session }: any) {
+      if (account?.provider === "google" && account.id_token) {
+        const raw =
+          process.env.NEXT_PUBLIC_API_URL ||
+          process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT ||
+          (process.env.NODE_ENV === "development"
+            ? "http://localhost:4000"
+            : "");
+        const apiBase = String(raw).replace(/\/+$/, "");
+        if (!apiBase) {
+          throw new Error("NEXT_PUBLIC_API_URL is not configured");
+        }
+        const res = await fetch(`${apiBase}/users/google-auth`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken: account.id_token }),
+        });
+        let body: any = {};
+        try {
+          body = await res.json();
+        } catch {
+          body = {};
+        }
+        if (!res.ok) {
+          throw new Error(
+            typeof body?.message === "string"
+              ? body.message
+              : "Google sign-in failed",
+          );
+        }
+        const u = body.user;
+        const userToken = body.token;
+        const branchMemberships = body.branchMemberships;
+        token.user = {
+          ...(u || {}),
+          branchMemberships:
+            branchMemberships || u?.branchMemberships || [],
+        };
+        token.userToken = userToken;
+        return token;
+      }
+
+      if (trigger === "update" && session?.phone !== undefined) {
+        token.user = { ...(token.user || {}), phone: session.phone };
+      }
+
       if (user) {
         const {
           password,

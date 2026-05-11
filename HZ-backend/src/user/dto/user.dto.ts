@@ -80,6 +80,38 @@ export class LoginUserDto {
   @IsString()
   branchId?: string;
 }
+
+export class GoogleIdTokenDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  idToken: string;
+}
+
+export class ProfilePhoneSendDto {
+  @ApiProperty()
+  @Matches(/^[6-9]\d{9}$/, {
+    message:
+      'Phone number must start with 6, 7, 8, or 9, and be 10 digits long',
+  })
+  phone: string;
+}
+
+export class ProfilePhoneVerifyDto {
+  @ApiProperty()
+  @Matches(/^[6-9]\d{9}$/, {
+    message:
+      'Phone number must start with 6, 7, 8, or 9, and be 10 digits long',
+  })
+  phone: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^\d{6}$/, { message: 'OTP must be 6 digits' })
+  otp: string;
+}
+
 export class ReturnLoginUserDto {
   @ApiProperty()
   @IsEmpty()

@@ -20,6 +20,12 @@ export class InfraCustomer {
   @Column({ type: 'varchar', nullable: true })
   name: string | null;
 
+  @Column({ type: 'varchar', nullable: true })
+  passwordHash: string | null;
+
+  @Column({ type: 'varchar', nullable: true, unique: true })
+  googleSub: string | null;
+
   @Column({ default: false })
   isVerified: boolean;
 

@@ -44,6 +44,8 @@ import { BranchMembershipLite } from 'src/branch-role-permission/dto/branch-role
 import { AddressDto } from 'src/Address/dto/address.dto';
 import { GetAdminUsersOverviewFilterDto, UserOverviewDto, UserOverviewResponseDto } from './dto/user-admin.dto';
 import { S3Service } from 'src/common/s3/s3.service';
+import { OtpService } from 'src/otp/otp.service';
+import { OAuth2Client } from 'google-auth-library';
 
 @Injectable()
 export class UserService {
@@ -62,6 +64,9 @@ export class UserService {
 
     @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
+
+    @Inject(forwardRef(() => OtpService))
+    private readonly otpService: OtpService,
   ) {}
 
   // ---------- READS ----------
@@ -314,6 +319,63 @@ async getAdminUsersOverview(
 
   // ---------- LOGIN ----------
 
+  private async composeWebsiteLoginResponse(
+    user: User,
+    branchIdFromDto?: string,
+  ): Promise<userTokenReponse> {
+    const fullUser = await this.userRepository.findOne({
+      where: { id: user.id },
+      relations: ['locations'],
+    });
+    if (!fullUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    const memberships = await this.userRepository.manager
+      .getRepository(UserBranchMembership)
+      .find({
+        where: { user: { id: fullUser.id } },
+        relations: ['branch', 'branchRoles', 'branchRoles.permissions'],
+      });
+
+    const branchMemberships = memberships.map((m) => ({
+      branchId: m.branch.id,
+      branchName: m.branch.name,
+      level: m.branch.level,
+      isBranchHead: m.isBranchHead,
+      isPrimary: m.isPrimary,
+      branchRoles: m.branchRoles.map((r) => ({
+        id: r.id,
+        roleName: r.roleName,
+      })),
+
+      permissions:
+        m.branchRoles
+          ?.flatMap((r) => r.permissions ?? [])
+          .map((p) => ({
+            id: p.id,
+            resource: p.resource,
+            view: p.view,
+            create: p.create,
+            edit: p.edit,
+            delete: p.delete,
+          })) ?? [],
+    }));
+
+    const primaryMembership = memberships.find((m) => m.isPrimary);
+    const activeBranchId =
+      branchIdFromDto ||
+      primaryMembership?.branch?.id ||
+      memberships[0]?.branch?.id;
+
+    const token = await this.authService.generateJwt(fullUser, activeBranchId);
+    return {
+      user: this.mapToReturnUserDto(fullUser),
+      token: token.access_token,
+      branchMemberships,
+    };
+  }
+
   async loginUser(createUserDto: LoginUserDto): Promise<userTokenReponse> {
     const { email, phone, password } = createUserDto;
 
@@ -335,51 +397,113 @@ async getAdminUsersOverview(
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const memberships = await this.userRepository.manager
-      .getRepository(UserBranchMembership)
-      .find({
-        where: { user: { id: user.id } },
-        relations: ['branch', 'branchRoles', 'branchRoles.permissions'],
+    return this.composeWebsiteLoginResponse(user, createUserDto.branchId);
+  }
+
+  async loginOrRegisterWithGoogleIdToken(
+    idToken: string,
+  ): Promise<userTokenReponse> {
+    const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
+    if (!clientId) {
+      throw new BadRequestException('GOOGLE_CLIENT_ID is not configured');
+    }
+    const client = new OAuth2Client(clientId);
+    let email: string;
+    let name: string | undefined;
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: clientId,
       });
+      const payload = ticket.getPayload();
+      if (!payload?.email) {
+        throw new UnauthorizedException('Google token has no email');
+      }
+      email = payload.email.toLowerCase();
+      name = payload.name ?? undefined;
+    } catch {
+      throw new UnauthorizedException('Invalid Google token');
+    }
 
-    const branchMemberships = memberships.map((m) => ({
-      branchId: m.branch.id,
-      branchName: m.branch.name,
-      level: m.branch.level,
-      isBranchHead: m.isBranchHead,
-      isPrimary: m.isPrimary,
-      // branchRoleIds: m.branchRoles?.map((r) => r.id) ?? [],
-      branchRoles: m.branchRoles.map((r) => ({
-        id: r.id,
-        roleName: r.roleName,
-        // permissions: r.permissions?.map(p => p.resource) ?? []
-      })),
+    let user = await this.userRepository
+      .createQueryBuilder('u')
+      .where('LOWER(u.email) = LOWER(:email)', { email })
+      .getOne();
 
-      permissions:
-        m.branchRoles
-          ?.flatMap((r) => r.permissions ?? [])
-          .map((p) => ({
-            id: p.id,
-            resource: p.resource,
-            view: p.view,
-            create: p.create,
-            edit: p.edit,
-            delete: p.delete,
-          })) ?? [],
-    }));
+    if (!user) {
+      const randomPassword = crypto.randomBytes(32).toString('hex');
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+      const trimmedName = (name || 'User').trim();
+      const parts = trimmedName.split(/\s+/);
+      const firstName = parts[0] || 'User';
+      const lastName = parts.slice(1).join(' ') || '';
+      let usernameBase =
+        email
+          .split('@')[0]
+          ?.replace(/[^a-zA-Z0-9._-]/g, '')
+          .slice(0, 40) || 'user';
+      let username = usernameBase;
+      let n = 0;
+      while (await this.userRepository.findOne({ where: { username } })) {
+        n += 1;
+        username = `${usernameBase}${n}`;
+      }
 
-    const primaryMembership = memberships.find((m) => m.isPrimary);
-    const activeBranchId =
-      createUserDto.branchId ||
-      primaryMembership?.branch?.id ||
-      memberships[0]?.branch?.id;
+      user = this.userRepository.create({
+        email,
+        username,
+        firstName,
+        lastName: lastName || null,
+        fullName: trimmedName,
+        password: hashedPassword,
+        phone: null,
+        agent: false,
+        kind: UserKind.CUSTOMER,
+        role: UserRole.STANDARD,
+        isVerified: true,
+      });
+      await this.userRepository.save(user);
+    }
 
-    const token = await this.authService.generateJwt(user, activeBranchId);
-    return {
-      user: this.mapToReturnUserDto(user),
-      token: token.access_token,
-      branchMemberships,
-    };
+    return this.composeWebsiteLoginResponse(user);
+  }
+
+  async requestProfilePhoneOtp(
+    userId: string,
+    phone: string,
+  ): Promise<{ message: string }> {
+    const me = await this.userRepository.findOne({ where: { id: userId } });
+    if (!me) throw new NotFoundException('User not found');
+
+    const owner = await this.userRepository.findOne({ where: { phone } });
+    if (owner && owner.id !== userId) {
+      throw new ConflictException('This phone number is already linked to another account');
+    }
+
+    await this.otpService.sendOtp({ phone });
+    return { message: 'OTP sent to your phone' };
+  }
+
+  async verifyProfilePhoneAndSave(
+    userId: string,
+    phone: string,
+    otp: string,
+  ): Promise<ReturnUserDto> {
+    const me = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['locations'],
+    });
+    if (!me) throw new NotFoundException('User not found');
+
+    const owner = await this.userRepository.findOne({ where: { phone } });
+    if (owner && owner.id !== userId) {
+      throw new ConflictException('This phone number is already linked to another account');
+    }
+
+    await this.otpService.consumePhoneOtpIfValid(phone, otp);
+    me.phone = phone;
+    const saved = await this.userRepository.save(me);
+    return this.mapToReturnUserDto(saved);
   }
 
   // ---------- UPDATE PROFILE ----------

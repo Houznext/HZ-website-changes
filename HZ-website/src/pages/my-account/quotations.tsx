@@ -14,7 +14,13 @@ export default function QuotationsPage() {
 
   useEffect(() => {
     if (!customer) return
-    fetch(`${API}/cost-estimator?customerMobile=${encodeURIComponent(customer.mobile)}`)
+    const m = (customer.mobile ?? '').replace(/\D/g, '').slice(-10)
+    if (m.length < 10) {
+      setRows([])
+      setLoading(false)
+      return
+    }
+    fetch(`${API}/cost-estimator?customerMobile=${encodeURIComponent(m)}`)
       .then((r) => (r.ok ? r.json() : { data: [] }))
       .then((data: { data?: any[] } | any[]) => {
         if (Array.isArray(data)) {
@@ -57,7 +63,7 @@ export default function QuotationsPage() {
               {rows.map((q, i) => (
                 <div key={q.id ?? i} className="rounded-[13px] border border-[#dde8f5] bg-white p-4">
                   <div className="text-sm font-semibold text-[#1f2933]">{`${q.firstname ?? ''} ${q.lastname ?? ''}`.trim() || 'Quotation request'}</div>
-                  <div className="mt-1 text-xs text-[#5a6a7e]">{q.customerMobile ?? customer.mobile}</div>
+                  <div className="mt-1 text-xs text-[#5a6a7e]">{q.customerMobile ?? customer.mobile ?? ''}</div>
                 </div>
               ))}
             </div>

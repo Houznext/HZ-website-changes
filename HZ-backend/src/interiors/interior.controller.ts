@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InteriorService } from './interior.service';
 import { InteriorJwtGuard, InteriorJwtPayload } from './interior-jwt.guard';
@@ -20,6 +21,11 @@ import {
   LoginPasswordDto,
   LoginRepDto,
   SetPasswordDto,
+  RegisterCustomerEmailDto,
+  LoginCustomerEmailDto,
+  GoogleCustomerIdTokenDto,
+  GoogleCustomerAccessTokenDto,
+  SendMobileLinkOtpDto,
   CreateCustomerDto,
   CreateProjectDto,
   CreateTradeTemplateDto,
@@ -72,6 +78,28 @@ export class InteriorController {
     return this.interiorService.loginRep(dto.email, dto.password);
   }
 
+  @Post('auth/register-email')
+  registerCustomerEmail(@Body() dto: RegisterCustomerEmailDto) {
+    return this.interiorService.registerCustomerWithEmail(dto.email, dto.password);
+  }
+
+  @Post('auth/login-email')
+  loginCustomerEmail(@Body() dto: LoginCustomerEmailDto) {
+    return this.interiorService.loginCustomerWithEmail(dto.email, dto.password);
+  }
+
+  @Post('auth/google')
+  googleCustomer(@Body() dto: GoogleCustomerIdTokenDto) {
+    return this.interiorService.loginOrRegisterCustomerWithGoogle(dto.idToken);
+  }
+
+  @Post('auth/google-access-token')
+  googleCustomerAccessToken(@Body() dto: GoogleCustomerAccessTokenDto) {
+    return this.interiorService.loginOrRegisterCustomerWithGoogleAccessToken(
+      dto.accessToken,
+    );
+  }
+
   // —— Protected (guard) ——
   @UseGuards(InteriorJwtGuard)
   @Post('auth/set-password')
@@ -110,11 +138,28 @@ export class InteriorController {
   }
 
   @UseGuards(InteriorJwtGuard)
+  @Post('customers/:id/send-mobile-link-otp')
+  sendMobileLinkOtp(
+    @Param('id') id: string,
+    @Body() dto: SendMobileLinkOtpDto,
+    @Req() req: RequestWithUser,
+  ) {
+    if (req.user.sub !== id) {
+      throw new ForbiddenException();
+    }
+    return this.interiorService.sendMobileLinkOtpForCustomer(id, dto.newMobile);
+  }
+
+  @UseGuards(InteriorJwtGuard)
   @Patch('customers/:id/change-contact')
   changeCustomerContact(
     @Param('id') id: string,
     @Body() body: { newMobile: string; otp: string },
+    @Req() req: RequestWithUser,
   ) {
+    if (req.user.sub !== id) {
+      throw new ForbiddenException();
+    }
     return this.interiorService.changeCustomerContact(id, body.newMobile, body.otp);
   }
 

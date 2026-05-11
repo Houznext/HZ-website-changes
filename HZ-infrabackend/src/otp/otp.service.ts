@@ -117,4 +117,11 @@ export class OtpService {
 
     return { accessToken, customer };
   }
+
+  async consumePhoneOtpIfValid(phone: string, otp: string): Promise<void> {
+    const row = await this.otpRepo.findOne({ where: { phone } });
+    if (!row) throw new UnauthorizedException('No OTP for this phone');
+    if (row.otp !== otp) throw new UnauthorizedException('Invalid OTP');
+    await this.otpRepo.remove(row);
+  }
 }

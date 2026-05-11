@@ -34,9 +34,15 @@ export default function InvoicesPage() {
 
   useEffect(() => {
     if (!customer) return
-    fetch(`${API}/invoice-estimator/by-mobile/${customer.mobile}`)
+    const m = (customer.mobile ?? '').replace(/\D/g, '').slice(-10)
+    if (m.length < 10) {
+      setRows([])
+      setLoading(false)
+      return
+    }
+    fetch(`${API}/invoice-estimator/by-mobile/${m}`)
       .then((r) => r.json())
-      .then((data: InvoiceEstimator[]) => setRows((Array.isArray(data) ? data : []).filter((i) => !i.customerMobile || i.customerMobile === customer.mobile)))
+      .then((data: InvoiceEstimator[]) => setRows((Array.isArray(data) ? data : []).filter((i) => !i.customerMobile || i.customerMobile === m)))
       .catch(() => setRows([]))
       .finally(() => setLoading(false))
   }, [customer, API])

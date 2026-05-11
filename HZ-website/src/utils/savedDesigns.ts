@@ -14,6 +14,8 @@ function getMobileScope() {
   try {
     const mobile = localStorage.getItem('hz_customer_mobile')?.trim()
     if (mobile) return mobile
+    const id = localStorage.getItem('hz_customer_id')?.trim()
+    if (id) return `cust_${id}`
   } catch {
     // ignore
   }

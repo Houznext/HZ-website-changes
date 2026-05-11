@@ -1,7 +1,13 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { AdminLoginDto, DeveloperLoginDto } from './dto/auth.dto';
+import {
+  AdminLoginDto,
+  CustomerEmailLoginDto,
+  CustomerEmailRegisterDto,
+  DeveloperLoginDto,
+  GoogleIdTokenDto,
+} from './dto/auth.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -22,5 +28,23 @@ export class AuthController {
   @Post('developer-login')
   developerLogin(@Body() dto: DeveloperLoginDto) {
     return this.auth.developerLogin(dto);
+  }
+
+  @HttpCode(200)
+  @Post('customer/login-email')
+  customerLoginEmail(@Body() dto: CustomerEmailLoginDto) {
+    return this.auth.customerLoginEmail(dto);
+  }
+
+  @HttpCode(201)
+  @Post('customer/register-email')
+  customerRegisterEmail(@Body() dto: CustomerEmailRegisterDto) {
+    return this.auth.customerRegisterEmail(dto);
+  }
+
+  @HttpCode(200)
+  @Post('customer/google')
+  customerGoogle(@Body() dto: GoogleIdTokenDto) {
+    return this.auth.customerGoogle(dto);
   }
 }

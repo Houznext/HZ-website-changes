@@ -1,10 +1,22 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { SessionProvider } from 'next-auth/react';
+import { SessionProvider, useSession } from 'next-auth/react';
 import type { AppProps } from 'next/app';
 import { Toaster } from 'react-hot-toast';
 import { initGA, trackPageView } from '@/lib/analytics';
 import '@/styles/globals.css';
+
+function InfraTokenSync() {
+  const { data: session, status } = useSession();
+  useEffect(() => {
+    if (status !== 'authenticated' || !session) return;
+    const t = session.accessToken;
+    if (t && typeof window !== 'undefined') {
+      localStorage.setItem('infra_token', t);
+    }
+  }, [session, status]);
+  return null;
+}
 
 export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   const router = useRouter();
@@ -19,6 +31,7 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
 
   return (
     <SessionProvider session={session}>
+      <InfraTokenSync />
       <Component {...pageProps} />
       <Toaster position="bottom-right" />
     </SessionProvider>

@@ -9,7 +9,7 @@ import { countSavedDesigns } from '@/utils/savedDesigns'
 
 export default function MyAccountDashboard() {
   const { customer, isLoading } = useCustomerGuard()
-  const { updateCustomerName } = useCustomerAuth()
+  const { updateCustomerName, updateCustomerMobile } = useCustomerAuth()
   const router = useRouter()
   const [savedCount, setSavedCount] = useState(0)
   const [projectCount, setProjectCount] = useState<number | null>(null)
@@ -19,7 +19,13 @@ export default function MyAccountDashboard() {
   const [savingName, setSavingName] = useState(false)
   const [orderCount, setOrderCount] = useState<number | null>(null)
   const [orders, setOrders] = useState<any[]>([])
+  const [linkMobile, setLinkMobile] = useState('')
+  const [linkOtp, setLinkOtp] = useState('')
+  const [linkBusy, setLinkBusy] = useState(false)
+  const [linkMsg, setLinkMsg] = useState('')
   const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+
+  const hasMobile = (customer?.mobile ?? '').replace(/\D/g, '').length >= 10
 
   useEffect(() => {
     try {
@@ -32,10 +38,15 @@ export default function MyAccountDashboard() {
       fetch(`${API}/interiors/customers/${customer.id}/projects`, {
         headers: { Authorization: `Bearer ${customer.token}` },
       }).then((r) => r.json()).then((projects: unknown[]) => setProjectCount(projects?.length ?? 0)).catch(() => setProjectCount(0))
-      fetch(`${API}/invoice-estimator/by-mobile/${customer.mobile}`)
-        .then((r) => r.json())
-        .then((invs: Array<{ invoiceDue?: string }>) => setInvoiceDue(invs?.some((i) => !!i.invoiceDue && new Date(i.invoiceDue) >= new Date()) ?? false))
-        .catch(() => setInvoiceDue(false))
+      const m = customer.mobile?.replace(/\D/g, '').slice(-10) ?? ''
+      if (m.length === 10) {
+        fetch(`${API}/invoice-estimator/by-mobile/${m}`)
+          .then((r) => r.json())
+          .then((invs: Array<{ invoiceDue?: string }>) => setInvoiceDue(invs?.some((i) => !!i.invoiceDue && new Date(i.invoiceDue) >= new Date()) ?? false))
+          .catch(() => setInvoiceDue(false))
+      } else {
+        setInvoiceDue(false)
+      }
       fetch(`${API}/orders/customer/${customer.id}`, {
         headers: { Authorization: `Bearer ${customer.token}` },
       })
@@ -56,6 +67,83 @@ export default function MyAccountDashboard() {
   if (!customer) return null
 
   const initials = customer.name.split(' ').map((w) => w[0] ?? '').join('').toUpperCase().slice(0, 2) || 'HZ'
+
+  const sendLinkMobileOtp = async () => {
+    if (!customer) return
+    const digits = linkMobile.replace(/\D/g, '').slice(-10)
+    if (digits.length < 10) {
+      setLinkMsg('Enter a valid 10-digit mobile number.')
+      return
+    }
+    setLinkBusy(true)
+    setLinkMsg('')
+    try {
+      const res = await fetch(`${API}/interiors/customers/${customer.id}/send-mobile-link-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${customer.token}`,
+        },
+        body: JSON.stringify({ newMobile: digits }),
+      })
+      if (!res.ok) {
+        let msg = 'Could not send OTP.'
+        try {
+          const err = await res.json() as { message?: string | string[] }
+          const raw = Array.isArray(err?.message) ? err.message[0] : err?.message
+          if (typeof raw === 'string' && raw.trim()) msg = raw
+        } catch {
+          // ignore
+        }
+        throw new Error(msg)
+      }
+      setLinkMsg('OTP sent to your phone. Enter it below to link this number.')
+    } catch (e) {
+      setLinkMsg(e instanceof Error ? e.message : 'Failed to send OTP.')
+    } finally {
+      setLinkBusy(false)
+    }
+  }
+
+  const verifyLinkMobile = async () => {
+    if (!customer) return
+    const digits = linkMobile.replace(/\D/g, '').slice(-10)
+    if (digits.length < 10 || linkOtp.replace(/\D/g, '').length < 6) {
+      setLinkMsg('Enter mobile and OTP.')
+      return
+    }
+    setLinkBusy(true)
+    setLinkMsg('')
+    try {
+      const res = await fetch(`${API}/interiors/customers/${customer.id}/change-contact`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${customer.token}`,
+        },
+        body: JSON.stringify({ newMobile: digits, otp: linkOtp.replace(/\D/g, '') }),
+      })
+      if (!res.ok) {
+        let msg = 'Could not verify OTP.'
+        try {
+          const err = await res.json() as { message?: string | string[] }
+          const raw = Array.isArray(err?.message) ? err.message[0] : err?.message
+          if (typeof raw === 'string' && raw.trim()) msg = raw
+        } catch {
+          // ignore
+        }
+        throw new Error(msg)
+      }
+      updateCustomerMobile(digits)
+      setLinkMobile('')
+      setLinkOtp('')
+      setLinkMsg('Mobile number linked. Your quotations and invoices will load here.')
+    } catch (e) {
+      setLinkMsg(e instanceof Error ? e.message : 'Verification failed.')
+    } finally {
+      setLinkBusy(false)
+    }
+  }
 
   const saveName = async () => {
     const nextName = nameDraft.trim()
@@ -132,13 +220,69 @@ export default function MyAccountDashboard() {
                   </button>
                 </div>
               )}
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,.55)' }}>{customer.mobile}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,.55)' }}>{customer.mobile?.trim() || customer.email || 'Add your mobile below'}</div>
             </div>
           </div>
         </div>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 24px' }}>
+          {!hasMobile && (
+            <div
+              style={{
+                marginBottom: 20,
+                padding: '14px 16px',
+                borderRadius: 11,
+                border: '1px solid #c7daf3',
+                background: 'linear-gradient(135deg, #e8f1fd 0%, #f5f9ff 100%)',
+                color: '#0f2a44',
+              }}
+            >
+              <div style={{ fontFamily: 'Montserrat, system-ui', fontSize: 14, fontWeight: 800, marginBottom: 6 }}>Link your mobile number</div>
+              <p style={{ fontSize: 13, color: '#334155', lineHeight: 1.55, margin: 0 }}>
+                Add and verify your mobile to see quotations, invoices, and store activity tied to your projects. Until then, some sections may stay empty.
+              </p>
+              <div style={{ marginTop: 12, display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+                <input
+                  value={linkMobile}
+                  onChange={(e) => setLinkMobile(e.target.value)}
+                  placeholder="10-digit mobile"
+                  className="rounded-md border px-3 py-2 text-[13px] outline-none"
+                  style={{ borderColor: '#dde8f5', minWidth: 160, color: '#1f2933' }}
+                />
+                <button
+                  type="button"
+                  disabled={linkBusy}
+                  onClick={() => void sendLinkMobileOtp()}
+                  className="rounded-md px-3 py-2 text-[12px] font-bold text-white"
+                  style={{ background: '#2f80ed', opacity: linkBusy ? 0.7 : 1 }}
+                >
+                  Send OTP
+                </button>
+                <input
+                  value={linkOtp}
+                  onChange={(e) => setLinkOtp(e.target.value)}
+                  placeholder="6-digit OTP"
+                  className="rounded-md border px-3 py-2 text-[13px] outline-none"
+                  style={{ borderColor: '#dde8f5', width: 120, color: '#1f2933' }}
+                />
+                <button
+                  type="button"
+                  disabled={linkBusy}
+                  onClick={() => void verifyLinkMobile()}
+                  className="rounded-md border px-3 py-2 text-[12px] font-bold"
+                  style={{ borderColor: '#0f2a44', color: '#0f2a44', background: '#fff' }}
+                >
+                  Verify and link
+                </button>
+              </div>
+              {linkMsg ? <p style={{ marginTop: 10, fontSize: 12, color: '#1e40af' }}>{linkMsg}</p> : null}
+            </div>
+          )}
           <div style={{ fontFamily: 'Montserrat, system-ui', fontSize: 17, fontWeight: 800, color: '#1f2933', marginBottom: 5 }}>My account</div>
-          <div style={{ fontSize: 12, color: '#5a6a7e', marginBottom: 24 }}>All your Houznext activity in one place - linked to your mobile number</div>
+          <div style={{ fontSize: 12, color: '#5a6a7e', marginBottom: 24 }}>
+            {hasMobile
+              ? 'All your Houznext activity in one place — linked to your mobile number.'
+              : 'Profile and orders on this account; link your mobile to load quotations and invoices by phone.'}
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 10 }}>
             {[
               {

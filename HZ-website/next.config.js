@@ -6,6 +6,14 @@ const legacyRealEstateRoot = infraBase || '/'
 const legacyRealEstateDeep = infraBase ? `${infraBase}/:path*` : '/'
 
 const nextConfig = {
+  /** Expose Google OAuth Web Client ID to the browser (GIS / customer Gmail login). Reuses NextAuth’s GOOGLE_CLIENT_ID when NEXT_PUBLIC_* is unset. */
+  env: {
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID: (
+      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+      || process.env.GOOGLE_CLIENT_ID
+      || ''
+    ).trim(),
+  },
   reactStrictMode: true,
   ...(isVercel ? {} : { output: 'standalone' }),
   compress: true,

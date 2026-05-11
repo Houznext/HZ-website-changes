@@ -1,4 +1,11 @@
-import { Injectable, NotFoundException, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
+import { OAuth2Client } from 'google-auth-library';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -68,9 +75,213 @@ export class InteriorService {
 
   private signCustomerToken(customer: Customer): string {
     return this.jwtService.sign(
-      { sub: customer.id, mobile: customer.mobile, role: 'customer' },
+      {
+        sub: customer.id,
+        mobile: customer.mobile ?? undefined,
+        email: customer.email ?? undefined,
+        role: 'customer',
+      },
       { expiresIn: '30d' },
     );
+  }
+
+  private normalizeCustomerEmail(email: string): string {
+    return email.trim().toLowerCase();
+  }
+
+  private displayNameFromEmailLocalPart(email: string): string {
+    const local = email.split('@')[0]?.trim() || 'Customer';
+    const spaced = local.replace(/[._-]+/g, ' ').trim();
+    return spaced || 'Customer';
+  }
+
+  async registerCustomerWithEmail(
+    emailRaw: string,
+    password: string,
+  ): Promise<{ token: string; customer: Customer }> {
+    const email = this.normalizeCustomerEmail(emailRaw);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new BadRequestException('Invalid email address');
+    }
+    if (password.length < 6) {
+      throw new BadRequestException('Password must be at least 6 characters');
+    }
+    const existing = await this.customerRepo.findOne({ where: { email } });
+    if (existing) {
+      if (!existing.passwordHash) {
+        throw new ConflictException(
+          'This email is already registered. Continue with Google.',
+        );
+      }
+      throw new ConflictException(
+        'An account with this email already exists. Please log in.',
+      );
+    }
+    const fullName = this.displayNameFromEmailLocalPart(email);
+    const hash = await bcrypt.hash(password, 10);
+    const customer = this.customerRepo.create({
+      fullName,
+      email,
+      mobile: null,
+      passwordHash: hash,
+      isVerified: true,
+    });
+    const saved = await this.customerRepo.save(customer);
+    const token = this.signCustomerToken(saved);
+    return { token, customer: saved };
+  }
+
+  async loginCustomerWithEmail(
+    emailRaw: string,
+    password: string,
+  ): Promise<{ token: string; customer: Customer }> {
+    const email = this.normalizeCustomerEmail(emailRaw);
+    const customer = await this.customerRepo.findOne({ where: { email } });
+    if (!customer) {
+      throw new NotFoundException('NO_ACCOUNT');
+    }
+    if (!customer.passwordHash) {
+      throw new UnauthorizedException(
+        'This account uses Google or mobile OTP. Use that method to sign in.',
+      );
+    }
+    const match = await bcrypt.compare(password, customer.passwordHash);
+    if (!match) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+    const token = this.signCustomerToken(customer);
+    return { token, customer };
+  }
+
+  private async resolveCustomerFromGoogleProfile(
+    emailRaw: string,
+    googleName?: string,
+  ): Promise<Customer> {
+    const email = this.normalizeCustomerEmail(emailRaw);
+    let customer = await this.customerRepo
+      .createQueryBuilder('c')
+      .where('LOWER(c.email) = LOWER(:email)', { email })
+      .getOne();
+
+    if (!customer) {
+      const fullName =
+        googleName && googleName.length > 0
+          ? googleName
+          : this.displayNameFromEmailLocalPart(email);
+      customer = this.customerRepo.create({
+        fullName,
+        email,
+        mobile: null,
+        isVerified: true,
+      });
+      customer = await this.customerRepo.save(customer);
+    }
+    return customer;
+  }
+
+  async loginOrRegisterCustomerWithGoogle(
+    idToken: string,
+  ): Promise<{ token: string; customer: Customer }> {
+    const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
+    if (!clientId) {
+      throw new BadRequestException('GOOGLE_CLIENT_ID is not configured');
+    }
+    const client = new OAuth2Client(clientId);
+    let email: string;
+    let googleName: string | undefined;
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: clientId,
+      });
+      const payload = ticket.getPayload();
+      if (!payload?.email) {
+        throw new UnauthorizedException('Google token has no email');
+      }
+      email = this.normalizeCustomerEmail(payload.email);
+      googleName = payload.name?.trim() || undefined;
+    } catch (e) {
+      if (e instanceof UnauthorizedException || e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new UnauthorizedException('Invalid Google token');
+    }
+
+    const customer = await this.resolveCustomerFromGoogleProfile(email, googleName);
+    const token = this.signCustomerToken(customer);
+    return { token, customer };
+  }
+
+  async loginOrRegisterCustomerWithGoogleAccessToken(
+    accessToken: string,
+  ): Promise<{ token: string; customer: Customer }> {
+    const trimmed = accessToken?.trim();
+    if (!trimmed) {
+      throw new BadRequestException('Missing access token');
+    }
+    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${trimmed}` },
+    });
+    if (!res.ok) {
+      throw new UnauthorizedException('Invalid or expired Google session');
+    }
+    const body = (await res.json()) as {
+      email?: string;
+      name?: string;
+      email_verified?: boolean;
+    };
+    if (!body.email) {
+      throw new UnauthorizedException('Google account has no email');
+    }
+    const email = this.normalizeCustomerEmail(body.email);
+    const googleName = body.name?.trim() || undefined;
+    const customer = await this.resolveCustomerFromGoogleProfile(email, googleName);
+    const token = this.signCustomerToken(customer);
+    return { token, customer };
+  }
+
+  async sendMobileLinkOtpForCustomer(
+    customerId: string,
+    newMobileRaw: string,
+  ): Promise<{ sent: boolean }> {
+    const digits = newMobileRaw.replace(/\D/g, '');
+    const mobile = digits.length === 10 ? digits : newMobileRaw.trim();
+    if (mobile.replace(/\D/g, '').length < 10) {
+      throw new BadRequestException('Enter a valid 10-digit mobile number.');
+    }
+    const normalized = mobile.replace(/\D/g, '').slice(-10);
+
+    const customer = await this.customerRepo.findOne({ where: { id: customerId } });
+    if (!customer) throw new NotFoundException('Customer not found');
+
+    const taken = await this.customerRepo.findOne({
+      where: { mobile: normalized },
+    });
+    if (taken && taken.id !== customerId) {
+      throw new ConflictException('This mobile number is already linked to another account');
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiresAt = new Date(Date.now() + 3 * 60 * 1000);
+    await this.customerRepo.update(customer.id, { otpCode: code, otpExpiresAt });
+
+    if (TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_PHONE) {
+      try {
+        const twilio = await import('twilio');
+        const twilioClient = twilio.default(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+        await twilioClient.messages.create({
+          to: normalized.startsWith('+') ? normalized : `+91${normalized}`,
+          from: TWILIO_PHONE,
+          body: `Your Houznext verification code is ${code}. Valid for 3 minutes.`,
+        });
+      } catch {
+        // ignore
+      }
+    } else {
+      console.log(`[DEV OTP link mobile] ${normalized}: ${code}`);
+    }
+
+    return { sent: true };
   }
 
   private signRepToken(rep: Rep): string {
@@ -848,8 +1059,9 @@ export class InteriorService {
     ) {
       throw new UnauthorizedException('Invalid or expired OTP');
     }
+    const normalizedMobile = newMobile.replace(/\D/g, '').slice(-10);
     await this.customerRepo.update(customerId, {
-      mobile: newMobile,
+      mobile: normalizedMobile,
       otpCode: null,
       otpExpiresAt: null,
     });
