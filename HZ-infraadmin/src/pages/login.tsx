@@ -3,11 +3,13 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import toast from 'react-hot-toast';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function AdminLogin() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -135,22 +137,48 @@ export default function AdminLogin() {
               >
                 Password
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="Enter your password"
-                style={{
-                  width: '100%',
-                  padding: '10px 13px',
-                  border: '1.5px solid #dde8f5',
-                  borderRadius: '9px',
-                  fontSize: '13px',
-                  outline: 'none',
-                  fontFamily: "'Inter', sans-serif",
-                }}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="Enter your password"
+                  autoComplete="current-password"
+                  style={{
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    padding: '10px 42px 10px 13px',
+                    border: '1.5px solid #dde8f5',
+                    borderRadius: '9px',
+                    fontSize: '13px',
+                    outline: 'none',
+                    fontFamily: "'Inter', sans-serif",
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  style={{
+                    position: 'absolute',
+                    right: '4px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    padding: '6px',
+                    border: 'none',
+                    background: 'transparent',
+                    color: '#5a6a7e',
+                    cursor: 'pointer',
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {showPassword ? <EyeOff size={18} strokeWidth={2} /> : <Eye size={18} strokeWidth={2} />}
+                </button>
+              </div>
             </div>
 
             <button

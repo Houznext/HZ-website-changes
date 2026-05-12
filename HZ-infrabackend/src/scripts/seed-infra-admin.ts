@@ -9,10 +9,15 @@ dotenv.config({
 });
 dotenv.config();
 
-async function seedAdmin() {
-  const password = process.env.INFRA_ADMIN_SEED_PASSWORD;
-  if (!password) {
-    console.error('ERROR: Set INFRA_ADMIN_SEED_PASSWORD env var before running this script.');
+async function seedAdmins() {
+  const primaryPassword = process.env.INFRA_ADMIN_SEED_PASSWORD;
+  const businessEmail = process.env.INFRA_BUSINESS_ADMIN_EMAIL || 'business@houznext.com';
+  const businessPassword = process.env.INFRA_BUSINESS_ADMIN_PASSWORD;
+
+  if (!primaryPassword && !businessPassword) {
+    console.error(
+      'ERROR: Set INFRA_ADMIN_SEED_PASSWORD (for admin@infra.houznext.com) and/or INFRA_BUSINESS_ADMIN_PASSWORD (for business@houznext.com).',
+    );
     process.exit(1);
   }
 
@@ -24,28 +29,53 @@ async function seedAdmin() {
 
   const adminRepo = ds.getRepository(InfraAdmin);
 
-  const existing = await adminRepo.findOne({ where: { email: 'admin@infra.houznext.com' } });
-  if (existing) {
-    console.log('Admin already exists — skipping seed.');
-    await ds.destroy();
-    return;
+  if (primaryPassword) {
+    const primaryEmail = 'admin@infra.houznext.com';
+    const existingPrimary = await adminRepo.findOne({ where: { email: primaryEmail } });
+    if (existingPrimary) {
+      console.log(`Primary admin already exists — skipping: ${primaryEmail}`);
+    } else {
+      const passwordHash = await bcrypt.hash(primaryPassword, 12);
+      await adminRepo.save(
+        adminRepo.create({
+          email: primaryEmail,
+          passwordHash,
+          name: 'Infra Admin',
+          role: 'admin',
+        }),
+      );
+      console.log(`✓ Admin created: ${primaryEmail}`);
+      console.log('  Password: [as set in INFRA_ADMIN_SEED_PASSWORD]');
+    }
   }
 
-  const passwordHash = await bcrypt.hash(password, 12);
-  const admin = adminRepo.create({
-    email: 'admin@infra.houznext.com',
-    passwordHash,
-    name: 'Infra Admin',
-    role: 'admin',
-  });
-  await adminRepo.save(admin);
+  if (businessPassword) {
+    const passwordHash = await bcrypt.hash(businessPassword, 12);
+    const existing = await adminRepo.findOne({ where: { email: businessEmail } });
+    if (existing) {
+      existing.passwordHash = passwordHash;
+      existing.name = existing.name || 'Business Admin';
+      existing.role = existing.role || 'admin';
+      await adminRepo.save(existing);
+      console.log(`✓ Business admin password updated: ${businessEmail}`);
+    } else {
+      await adminRepo.save(
+        adminRepo.create({
+          email: businessEmail,
+          passwordHash,
+          name: 'Business Admin',
+          role: 'admin',
+        }),
+      );
+      console.log(`✓ Business admin created: ${businessEmail}`);
+    }
+    console.log('  Password: [as set in INFRA_BUSINESS_ADMIN_PASSWORD]');
+  }
 
-  console.log('✓ Admin created: admin@infra.houznext.com');
-  console.log('  Password: [as set in INFRA_ADMIN_SEED_PASSWORD]');
   await ds.destroy();
 }
 
-seedAdmin().catch((err) => {
+seedAdmins().catch((err) => {
   console.error('Seed failed:', err);
   process.exit(1);
 });

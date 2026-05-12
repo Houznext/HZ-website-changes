@@ -534,8 +534,8 @@ export default function DesignIdeasPage({
   const metaDescription = pageSeo?.metaDescription ?? baseSeo.metaDescription
   const ogImage =
     pageSeo?.ogImageUrl ??
-    (baseSeo.ogImage && String(baseSeo.ogImage).trim()) ||
-    'https://houznext.com/og-default.jpg'
+    ((baseSeo.ogImage && String(baseSeo.ogImage).trim()) ||
+      'https://houznext.com/og-default.jpg')
 
   useEffect(() => {
     if (!router.isReady) return

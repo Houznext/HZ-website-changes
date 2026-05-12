@@ -44,7 +44,11 @@ export class AuthService {
   }
 
   async adminLogin(dto: AdminLoginDto): Promise<{ accessToken: string; admin: InfraAdmin }> {
-    const admin = await this.adminRepo.findOne({ where: { email: dto.email } });
+    const emailRaw = dto.email.trim();
+    const admin = await this.adminRepo
+      .createQueryBuilder('a')
+      .where('LOWER(a.email) = LOWER(:email)', { email: emailRaw })
+      .getOne();
     if (!admin) throw new UnauthorizedException('Invalid credentials');
     const ok = await bcrypt.compare(dto.password, admin.passwordHash);
     if (!ok) throw new UnauthorizedException('Invalid credentials');

@@ -922,7 +922,7 @@ export default function AboutUsPage({
         title={pageSeo?.metaTitle ?? seo.metaTitle}
         description={pageSeo?.metaDescription ?? seo.metaDescription}
         canonical={seo.canonical}
-        ogImage={pageSeo?.ogImageUrl ?? seo.ogImageUrl || undefined}
+        ogImage={pageSeo?.ogImageUrl ?? (seo.ogImageUrl || undefined)}
       />
       <Navbar />
       <main style={{ background: '#f5f7fa' }}>

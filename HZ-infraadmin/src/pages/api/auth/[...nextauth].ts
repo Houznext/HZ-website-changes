@@ -2,7 +2,17 @@ import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import axios from 'axios';
 
-const backendUrl = process.env.INFRA_BACKEND_URL || 'http://localhost:4001';
+/** NextAuth authorize runs on the Node server; localhost → 127.0.0.1 avoids IPv6 ::1 ECONNREFUSED on Windows. */
+function serverBackendBaseUrl(): string {
+  const raw = (
+    process.env.INFRA_BACKEND_URL ||
+    process.env.NEXT_PUBLIC_INFRA_API_URL ||
+    'http://127.0.0.1:4001'
+  )
+    .trim()
+    .replace(/\/$/, '');
+  return raw.replace(/^http:\/\/localhost(?=:|\/|$)/i, 'http://127.0.0.1');
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -14,11 +24,14 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
+        const email = credentials.email.trim();
+        const password = credentials.password;
         try {
-          const res = await axios.post(`${backendUrl.replace(/\/$/, '')}/auth/admin/login`, {
-            email: credentials.email,
-            password: credentials.password,
-          });
+          const res = await axios.post(
+            `${serverBackendBaseUrl()}/auth/admin/login`,
+            { email, password },
+            { timeout: 15000, headers: { 'Content-Type': 'application/json' } },
+          );
           const { admin, token } = res.data as {
             admin?: { adminId: string; email: string; name?: string | null; role: string };
             token?: string;
@@ -31,7 +44,11 @@ export const authOptions: NextAuthOptions = {
             role: admin.role,
             accessToken: token,
           };
-        } catch {
+        } catch (err) {
+          if (process.env.NODE_ENV === 'development') {
+            const ax = err as { message?: string; code?: string; response?: { status?: number; data?: unknown } };
+            console.error('[infra-admin NextAuth authorize]', ax.message, ax.code, ax.response?.status, ax.response?.data);
+          }
           return null;
         }
       },
