@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff } from 'lucide-react';
+import { STATIC_INFRA_ADMIN_EMAIL } from '@/lib/infra-admin-static-session';
+
+type ApiHealth = { ok?: boolean; service?: string };
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -11,11 +14,34 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [apiStatus, setApiStatus] = useState<'checking' | 'infra' | 'wrong' | 'down'>('checking');
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const r = await fetch('/api/infra-backend/health', { method: 'GET' });
+        const data = (await r.json()) as ApiHealth;
+        if (cancelled) return;
+        if (!r.ok) {
+          setApiStatus('down');
+          return;
+        }
+        if (data?.service === 'houznext-infra-backend') setApiStatus('infra');
+        else setApiStatus('wrong');
+      } catch {
+        if (!cancelled) setApiStatus('down');
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const res = await signIn('credentials', {
+    const res = await signIn('infra-admin-credentials', {
       redirect: false,
       email,
       password,
@@ -25,7 +51,11 @@ export default function AdminLogin() {
       toast.success('Logged in');
       router.replace('/listings');
     } else {
-      toast.error('Invalid email or password');
+      toast.error(
+        res?.error === 'CredentialsSignin'
+          ? 'Invalid email or password'
+          : res?.error || 'Sign-in failed',
+      );
     }
   };
 
@@ -84,9 +114,72 @@ export default function AdminLogin() {
               Admin Portal
             </div>
             <p style={{ fontSize: '13px', color: '#5a6a7e', marginTop: '8px' }}>
-              Sign in to manage Houznext Infra
+              Sign in with the Infra admin account (no backend required for login).
             </p>
           </div>
+
+          <div
+            style={{
+              marginBottom: '16px',
+              padding: '12px',
+              borderRadius: '10px',
+              background: '#f0fdf4',
+              border: '1px solid #86efac',
+              fontSize: '12px',
+              color: '#166534',
+              fontFamily: "'Inter', sans-serif",
+            }}
+          >
+            <strong style={{ fontFamily: "'Montserrat', sans-serif" }}>Seeded Super admin</strong>
+            <br />
+            <span style={{ fontSize: '11px' }}>
+              {STATIC_INFRA_ADMIN_EMAIL} — password is stored hashed under <code style={{ fontSize: '11px' }}>data/infra-admin-org.json</code> on
+              this machine. You can change it from Users after sign-in.
+            </span>
+          </div>
+
+          {apiStatus === 'checking' ? (
+            <p style={{ marginBottom: '14px', fontSize: '12px', color: '#5a6a7e', textAlign: 'center' }}>
+              Checking infra API (optional, for listings and data APIs)…
+            </p>
+          ) : null}
+          {apiStatus === 'down' ? (
+            <div
+              style={{
+                marginBottom: '16px',
+                padding: '12px',
+                borderRadius: '10px',
+                background: '#eff6ff',
+                border: '1px solid #93c5fd',
+                fontSize: '12px',
+                color: '#1e3a8a',
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              <strong style={{ fontFamily: "'Montserrat', sans-serif" }}>Infra API not reachable.</strong>
+              <br />
+              You can still sign in below. Start <code style={{ fontSize: '11px' }}>HZ-infrabackend</code> on port{' '}
+              <strong>4001</strong> when you need live listings and CRUD against the server.
+            </div>
+          ) : null}
+          {apiStatus === 'wrong' ? (
+            <div
+              style={{
+                marginBottom: '16px',
+                padding: '12px',
+                borderRadius: '10px',
+                background: '#fef3c7',
+                border: '1px solid #fcd34d',
+                fontSize: '12px',
+                color: '#92400e',
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              <strong style={{ fontFamily: "'Montserrat', sans-serif" }}>Port 4001 is not HZ-infrabackend.</strong>
+              <br />
+              Login still works. Fix the server on 4001 when you need API-backed pages.
+            </div>
+          ) : null}
 
           <form onSubmit={handleLogin}>
             <div style={{ marginBottom: '14px' }}>
@@ -109,7 +202,7 @@ export default function AdminLogin() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="admin@infra.houznext.com"
+                placeholder={STATIC_INFRA_ADMIN_EMAIL}
                 style={{
                   width: '100%',
                   padding: '10px 13px',

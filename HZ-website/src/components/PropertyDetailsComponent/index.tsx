@@ -761,10 +761,10 @@ const PropertyDetailsComponent = ({
           <div className="w-full mb-2 font-medium text-gray-900">
             <div className="flex flex-wrap  items-center md:text-[12px] text-[8px] ">
               <Link
-                href="/properties"
+                href="/"
                 className="px-2 py-1 md:rounded-[10px] rounded-[4px] hover:bg-gray-100 transition"
               >
-                Properties
+                Home
               </Link>
               <span className="mx-0.5 text-gray-400">/</span>
               <Link

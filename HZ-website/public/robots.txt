@@ -2,8 +2,19 @@
 User-agent: *
 Allow: /
 
+# Legacy OneCasa / non-Houznext marketing URLs (no live pages)
+Disallow: /painting
+Disallow: /gallery
+Disallow: /services/painting
+Disallow: /services/civilEngineering
+Disallow: /services/custom-builder
+Disallow: /custom-builder
+
+# Property / real-estate marketing lives on Houznext Infra (not indexed here)
+Disallow: /real-estate
+Disallow: /properties
+
 # Non-SEO and account areas
-User-agent: *
 Disallow: /user/
 Disallow: /portal/
 Disallow: /api/

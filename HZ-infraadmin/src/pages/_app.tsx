@@ -3,6 +3,8 @@ import { SessionProvider, useSession } from 'next-auth/react';
 import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { Analytics } from '@vercel/analytics/react';
+import { InfraSessionSync } from '@/components/InfraSessionSync';
+import { InfraOrgRehydrate } from '@/components/InfraOrgRehydrate';
 import '@/styles/globals.css';
 
 function SessionTokenSync() {
@@ -26,6 +28,8 @@ export default function AdminApp({
 }: AppProps) {
   return (
     <SessionProvider session={session}>
+      <InfraOrgRehydrate />
+      <InfraSessionSync />
       <SessionTokenSync />
       <Component {...pageProps} />
       <Toaster position="top-right" />

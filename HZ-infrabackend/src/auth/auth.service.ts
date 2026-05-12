@@ -50,7 +50,8 @@ export class AuthService {
       .where('LOWER(a.email) = LOWER(:email)', { email: emailRaw })
       .getOne();
     if (!admin) throw new UnauthorizedException('Invalid credentials');
-    const ok = await bcrypt.compare(dto.password, admin.passwordHash);
+    const password = typeof dto.password === 'string' ? dto.password : String(dto.password ?? '');
+    const ok = await bcrypt.compare(password, admin.passwordHash);
     if (!ok) throw new UnauthorizedException('Invalid credentials');
     const payload: JwtPayload = {
       sub: admin.adminId,

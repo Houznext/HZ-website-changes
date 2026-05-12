@@ -350,8 +350,8 @@ const CompanyDetailsPropertyView = ({ data }: any) => {
       <div className="flex flex-row justify-between shadow-custom bg-white/30 backdrop-blur-md  md:w-[70%] w-[100%] md:mb-2 mb-1 px-2 md:px-4 py-1 md:py-2">
         <div className="w-full md:text-[14px] text-[10px] font-medium text-gray-900 mb-2 md:mb-0">
           <div className="flex flex-wrap items-center gap-x-1">
-            <Link href="/properties" className="underline underline-offset-2 ">
-              Properties
+            <Link href="/" className="underline underline-offset-2 ">
+              Home
             </Link>
             <MdArrowForwardIos size="10px" className="text-gray-500" />
             <Link

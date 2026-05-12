@@ -5,7 +5,7 @@ if (process.env.NODE_ENV === 'development') {
   // TODO: Place these 1200×630px images in /public/ before launch.
   // Dark navy (#0f2a44) background, Houznext logo centered, page tagline below.
   // Required: /og-default.jpg  /og-home.jpg  /og-interiors.jpg
-  // /og-pricing.jpg  /og-real-estate.jpg  /og-buildlive.jpg
+  // /og-pricing.jpg  /og-buildlive.jpg
 }
 
 // ─── Local Business ───────────────────────────────────────────────────────────
@@ -163,30 +163,6 @@ export const pricingFaqSchema = {
     },
   ],
 }
-
-// ─── Real Estate Agent ────────────────────────────────────────────────────────
-export const realEstateAgentSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'RealEstateAgent',
-  name: 'Houznext Real Estate',
-  url: 'https://houznext.com/real-estate',
-  telephone: '+919759750770',
-  description:
-    'RERA-verified plots, flats and villas in Hyderabad, Warangal, Karimnagar and across Telangana. Free legal due diligence and bank loan assistance.',
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: 'Hyderabad',
-    addressRegion: 'Telangana',
-    addressCountry: 'IN',
-  },
-  areaServed: {
-    '@type': 'State',
-    name: 'Telangana',
-  },
-}
-
-// Keep old name as alias for backward compat
-export { realEstateAgentSchema as realEstateSchema }
 
 // ─── BuildLive ────────────────────────────────────────────────────────────────
 export const buildliveSchema = {

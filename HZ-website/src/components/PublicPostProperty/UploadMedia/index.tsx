@@ -27,7 +27,11 @@ const UploadImage = ({ handleNext }: any) => {
     router.push("/");
   };
   const handleViewProperty = () => {
-    router.push(`/properties`);
+    if (propertyId) {
+      router.push(`/user/properties/${propertyId}/viewleads`);
+    } else {
+      router.push("/user/properties");
+    }
   };
 
   useEffect(() => {

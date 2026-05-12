@@ -24,8 +24,12 @@ adminApi.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401 && typeof window !== 'undefined') {
-      sessionStorage.removeItem('infra_admin_token');
-      window.location.href = '/login';
+      const t = sessionStorage.getItem('infra_admin_token') ?? '';
+      const isLocalPortalToken = t.includes('houznext-infra-local');
+      if (!isLocalPortalToken) {
+        sessionStorage.removeItem('infra_admin_token');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(err);
   },

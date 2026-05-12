@@ -2,5 +2,6 @@
 .env.local
 .env.production
 .next/
+data/
 node_modules/
 out/

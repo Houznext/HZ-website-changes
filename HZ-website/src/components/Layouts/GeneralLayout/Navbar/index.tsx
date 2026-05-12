@@ -362,11 +362,11 @@ const NavDropDown = ({ item, subLink }: any) => {
                                     <h1>
                                       {" "}
                                       <Link
-                                        href="/painting/paint-cost-calculator"
+                                        href="/interiors/cost-calculator"
                                         className="font-medium md:text-[12px] text-[10px] flex items-center gap-1"
                                       >
                                         <CheckCircle2 className="w-4 h-4 text-[#3586FF] mt-0.5" />
-                                        Painting Cost Estimator
+                                        Interiors cost estimate
                                       </Link>
                                     </h1>
                                     <h1>
@@ -683,9 +683,9 @@ const Navbar = ({ isVisibleItems }: ShowItems) => {
         router.pathname.startsWith("/blogs/"),
     },
     {
-      name: "Gallery",
-      link: "/gallery",
-      isActive: router.pathname === "/gallery",
+      name: "Design ideas",
+      link: "/design-ideas",
+      isActive: router.pathname === "/design-ideas",
       onClick: () => {
         if (mobileSidebarOpen) {
           toggleMobileSideBar(false);

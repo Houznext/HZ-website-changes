@@ -33,17 +33,17 @@ const BottomNav = () => {
                 </div>
             </Link>
 
-            <Link href="/properties">
+            <Link href="/projects">
                 <div className="flex flex-col items-center footer-text">
                     <MdApartment
-                        className={`text-xl ${router.pathname.startsWith("/properties") ? activeClass : inactiveClass
+                        className={`text-xl ${router.pathname.startsWith("/projects") ? activeClass : inactiveClass
                             }`}
                     />
                     <span
-                        className={`text-[10px] ${router.pathname.startsWith("/properties") ? activeClass : inactiveClass
+                        className={`text-[10px] ${router.pathname.startsWith("/projects") ? activeClass : inactiveClass
                             }`}
                     >
-                        Properties
+                        Projects
                     </span>
                 </div>
             </Link>

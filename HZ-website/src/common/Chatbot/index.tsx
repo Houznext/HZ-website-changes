@@ -408,9 +408,9 @@ const Chatbot = () => {
     if (u.includes("/properties/")) return "View properties";
     if (u.includes("/services/furnitures") || u.includes("/furnitures-shop")) return "Browse furniture";
     if (u.includes("/services/electronics") || u.includes("/electronics-shop")) return "Browse electronics";
-    if (u.includes("/painting/")) return "Painting cost estimator";
-    if (u.includes("/interiors/")) return "Interiors cost estimator";
-    if (u.includes("/solar")) return "Solar calculator";
+    if (u.includes("/interiors/cost-calculator")) return "Interiors cost estimator";
+    if (u.includes("/interiors/")) return "Interiors";
+    if (u.includes("/solar")) return "Energy estimates";
     if (u.includes("vaastu")) return "Vaastu consultation";
     return "Open link";
   };
@@ -419,7 +419,7 @@ const Chatbot = () => {
     /\/properties\//i.test(url) ||
     /\/services\/furnitures|\/furnitures-shop/i.test(url) ||
     /\/services\/electronics|\/electronics-shop/i.test(url) ||
-    /\/painting\//i.test(url) ||
+    /\/interiors\/cost-calculator/i.test(url) ||
     /\/interiors\//i.test(url) ||
     /\/solar/i.test(url) ||
     /vaastu/i.test(url);

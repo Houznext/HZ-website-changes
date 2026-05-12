@@ -62,11 +62,7 @@ const PropertyDetailsView = () => {
             favicon="/images/logobb.png"
             breadcrumbs={[
                 { name: "Home", item: "https://houznext.com" },
-                { name: "Properties", item: "https://houznext.com/properties" },
-                {
-                    name: data.details.propertyDetails?.propertyName || "Property Details",
-                    item: `https://houznext.com/properties/${data.details.id}`,
-                },
+                { name: "Our projects", item: "https://houznext.com/projects" },
             ]}
         />
 

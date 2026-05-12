@@ -180,7 +180,7 @@ export default function AboutHouznext() {
           </p>
           <div className="flex gap-3 max-md:justify-center">
             <Button href="/interiors" className="inline-block bg-[#4388ef] text-white font-medium md:text-[14px] text-[12px] rounded-xl px-5 py-2">Explore Services</Button>
-            <Button href="/properties" className="inline-block bg-white border border-gray-300 font-medium md:text-[14px] text-[12px] rounded-xl px-5 py-2">Browse Properties</Button>
+            <Button href="/projects" className="inline-block bg-white border border-gray-300 font-medium md:text-[14px] text-[12px] rounded-xl px-5 py-2">Our projects</Button>
           </div>
         </div>
         <div className="relative md:aspect-[4/3] h-[200px] w-full rounded-2xl overflow-hidden shadow-sm">

@@ -66,10 +66,9 @@ const insertContext = (ctx: {
   <h3 style="color:#3586FF; font-size: 16px; margin-bottom: 8px;">INSIGHTS & TOOLS (use these when user asks about estimators or calculators)</h3>
   When the user asks about painting cost, interior cost, solar cost, or Vaastu consultation, give a brief answer and provide the relevant "Explore Now" link below.
   <ul style="line-height:1.8; margin-left:16px;">
-    <li><strong>Painting Cost Estimator</strong> – Estimate painting costs for your space: <Link href="${base}/painting/paint-cost-calculator" style="color:#3586FF;">Explore Now</Link></li>
+    <li><strong>Interior budgets (incl. painting scope)</strong> – Ballpark and packages from Houznext: <Link href="${base}/interiors/cost-calculator" style="color:#3586FF;">Explore Now</Link></li>
     <li><strong>Vaastu Consultation</strong> – Align your property with Vaastu principles: <Link href="${base}/contact-us" style="color:#3586FF;">Explore Now</Link></li>
-    <li><strong>Interiors Cost Estimator</strong> – Instant interior cost estimates by BHK and style: <Link href="${base}/interiors/cost-calculator" style="color:#3586FF;">Explore Now</Link></li>
-    <li><strong>Solar Panel Cost Calculator</strong> – Savings, energy output & ROI: <Link href="${base}/solar/calculator" style="color:#3586FF;">Explore Now</Link></li>
+    <li><strong>Solar & energy estimates</strong> – Talk to our team for guidance: <Link href="${base}/contact-us" style="color:#3586FF;">Explore Now</Link></li>
   </ul>
   `;
 
@@ -120,7 +119,7 @@ const insertContext = (ctx: {
   <ol style="line-height:1.6; margin-left:16px;">
     <li><strong>Houznext Store</strong>: Furniture and home décor: <Link href="https://www.houznext.com/store" style="color:#3586FF;">Browse the Store</Link></li>
     <li><strong>Interiors</strong>: Complete interior design services with Essentials, Premium, and Luxury packages for different BHK types: <Link href="https://www.houznext.com/interiors" style="color:#3586FF;">Explore Interiors</Link></li>
-    <li><strong>Solar</strong>: Solar panel consultation and ROI calculation. Customers can use our calculator: <Link href="https://www.houznext.com/solar/calculator" style="color:#3586FF;">Solar Calculator</Link></li>
+    <li><strong>Solar</strong>: Solar and energy guidance — direct customers to <Link href="https://www.houznext.com/contact-us" style="color:#3586FF;">Contact us</Link> for estimates.</li>
     <li><strong>LiveBuild</strong>: Project tracking, daily updates, and milestone visibility: <Link href="https://www.houznext.com/buildlive" style="color:#3586FF;">LiveBuild</Link></li>
   </ol>
   

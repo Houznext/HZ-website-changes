@@ -602,7 +602,7 @@ const ProductItemDetails = () => {
             <div className=" flex items-start justify-start">
               <BreadCrumb
                 steps={[
-                  { label: "Our Services", link: "/services/custom-builder" },
+                  { label: "LiveBuild", link: "/buildlive" },
                   {
                     label: `${actualRoute}`,
                     link: `/services/${actualRoute}`,

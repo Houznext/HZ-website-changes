@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import {
@@ -11,6 +11,14 @@ import {
 
 @ApiTags('auth')
 @Controller('auth')
+@UsePipes(
+  new ValidationPipe({
+    transform: true,
+    whitelist: true,
+    forbidUnknownValues: false,
+    transformOptions: { enableImplicitConversion: true },
+  }),
+)
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 

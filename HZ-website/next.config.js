@@ -1,10 +1,5 @@
 /** @type {import('next').NextConfig} */
 const isVercel = process.env.VERCEL === '1'
-/** Optional: Houznext Infra (property) site origin for /real-estate legacy redirects. */
-const infraBase = (process.env.NEXT_PUBLIC_INFRA_URL || '').trim().replace(/\/$/, '')
-const legacyRealEstateRoot = infraBase || '/'
-const legacyRealEstateDeep = infraBase ? `${infraBase}/:path*` : '/'
-
 const nextConfig = {
   /** Expose Google OAuth Web Client ID to the browser (GIS / customer Gmail login). Reuses NextAuth’s GOOGLE_CLIENT_ID when NEXT_PUBLIC_* is unset. */
   env: {
@@ -65,9 +60,6 @@ const nextConfig = {
       { source: '/earthmovers', destination: '/', permanent: false },
       { source: '/earthmovers/:path*', destination: '/', permanent: false },
       { source: '/services/earthmovers', destination: '/', permanent: false },
-      { source: '/painting', destination: '/', permanent: false },
-      { source: '/painting/:path*', destination: '/', permanent: false },
-      { source: '/services/painting', destination: '/', permanent: false },
       { source: '/plumbing', destination: '/', permanent: false },
       { source: '/plumbing/:path*', destination: '/', permanent: false },
       { source: '/services/plumbing', destination: '/', permanent: false },
@@ -81,20 +73,16 @@ const nextConfig = {
       { source: '/services/electronics', destination: '/', permanent: false },
       { source: '/services/electronics/:path*', destination: '/', permanent: false },
       { source: '/services/vastu-consultation', destination: '/', permanent: false },
-      { source: '/services/civilEngineering', destination: '/', permanent: false },
       { source: '/livebuild', destination: '/buildlive', permanent: true },
       { source: '/livebuild/:path*', destination: '/buildlive', permanent: true },
-      { source: '/services/custom-builder', destination: '/buildlive', permanent: true },
-      { source: '/services/custom-builder/:path*', destination: '/buildlive', permanent: true },
-      { source: '/custom-builder', destination: '/buildlive', permanent: true },
-      { source: '/custom-builder/:path*', destination: '/buildlive', permanent: true },
+      // Legacy customer LiveBuild URLs only — no redirects for /painting, /gallery, /services/custom-builder, etc. (404; see robots.txt Disallow)
+      {
+        source: '/custom-builder/user/:path*',
+        destination: '/user/livebuild/user/:path*',
+        permanent: true,
+      },
       { source: '/referandearn', destination: '/houznext-rewards', permanent: true },
       { source: '/view-analytics', destination: '/', permanent: false },
-      {
-        source: '/custom-builder/user/:id*',
-        destination: '/user/livebuild/user/:id*',
-        permanent: false,
-      },
       // Houznext blog listing lives at /blog; /blogs was legacy OneCasa listing (CMS). Keep /blogs/:id for API articles.
       { source: '/blogs', destination: '/blog', permanent: true },
       { source: '/blogs/', destination: '/blog', permanent: true },
@@ -102,11 +90,7 @@ const nextConfig = {
       { source: '/services/construction-for-business/:path*', destination: '/', permanent: false },
       { source: '/services/invest-in-land', destination: '/', permanent: false },
       { source: '/services/invest-in-land/:path*', destination: '/', permanent: false },
-      { source: '/gallery', destination: '/', permanent: false },
-      { source: '/gallery/:path*', destination: '/', permanent: false },
-      // Property marketing moved to Houznext Infra — optional NEXT_PUBLIC_INFRA_URL, else home.
-      { source: '/real-estate', destination: legacyRealEstateRoot, permanent: true },
-      { source: '/real-estate/:path*', destination: legacyRealEstateDeep, permanent: true },
+      // /real-estate and /properties/* — no redirects (404). Houznext Infra uses its own domain and sitemap.
       { source: '/propshome', destination: '/', permanent: true },
       { source: '/propshome/:path*', destination: '/', permanent: true },
       { source: '/recentproperties', destination: '/', permanent: true },
@@ -127,8 +111,6 @@ const nextConfig = {
       { source: '/forgot-password/:path*', destination: '/login', permanent: true },
       { source: '/post-property', destination: '/', permanent: true },
       { source: '/post-property/:path*', destination: '/', permanent: true },
-      { source: '/properties', destination: '/', permanent: true },
-      { source: '/properties/:path*', destination: '/', permanent: true },
       { source: '/company/:path*', destination: '/', permanent: true },
       // Interiors service landings live at /services/[slug]; do not wildcard-redirect /services/* to /interiors.
       { source: '/services', destination: '/interiors', permanent: true },

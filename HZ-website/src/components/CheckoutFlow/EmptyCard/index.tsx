@@ -38,7 +38,7 @@ const EmptyCart = ({ title }: EmptyCart) => {
                     </Button>
 
                     <Button
-                        onClick={() => router.push("/properties")}
+                        onClick={() => router.push("/projects")}
                         className="text-sm text-gray-600 hover:text-blue-500 borderflex flex items-center justify-center gap-2 border border-blue-400 hover:border-blue-400 py-1 px-3 label-text rounded-[4px] transition"
                     >
                         Explore Products <MdExplore className="text-[12px]" />

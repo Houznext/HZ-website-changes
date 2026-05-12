@@ -7,10 +7,10 @@ import SectionSkeleton from "@/common/Skeleton";
 const insights = [
   {
     imageUrl: "/home/insight-1.png",
-    heading: "Painting Cost Estimator",
+    heading: "Design ideas gallery",
     description:
-      "Get expert guidance to estimate painting costs quickly and accurately for your space.",
-    link: "/painting/paint-cost-calculator",
+      "Browse room-by-room looks, save what you love, and request a free estimate from Houznext.",
+    link: "/design-ideas",
   },
   {
     imageUrl: "/home/insight-2.png",

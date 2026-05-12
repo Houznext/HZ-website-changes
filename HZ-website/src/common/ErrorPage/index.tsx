@@ -28,7 +28,7 @@ const Custom404 = () => {
 
                                 <div className="mt-6">
                                     <p className="text-xs text-gray-500 mt-2">
-                                        Press Enter to explore Properties
+                                        Press Enter to go home
                                     </p>
                                 </div>
                                 <div className="mt-8 flex flex-wrap gap-3">
@@ -49,10 +49,10 @@ const Custom404 = () => {
                                     </Link>
 
                                     <Link
-                                        href="/properties"
+                                        href="/projects"
                                         className="inline-flex items-center gap-2 px-5 py-2 btn-text rounded-md bg-gray-900 text-white hover:opacity-95 font-medium"
                                     >
-                                        Browse Properties
+                                        Our projects
                                     </Link>
                                 </div>
 

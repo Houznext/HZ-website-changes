@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
+import { HealthController } from './health.controller';
 import { buildTypeOrmOptions } from './db/datasource';
 import { AuthModule } from './auth/auth.module';
 import { OtpModule } from './otp/otp.module';
@@ -19,6 +20,7 @@ import { SiteVisitModule } from './site-visit/site-visit.module';
 import { S3Module } from './s3/s3.module';
 
 @Module({
+  controllers: [HealthController],
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
