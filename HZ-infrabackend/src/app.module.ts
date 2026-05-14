@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { InfraUserModule } from './infra-user/infra-user.module';
+import { InfraBranchModule } from './infra-branch/infra-branch.module';
+import { InfraBranchRoleModule } from './infra-branch-role/infra-branch-role.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HealthController } from './health.controller';
@@ -28,6 +31,9 @@ import { S3Module } from './s3/s3.module';
       useFactory: () => buildTypeOrmOptions(),
     }),
     AuthModule,
+    InfraUserModule,
+    InfraBranchModule,
+    InfraBranchRoleModule,
     OtpModule,
     CustomerModule,
     PropertyModule,

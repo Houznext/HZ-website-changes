@@ -1,5 +1,15 @@
-import { Body, Controller, HttpCode, Post, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  Req,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import {
   AdminLoginDto,
@@ -7,7 +17,10 @@ import {
   CustomerEmailRegisterDto,
   DeveloperLoginDto,
   GoogleIdTokenDto,
+  LoginDto,
 } from './dto/auth.dto';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import type { JwtPayload } from './jwt.strategy';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -22,15 +35,33 @@ import {
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
+  /** Infra portal staff/admin (`infra_users`) — HZ-infraadmin uses this. */
+  @HttpCode(200)
   @Post('login')
-  adminLogin(@Body() dto: AdminLoginDto) {
+  async infraPortalLogin(@Body() dto: LoginDto) {
+    return this.auth.infraPortalLogin(dto);
+  }
+
+  /** Legacy `infra_admin` table login (unchanged response shape). */
+  @Post('legacy-admin-login')
+  adminLoginLegacy(@Body() dto: AdminLoginDto) {
     return this.auth.adminLogin(dto);
   }
 
-  @HttpCode(200)
   @Post('admin/login')
   adminPortalLogin(@Body() dto: AdminLoginDto) {
     return this.auth.adminLoginPortal(dto);
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async me(@Req() req: { user: JwtPayload }) {
+    const u = req.user;
+    if (u.type === 'legacy_infra_admin') {
+      return this.auth.getLegacyAdminMe(u.sub);
+    }
+    return this.auth.getInfraPortalMe(u.sub);
   }
 
   @Post('developer-login')

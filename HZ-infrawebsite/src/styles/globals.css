@@ -16,6 +16,15 @@
   --red: #dc2626;
   --amber: #d97706;
   --teal: #0d9488;
+  /* Mockup aliases */
+  --ch: #1f2933;
+  --mu: #5a6a7e;
+  --brd: #dde8f5;
+  --off: #f5f7fa;
+  --wh: #ffffff;
+  --rd: #dc2626;
+  --am: #d97706;
+  --tl: #0d9488;
 }
 
 html {

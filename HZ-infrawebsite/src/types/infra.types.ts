@@ -14,6 +14,7 @@ export type ConstructionStatus = 'Ready to Move' | 'Under Construction' | 'New L
 
 export interface InfraProperty {
   propertyId: string;
+  propertyCode?: string | null;
   title: string;
   slug: string | null;
   propertyType: PropertyType;
@@ -35,6 +36,9 @@ export interface InfraProperty {
   isApproved: boolean;
   isActive: boolean;
   isFeatured?: boolean;
+  photoUrls?: string[] | null;
+  coverImageUrl?: string | null;
+  floorPlanUrl?: string | null;
   media?: { mediaId: string; url: string; kind: string; sortOrder: number }[];
 }
 

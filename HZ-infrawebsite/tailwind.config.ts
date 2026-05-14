@@ -17,6 +17,10 @@ const config: Config = {
         'hz-red': '#dc2626',
         'hz-amber': '#d97706',
         'hz-teal': '#0d9488',
+        /** Hero marketing teal (badges, RERA highlight) */
+        'hero-teal': '#2DD4BF',
+        /** Hero primary CTA / active tab (blue-500 family) */
+        'hero-blue': '#3B82F6',
         charcoal: '#1f2933',
         muted: '#5a6a7e',
         border: '#dde8f5',

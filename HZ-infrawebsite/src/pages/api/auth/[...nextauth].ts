@@ -11,6 +11,9 @@ const backend = (
   .trim()
   .replace(/\/+$/, '');
 
+/** On localhost, cookies are host-scoped (not port-scoped), so HZ-infraadmin + HZ-infrawebsite must not share default NextAuth names or they overwrite each other's session → JWEDecryptionFailed. */
+const secureCookies = process.env.NODE_ENV === 'production';
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -87,7 +90,33 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   session: { strategy: 'jwt' },
-  secret: process.env.INFRA_NEXTAUTH_SECRET,
+  secret: process.env.INFRA_NEXTAUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  cookies: {
+    sessionToken: {
+      name: secureCookies ? '__Secure-hz-infrawebsite.session-token' : 'hz-infrawebsite.session-token',
+      options: { httpOnly: true, sameSite: 'lax', path: '/', secure: secureCookies },
+    },
+    callbackUrl: {
+      name: secureCookies ? '__Secure-hz-infrawebsite.callback-url' : 'hz-infrawebsite.callback-url',
+      options: { sameSite: 'lax', path: '/', secure: secureCookies },
+    },
+    csrfToken: {
+      name: secureCookies ? '__Host-hz-infrawebsite.csrf-token' : 'hz-infrawebsite.csrf-token',
+      options: { httpOnly: true, sameSite: 'lax', path: '/', secure: secureCookies },
+    },
+    pkceCodeVerifier: {
+      name: secureCookies ? '__Secure-hz-infrawebsite.pkce.code_verifier' : 'hz-infrawebsite.pkce.code_verifier',
+      options: { httpOnly: true, sameSite: 'lax', path: '/', secure: secureCookies, maxAge: 900 },
+    },
+    state: {
+      name: secureCookies ? '__Secure-hz-infrawebsite.state' : 'hz-infrawebsite.state',
+      options: { httpOnly: true, sameSite: 'lax', path: '/', secure: secureCookies, maxAge: 900 },
+    },
+    nonce: {
+      name: secureCookies ? '__Secure-hz-infrawebsite.nonce' : 'hz-infrawebsite.nonce',
+      options: { httpOnly: true, sameSite: 'lax', path: '/', secure: secureCookies },
+    },
+  },
   pages: {
     signIn: '/login',
     error: '/login',

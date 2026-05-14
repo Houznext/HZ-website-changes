@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Houznext Infra — Property Listing Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f2a44;--blue:#2f80ed;--bh:#1a6dd6;--bl:#e8f1fd;
+  --accent:#f2994a;--ch:#1f2933;--mu:#5a6a7e;--brd:#dde8f5;
+  --off:#f5f7fa;--wh:#ffffff;--rd:#dc2626;--am:#d97706;--tl:#0d9488;
+  --m:'Montserrat',sans-serif;--i:'Inter',sans-serif
+}
+body{font-family:var(--i);font-size:13px;color:var(--ch);background:var(--off)}
+button,input,select,textarea{font-family:var(--i);font-size:13px}
+h1,h2,h3,.mf{font-family:var(--m)}
+
+/* DEV NAV */
+.dn{display:flex;gap:2px;padding:5px 10px;background:#020b14;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:9999}
+.dl{font-size:8px;font-weight:700;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-right:3px;font-family:var(--m)}
+.ds{width:1px;height:12px;background:rgba(255,255,255,.1);margin:0 6px}
+.dt{padding:3px 9px;border-radius:4px;font-size:9.5px;font-weight:600;cursor:pointer;border:none;color:rgba(255,255,255,.38);background:transparent;font-family:var(--m);white-space:nowrap;transition:all .14s}
+.dt.on{background:rgba(47,128,237,.25);color:#6db8ff}
+.dt:hover:not(.on){background:rgba(255,255,255,.06);color:rgba(255,255,255,.7)}
+.pg{display:none}.pg.on{display:block}
+
+/* ADMIN SHELL */
+.adm{display:grid;grid-template-columns:248px 1fr;min-height:calc(100vh - 28px)}
+.adm-sb{background:var(--navy);display:flex;flex-direction:column;position:sticky;top:28px;height:calc(100vh - 28px);overflow-y:auto}
+.adm-main{display:flex;flex-direction:column;min-height:calc(100vh - 28px)}
+.adm-tb{height:54px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 22px;gap:10px;flex-shrink:0;position:sticky;top:28px;z-index:100}
+.adm-c{flex:1;padding:22px;background:#f5f7fa;overflow-y:auto}
+
+/* SIDEBAR */
+.asi{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:10px;cursor:pointer;transition:all .14s;margin:1px 7px;color:rgba(255,255,255,.56);font-size:12.5px;font-weight:500;font-family:var(--i);text-decoration:none}
+.asi:hover{background:rgba(255,255,255,.07);color:#fff}
+.asi.on{background:rgba(47,128,237,.2);color:#fff;border-left:2px solid var(--blue);padding-left:11px}
+.asi .ic{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .14s;background:rgba(255,255,255,.05)}
+.asi.on .ic{background:var(--blue)}
+.asec{padding:14px 13px 4px;font-size:9px;font-weight:700;color:rgba(255,255,255,.24);text-transform:uppercase;letter-spacing:.1em;font-family:var(--m)}
+
+/* CARD */
+.acard{background:#fff;border:.5px solid #e2e8f0;border-radius:12px;padding:18px;transition:border-color .2s}
+
+/* FORM */
+.fi{width:100%;padding:9px 13px;border:1.5px solid var(--brd);border-radius:9px;outline:none;font-size:13px;transition:all .15s;color:var(--ch);background:#fff;font-family:var(--i)}
+.fi:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(47,128,237,.08)}
+.fi:hover:not(:focus){border-color:#b0c8e8}
+.label{display:block;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;font-family:var(--m)}
+.label.req::after{content:'*';color:var(--rd);margin-left:2px}
+.field{margin-bottom:16px}
+textarea.fi{resize:vertical;min-height:80px}
+select.fi{cursor:pointer}
+
+/* STEP BAR */
+.steps{display:flex;align-items:center;gap:0;padding:0 0 22px}
+.step{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.step-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:var(--m);flex-shrink:0;transition:all .25s}
+.step-label{font-size:12px;font-weight:600;font-family:var(--m);transition:color .25s;white-space:nowrap}
+.step-line{flex:1;height:2px;background:#e2e8f0;transition:background .3s;min-width:32px}
+.step.done .step-num{background:var(--tl);color:#fff}
+.step.done .step-label{color:var(--tl)}
+.step.done .step-line{background:var(--tl)}
+.step.active .step-num{background:var(--blue);color:#fff;box-shadow:0 0 0 4px rgba(47,128,237,.15)}
+.step.active .step-label{color:var(--blue)}
+.step.todo .step-num{background:#fff;color:#94a3b8;border:2px solid #e2e8f0}
+.step.todo .step-label{color:#94a3b8}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:9px;font-size:12.5px;font-weight:700;border:none;cursor:pointer;transition:all .18s;font-family:var(--m)}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:var(--bh);transform:translateY(-1px);box-shadow:0 4px 14px rgba(47,128,237,.28)}
+.btn-ghost{background:#fff;color:var(--ch);border:1.5px solid #e2e8f0}.btn-ghost:hover{border-color:var(--blue);color:var(--blue);background:var(--bl)}
+.btn-tl{background:var(--tl);color:#fff}.btn-tl:hover{background:#0f766e;transform:translateY(-1px)}
+.btn-danger{background:#fee2e2;color:var(--rd);border:none}.btn-danger:hover{background:#fecaca}
+.btn-sm{padding:6px 13px;font-size:12px}
+.btn-lg{padding:12px 28px;font-size:13.5px}
+
+/* TABLE */
+.atbl{width:100%;border-collapse:collapse}
+.atbl th{background:#f8fafc;padding:10px 12px;text-align:left;font-size:10.5px;font-weight:700;color:#5a6a7e;text-transform:uppercase;letter-spacing:.07em;border-bottom:1.5px solid #e2e8f0;font-family:var(--m)}
+.atbl td{padding:12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px;vertical-align:middle}
+.atbl tr:hover td{background:#f8fafc}
+
+/* BADGES */
+.bdg{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;font-family:var(--m)}
+.b-blue{background:var(--bl);color:#1e40af}
+.b-teal{background:#ccfbf1;color:#0f766e}
+.b-amber{background:#fef3c7;color:#92400e}
+.b-red{background:#fee2e2;color:var(--rd)}
+.b-purple{background:#f3e8ff;color:#6b21a8}
+.b-gray{background:#f1f5f9;color:#475569}
+.b-green{background:#dcfce7;color:#15803d}
+
+/* TOGGLE */
+.tgl{position:relative;display:inline-flex;align-items:center;cursor:pointer;gap:8px;user-select:none}
+.tgl input{display:none}
+.tgl-track{width:40px;height:22px;border-radius:11px;background:#e2e8f0;transition:background .2s;flex-shrink:0;position:relative}
+.tgl-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+.tgl input:checked+.tgl-track{background:var(--blue)}
+.tgl input:checked+.tgl-track .tgl-thumb{transform:translateX(18px)}
+.tgl-lbl{font-size:12.5px;color:var(--ch);font-weight:500}
+
+/* UPLOAD ZONE */
+.upzone{border:2px dashed var(--brd);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .22s;background:var(--off)}
+.upzone:hover,.upzone.drag{border-color:var(--blue);background:var(--bl)}
+.upzone-icon{width:44px;height:44px;border-radius:12px;background:var(--bl);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.up-thumb{width:80px;height:64px;border-radius:9px;background:var(--off);border:1.5px solid var(--brd);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;transition:all .2s;cursor:pointer;flex-shrink:0}
+.up-thumb:hover{border-color:var(--blue);box-shadow:0 4px 12px rgba(47,128,237,.12)}
+.up-thumb .rm{position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:rgba(220,38,38,.85);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .15s}
+.up-thumb:hover .rm{opacity:1}
+
+/* CHIPS */
+.chip-grid{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .18s;border:1.5px solid var(--brd);background:#fff;color:var(--mu);font-family:var(--m);display:inline-flex;align-items:center;gap:5px;user-select:none}
+.chip:hover{border-color:#93c5fd;color:var(--blue);background:var(--bl)}
+.chip.sel{border-color:var(--blue);background:var(--bl);color:var(--blue)}
+.chip.sel-tl{border-color:var(--tl);background:#ccfbf1;color:#0f766e}
+
+/* TOAST */
+.tw{position:fixed;bottom:22px;right:22px;z-index:99999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--ch);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;border-left:3px solid #22c55e;animation:tIn .3s ease,tOut .3s ease 2.7s forwards;white-space:nowrap}
+@keyframes tIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+@keyframes tOut{from{opacity:1}to{opacity:0}}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(15,42,68,.45);z-index:4000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(15,42,68,.2)}
+.modal-hd{padding:20px 22px 16px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2;border-radius:16px 16px 0 0}
+.modal-body{padding:20px 22px}
+.modal-ft{padding:14px 22px;border-top:1px solid var(--brd);display:flex;gap:9px;justify-content:flex-end;position:sticky;bottom:0;background:#fff;border-radius:0 0 16px 16px}
+.hidden{display:none!important}
+
+/* SECTION DIVIDER */
+.sdiv{display:flex;align-items:center;gap:10px;margin:20px 0 16px}
+.sdiv-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sdiv-title{font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch)}
+.sdiv-sub{font-size:12px;color:var(--mu)}
+.sdiv-line{flex:1;height:1px;background:#f0f4f8}
+
+/* PREVIEW CARD */
+.prev-card{background:#fff;border:1px solid var(--brd);border-radius:14px;overflow:hidden}
+.prev-img{height:170px;background:linear-gradient(135deg,#e8f1fd,#c7d9f5);display:flex;align-items:center;justify-content:center;position:relative}
+.prev-body{padding:14px 15px}
+
+/* PROGRESS */
+.prog-bar{height:4px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin-bottom:4px}
+.prog-fill{height:100%;background:var(--blue);border-radius:4px;transition:width .4s ease}
+
+/* INFO BOX */
+.info-box{background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px 14px;display:flex;gap:9px;align-items:flex-start}
+.warn-box{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 14px;display:flex;gap:9px;align-items:flex-start}
+
+/* FIELD GROUP */
+.fgroup{background:var(--off);border-radius:12px;padding:16px;margin-bottom:14px;border:1px solid #edf2f7}
+.fgroup-title{font-family:var(--m);font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+
+/* ADMIN ONLY PILL */
+.admin-only{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;background:#fef3c7;color:#92400e;font-size:9.5px;font-weight:700;font-family:var(--m);text-transform:uppercase;letter-spacing:.05em;border:1px solid #fde68a}
+</style>
+</head>
+<body>
+<div class="tw" id="toasts"></div>
+<!-- DEV NAV -->
+<div class="dn">
+  <span class="dl">Infra Admin</span>
+  <button class="dt on" onclick="P('listings',this)">All Listings</button>
+  <div class="ds"></div>
+  <span class="dl">Listing Flow</span>
+  <button class="dt" onclick="P('step1',this)">Step 1 — Basic + Owner</button>
+  <button class="dt" onclick="P('step2apt',this)">Step 2 — Apartment</button>
+  <button class="dt" onclick="P('step2villa',this)">Step 2 — Villa</button>
+  <button class="dt" onclick="P('step2land',this)">Step 2 — Land</button>
+  <button class="dt" onclick="P('step2plot',this)">Step 2 — Plot</button>
+  <button class="dt" onclick="P('step3',this)">Step 3 — Pricing & Docs</button>
+  <button class="dt" onclick="P('step4',this)">Step 4 — Photos & Publish</button>
+  <button class="dt" onclick="P('review',this)">Review & Confirm</button>
+  <button class="dt" onclick="P('success',this)">Success</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SHARED ADMIN SHELL — wraps every page
+══════════════════════════════════════════════════ -->
+<template id="shell-tpl">
+  <!-- Sidebar -->
+  <div class="adm-sb" id="sb-slot">
+    <div style="padding:0 14px;height:54px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0">
+      <span style="font-family:var(--m);font-size:16px;font-weight:800;color:#fff">Houznext <span style="color:var(--accent)">Infra</span></span>
+      <span style="font-size:8px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--blue);color:#fff;font-family:var(--m);text-transform:uppercase;letter-spacing:.08em">Admin</span>
+    </div>
+    <nav style="flex:1;overflow-y:auto;padding:8px 0">
+      <div class="asec">Overview</div>
+      <div class="asi on" onclick="P('listings',null)">
+        <span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="14" rx="2"/><line x1="3" y1="20" x2="21" y2="20"/><line x1="12" y1="17" x2="12" y2="20"/></svg></span>All properties
+        <span style="margin-left:auto;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(47,128,237,.2);color:#93c5fd;font-family:var(--m)">1,284</span>
+      </div>
+      <div class="asi" onclick="toast('Pending approval…')">
+        <span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>Pending approval
+        <span style="margin-left:auto;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(217,119,6,.18);color:#f59e0b;font-family:var(--m)">48</span>
+      </div>
+      <div class="asec">Content</div>
+      <div class="asi" onclick="toast('Projects…')">
+        <span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>Projects
+      </div>
+      <div class="asi" onclick="toast('RERA docs…')">
+        <span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>RERA & documents
+      </div>
+      <div class="asi" onclick="toast('Hero CMS…')">
+        <span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>Hero image CMS
+      </div>
+      <div class="asec">CRM</div>
+      <div class="asi" onclick="toast('CRM leads…')">
+        <span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>CRM leads
+        <span style="margin-left:auto;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(217,119,6,.18);color:#f59e0b;font-family:var(--m)">24</span>
+      </div>
+      <div class="asi" onclick="toast('Site visits…')">
+        <span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>Site visits
+      </div>
+      <div class="asec">System</div>
+      <div class="asi" onclick="toast('Developer submissions…')">
+        <span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>Developer submissions
+        <span style="margin-left:auto;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(242,153,74,.18);color:#f2994a;font-family:var(--m)">3</span>
+      </div>
+      <div class="asi" onclick="toast('Settings…')">
+        <span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>Settings
+      </div>
+    </nav>
+    <div style="padding:10px;border-top:1px solid rgba(255,255,255,.07)">
+      <div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;cursor:pointer;transition:background .14s" onmouseenter="this.style.background='rgba(255,255,255,.06)'" onmouseleave="this.style.background='transparent'">
+        <div style="width:32px;height:32px;border-radius:50%;background:rgba(47,128,237,.25);border:1.5px solid rgba(47,128,237,.4);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#90bdf0;font-family:var(--m);flex-shrink:0">A</div>
+        <div><div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.9)">Admin User</div><div style="font-size:10.5px;color:rgba(255,255,255,.38)">Super Admin</div></div>
+        <svg style="margin-left:auto;flex-shrink:0" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.8" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+    </div>
+  </div>
+</template>
+<!-- ══════════ PAGE: ALL LISTINGS ══════════ -->
+<div class="pg on" id="pg-listings">
+  <div class="adm">
+    <div id="sb-listings"></div>
+    <div class="adm-main">
+      <div class="adm-tb">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--mu)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)">All properties</span>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+          <div style="position:relative">
+            <svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%)" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="fi" placeholder="Search properties…" style="padding-left:30px;width:220px;font-size:12.5px" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--brd)'">
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="toast('Exporting CSV…')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export
+          </button>
+          <button class="btn btn-blue btn-sm" onclick="P('step1',null)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add property
+          </button>
+        </div>
+      </div>
+      <div class="adm-c">
+        <!-- Stats row -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px">
+          <div class="acard" style="padding:14px 16px">
+            <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;font-family:var(--m)">Total</div>
+            <div style="font-family:var(--m);font-size:26px;font-weight:800;color:var(--ch)">1,284</div>
+          </div>
+          <div class="acard" style="padding:14px 16px">
+            <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;font-family:var(--m)">Active</div>
+            <div style="font-family:var(--m);font-size:26px;font-weight:800;color:var(--blue)">986</div>
+          </div>
+          <div class="acard" style="padding:14px 16px">
+            <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;font-family:var(--m)">Pending</div>
+            <div style="font-family:var(--m);font-size:26px;font-weight:800;color:var(--am)">48</div>
+          </div>
+          <div class="acard" style="padding:14px 16px">
+            <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;font-family:var(--m)">Sold</div>
+            <div style="font-family:var(--m);font-size:26px;font-weight:800;color:var(--tl)">112</div>
+          </div>
+          <div class="acard" style="padding:14px 16px">
+            <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;font-family:var(--m)">Archived</div>
+            <div style="font-family:var(--m);font-size:26px;font-weight:800;color:var(--mu)">138</div>
+          </div>
+        </div>
+        <!-- Filters -->
+        <div class="acard" style="padding:12px 14px;margin-bottom:14px;display:flex;gap:9px;align-items:center;flex-wrap:wrap">
+          <select class="fi" style="width:auto;font-size:12.5px" onchange="toast('Filter applied')">
+            <option>All types</option><option>Apartment</option><option>Villa</option><option>Land</option><option>Plot</option><option>Row House</option><option>Commercial</option>
+          </select>
+          <select class="fi" style="width:auto;font-size:12.5px">
+            <option>All cities</option><option>Hyderabad</option><option>Bengaluru</option><option>Chennai</option><option>Mumbai</option>
+          </select>
+          <select class="fi" style="width:auto;font-size:12.5px">
+            <option>All statuses</option><option>Active</option><option>Pending</option><option>Sold</option><option>Archived</option>
+          </select>
+          <select class="fi" style="width:auto;font-size:12.5px">
+            <option>Listed by: All</option><option>Houznext</option><option>Developer</option><option>Public</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" onclick="toast('Filters cleared')">Clear filters</button>
+        </div>
+        <!-- Table -->
+        <div class="acard" style="padding:0;overflow:hidden">
+          <table class="atbl">
+            <thead><tr>
+              <th style="width:36px"><input type="checkbox" style="accent-color:var(--blue)"></th>
+              <th>Property</th><th>Type</th><th>City / Locality</th><th>Price</th><th>Status</th><th>Enquiries</th><th>Listed by</th><th>Added</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="listing-rows"></tbody>
+          </table>
+          <div style="padding:12px 16px;border-top:.5px solid #f0f4f8;display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:12px;color:var(--mu)">Showing <strong>1–20</strong> of <strong>1,284</strong> properties</span>
+            <div style="display:flex;gap:5px">
+              <button class="btn btn-ghost btn-sm">‹ Prev</button>
+              <button class="btn btn-blue btn-sm">1</button>
+              <button class="btn btn-ghost btn-sm">2</button>
+              <button class="btn btn-ghost btn-sm">3</button>
+              <button class="btn btn-ghost btn-sm">Next ›</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ══════════ STEP SHELL: reusable header ══════════ -->
+<!-- Step 1: Basic Details + Owner Info -->
+<div class="pg" id="pg-step1">
+  <div class="adm">
+    <div id="sb-step1"></div>
+    <div class="adm-main">
+      <div class="adm-tb">
+        <button class="btn btn-ghost btn-sm" onclick="P('listings',null)" style="gap:5px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>Back
+        </button>
+        <span style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)">Add new property</span>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="toast('Saved as draft')">Save draft</button>
+          <button class="btn btn-blue btn-sm" onclick="P('step2apt',null)">Next: Property details →</button>
+        </div>
+      </div>
+      <div class="adm-c">
+        <!-- Progress -->
+        <div class="acard" style="padding:16px 20px;margin-bottom:18px">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+            <div style="font-family:var(--m);font-size:11px;font-weight:700;color:var(--blue)">Step 1 of 4 — Basic details</div>
+            <div style="margin-left:auto;font-size:11px;color:var(--mu)">25% complete</div>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" style="width:25%"></div></div>
+          <!-- step indicators -->
+          <div class="steps" style="padding:12px 0 0">
+            <div class="step active"><div class="step-num">1</div><div class="step-label">Basic & Owner</div></div>
+            <div class="step-line"></div>
+            <div class="step todo"><div class="step-num">2</div><div class="step-label">Property specifics</div></div>
+            <div class="step-line"></div>
+            <div class="step todo"><div class="step-num">3</div><div class="step-label">Pricing & Docs</div></div>
+            <div class="step-line"></div>
+            <div class="step todo"><div class="step-num">4</div><div class="step-label">Photos & Publish</div></div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start">
+          <!-- Left: Form -->
+          <div>
+            <!-- Property Type selector -->
+            <div class="acard" style="margin-bottom:14px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #f0f4f8">
+                <div style="width:36px;height:36px;border-radius:9px;background:var(--bl);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="14" rx="2"/><line x1="3" y1="20" x2="21" y2="20"/><line x1="12" y1="17" x2="12" y2="20"/></svg>
+                </div>
+                <div><div class="mf" style="font-size:13.5px;font-weight:700;color:var(--ch)">Property type</div><div style="font-size:12px;color:var(--mu)">Select the type — fields will change accordingly</div></div>
+              </div>
+              <div class="chip-grid">
+                <div class="chip sel" onclick="selectType(this,'Apartment')" id="type-Apartment">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Apartment
+                </div>
+                <div class="chip" onclick="selectType(this,'Villa')" id="type-Villa">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><line x1="6" y1="7" x2="18" y2="7"/></svg>Villa
+                </div>
+                <div class="chip" onclick="selectType(this,'Land')" id="type-Land">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="14" rx="2"/><line x1="3" y1="20" x2="21" y2="20"/></svg>Land
+                </div>
+                <div class="chip" onclick="selectType(this,'Plot')" id="type-Plot">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg>Plot
+                </div>
+                <div class="chip" onclick="selectType(this,'Row House')" id="type-Row House">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><line x1="8" y1="21" x2="8" y2="14"/><line x1="16" y1="21" x2="16" y2="14"/></svg>Row House
+                </div>
+                <div class="chip" onclick="selectType(this,'Commercial')" id="type-Commercial">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>Commercial
+                </div>
+                <div class="chip" onclick="selectType(this,'Studio')" id="type-Studio">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/></svg>Studio
+                </div>
+                <div class="chip" onclick="selectType(this,'Farmhouse')" id="type-Farmhouse">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 14a5 5 0 006 0"/></svg>Farmhouse
+                </div>
+              </div>
+              <div style="margin-top:14px;display:flex;gap:12px">
+                <div style="flex:1"><label class="label req">Listing for</label>
+                  <div class="chip-grid">
+                    <div class="chip sel" id="for-Buy" onclick="selectFor(this,'Buy')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Buy</div>
+                    <div class="chip" id="for-Rent" onclick="selectFor(this,'Rent')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Rent</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Basic property details -->
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:var(--bl)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="sdiv-title">Property details</div><div class="sdiv-sub">Basic listing information</div></div><div class="sdiv-line"></div></div>
+              <div class="field"><label class="label req">Property title</label><input class="fi" placeholder="e.g. Skyline Heights — 3BHK Tower A, Gachibowli" oninput="updatePreview(this.value)"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="field"><label class="label req">City</label>
+                  <select class="fi" onchange="toast('City: '+this.value)">
+                    <option value="">Select city</option>
+                    <option>Hyderabad</option><option>Bengaluru</option><option>Chennai</option><option>Mumbai</option>
+                  </select>
+                </div>
+                <div class="field"><label class="label req">Locality / Area</label><input class="fi" placeholder="e.g. Gachibowli, Madhapur"></div>
+              </div>
+              <div class="field"><label class="label">Full address</label><textarea class="fi" rows="2" placeholder="Street address, landmark…"></textarea></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="field"><label class="label">Pincode</label><input class="fi" placeholder="500032" type="number"></div>
+                <div class="field"><label class="label req">Construction status</label>
+                  <select class="fi">
+                    <option>Ready to Move</option><option>Under Construction</option><option>New Launch</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field"><label class="label">Property description</label><textarea class="fi" rows="3" placeholder="Describe the property — surroundings, highlights, access…"></textarea></div>
+            </div>
+
+            <!-- OWNER DETAILS — Admin only -->
+            <div class="acard" style="margin-bottom:14px;border-color:#fde68a">
+              <div class="sdiv" style="margin-bottom:16px"><div class="sdiv-icon" style="background:#fef9c3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div class="sdiv-title">Owner / Seller information <span class="admin-only"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Admin only</span></div><div class="sdiv-sub">Visible only in Admin — never shown on website</div></div><div class="sdiv-line"></div></div>
+              <div class="warn-box" style="margin-bottom:14px">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="1.8" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <div style="font-size:12px;color:#92400e">Owner contact details are stored for internal use only. They are <strong>never displayed</strong> to website visitors or buyers.</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="field"><label class="label req">Owner full name</label><input class="fi" placeholder="Full name of property owner"></div>
+                <div class="field"><label class="label req">Owner phone</label><input class="fi" placeholder="+91 98765 43210" type="tel"></div>
+                <div class="field"><label class="label">Owner email</label><input class="fi" placeholder="owner@email.com" type="email"></div>
+                <div class="field"><label class="label">Alternate phone</label><input class="fi" placeholder="+91 XXXXX XXXXX" type="tel"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+                <div class="field"><label class="label">Listed by</label>
+                  <select class="fi">
+                    <option>Houznext</option><option>Developer</option><option>Public / Owner</option>
+                  </select>
+                </div>
+                <div class="field"><label class="label">Source / How acquired</label>
+                  <select class="fi">
+                    <option>Walk-in</option><option>Website form</option><option>Developer submission</option><option>Referral</option><option>Field team</option>
+                  </select>
+                </div>
+                <div class="field"><label class="label">Branch</label>
+                  <select class="fi">
+                    <option>Hyderabad HQ</option><option>Bengaluru</option><option>Chennai</option><option>Mumbai</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field"><label class="label">Internal notes (admin only)</label><textarea class="fi" rows="2" placeholder="Any notes about the owner, negotiation status, deal terms…"></textarea></div>
+            </div>
+          </div>
+
+          <!-- Right: Preview card + type guide -->
+          <div style="position:sticky;top:82px;display:flex;flex-direction:column;gap:14px">
+            <div class="acard">
+              <div style="font-family:var(--m);font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Live preview</div>
+              <div class="prev-card">
+                <div class="prev-img">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(47,128,237,.18)" stroke-width="1" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  <div style="position:absolute;bottom:9px;left:9px"><span class="bdg b-teal">Ready to Move</span></div>
+                </div>
+                <div class="prev-body">
+                  <div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;font-family:var(--m)" id="prev-type">Apartment</div>
+                  <div style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch);margin-bottom:4px;line-height:1.3" id="prev-title">Property title will appear here</div>
+                  <div style="font-size:11.5px;color:var(--mu);display:flex;align-items:center;gap:4px;margin-bottom:8px">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Locality, City
+                  </div>
+                  <div style="font-family:var(--m);font-size:17px;font-weight:800;color:var(--ch)">₹—</div>
+                  <div style="display:flex;gap:5px;margin-top:8px;flex-wrap:wrap">
+                    <span style="font-size:9.5px;padding:2px 8px;border-radius:20px;background:var(--off);color:var(--mu);border:.5px solid var(--brd);font-family:var(--m)">Chips appear here</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="acard" style="background:#f0fdf4;border-color:#bbf7d0">
+              <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>
+                <span style="font-family:var(--m);font-size:12px;font-weight:700;color:#15803d">Step 1 complete when:</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px" id="checklist-1">
+                <div class="cl-item" style="display:flex;align-items:center;gap:7px;font-size:12px;color:#64748b">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/></svg>Property type selected
+                </div>
+                <div class="cl-item" style="display:flex;align-items:center;gap:7px;font-size:12px;color:#64748b">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/></svg>Title entered
+                </div>
+                <div class="cl-item" style="display:flex;align-items:center;gap:7px;font-size:12px;color:#64748b">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/></svg>City &amp; locality set
+                </div>
+                <div class="cl-item" style="display:flex;align-items:center;gap:7px;font-size:12px;color:#64748b">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/></svg>Owner name &amp; phone
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ══════════ STEP 2: APARTMENT ══════════ -->
+<div class="pg" id="pg-step2apt">
+  <div class="adm">
+    <div id="sb-step2apt"></div>
+    <div class="adm-main">
+      <div class="adm-tb">
+        <button class="btn btn-ghost btn-sm" onclick="P('step1',null)">← Back</button>
+        <span style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)">Property specifics — <span style="color:var(--blue)">Apartment</span></span>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="toast('Draft saved')">Save draft</button>
+          <button class="btn btn-blue btn-sm" onclick="P('step3',null)">Next: Pricing & Docs →</button>
+        </div>
+      </div>
+      <div class="adm-c">
+        <!-- Progress -->
+        <div class="acard" style="padding:14px 20px;margin-bottom:18px">
+          <div style="display:flex;align-items:center;margin-bottom:8px"><div style="font-family:var(--m);font-size:11px;font-weight:700;color:var(--blue)">Step 2 of 4 — Apartment specifics</div><div style="margin-left:auto;font-size:11px;color:var(--mu)">50% complete</div></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:50%"></div></div>
+          <div class="steps" style="padding:12px 0 0">
+            <div class="step done"><div class="step-num">✓</div><div class="step-label">Basic & Owner</div></div>
+            <div class="step-line"></div>
+            <div class="step active"><div class="step-num">2</div><div class="step-label">Property specifics</div></div>
+            <div class="step-line"></div>
+            <div class="step todo"><div class="step-num">3</div><div class="step-label">Pricing & Docs</div></div>
+            <div class="step-line"></div>
+            <div class="step todo"><div class="step-num">4</div><div class="step-label">Photos & Publish</div></div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <!-- Size & configuration -->
+          <div>
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:var(--bl)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div><div class="sdiv-title">Size & configuration</div></div><div class="sdiv-line"></div></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="field"><label class="label req">BHK type</label>
+                  <select class="fi">
+                    <option>1 RK</option><option>1 BHK</option><option>2 BHK</option><option selected>3 BHK</option><option>4 BHK</option><option>4 BHK+</option><option>Studio</option>
+                  </select>
+                </div>
+                <div class="field"><label class="label req">Carpet area (sqft)</label>
+                  <input class="fi" placeholder="e.g. 1450" type="number" oninput="calcPSF()">
+                </div>
+                <div class="field"><label class="label">Built-up area (sqft)</label><input class="fi" placeholder="e.g. 1680" type="number"></div>
+                <div class="field"><label class="label">Super built-up area (sqft)</label><input class="fi" placeholder="e.g. 1920" type="number"></div>
+              </div>
+            </div>
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#f3e8ff"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/><line x1="12" y1="17" x2="12" y2="20"/></svg></div><div><div class="sdiv-title">Floor & unit details</div></div><div class="sdiv-line"></div></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="field"><label class="label">Floor number</label><input class="fi" placeholder="e.g. 12" type="number"></div>
+                <div class="field"><label class="label">Total floors in building</label><input class="fi" placeholder="e.g. 22" type="number"></div>
+                <div class="field"><label class="label">Tower name</label><input class="fi" placeholder="e.g. Tower A"></div>
+                <div class="field"><label class="label">Facing direction</label>
+                  <select class="fi"><option>East</option><option>West</option><option>North</option><option>South</option><option>North-East</option><option>North-West</option><option>South-East</option><option>South-West</option></select>
+                </div>
+                <div class="field"><label class="label">Parking</label>
+                  <select class="fi"><option>No parking</option><option>1 covered</option><option>2 covered</option><option>Open parking</option></select>
+                </div>
+                <div class="field"><label class="label">Furnishing status</label>
+                  <select class="fi"><option>Unfurnished</option><option>Semi-furnished</option><option>Fully furnished</option></select>
+                </div>
+              </div>
+              <div class="field" id="possession-field"><label class="label">Possession date</label>
+                <div style="display:flex;gap:8px">
+                  <select class="fi"><option>Jan</option><option>Feb</option><option>Mar</option><option>Apr</option><option>May</option><option>Jun</option><option>Jul</option><option>Aug</option><option>Sep</option><option>Oct</option><option>Nov</option><option>Dec</option></select>
+                  <select class="fi"><option>2025</option><option>2026</option><option>2027</option><option>2028</option></select>
+                </div>
+              </div>
+              <div class="field"><label class="label">Linked project (optional)</label>
+                <select class="fi"><option value="">None — standalone unit</option><option>Skyline Heights</option><option>Green Valley Villas</option><option>Nova Commercial Park</option></select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Amenities -->
+          <div>
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#f0fdf4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><div><div class="sdiv-title">Amenities</div><div class="sdiv-sub">Select all that apply</div></div><div class="sdiv-line"></div></div>
+              <div class="chip-grid" id="amenities-apt">
+                <div class="chip" onclick="this.classList.toggle('sel-tl')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 22s-8-4.5-8-11V5l8-3 8 3v6c0 6.5-8 11-8 11z"/></svg>Swimming Pool</div>
+                <div class="chip" onclick="this.classList.toggle('sel-tl')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/></svg>Gym / Fitness</div>
+                <div class="chip sel-tl" onclick="this.classList.toggle('sel-tl')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Covered Parking</div>
+                <div class="chip sel-tl" onclick="this.classList.toggle('sel-tl')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>Clubhouse</div>
+                <div class="chip" onclick="this.classList.toggle('sel-tl')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 22s-8-4.5-8-11V5l8-3 8 3v6c0 6.5-8 11-8 11z"/><path d="M9 12l2 2 4-4"/></svg>24hr Security</div>
+                <div class="chip sel-tl" onclick="this.classList.toggle('sel-tl')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Power Backup</div>
+                <div class="chip" onclick="this.classList.toggle('sel-tl')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>CCTV</div>
+                <div class="chip" onclick="this.classList.toggle('sel-tl')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Children Play Area</div>
+                <div class="chip sel-tl" onclick="this.classList.toggle('sel-tl')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Vastu Compliant</div>
+                <div class="chip" onclick="this.classList.toggle('sel-tl')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>Lift / Elevator</div>
+                <div class="chip" onclick="this.classList.toggle('sel-tl')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>Solar / EV Charging</div>
+                <div class="chip" onclick="this.classList.toggle('sel-tl')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Jogging Track</div>
+              </div>
+            </div>
+
+            <!-- Verification badges -->
+            <div class="acard">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#ccfbf1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--tl)" stroke-width="1.8" stroke-linecap="round"><path d="M12 22s-8-4.5-8-11V5l8-3 8 3v6c0 6.5-8 11-8 11z"/><path d="M9 12l2 2 4-4"/></svg></div><div><div class="sdiv-title">Verification status</div><div class="sdiv-sub">Shown as trust badges on listing</div></div><div class="sdiv-line"></div></div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <label class="tgl"><input type="checkbox" id="tgl-rera" onchange="toast(this.checked?'RERA verified badge added':'RERA badge removed')"><div class="tgl-track"><div class="tgl-thumb"></div></div><div><div class="tgl-lbl">RERA Verified</div><div style="font-size:11px;color:var(--mu)">Shows verified badge on listing</div></div></label>
+                <label class="tgl"><input type="checkbox" onchange="toast(this.checked?'Title clear badge added':'Title badge removed')"><div class="tgl-track"><div class="tgl-thumb"></div></div><div><div class="tgl-lbl">Title Clear</div><div style="font-size:11px;color:var(--mu)">Encumbrance certificate verified</div></div></label>
+                <label class="tgl"><input type="checkbox" checked onchange="toast(this.checked?'Houznext verified':'Removed')"><div class="tgl-track"><div class="tgl-thumb"></div></div><div><div class="tgl-lbl">Houznext Verified</div><div style="font-size:11px;color:var(--mu)">Property visited by Houznext team</div></div></label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ STEP 2: LAND ══════════ -->
+<div class="pg" id="pg-step2land">
+  <div class="adm">
+    <div id="sb-step2land"></div>
+    <div class="adm-main">
+      <div class="adm-tb">
+        <button class="btn btn-ghost btn-sm" onclick="P('step1',null)">← Back</button>
+        <span style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)">Property specifics — <span style="color:var(--am)">Land</span></span>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="toast('Draft saved')">Save draft</button>
+          <button class="btn btn-blue btn-sm" onclick="P('step3',null)">Next: Pricing & Docs →</button>
+        </div>
+      </div>
+      <div class="adm-c">
+        <div class="acard" style="padding:14px 20px;margin-bottom:18px">
+          <div style="display:flex;align-items:center;margin-bottom:8px"><div style="font-family:var(--m);font-size:11px;font-weight:700;color:var(--am)">Step 2 of 4 — Land specifics</div><div style="margin-left:auto;font-size:11px;color:var(--mu)">50% complete</div></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:50%"></div></div>
+          <div class="steps" style="padding:12px 0 0">
+            <div class="step done"><div class="step-num">✓</div><div class="step-label">Basic & Owner</div></div>
+            <div class="step-line"></div>
+            <div class="step active"><div class="step-num" style="background:var(--am)">2</div><div class="step-label" style="color:var(--am)">Property specifics</div></div>
+            <div class="step-line"></div>
+            <div class="step todo"><div class="step-num">3</div><div class="step-label">Pricing & Docs</div></div>
+            <div class="step-line"></div>
+            <div class="step todo"><div class="step-num">4</div><div class="step-label">Photos & Publish</div></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <div>
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#fffbeb"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="14" rx="2"/><line x1="3" y1="20" x2="21" y2="20"/><line x1="12" y1="17" x2="12" y2="20"/></svg></div><div><div class="sdiv-title">Land area & dimensions</div></div><div class="sdiv-line"></div></div>
+              <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px">
+                <div class="field"><label class="label req">Land area</label><input class="fi" placeholder="e.g. 500" type="number"></div>
+                <div class="field"><label class="label req">Unit</label>
+                  <select class="fi"><option>Sqyds</option><option>Sqft</option><option>Acres</option><option>Guntas</option><option>Cents</option></select>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="field"><label class="label">Road width (ft)</label><input class="fi" placeholder="e.g. 33" type="number"></div>
+                <div class="field"><label class="label">Facing</label>
+                  <select class="fi"><option>East</option><option>West</option><option>North</option><option>South</option><option>North-East</option></select>
+                </div>
+              </div>
+            </div>
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#fef9c3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div><div class="sdiv-title">Legal & approval</div></div><div class="sdiv-line"></div></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="field"><label class="label req">Land use type</label>
+                  <select class="fi"><option>Residential</option><option>Agricultural</option><option>Commercial</option><option>Industrial</option><option>Mixed use</option></select>
+                </div>
+                <div class="field"><label class="label req">Approval authority</label>
+                  <select class="fi"><option>HMDA</option><option>HUDA</option><option>BDA (Bengaluru)</option><option>DTCP</option><option>Gram Panchayat</option><option>Municipal</option><option>CMDA (Chennai)</option></select>
+                </div>
+                <div class="field"><label class="label">Survey number</label><input class="fi" placeholder="Government survey no."></div>
+                <div class="field"><label class="label">Layout name</label><input class="fi" placeholder="e.g. HMDA Layout Sector 4"></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+                <label class="tgl"><input type="checkbox" checked><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">EC Verified (Encumbrance Certificate)</span></label>
+                <label class="tgl"><input type="checkbox" checked><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Title clear</span></label>
+                <label class="tgl"><input type="checkbox"><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Patta available</span></label>
+                <label class="tgl"><input type="checkbox"><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Corner plot</span></label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#f0fdf4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round"><path d="M12 22s-8-4.5-8-11V5l8-3 8 3v6c0 6.5-8 11-8 11z"/></svg></div><div><div class="sdiv-title">Utilities & features</div></div><div class="sdiv-line"></div></div>
+              <div class="field"><label class="label">Water source</label>
+                <select class="fi"><option>None</option><option>Borewell</option><option>Municipal supply</option><option>Both</option></select>
+              </div>
+              <div class="field"><label class="label">Electricity</label>
+                <select class="fi"><option>Not available</option><option>EB connection available</option><option>Street lighting only</option></select>
+              </div>
+              <div class="field"><label class="label">Zone type</label>
+                <select class="fi"><option>Residential zone</option><option>Commercial zone</option><option>Industrial zone</option><option>Agricultural zone</option></select>
+              </div>
+            </div>
+            <div class="acard info-box">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+              <div style="font-size:12px;color:#0c4a6e"><strong>Land listing tip:</strong> Properties with EC verification and clear title show a trust badge and rank higher in search results. Upload the EC document in Step 3.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ══════════ STEP 2: VILLA ══════════ -->
+<div class="pg" id="pg-step2villa">
+  <div class="adm">
+    <div id="sb-step2villa"></div>
+    <div class="adm-main">
+      <div class="adm-tb">
+        <button class="btn btn-ghost btn-sm" onclick="P('step1',null)">← Back</button>
+        <span style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)">Property specifics — <span style="color:#db2777">Villa / Row House</span></span>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="toast('Draft saved')">Save draft</button>
+          <button class="btn btn-blue btn-sm" onclick="P('step3',null)">Next: Pricing & Docs →</button>
+        </div>
+      </div>
+      <div class="adm-c">
+        <div class="acard" style="padding:14px 20px;margin-bottom:18px">
+          <div style="display:flex;align-items:center;margin-bottom:8px"><div style="font-family:var(--m);font-size:11px;font-weight:700;color:#db2777">Step 2 of 4 — Villa specifics</div><div style="margin-left:auto;font-size:11px;color:var(--mu)">50% complete</div></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:50%;background:#db2777"></div></div>
+          <div class="steps" style="padding:12px 0 0">
+            <div class="step done"><div class="step-num">✓</div><div class="step-label">Basic & Owner</div></div>
+            <div class="step-line"></div>
+            <div class="step active"><div class="step-num" style="background:#db2777">2</div><div class="step-label" style="color:#db2777">Property specifics</div></div>
+            <div class="step-line"></div>
+            <div class="step todo"><div class="step-num">3</div><div class="step-label">Pricing & Docs</div></div>
+            <div class="step-line"></div>
+            <div class="step todo"><div class="step-num">4</div><div class="step-label">Photos & Publish</div></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <div>
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#fce7f3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#db2777" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><line x1="6" y1="7" x2="18" y2="7"/></svg></div><div><div class="sdiv-title">Villa size & layout</div></div><div class="sdiv-line"></div></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="field"><label class="label req">BHK type</label>
+                  <select class="fi"><option>3 BHK</option><option>4 BHK</option><option>5 BHK</option><option>5 BHK+</option></select>
+                </div>
+                <div class="field"><label class="label req">Plot area (sqyds)</label><input class="fi" placeholder="e.g. 200" type="number"></div>
+                <div class="field"><label class="label">Built-up area (sqft)</label><input class="fi" placeholder="e.g. 3200" type="number"></div>
+                <div class="field"><label class="label">Carpet area (sqft)</label><input class="fi" placeholder="e.g. 2800" type="number"></div>
+                <div class="field"><label class="label">Number of floors</label>
+                  <select class="fi"><option>G+0 (Ground only)</option><option>G+1</option><option>G+2</option><option>G+3</option><option>G+4+</option></select>
+                </div>
+                <div class="field"><label class="label">Facing</label>
+                  <select class="fi"><option>East</option><option>West</option><option>North</option><option>South</option><option>North-East</option></select>
+                </div>
+                <div class="field"><label class="label">Parking</label>
+                  <select class="fi"><option>1 car garage</option><option>2 car garage</option><option>3 car garage</option><option>Open parking</option></select>
+                </div>
+                <div class="field"><label class="label">Furnishing status</label>
+                  <select class="fi"><option>Unfurnished</option><option>Semi-furnished</option><option>Fully furnished</option></select>
+                </div>
+              </div>
+              <div class="field"><label class="label">Possession date</label>
+                <div style="display:flex;gap:8px">
+                  <select class="fi"><option>Jan</option><option>Mar</option><option>Jun</option><option>Sep</option><option>Dec</option></select>
+                  <select class="fi"><option>2025</option><option>2026</option><option>2027</option></select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#f0fdf4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg></div><div><div class="sdiv-title">Features & amenities</div></div><div class="sdiv-line"></div></div>
+              <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:12px">
+                <label class="tgl"><input type="checkbox" checked><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Gated community</span></label>
+                <label class="tgl"><input type="checkbox" checked><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Vastu compliant</span></label>
+                <label class="tgl"><input type="checkbox"><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Private swimming pool</span></label>
+                <label class="tgl"><input type="checkbox"><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Garden / lawn area</span></label>
+                <label class="tgl"><input type="checkbox"><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Power backup (full)</span></label>
+                <label class="tgl"><input type="checkbox"><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Smart home automation</span></label>
+                <label class="tgl"><input type="checkbox"><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">EV charging point</span></label>
+              </div>
+            </div>
+            <div class="acard">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#ccfbf1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--tl)" stroke-width="1.8" stroke-linecap="round"><path d="M12 22s-8-4.5-8-11V5l8-3 8 3v6c0 6.5-8 11-8 11z"/><path d="M9 12l2 2 4-4"/></svg></div><div><div class="sdiv-title">Verification status</div></div><div class="sdiv-line"></div></div>
+              <div style="display:flex;flex-direction:column;gap:9px">
+                <label class="tgl"><input type="checkbox" checked><div class="tgl-track"><div class="tgl-thumb"></div></div><div><div class="tgl-lbl">RERA Verified</div><div style="font-size:11px;color:var(--mu)">Enter RERA no. in Step 3</div></div></label>
+                <label class="tgl"><input type="checkbox" checked><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Title clear</span></label>
+                <label class="tgl"><input type="checkbox" checked><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Houznext Verified</span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ STEP 2: PLOT ══════════ -->
+<div class="pg" id="pg-step2plot">
+  <div class="adm">
+    <div id="sb-step2plot"></div>
+    <div class="adm-main">
+      <div class="adm-tb">
+        <button class="btn btn-ghost btn-sm" onclick="P('step1',null)">← Back</button>
+        <span style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)">Property specifics — <span style="color:var(--tl)">Plot</span></span>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="toast('Draft saved')">Save draft</button>
+          <button class="btn btn-blue btn-sm" onclick="P('step3',null)">Next: Pricing & Docs →</button>
+        </div>
+      </div>
+      <div class="adm-c">
+        <div class="acard" style="padding:14px 20px;margin-bottom:18px">
+          <div style="display:flex;align-items:center;margin-bottom:8px"><div style="font-family:var(--m);font-size:11px;font-weight:700;color:var(--tl)">Step 2 of 4 — Plot specifics</div><div style="margin-left:auto;font-size:11px;color:var(--mu)">50% complete</div></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:50%;background:var(--tl)"></div></div>
+          <div class="steps" style="padding:12px 0 0">
+            <div class="step done"><div class="step-num">✓</div><div class="step-label">Basic & Owner</div></div>
+            <div class="step-line"></div>
+            <div class="step active"><div class="step-num" style="background:var(--tl)">2</div><div class="step-label" style="color:var(--tl)">Property specifics</div></div>
+            <div class="step-line"></div>
+            <div class="step todo"><div class="step-num">3</div><div class="step-label">Pricing & Docs</div></div>
+            <div class="step-line"></div>
+            <div class="step todo"><div class="step-num">4</div><div class="step-label">Photos & Publish</div></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <div>
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#ccfbf1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--tl)" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg></div><div><div class="sdiv-title">Plot dimensions</div></div><div class="sdiv-line"></div></div>
+              <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px">
+                <div class="field"><label class="label req">Plot area</label><input class="fi" placeholder="e.g. 200" type="number"></div>
+                <div class="field"><label class="label req">Unit</label><select class="fi"><option>Sqyds</option><option>Sqft</option></select></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="field"><label class="label">Plot number</label><input class="fi" placeholder="Plot No. 42"></div>
+                <div class="field"><label class="label">Layout / Scheme name</label><input class="fi" placeholder="e.g. Greenfields Enclave"></div>
+                <div class="field"><label class="label">Road width (ft)</label><input class="fi" placeholder="e.g. 33" type="number"></div>
+                <div class="field"><label class="label">Facing</label>
+                  <select class="fi"><option>East</option><option>West</option><option>North</option><option>South</option></select>
+                </div>
+              </div>
+            </div>
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#fef9c3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="1.8" stroke-linecap="round"><path d="M12 22s-8-4.5-8-11V5l8-3 8 3v6c0 6.5-8 11-8 11z"/></svg></div><div><div class="sdiv-title">Approval details</div></div><div class="sdiv-line"></div></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="field"><label class="label req">Approval type</label>
+                  <select class="fi"><option>HMDA Approved</option><option>RERA Approved</option><option>DTCP Approved</option><option>BDA Approved</option><option>LP Scheme</option><option>Unapproved</option></select>
+                </div>
+                <div class="field"><label class="label">Approval number</label><input class="fi" placeholder="e.g. HMDA/LP/2022/452"></div>
+              </div>
+              <div class="field"><label class="label">Possession</label>
+                <select class="fi"><option>Immediate / On registration</option><option>Within 1 month</option><option>Within 3 months</option><option>Future date</option></select>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#f0fdf4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg></div><div><div class="sdiv-title">Features</div></div><div class="sdiv-line"></div></div>
+              <div style="display:flex;flex-direction:column;gap:9px">
+                <label class="tgl"><input type="checkbox" checked><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Gated layout</span></label>
+                <label class="tgl"><input type="checkbox"><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Corner plot</span></label>
+                <label class="tgl"><input type="checkbox" checked><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Compound wall</span></label>
+                <label class="tgl"><input type="checkbox" checked><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Ready to register</span></label>
+                <label class="tgl"><input type="checkbox"><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">EB connection available</span></label>
+                <label class="tgl"><input type="checkbox"><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Borewell / water supply</span></label>
+                <label class="tgl"><input type="checkbox"><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Drainage connection</span></label>
+              </div>
+            </div>
+            <div class="acard">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#ccfbf1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--tl)" stroke-width="1.8" stroke-linecap="round"><path d="M12 22s-8-4.5-8-11V5l8-3 8 3v6c0 6.5-8 11-8 11z"/><path d="M9 12l2 2 4-4"/></svg></div><div><div class="sdiv-title">Verification</div></div><div class="sdiv-line"></div></div>
+              <div style="display:flex;flex-direction:column;gap:9px">
+                <label class="tgl"><input type="checkbox" checked><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Title clear / EC Verified</span></label>
+                <label class="tgl"><input type="checkbox"><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">RERA registered</span></label>
+                <label class="tgl"><input type="checkbox" checked><div class="tgl-track"><div class="tgl-thumb"></div></div><span class="tgl-lbl">Houznext Verified</span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ══════════ STEP 3: PRICING & DOCS ══════════ -->
+<div class="pg" id="pg-step3">
+  <div class="adm">
+    <div id="sb-step3"></div>
+    <div class="adm-main">
+      <div class="adm-tb">
+        <button class="btn btn-ghost btn-sm" onclick="P('step2apt',null)">← Back</button>
+        <span style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)">Pricing & documents</span>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="toast('Draft saved')">Save draft</button>
+          <button class="btn btn-blue btn-sm" onclick="P('step4',null)">Next: Photos & Publish →</button>
+        </div>
+      </div>
+      <div class="adm-c">
+        <div class="acard" style="padding:14px 20px;margin-bottom:18px">
+          <div style="display:flex;align-items:center;margin-bottom:8px"><div style="font-family:var(--m);font-size:11px;font-weight:700;color:var(--blue)">Step 3 of 4 — Pricing & Documents</div><div style="margin-left:auto;font-size:11px;color:var(--mu)">75% complete</div></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:75%"></div></div>
+          <div class="steps" style="padding:12px 0 0">
+            <div class="step done"><div class="step-num">✓</div><div class="step-label">Basic & Owner</div></div>
+            <div class="step-line"></div>
+            <div class="step done"><div class="step-num">✓</div><div class="step-label">Property specifics</div></div>
+            <div class="step-line"></div>
+            <div class="step active"><div class="step-num">3</div><div class="step-label">Pricing & Docs</div></div>
+            <div class="step-line"></div>
+            <div class="step todo"><div class="step-num">4</div><div class="step-label">Photos & Publish</div></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start">
+          <div>
+            <!-- Pricing -->
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#eff6ff"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div><div class="sdiv-title">Base pricing</div></div><div class="sdiv-line"></div></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="field"><label class="label req">Base price (₹)</label><input class="fi" placeholder="e.g. 6850000" type="number" id="base-price" oninput="calcBreakdown()"></div>
+                <div class="field"><label class="label">Price per sqft (₹)</label><input class="fi" placeholder="Auto-calculated" id="psf-field" style="background:#f8fafc" readonly></div>
+              </div>
+              <div class="info-box" style="margin-bottom:14px">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                <div style="font-size:12px;color:#0c4a6e">Enter base price in full (₹). Price-per-sqft auto-calculates based on carpet area entered in Step 2.</div>
+              </div>
+            </div>
+
+            <!-- Price breakdown -->
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#fef3c7"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><div><div class="sdiv-title">Price breakdown components</div><div class="sdiv-sub">Shown on property detail page for buyers</div></div><div class="sdiv-line"></div></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="field"><label class="label">GST (%)</label><input class="fi" value="5" type="number" oninput="calcBreakdown()"></div>
+                <div class="field"><label class="label">Registration cost (%)</label><input class="fi" value="1" type="number" oninput="calcBreakdown()"></div>
+                <div class="field"><label class="label">Maintenance deposit (₹)</label><input class="fi" placeholder="e.g. 100000" type="number" oninput="calcBreakdown()"></div>
+                <div class="field"><label class="label">Other charges (₹)</label><input class="fi" placeholder="e.g. car park, corpus" type="number" oninput="calcBreakdown()"></div>
+              </div>
+              <!-- Live breakdown preview -->
+              <div style="background:var(--off);border-radius:10px;padding:14px" id="breakdown-preview">
+                <div style="font-family:var(--m);font-size:12px;font-weight:700;color:var(--ch);margin-bottom:10px">Cost breakdown preview</div>
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:var(--mu)">Base price</span><span id="bd-base" style="font-weight:600">₹—</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:var(--mu)">GST (5%)</span><span id="bd-gst" style="font-weight:600">₹—</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:var(--mu)">Registration (1%)</span><span id="bd-reg" style="font-weight:600">₹—</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:var(--mu)">Maintenance deposit</span><span id="bd-maint" style="font-weight:600">₹—</span></div>
+                  <div style="height:1px;background:var(--brd);margin:2px 0"></div>
+                  <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700"><span>Total cost</span><span id="bd-total" style="font-family:var(--m);font-size:16px;color:var(--blue)">₹—</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <!-- RERA details -->
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#ccfbf1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--tl)" stroke-width="1.8" stroke-linecap="round"><path d="M12 22s-8-4.5-8-11V5l8-3 8 3v6c0 6.5-8 11-8 11z"/><path d="M9 12l2 2 4-4"/></svg></div><div><div class="sdiv-title">RERA & legal details</div></div><div class="sdiv-line"></div></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="field"><label class="label">RERA number</label><input class="fi" placeholder="P01400003456"></div>
+                <div class="field"><label class="label">RERA expiry</label><input class="fi" type="date"></div>
+                <div class="field" style="grid-column:span 2"><label class="label">Promoter / builder name</label><input class="fi" placeholder="e.g. Houznext Properties Pvt Ltd"></div>
+              </div>
+            </div>
+
+            <!-- Document uploads -->
+            <div class="acard">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#f3e8ff"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div><div><div class="sdiv-title">Documents</div><div class="sdiv-sub">PDFs · Max 10MB each</div></div><div class="sdiv-line"></div></div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div class="doc-row" style="background:#f8fafc;border:1.5px dashed #e2e8f0;border-radius:10px;padding:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .2s" onclick="toast('Uploading RERA certificate…')" onmouseenter="this.style.borderColor='var(--blue)';this.style.background='var(--bl)'" onmouseleave="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc'">
+                  <div style="display:flex;align-items:center;gap:9px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--mu)" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <div><div style="font-size:12.5px;font-weight:600;color:var(--ch)">RERA certificate</div><div style="font-size:11px;color:var(--mu)">PDF required for RERA verified badge</div></div>
+                  </div>
+                  <span style="font-size:11px;font-weight:600;color:var(--blue)">+ Upload</span>
+                </div>
+                <div class="doc-row" style="background:#f8fafc;border:1.5px dashed #e2e8f0;border-radius:10px;padding:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .2s" onclick="toast('Uploading EC certificate…')" onmouseenter="this.style.borderColor='var(--blue)';this.style.background='var(--bl)'" onmouseleave="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc'">
+                  <div style="display:flex;align-items:center;gap:9px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--mu)" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <div><div style="font-size:12.5px;font-weight:600;color:var(--ch)">EC certificate <span style="font-size:10px;color:var(--tl);font-weight:700">✓ uploaded</span></div><div style="font-size:11px;color:var(--mu)">Encumbrance certificate — title verification</div></div>
+                  </div>
+                  <span style="font-size:11px;font-weight:600;color:var(--tl)">Replace</span>
+                </div>
+                <div class="doc-row" style="background:#f8fafc;border:1.5px dashed #e2e8f0;border-radius:10px;padding:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .2s" onclick="toast('Uploading floor plan…')" onmouseenter="this.style.borderColor='var(--blue)';this.style.background='var(--bl)'" onmouseleave="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc'">
+                  <div style="display:flex;align-items:center;gap:9px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--mu)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                    <div><div style="font-size:12.5px;font-weight:600;color:var(--ch)">Floor plans</div><div style="font-size:11px;color:var(--mu)">2BHK, 3BHK, 4BHK plans (optional)</div></div>
+                  </div>
+                  <span style="font-size:11px;font-weight:600;color:var(--blue)">+ Upload</span>
+                </div>
+                <div class="doc-row" style="background:#f8fafc;border:1.5px dashed #e2e8f0;border-radius:10px;padding:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .2s" onclick="toast('Uploading brochure…')" onmouseenter="this.style.borderColor='var(--blue)';this.style.background='var(--bl)'" onmouseleave="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc'">
+                  <div style="display:flex;align-items:center;gap:9px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--mu)" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                    <div><div style="font-size:12.5px;font-weight:600;color:var(--ch)">Brochure (optional)</div><div style="font-size:11px;color:var(--mu)">Property brochure PDF</div></div>
+                  </div>
+                  <span style="font-size:11px;font-weight:600;color:var(--blue)">+ Upload</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ══════════ STEP 4: PHOTOS & PUBLISH ══════════ -->
+<div class="pg" id="pg-step4">
+  <div class="adm">
+    <div id="sb-step4"></div>
+    <div class="adm-main">
+      <div class="adm-tb">
+        <button class="btn btn-ghost btn-sm" onclick="P('step3',null)">← Back</button>
+        <span style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)">Photos & publish settings</span>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="toast('Draft saved')">Save draft</button>
+          <button class="btn btn-blue btn-sm" onclick="P('review',null)">Review listing →</button>
+        </div>
+      </div>
+      <div class="adm-c">
+        <div class="acard" style="padding:14px 20px;margin-bottom:18px">
+          <div style="display:flex;align-items:center;margin-bottom:8px"><div style="font-family:var(--m);font-size:11px;font-weight:700;color:var(--blue)">Step 4 of 4 — Photos & Publish</div><div style="margin-left:auto;font-size:11px;color:var(--mu)">Almost done!</div></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:90%"></div></div>
+          <div class="steps" style="padding:12px 0 0">
+            <div class="step done"><div class="step-num">✓</div><div class="step-label">Basic & Owner</div></div>
+            <div class="step-line"></div>
+            <div class="step done"><div class="step-num">✓</div><div class="step-label">Property specifics</div></div>
+            <div class="step-line"></div>
+            <div class="step done"><div class="step-num">✓</div><div class="step-label">Pricing & Docs</div></div>
+            <div class="step-line"></div>
+            <div class="step active"><div class="step-num">4</div><div class="step-label">Photos & Publish</div></div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start">
+          <div>
+            <!-- Photo upload -->
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:#f3e8ff"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div><div><div class="sdiv-title">Property photos</div><div class="sdiv-sub">Min 3 · Max 20 · JPG or PNG · Max 8MB each</div></div><div class="sdiv-line"></div></div>
+              <div class="upzone" id="upzone" onclick="addFakePhotos()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="event.preventDefault();this.classList.remove('drag');addFakePhotos()">
+                <div class="upzone-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+                </div>
+                <div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch);margin-bottom:4px">Drop photos here or click to upload</div>
+                <div style="font-size:12px;color:var(--mu)">First photo becomes the cover image · Drag to reorder</div>
+              </div>
+              <!-- Photo thumbnails -->
+              <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:14px" id="photo-thumbs">
+                <div class="up-thumb" style="border:2px solid var(--blue)">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(47,128,237,.3)" stroke-width="1" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <div style="position:absolute;bottom:3px;left:3px;right:3px;text-align:center;font-size:8px;font-weight:700;color:var(--blue);font-family:var(--m)">COVER</div>
+                  <button class="rm" onclick="event.stopPropagation()"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <div class="up-thumb">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="1" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <button class="rm" onclick="event.stopPropagation()"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <div class="up-thumb">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="1" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <button class="rm" onclick="event.stopPropagation()"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <div class="up-thumb" style="border-style:dashed;cursor:pointer" onclick="addFakePhotos()">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </div>
+              </div>
+              <div style="font-size:11.5px;color:var(--mu);margin-top:10px">3 photos uploaded · 17 slots remaining · First photo is the cover — drag to reorder</div>
+            </div>
+
+            <!-- Chips / highlights -->
+            <div class="acard" style="margin-bottom:14px">
+              <div class="sdiv"><div class="sdiv-icon" style="background:var(--bl)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div><div><div class="sdiv-title">Property highlights (chips)</div><div class="sdiv-sub">Shown as small tags on the listing card — max 4</div></div><div class="sdiv-line"></div></div>
+              <div class="chip-grid" id="highlight-chips">
+                <div class="chip sel" onclick="this.classList.toggle('sel')">3BHK</div>
+                <div class="chip sel" onclick="this.classList.toggle('sel')">East facing</div>
+                <div class="chip sel" onclick="this.classList.toggle('sel')">Pool</div>
+                <div class="chip" onclick="this.classList.toggle('sel')">Lift</div>
+                <div class="chip" onclick="this.classList.toggle('sel')">RERA</div>
+                <div class="chip" onclick="this.classList.toggle('sel')">Vastu</div>
+                <div class="chip" onclick="this.classList.toggle('sel')">Power backup</div>
+                <div class="chip" onclick="this.classList.toggle('sel')">Gym</div>
+                <div class="chip" onclick="this.classList.toggle('sel')">Gated</div>
+                <div class="chip" onclick="this.classList.toggle('sel')">Dec 2026</div>
+                <div class="chip" onclick="this.classList.toggle('sel')">Smart home</div>
+              </div>
+              <div style="margin-top:10px;font-size:12px;color:var(--mu)">3 selected (max 4)</div>
+            </div>
+          </div>
+
+          <!-- Publish settings -->
+          <div style="position:sticky;top:82px">
+            <div class="acard" style="margin-bottom:14px">
+              <div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch);margin-bottom:14px">Publish settings</div>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div>
+                  <label class="label">Approval status</label>
+                  <select class="fi" onchange="updateStatus(this.value)">
+                    <option value="approved">Approved — go live immediately</option>
+                    <option value="pending" selected>Pending — needs review first</option>
+                    <option value="draft">Draft — save only, don't publish</option>
+                  </select>
+                </div>
+                <label class="tgl" style="padding:10px 12px;background:var(--off);border-radius:9px;border:1px solid var(--brd)">
+                  <input type="checkbox" checked>
+                  <div class="tgl-track"><div class="tgl-thumb"></div></div>
+                  <div><div class="tgl-lbl">Featured listing</div><div style="font-size:11px;color:var(--mu)">Show in "Curated for you" on homepage</div></div>
+                </label>
+                <label class="tgl" style="padding:10px 12px;background:var(--off);border-radius:9px;border:1px solid var(--brd)">
+                  <input type="checkbox">
+                  <div class="tgl-track"><div class="tgl-thumb"></div></div>
+                  <div><div class="tgl-lbl">Zero brokerage badge</div><div style="font-size:11px;color:var(--mu)">Show "Zero brokerage" on listing</div></div>
+                </label>
+                <label class="tgl" style="padding:10px 12px;background:var(--off);border-radius:9px;border:1px solid var(--brd)">
+                  <input type="checkbox" checked>
+                  <div class="tgl-track"><div class="tgl-thumb"></div></div>
+                  <div><div class="tgl-lbl">Enable WhatsApp enquiry</div></div>
+                </label>
+              </div>
+            </div>
+            <div class="acard" style="background:#f0fdf4;border-color:#bbf7d0">
+              <div style="font-family:var(--m);font-size:12px;font-weight:700;color:#15803d;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>Ready to publish
+              </div>
+              <div style="display:flex;flex-direction:column;gap:5px">
+                <div style="font-size:12px;color:#166534;display:flex;align-items:center;gap:5px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>Property type set</div>
+                <div style="font-size:12px;color:#166534;display:flex;align-items:center;gap:5px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>Title & location set</div>
+                <div style="font-size:12px;color:#166534;display:flex;align-items:center;gap:5px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>Owner info saved</div>
+                <div style="font-size:12px;color:#166534;display:flex;align-items:center;gap:5px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>3 photos uploaded</div>
+                <div style="font-size:12px;color:#166534;display:flex;align-items:center;gap:5px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>Price set</div>
+              </div>
+              <button class="btn btn-tl btn-lg" style="width:100%;justify-content:center;margin-top:14px" onclick="P('review',null)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Review & submit
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ══════════ REVIEW & CONFIRM ══════════ -->
+<div class="pg" id="pg-review">
+  <div class="adm">
+    <div id="sb-review"></div>
+    <div class="adm-main">
+      <div class="adm-tb">
+        <button class="btn btn-ghost btn-sm" onclick="P('step4',null)">← Back to edit</button>
+        <span style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)">Review listing before publishing</span>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="P('step1',null)">Edit details</button>
+          <button class="btn btn-tl btn-sm" onclick="P('success',null)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>Confirm & publish
+          </button>
+        </div>
+      </div>
+      <div class="adm-c">
+        <div style="display:grid;grid-template-columns:1fr 360px;gap:18px;align-items:start">
+          <div>
+            <!-- Summary sections -->
+            <div class="acard" style="margin-bottom:14px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f0f4f8">
+                <div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch)">Basic details</div>
+                <button class="btn btn-ghost btn-sm" onclick="P('step1',null)">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit
+                </button>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+                <div style="background:#f8fafc;border-radius:9px;padding:11px 13px"><div class="label" style="margin-bottom:3px">Type</div><div style="font-size:13px;font-weight:600;color:var(--ch)">Apartment</div></div>
+                <div style="background:#f8fafc;border-radius:9px;padding:11px 13px"><div class="label" style="margin-bottom:3px">Listing for</div><div style="font-size:13px;font-weight:600;color:var(--ch)">Buy</div></div>
+                <div style="background:#f8fafc;border-radius:9px;padding:11px 13px"><div class="label" style="margin-bottom:3px">Status</div><div style="font-size:13px;font-weight:600;color:var(--tl)">Ready to Move</div></div>
+                <div style="background:#f8fafc;border-radius:9px;padding:11px 13px;grid-column:span 3"><div class="label" style="margin-bottom:3px">Title</div><div style="font-size:13px;font-weight:600;color:var(--ch)">Skyline Heights — 3BHK Tower A</div></div>
+                <div style="background:#f8fafc;border-radius:9px;padding:11px 13px"><div class="label" style="margin-bottom:3px">City</div><div style="font-size:13px;font-weight:600">Hyderabad</div></div>
+                <div style="background:#f8fafc;border-radius:9px;padding:11px 13px"><div class="label" style="margin-bottom:3px">Locality</div><div style="font-size:13px;font-weight:600">Gachibowli</div></div>
+                <div style="background:#f8fafc;border-radius:9px;padding:11px 13px"><div class="label" style="margin-bottom:3px">Pincode</div><div style="font-size:13px;font-weight:600">500032</div></div>
+              </div>
+            </div>
+
+            <!-- Owner info — admin only highlight -->
+            <div class="acard" style="margin-bottom:14px;border-color:#fde68a">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #fef3c7">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch)">Owner details</div>
+                  <span class="admin-only"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Admin only</span>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="P('step1',null)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+                <div style="background:#fffbeb;border-radius:9px;padding:11px 13px"><div class="label" style="margin-bottom:3px">Owner name</div><div style="font-size:13px;font-weight:600">Rajesh Kumar</div></div>
+                <div style="background:#fffbeb;border-radius:9px;padding:11px 13px"><div class="label" style="margin-bottom:3px">Phone</div><div style="font-size:13px;font-weight:600">+91 98765 43210</div></div>
+                <div style="background:#fffbeb;border-radius:9px;padding:11px 13px"><div class="label" style="margin-bottom:3px">Listed by</div><div style="font-size:13px;font-weight:600">Houznext</div></div>
+              </div>
+            </div>
+
+            <!-- Pricing -->
+            <div class="acard" style="margin-bottom:14px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f0f4f8">
+                <div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch)">Pricing</div>
+                <button class="btn btn-ghost btn-sm" onclick="P('step3',null)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+                <div style="background:#f8fafc;border-radius:9px;padding:11px 13px"><div class="label" style="margin-bottom:3px">Base price</div><div style="font-family:var(--m);font-size:16px;font-weight:800;color:var(--ch)">₹68.5L</div></div>
+                <div style="background:#f8fafc;border-radius:9px;padding:11px 13px"><div class="label" style="margin-bottom:3px">Per sqft</div><div style="font-family:var(--m);font-size:16px;font-weight:800;color:var(--blue)">₹4,724</div></div>
+                <div style="background:#f8fafc;border-radius:9px;padding:11px 13px"><div class="label" style="margin-bottom:3px">RERA no.</div><div style="font-size:13px;font-weight:600">P01400003456</div></div>
+                <div style="background:#f8fafc;border-radius:9px;padding:11px 13px"><div class="label" style="margin-bottom:3px">Total cost</div><div style="font-family:var(--m);font-size:14px;font-weight:800;color:var(--tl)">₹70.16L</div></div>
+              </div>
+            </div>
+
+            <!-- Photos -->
+            <div class="acard">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+                <div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch)">Photos <span style="font-size:12px;color:var(--mu);font-weight:500">(3 uploaded)</span></div>
+                <button class="btn btn-ghost btn-sm" onclick="P('step4',null)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>
+              </div>
+              <div style="display:flex;gap:10px">
+                <div style="flex:1;height:100px;background:linear-gradient(135deg,#e8f1fd,#c7d9f5);border-radius:10px;display:flex;align-items:center;justify-content:center;border:2px solid var(--blue);position:relative">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(47,128,237,.25)" stroke-width="1" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <span style="position:absolute;bottom:4px;left:6px;font-size:8px;font-weight:700;color:var(--blue);font-family:var(--m)">COVER</span>
+                </div>
+                <div style="width:80px;height:100px;background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:10px;border:1px solid var(--brd);display:flex;align-items:center;justify-content:center">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="1" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </div>
+                <div style="width:80px;height:100px;background:linear-gradient(135deg,#dcfce7,#a7f3d0);border-radius:10px;border:1px solid var(--brd);display:flex;align-items:center;justify-content:center">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="1" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: website preview card + publish -->
+          <div style="position:sticky;top:82px;display:flex;flex-direction:column;gap:14px">
+            <div class="acard">
+              <div style="font-family:var(--m);font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">How it looks on website</div>
+              <div style="background:#fff;border:1px solid var(--brd);border-radius:14px;overflow:hidden">
+                <div style="height:160px;background:linear-gradient(135deg,#e8f1fd,#c7d9f5);display:flex;align-items:center;justify-content:center;position:relative">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(47,128,237,.18)" stroke-width="1" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  <div style="position:absolute;bottom:9px;left:9px;display:flex;gap:5px">
+                    <span class="bdg b-teal" style="font-size:9px">Ready to Move</span>
+                    <span class="bdg b-blue" style="font-size:9px">RERA ✓</span>
+                  </div>
+                </div>
+                <div style="padding:13px 14px">
+                  <div style="font-size:9px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;font-family:var(--m)">Apartment</div>
+                  <div style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch);margin-bottom:4px;line-height:1.3">Skyline Heights — 3BHK Tower A</div>
+                  <div style="font-size:11.5px;color:var(--mu);display:flex;align-items:center;gap:3px;margin-bottom:8px"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Gachibowli, Hyderabad</div>
+                  <div style="font-family:var(--m);font-size:18px;font-weight:800;color:var(--ch);margin-bottom:2px">₹68.5L</div>
+                  <div style="font-size:11px;color:var(--mu);margin-bottom:8px">₹4,724/sqft</div>
+                  <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
+                    <span style="font-size:9.5px;padding:2px 8px;border-radius:20px;background:var(--off);color:var(--mu);border:.5px solid var(--brd);font-family:var(--m)">3BHK</span>
+                    <span style="font-size:9.5px;padding:2px 8px;border-radius:20px;background:var(--off);color:var(--mu);border:.5px solid var(--brd);font-family:var(--m)">East facing</span>
+                    <span style="font-size:9.5px;padding:2px 8px;border-radius:20px;background:var(--off);color:var(--mu);border:.5px solid var(--brd);font-family:var(--m)">Pool</span>
+                  </div>
+                  <div style="background:var(--blue);color:#fff;width:100%;padding:8px;border-radius:8px;font-family:var(--m);font-size:12px;font-weight:700;text-align:center">Enquire now</div>
+                </div>
+              </div>
+            </div>
+            <div class="acard" style="background:#f0f9ff;border-color:#bae6fd">
+              <div style="font-size:12px;color:#0c4a6e;margin-bottom:12px;font-weight:500">Property will go to <strong>Pending review</strong> first. Admin can approve from the listings dashboard.</div>
+              <button class="btn btn-tl btn-lg" style="width:100%;justify-content:center" onclick="P('success',null)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>Submit listing
+              </button>
+              <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-top:8px" onclick="toast('Saved as draft')">Save as draft instead</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SUCCESS ══════════ -->
+<div class="pg" id="pg-success">
+  <div class="adm">
+    <div id="sb-success"></div>
+    <div class="adm-main">
+      <div class="adm-tb">
+        <span style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)">Listing submitted</span>
+        <div style="margin-left:auto">
+          <button class="btn btn-blue btn-sm" onclick="P('step1',null)">+ Add another property</button>
+        </div>
+      </div>
+      <div class="adm-c" style="display:flex;align-items:center;justify-content:center;min-height:500px">
+        <div style="text-align:center;max-width:460px">
+          <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#dcfce7,#bbf7d0);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 0 0 8px rgba(22,163,74,.1)">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>
+          </div>
+          <div style="font-family:var(--m);font-size:26px;font-weight:800;color:var(--ch);margin-bottom:8px">Listing submitted!</div>
+          <div style="font-size:14px;color:var(--mu);line-height:1.7;margin-bottom:24px">
+            <strong>Skyline Heights — 3BHK Tower A</strong> has been submitted and is pending review.<br>It will go live on <strong>infra.houznext.com</strong> once approved.
+          </div>
+          <div style="background:#fff;border:1px solid var(--brd);border-radius:14px;padding:16px 20px;margin-bottom:20px;text-align:left">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+              <div style="width:36px;height:36px;border-radius:9px;background:var(--bl);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="14" rx="2"/><line x1="3" y1="20" x2="21" y2="20"/></svg>
+              </div>
+              <div><div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch)">Listing ID: #INF-20240042</div><div style="font-size:11.5px;color:var(--mu)">Apartment · Gachibowli, Hyderabad</div></div>
+              <span class="bdg b-amber" style="margin-left:auto">Pending</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:7px;font-size:12.5px">
+              <div style="display:flex;align-items:center;gap:7px;color:#64748b"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--tl)" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>All 3 photos uploaded</div>
+              <div style="display:flex;align-items:center;gap:7px;color:#64748b"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--tl)" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>EC certificate verified</div>
+              <div style="display:flex;align-items:center;gap:7px;color:#64748b"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--tl)" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>Owner details saved (admin only)</div>
+              <div style="display:flex;align-items:center;gap:7px;color:#64748b"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Under review — usually 2–4 hours</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:center">
+            <button class="btn btn-ghost" onclick="P('listings',null)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="14" rx="2"/><line x1="3" y1="20" x2="21" y2="20"/></svg>View all listings
+            </button>
+            <button class="btn btn-blue" onclick="P('step1',null)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add another
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// ── PAGE SWITCHER ─────────────────────────────────────────────────────────
+function P(id, btn) {
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.dt').forEach(b => b.classList.remove('on'));
+  var pg = document.getElementById('pg-' + id);
+  if (pg) pg.classList.add('on');
+  if (btn) btn.classList.add('on');
+  else {
+    var match = document.querySelector('.dt[onclick*="\''+id+'\'"]');
+    if (match) match.classList.add('on');
+  }
+  // Inject sidebar into the newly-visible page
+  injectSidebar(id);
+  window.scrollTo(0,0);
+}
+
+// ── SIDEBAR INJECTOR ──────────────────────────────────────────────────────
+function injectSidebar(pageId) {
+  var sbEl = document.getElementById('sb-' + pageId);
+  if (!sbEl || sbEl.children.length > 0) return;
+  var tpl = document.getElementById('shell-tpl');
+  if (!tpl) return;
+  var clone = tpl.content.cloneNode(true);
+  sbEl.appendChild(clone);
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────
+function toast(msg, type) {
+  var w = document.getElementById('toasts');
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.style.borderLeftColor = type === 'warn' ? '#f59e0b' : type === 'error' ? '#ef4444' : '#22c55e';
+  var icon = type === 'warn'
+    ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>'
+    : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>';
+  t.innerHTML = icon + msg;
+  w.appendChild(t);
+  setTimeout(() => { if (t.parentNode) t.parentNode.removeChild(t); }, 3200);
+}
+
+// ── PROPERTY TYPE SELECTOR ────────────────────────────────────────────────
+var selectedType = 'Apartment';
+var selectedFor = 'Buy';
+
+function selectType(el, type) {
+  document.querySelectorAll('#pg-step1 .chip[id^="type-"]').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedType = type;
+  document.getElementById('prev-type').textContent = type;
+  toast('Property type: ' + type);
+}
+
+function selectFor(el, val) {
+  document.querySelectorAll('#pg-step1 [id^="for-"]').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedFor = val;
+}
+
+// ── PREVIEW CARD TITLE ────────────────────────────────────────────────────
+function updatePreview(val) {
+  var t = document.getElementById('prev-title');
+  if (t) t.textContent = val || 'Property title will appear here';
+}
+
+// ── PRICE BREAKDOWN CALCULATOR ────────────────────────────────────────────
+function fmt(n) {
+  if (!n || isNaN(n)) return '₹—';
+  if (n >= 10000000) return '₹' + (n/10000000).toFixed(2) + 'Cr';
+  if (n >= 100000)   return '₹' + (n/100000).toFixed(1) + 'L';
+  if (n >= 1000)     return '₹' + (n/1000).toFixed(0) + 'K';
+  return '₹' + n.toFixed(0);
+}
+
+function calcBreakdown() {
+  var base  = parseFloat(document.getElementById('base-price')?.value) || 0;
+  var gst   = 5; // read from GST input if available
+  var reg   = 1;
+  var maint = 100000;
+
+  var gstAmt  = base * gst / 100;
+  var regAmt  = base * reg / 100;
+  var total   = base + gstAmt + regAmt + maint;
+
+  var el = function(id) { return document.getElementById(id); };
+  if (el('bd-base'))  el('bd-base').textContent  = fmt(base);
+  if (el('bd-gst'))   el('bd-gst').textContent   = fmt(gstAmt);
+  if (el('bd-reg'))   el('bd-reg').textContent   = fmt(regAmt);
+  if (el('bd-maint')) el('bd-maint').textContent = fmt(maint);
+  if (el('bd-total')) el('bd-total').textContent = fmt(total);
+
+  // Also update PSF in the base price row
+  if (el('psf-field') && base > 0) {
+    el('psf-field').value = '₹' + Math.round(base / 1450) + '/sqft (est.)';
+  }
+}
+
+// ── LISTINGS TABLE ROWS ───────────────────────────────────────────────────
+var SAMPLE = [
+  {id:'INF-001',title:'Skyline Heights — 3BHK',type:'Apartment',city:'Hyderabad',loc:'Gachibowli',price:'₹68.5L',status:'Active',enq:12,by:'Houznext',date:'10 Jan'},
+  {id:'INF-002',title:'Heritage Land — 500 sqyds',type:'Land',city:'Hyderabad',loc:'Shamshabad',price:'₹45L',status:'Active',enq:4,by:'Houznext',date:'9 Jan'},
+  {id:'INF-003',title:'Green Valley Villas — 4BHK',type:'Villa',city:'Hyderabad',loc:'Kokapet',price:'₹1.8Cr',status:'Pending',enq:0,by:'Developer',date:'8 Jan'},
+  {id:'INF-004',title:'ORR Prime Plot — 200 sqyds',type:'Plot',city:'Hyderabad',loc:'ORR Corridor',price:'₹28L',status:'Active',enq:7,by:'Houznext',date:'7 Jan'},
+  {id:'INF-005',title:'Park View — 3BHK',type:'Apartment',city:'Bengaluru',loc:'Whitefield',price:'₹85L',status:'Active',enq:9,by:'Developer',date:'6 Jan'},
+  {id:'INF-006',title:'Prestige Row House — 3BHK',type:'Row House',city:'Hyderabad',loc:'Kokapet',price:'₹92L',status:'Pending',enq:2,by:'Public',date:'5 Jan'},
+  {id:'INF-007',title:'Marina Towers — Studio',type:'Studio',city:'Chennai',loc:'OMR',price:'₹38L',status:'Active',enq:6,by:'Houznext',date:'4 Jan'},
+  {id:'INF-008',title:'ECR Beach Villa — 3BHK',type:'Villa',city:'Chennai',loc:'ECR',price:'₹95L',status:'Active',enq:3,by:'Houznext',date:'3 Jan'},
+];
+
+var STATUS_COL = {Active:'#dcfce7|#15803d',Pending:'#fef3c7|#92400e',Sold:'#ccfbf1|#0f766e',Draft:'#f1f5f9|#475569'};
+
+function listingRows() {
+  return SAMPLE.map(function(r) {
+    var sc = (STATUS_COL[r.status]||'#f1f5f9|#64748b').split('|');
+    return '<tr>'
+      +'<td><input type="checkbox" style="accent-color:var(--blue)"></td>'
+      +'<td><div style="font-weight:600;font-size:12.5px;color:var(--ch)">'+r.title+'</div><div style="font-size:11px;color:var(--mu)">#'+r.id+'</div></td>'
+      +'<td><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:var(--off);color:var(--mu);font-family:var(--m);font-weight:600">'+r.type+'</span></td>'
+      +'<td><div style="font-size:12.5px">'+r.city+'</div><div style="font-size:11px;color:var(--mu)">'+r.loc+'</div></td>'
+      +'<td style="font-family:var(--m);font-weight:700;font-size:13px;color:var(--ch)">'+r.price+'</td>'
+      +'<td><span style="font-size:11px;padding:2px 9px;border-radius:20px;font-weight:700;font-family:var(--m);background:'+sc[0]+';color:'+sc[1]+'">'+r.status+'</span></td>'
+      +'<td style="font-size:12.5px;text-align:center">'+r.enq+'</td>'
+      +'<td style="font-size:12px;color:var(--mu)">'+r.by+'</td>'
+      +'<td style="font-size:11.5px;color:var(--mu)">'+r.date+'</td>'
+      +'<td><div style="display:flex;gap:5px">'
+      +'<button style="padding:4px 8px;border-radius:7px;background:var(--bl);color:var(--blue);border:none;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--m);transition:background .15s" onclick="P(\'review\',null)" onmouseenter="this.style.background=\'#dbeafe\'" onmouseleave="this.style.background=\'var(--bl)\'">View</button>'
+      +'<button style="padding:4px 8px;border-radius:7px;background:#fff;color:var(--mu);border:1px solid #e2e8f0;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--m);transition:all .15s" onclick="toast(\'Edit listing…\')" onmouseenter="this.style.borderColor=\'var(--blue)\';this.style.color=\'var(--blue)\'" onmouseleave="this.style.borderColor=\'#e2e8f0\';this.style.color=\'var(--mu)\'">Edit</button>'
+      +'</div></td>'
+      +'</tr>';
+  }).join('');
+}
+
+// ── ADD FAKE PHOTOS ───────────────────────────────────────────────────────
+var photoCount = 3;
+function addFakePhotos() {
+  if (photoCount >= 20) { toast('Maximum 20 photos reached', 'warn'); return; }
+  var container = document.getElementById('photo-thumbs');
+  if (!container) return;
+  var colors = ['#e8f1fd,#c7d9f5','#fef3c7,#fde68a','#dcfce7,#a7f3d0','#f3e8ff,#e9d5ff','#fce7f3,#f0d4e8'];
+  var c = colors[photoCount % colors.length];
+  // remove the + add button, add thumb, re-add + button
+  var addBtn = container.lastElementChild;
+  container.removeChild(addBtn);
+
+  var thumb = document.createElement('div');
+  thumb.className = 'up-thumb';
+  thumb.style.background = 'linear-gradient(135deg,' + c + ')';
+  thumb.innerHTML = '<button class="rm" onclick="event.stopPropagation();this.parentElement.remove();photoCount--;toast(\'Photo removed\')"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+  container.appendChild(thumb);
+  container.appendChild(addBtn);
+  photoCount++;
+  toast(photoCount + ' photos uploaded');
+}
+
+// ── STATUS UPDATE ANIMATION ───────────────────────────────────────────────
+function updateStatus(val) {
+  var msgs = {approved:'Listing will go live immediately upon save',pending:'Listing will be reviewed before going live',draft:'Listing saved but not published'};
+  toast(msgs[val] || val);
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  // Inject sidebar into the initial visible page
+  injectSidebar('listings');
+  // Render listing rows
+  var tbody = document.getElementById('listing-rows');
+  if (tbody) tbody.innerHTML = listingRows();
+});
+</script>
+</body>
+</html>

@@ -61,4 +61,28 @@ export class UploadController {
     );
     return { url };
   }
+
+  @Post('property-document')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 20 * 1024 * 1024 },
+    }),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  async propertyDocument(@UploadedFile() file: Express.Multer.File) {
+    if (!file) return { url: null };
+    const { url } = await this.s3.uploadBuffer(
+      'infra/documents',
+      file.buffer,
+      file.mimetype || 'application/octet-stream',
+    );
+    return { url };
+  }
 }

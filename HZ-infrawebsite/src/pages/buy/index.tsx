@@ -13,12 +13,28 @@ export default function BuyPage() {
   const params = useMemo(
     () => ({
       city: (router.query.city as string) || extra.city || undefined,
-      type: (router.query.type as string) || extra.type || undefined,
+      propertyType: (router.query.propertyType as string) || (router.query.type as string) || extra.type || undefined,
       bhk: extra.bhk || undefined,
+      status: (router.query.status as string) || extra.status || undefined,
+      minPrice: router.query.minPrice ? Number(router.query.minPrice) : extra.minPrice ? Number(extra.minPrice) : undefined,
+      maxPrice: router.query.maxPrice ? Number(router.query.maxPrice) : extra.maxPrice ? Number(extra.maxPrice) : undefined,
       page: 1,
-      limit: 12,
+      limit: 20,
     }),
-    [router.query.city, router.query.type, extra.city, extra.type, extra.bhk],
+    [
+      router.query.city,
+      router.query.type,
+      router.query.propertyType,
+      router.query.status,
+      router.query.minPrice,
+      router.query.maxPrice,
+      extra.city,
+      extra.type,
+      extra.bhk,
+      extra.status,
+      extra.minPrice,
+      extra.maxPrice,
+    ],
   );
 
   const { data, loading } = useProperties(params);
@@ -37,7 +53,7 @@ export default function BuyPage() {
           <FilterSidebar
             filters={{
               city: params.city || '',
-              type: params.type || '',
+              type: params.propertyType || '',
               bhk: extra.bhk || '',
             }}
             onChange={onFilter}
@@ -49,6 +65,9 @@ export default function BuyPage() {
                 <PropertyCardH key={p.propertyId} property={p} />
               ))}
             </div>
+            {!loading && (data?.items?.length ?? 0) === 0 && (
+              <p className="mt-4 font-inter text-sm text-muted">No listings match these filters yet.</p>
+            )}
           </div>
         </div>
       </div>

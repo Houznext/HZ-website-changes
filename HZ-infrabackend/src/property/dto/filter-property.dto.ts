@@ -1,5 +1,5 @@
-import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
 import { ConstructionStatus, ListingFor, PropertyType } from '../../common/enums/infra.enums';
 
 export class FilterPropertyDto {
@@ -10,6 +10,11 @@ export class FilterPropertyDto {
   @IsOptional()
   @IsEnum(PropertyType)
   type?: PropertyType;
+
+  /** Alias for `type` (matches public API query style). */
+  @IsOptional()
+  @IsString()
+  propertyType?: string;
 
   @IsOptional()
   @IsString()
@@ -32,6 +37,15 @@ export class FilterPropertyDto {
   @IsOptional()
   @IsEnum(ListingFor)
   listingFor?: ListingFor;
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === true || value === 'true' || value === '1')
+  isFeatured?: boolean;
+
+  @IsOptional()
+  @IsString()
+  sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'oldest';
 
   @IsOptional()
   @Type(() => Number)

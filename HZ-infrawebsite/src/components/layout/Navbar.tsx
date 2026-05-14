@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { useState } from 'react';
+import { useSession, signOut } from 'next-auth/react';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import { ChevronDown, Menu as MenuIcon, X } from 'lucide-react';
+import { ChevronDown, Eye, Heart, LogIn, LogOut, Menu as MenuIcon, Plus, User, X } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const buyLinks = [
@@ -17,8 +18,20 @@ const toolsLinks = [
   { href: '/value-calculator', label: 'Value Calculator' },
 ];
 
+const profileMenuClass =
+  'absolute right-0 z-[300] mt-2 w-[17.5rem] origin-top-right rounded-2xl border border-border bg-white p-2 shadow-xl focus:outline-none data-[closed]:data-[leave]:opacity-0 data-[leave]:duration-100 data-[leave]:ease-in';
+
+function profileRowClass(focus: boolean) {
+  return clsx(
+    'flex w-full items-center gap-3 rounded-xl px-2 py-2.5 font-inter text-[13px] font-medium text-charcoal',
+    focus && 'bg-hz-blue-light text-hz-blue',
+  );
+}
+
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const { data: session, status } = useSession();
+  const authed = status === 'authenticated' && session?.user;
 
   return (
     <header className="sticky top-0 z-[200] border-b border-white/5 bg-navy shadow-[0_1px_0_rgba(255,255,255,0.04)]">
@@ -123,25 +136,101 @@ export function Navbar() {
           </Link>
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
-          <Link
-            href="/login"
-            className="hidden rounded-lg px-3 py-1.5 font-inter text-[13px] font-medium text-white/80 hover:text-white sm:block"
-          >
-            Login
-          </Link>
-          <Link
-            href="/profile"
-            className="hidden rounded-lg px-3 py-1.5 font-inter text-[13px] font-medium text-white/80 hover:text-white md:block"
-          >
-            Profile
-          </Link>
+        <div className="ml-auto flex items-center gap-2 sm:gap-3">
           <Link
             href="/sell"
-            className="rounded-lg bg-hz-accent px-4 py-1.5 font-montserrat text-xs font-bold text-white transition hover:brightness-95"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-4 py-2 font-montserrat text-[13px] font-bold text-navy shadow-sm transition hover:bg-white/95 active:scale-[0.98] sm:px-5"
           >
-            List property
+            <Plus className="h-4 w-4 shrink-0 text-navy" strokeWidth={2.5} aria-hidden />
+            <span>List property</span>
           </Link>
+
+          <Menu as="div" className="relative shrink-0">
+            <MenuButton
+              type="button"
+              disabled={status === 'loading'}
+              className={clsx(
+                'flex h-10 w-10 items-center justify-center rounded-full border border-white/35 bg-white/[0.08] text-white shadow-inner transition hover:border-white/50 hover:bg-white/[0.12] disabled:cursor-wait disabled:opacity-50',
+              )}
+              aria-label={authed ? 'Account menu' : 'Account — sign in'}
+            >
+              <User className="h-5 w-5" strokeWidth={2} aria-hidden />
+            </MenuButton>
+            <MenuItems className={profileMenuClass}>
+              {authed && (
+                <div className="mb-1 border-b border-border px-2 pb-2">
+                  <p className="font-inter text-[11px] font-medium text-muted">Signed in</p>
+                  <p className="truncate font-inter text-xs font-semibold text-charcoal">
+                    {session.user?.name || session.user?.email || 'Account'}
+                  </p>
+                </div>
+              )}
+              {!authed ? (
+                <MenuItem>
+                  {({ focus }) => (
+                    <Link href="/login" className={profileRowClass(focus)}>
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                        <LogIn className="h-4 w-4" strokeWidth={2} aria-hidden />
+                      </span>
+                      Login / Sign up
+                    </Link>
+                  )}
+                </MenuItem>
+              ) : (
+                <MenuItem>
+                  {({ focus }) => (
+                    <button
+                      type="button"
+                      className={profileRowClass(focus)}
+                      onClick={() => {
+                        if (typeof window !== 'undefined') localStorage.removeItem('infra_token');
+                        void signOut({ callbackUrl: '/' });
+                      }}
+                    >
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-rose-100 text-rose-600">
+                        <LogOut className="h-4 w-4" strokeWidth={2} aria-hidden />
+                      </span>
+                      Sign out
+                    </button>
+                  )}
+                </MenuItem>
+              )}
+              <MenuItem>
+                {({ focus }) => (
+                  <Link href="/seen-properties" className={profileRowClass(focus)}>
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                      <Eye className="h-4 w-4" strokeWidth={2} aria-hidden />
+                    </span>
+                    See properties
+                  </Link>
+                )}
+              </MenuItem>
+              <MenuItem>
+                {({ focus }) => (
+                  <Link href="/saved-properties" className={profileRowClass(focus)}>
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-orange-600">
+                      <Heart className="h-4 w-4" strokeWidth={2} aria-hidden />
+                    </span>
+                    Saved properties
+                  </Link>
+                )}
+              </MenuItem>
+              <MenuItem>
+                {({ focus }) => (
+                  <Link
+                    href={authed ? '/profile' : '/login?callbackUrl=/profile'}
+                    className={profileRowClass(focus)}
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-600">
+                      <User className="h-4 w-4" strokeWidth={2} aria-hidden />
+                    </span>
+                    My profile
+                  </Link>
+                )}
+              </MenuItem>
+            </MenuItems>
+          </Menu>
+
           <button
             type="button"
             className="rounded-lg p-2 text-white lg:hidden"
@@ -168,9 +257,32 @@ export function Navbar() {
             <Link href="/emi-calculator" onClick={() => setOpen(false)}>
               EMI Calculator
             </Link>
-            <Link href="/login" onClick={() => setOpen(false)}>
-              Login
+            <Link href="/seen-properties" onClick={() => setOpen(false)}>
+              See properties
             </Link>
+            <Link href="/saved-properties" onClick={() => setOpen(false)}>
+              Saved properties
+            </Link>
+            <Link href={authed ? '/profile' : '/login?callbackUrl=/profile'} onClick={() => setOpen(false)}>
+              My profile
+            </Link>
+            {!authed ? (
+              <Link href="/login" onClick={() => setOpen(false)} className="font-semibold text-white">
+                Login / Sign up
+              </Link>
+            ) : (
+              <button
+                type="button"
+                className="text-left font-semibold text-white/90"
+                onClick={() => {
+                  setOpen(false);
+                  if (typeof window !== 'undefined') localStorage.removeItem('infra_token');
+                  void signOut({ callbackUrl: '/' });
+                }}
+              >
+                Sign out
+              </button>
+            )}
           </div>
         </div>
       )}

@@ -1,22 +1,6 @@
-let infraBackendUrl = String(
-  process.env.INFRA_BACKEND_URL ||
-    process.env.NEXT_PUBLIC_INFRA_API_URL ||
-    'http://127.0.0.1:4001',
-)
-  .trim()
-  .replace(/\/$/, '');
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  async rewrites() {
-    return [
-      {
-        source: '/api/infra-backend/:path*',
-        destination: `${infraBackendUrl}/:path*`,
-      },
-    ];
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },

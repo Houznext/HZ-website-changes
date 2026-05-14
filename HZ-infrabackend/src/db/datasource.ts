@@ -14,6 +14,11 @@ import { InfraDeveloper } from '../developer/entities/infra-developer.entity';
 import { InfraNews } from '../news/entities/infra-news.entity';
 import { InfraSiteConfig } from '../site-config/entities/infra-site-config.entity';
 import { InfraSiteVisit } from '../site-visit/entities/infra-site-visit.entity';
+import { InfraUser } from '../infra-user/entities/infra-user.entity';
+import { InfraUserBranchMembership } from '../infra-branch/entities/infra-user-branch-membership.entity';
+import { InfraBranch } from '../infra-branch/entities/infra-branch.entity';
+import { InfraBranchRole } from '../infra-branch-role/entities/infra-branch-role.entity';
+import { InfraBranchRolePermission } from '../infra-branch-role-permission/entities/infra-branch-role-permission.entity';
 
 export const infraEntities = [
   InfraCustomer,
@@ -31,6 +36,11 @@ export const infraEntities = [
   InfraNews,
   InfraSiteConfig,
   InfraSiteVisit,
+  InfraUser,
+  InfraUserBranchMembership,
+  InfraBranch,
+  InfraBranchRole,
+  InfraBranchRolePermission,
 ];
 
 export function buildTypeOrmOptions(): DataSourceOptions {

@@ -147,7 +147,7 @@ function InteriorsHero({ cms }: { cms: any }) {
   const rawHeadline = cms?.hero?.headline ?? 'Spaces that feel {like} {you.}'
   const subheading =
     cms?.hero?.subheading ??
-    'Fixed-price interior design for 2BHK, 3BHK and villas. 45-day delivery, photorealistic 3D designs, and live LiveBuild tracking.'
+    'Fixed-price interior design for 2BHK, 3BHK and villas. Average 45-day delivery, photorealistic 3D designs, and live LiveBuild tracking.'
   const primaryCta = cms?.hero?.primaryCta ?? {
     label: 'Request free consultation →',
     href: '/contact-us',
@@ -498,7 +498,7 @@ function ProcessTimeline() {
     { n: '2', label: '3D Design',       desc: 'Photorealistic designs for every room' },
     { n: '3', label: 'Approval',        desc: 'Review, revise and approve online' },
     { n: '4', label: 'Execution',       desc: 'Our team builds with LiveBuild tracking' },
-    { n: '5', label: 'Handover',        desc: 'Keys + 1-year warranty document' },
+    { n: '5', label: 'Handover',        desc: 'Keys + 10-year warranty document' },
   ]
   return (
     <section className="py-16 px-4 bg-white">
@@ -557,7 +557,7 @@ function ServiceBanner() {
                 Get a free interior design consultation
               </h2>
               <ul className="space-y-3">
-                {['Free 3D design mock-up', 'Fixed-price quote — no surprises', 'Dedicated project manager', '45-day delivery guarantee'].map((f, i) => (
+                {['Free 3D design mock-up', 'Fixed-price quote — no surprises', 'Dedicated project manager', 'Average 45-day delivery guarantee'].map((f, i) => (
                   <Reveal key={f} delay={i * 80} variant="right">
                     <li className="flex items-center gap-2.5 text-[14px] text-white/90">
                       <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-white/60" />
