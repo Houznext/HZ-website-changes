@@ -8,7 +8,9 @@ import { InfraPropertyDetails } from '../property/entities/infra-property-detail
 import { InfraProject } from '../project/entities/infra-project.entity';
 import { InfraProjectMilestone } from '../project/entities/infra-project-milestone.entity';
 import { InfraEnquiry } from '../enquiry/entities/infra-enquiry.entity';
-import { InfraCRMLead } from '../crm/entities/infra-crm-lead.entity';
+import { InfraCrmLead } from '../crm-lead/entities/infra-crm-lead.entity';
+import { InfraCrmActivity } from '../crm-lead/entities/infra-crm-activity.entity';
+import { InfraCrmSiteVisit } from '../crm-lead/entities/infra-crm-site-visit.entity';
 import { InfraSavedProperty } from '../saved/entities/infra-saved.entity';
 import { InfraDeveloper } from '../developer/entities/infra-developer.entity';
 import { InfraNews } from '../news/entities/infra-news.entity';
@@ -30,7 +32,9 @@ export const infraEntities = [
   InfraProject,
   InfraProjectMilestone,
   InfraEnquiry,
-  InfraCRMLead,
+  InfraCrmLead,
+  InfraCrmActivity,
+  InfraCrmSiteVisit,
   InfraSavedProperty,
   InfraDeveloper,
   InfraNews,

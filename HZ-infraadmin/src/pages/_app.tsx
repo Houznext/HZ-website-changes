@@ -45,7 +45,22 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       {wizard ? <ListingFormProvider>{inner}</ListingFormProvider> : inner}
-      <Toaster position="bottom-right" toastOptions={{ duration: 3000 }} />
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          duration: 3000,
+          className: 'crm-toast',
+          style: {
+            background: '#1f2933',
+            color: '#fff',
+            padding: '10px 16px',
+            borderRadius: 10,
+            fontSize: 13,
+            fontWeight: 600,
+            borderLeft: '3px solid #22c55e',
+          },
+        }}
+      />
     </>
   );
 }

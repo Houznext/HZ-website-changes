@@ -157,4 +157,23 @@ export class InfraMailService {
       this.log.error(`Failed to send enquiry notification: ${(e as Error).message}`);
     }
   }
+
+  async sendHtmlMail(params: { to: string; subject: string; html: string }): Promise<void> {
+    const transport = this.transporter();
+    if (!transport) {
+      this.log.warn('SMTP not configured — skipping HTML email');
+      return;
+    }
+    try {
+      await transport.sendMail({
+        from: this.fromAddress(),
+        to: params.to,
+        subject: params.subject,
+        html: params.html,
+      });
+      this.log.log(`HTML mail sent to ${params.to}: ${params.subject}`);
+    } catch (e) {
+      this.log.error(`Failed to send HTML mail: ${(e as Error).message}`);
+    }
+  }
 }

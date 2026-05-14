@@ -303,3 +303,86 @@ input:checked + .tgl-track .tgl-thumb { transform: translateX(18px); }
 /* Property type chip icon */
 .pt-icon { width: 14px; height: 14px; flex-shrink: 0; }
 .pt-icon svg { display: block; }
+
+/* —— CRM (houznext infra real estate) —— */
+.nav-badge-red { margin-left: auto; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 20px; background: rgba(220,38,38,0.2); color: #fca5a5; font-family: 'Montserrat', sans-serif; }
+
+.s-new         { background: #eff6ff; color: #1d4ed8; }
+.s-contacted   { background: #f3e8ff; color: #6d28d9; }
+.s-site        { background: #fff7ed; color: #c2410c; }
+.s-visited     { background: #fdf4ff; color: #a21caf; }
+.s-negotiation { background: #fffbeb; color: #92400e; }
+.s-token       { background: #ccfbf1; color: #0f766e; }
+.s-booked      { background: #dcfce7; color: #15803d; }
+.s-registered  { background: #dcfce7; color: #15803d; }
+.s-lost        { background: #fee2e2; color: #dc2626; }
+.s-nurture     { background: #fef9c3; color: #78350f; }
+.s-future      { background: #fef9c3; color: #92400e; }
+.s-notint      { background: #f1f5f9; color: #475569; }
+
+.p-hot  { background: #fee2e2; color: #dc2626; font-size: 9px; }
+.p-warm { background: #fff7ed; color: #c2410c; font-size: 9px; }
+.p-cold { background: #eff6ff; color: #2563eb; font-size: 9px; }
+
+.score-ring {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px; font-weight: 800; flex-shrink: 0;
+}
+
+.k-col {
+  background: #f8fafc; border-radius: 12px;
+  border: 1px solid #e2e8f0; min-width: 190px; flex-shrink: 0;
+}
+.k-head { padding: 12px 14px 10px; border-bottom: 1px solid #e2e8f0; }
+.k-title {
+  font-family: 'Montserrat', sans-serif; font-size: 11.5px;
+  font-weight: 700; color: #1f2933; margin-bottom: 2px;
+}
+.k-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 80px; }
+.k-card {
+  background: #fff; border-radius: 9px; padding: 12px;
+  border: 0.5px solid #e2e8f0; cursor: pointer;
+  transition: all 200ms;
+}
+.k-card:hover {
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+  border-color: #93c5fd;
+}
+.k-name { font-weight: 600; font-size: 12.5px; color: #1f2933; margin-bottom: 3px; }
+.k-prop { font-size: 11px; color: #5a6a7e; margin-bottom: 4px; }
+.k-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px; }
+.k-tag {
+  font-size: 9.5px; padding: 2px 7px; border-radius: 20px;
+  background: #f5f7fa; color: #5a6a7e;
+  font-family: 'Montserrat', sans-serif; font-weight: 600;
+  border: 0.5px solid #dde8f5;
+}
+
+.crm-tab-bar {
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 22px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 46px;
+  flex-shrink: 0;
+}
+.crm-tab {
+  padding: 0 14px; height: 46px;
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12.5px; font-weight: 600;
+  color: #5a6a7e; cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 150ms;
+  text-decoration: none;
+}
+.crm-tab:hover { color: #2f80ed; }
+.crm-tab.on { color: #2f80ed; border-bottom-color: #2f80ed; }
+
+@keyframes crmToastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+

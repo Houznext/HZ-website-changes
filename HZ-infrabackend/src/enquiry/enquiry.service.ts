@@ -2,10 +2,11 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { InfraEnquiry } from './entities/infra-enquiry.entity';
-import { InfraCRMLead } from '../crm/entities/infra-crm-lead.entity';
 import { InfraProperty } from '../property/entities/infra-property.entity';
 import { CreateEnquiryDto } from './dto/enquiry.dto';
 import { InfraMailService } from '../common/mail/infra-mail.service';
+import { CrmLeadService } from '../crm-lead/crm-lead.service';
+import type { InfraCrmLead } from '../crm-lead/entities/infra-crm-lead.entity';
 
 @Injectable()
 export class EnquiryService {
@@ -16,9 +17,10 @@ export class EnquiryService {
     private readonly propRepo: Repository<InfraProperty>,
     private readonly dataSource: DataSource,
     private readonly mail: InfraMailService,
+    private readonly crmLeads: CrmLeadService,
   ) {}
 
-  async create(dto: CreateEnquiryDto): Promise<{ enquiry: InfraEnquiry; lead: InfraCRMLead }> {
+  async create(dto: CreateEnquiryDto): Promise<{ enquiry: InfraEnquiry; lead: InfraCrmLead }> {
     const property = await this.propRepo.findOne({ where: { propertyId: dto.propertyId } });
     if (!property) throw new NotFoundException('Property not found');
     if (!property.isApproved || !property.isActive) {
@@ -36,17 +38,14 @@ export class EnquiryService {
         status: 'pending',
       });
       await em.save(enquiry);
+      return { enquiry };
+    });
 
-      const lead = em.create(InfraCRMLead, {
-        name: dto.name,
-        phone: dto.phone,
-        email: dto.email ?? null,
-        stage: 'new',
-        property,
-      });
-      await em.save(lead);
-
-      return { enquiry, lead };
+    const lead = await this.crmLeads.createFromEnquiry({
+      fullName: dto.name,
+      phone: dto.phone,
+      email: dto.email ?? null,
+      propertyId: property.propertyId,
     });
 
     void this.mail
@@ -64,7 +63,7 @@ export class EnquiryService {
       })
       .catch(() => undefined);
 
-    return result;
+    return { enquiry: result.enquiry, lead };
   }
 
   async adminList(): Promise<

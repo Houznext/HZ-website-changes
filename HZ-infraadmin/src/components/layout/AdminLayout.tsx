@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState } from 'react';
 import {
+  Bell,
   Building2,
   CalendarDays,
   ChevronDown,
@@ -24,7 +25,7 @@ import {
 } from 'lucide-react';
 import adminApi from '@/lib/axios';
 
-type NavCounts = { properties: number; pending: number; leads: number; enquiries: number; dev: number };
+type NavCounts = { properties: number; pending: number; leads: number; enquiries: number; crmOverdue: number; crmVisits: number; dev: number };
 
 const iconProps = { size: 13, strokeWidth: 1.8, fill: 'none' as const };
 
@@ -50,24 +51,26 @@ export function AdminLayout({
 }) {
   const router = useRouter();
   const { user, signOut } = useAuth();
-  const [counts, setCounts] = useState<NavCounts>({ properties: 0, pending: 0, leads: 0, enquiries: 0, dev: 0 });
+  const [counts, setCounts] = useState<NavCounts>({ properties: 0, pending: 0, leads: 0, enquiries: 0, crmOverdue: 0, crmVisits: 0, dev: 0 });
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [listRes, pendRes, crmRes, enqRes] = await Promise.all([
+        const [listRes, pendRes, crmStats, enqRes] = await Promise.all([
           adminApi.get('/admin/properties', { params: { page: 1, limit: 1 } }).catch(() => null),
           adminApi.get('/admin/properties/pending').catch(() => null),
-          adminApi.get('/admin/crm/leads').catch(() => null),
+          adminApi.get('/admin/crm/stats').catch(() => null),
           adminApi.get('/admin/enquiries').catch(() => null),
         ]);
         if (cancelled) return;
         const total = listRes?.data?.total ?? 0;
         const pending = Array.isArray(pendRes?.data) ? pendRes.data.length : 0;
-        const leads = Array.isArray(crmRes?.data) ? crmRes.data.length : 0;
+        const leads = Number(crmStats?.data?.totalLeads ?? 0);
+        const crmOverdue = Number(crmStats?.data?.overdueCount ?? 0);
+        const crmVisits = Number(crmStats?.data?.siteVisitsToday ?? 0);
         const enquiries = Array.isArray(enqRes?.data) ? enqRes.data.length : 0;
-        setCounts({ properties: total, pending, leads, enquiries, dev: 0 });
+        setCounts({ properties: total, pending, leads, enquiries, crmOverdue, crmVisits, dev: 0 });
       } catch {
         /* ignore */
       }
@@ -84,26 +87,38 @@ export function AdminLayout({
     label,
     icon: Icon,
     badge,
-    badgeVariant = 'blue',
-    active,
-  }: {
-    href: string;
-    label: string;
-    icon: typeof Building2;
-    badge?: number;
-    badgeVariant?: 'blue' | 'amber' | 'accent';
-    active: boolean;
-  }) => (
-    <Link href={href} className={`asi ${active ? 'on' : ''}`}>
-      <span className="ic">
-        <Icon {...iconProps} color="currentColor" />
+  badgeVariant = 'blue',
+  active,
+}: {
+  href: string;
+  label: string;
+  icon: typeof Building2;
+  badge?: number;
+  badgeVariant?: 'blue' | 'amber' | 'accent' | 'red';
+  active: boolean;
+}) => (
+  <Link href={href} className={`asi ${active ? 'on' : ''}`}>
+    <span className="ic">
+      <Icon {...iconProps} color="currentColor" />
+    </span>
+    {label}
+    {badge != null && badge > 0 ? (
+      <span
+        className={
+          badgeVariant === 'blue'
+            ? 'nav-badge-blue'
+            : badgeVariant === 'amber'
+              ? 'nav-badge-amber'
+              : badgeVariant === 'red'
+                ? 'nav-badge-red'
+                : 'nav-badge-accent'
+        }
+      >
+        {fmtCount(badge)}
       </span>
-      {label}
-      {badge != null && badge > 0 ? (
-        <span className={badgeVariant === 'blue' ? 'nav-badge-blue' : badgeVariant === 'amber' ? 'nav-badge-amber' : 'nav-badge-accent'}>{fmtCount(badge)}</span>
-      ) : null}
-    </Link>
-  );
+    ) : null}
+  </Link>
+);
 
   const initials = (user?.name || user?.username || '?')
     .split(/\s+/)
@@ -181,13 +196,28 @@ export function AdminLayout({
           />
           <NavRow
             href="/crm"
-            label="CRM leads"
+            label="CRM"
             icon={MessageSquare}
             badge={counts.leads}
             badgeVariant="amber"
             active={path.startsWith('/crm')}
           />
-          <NavRow href="/site-visits" label="Site visits" icon={CalendarDays} badgeVariant="blue" active={path.startsWith('/site-visits')} />
+          <NavRow
+            href="/crm/site-visits"
+            label="CRM site visits"
+            icon={CalendarDays}
+            badge={counts.crmVisits}
+            badgeVariant="blue"
+            active={path.startsWith('/crm/site-visits')}
+          />
+          <NavRow
+            href="/crm/follow-ups"
+            label="CRM follow-ups"
+            icon={Bell}
+            badge={counts.crmOverdue}
+            badgeVariant="red"
+            active={path.startsWith('/crm/follow-ups')}
+          />
 
           <div className="asec">Team</div>
           <NavRow href="/users" label="Users" icon={Users} badgeVariant="blue" active={path.startsWith('/users')} />

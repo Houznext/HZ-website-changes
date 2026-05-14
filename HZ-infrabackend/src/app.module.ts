@@ -13,7 +13,7 @@ import { CustomerModule } from './customer/customer.module';
 import { PropertyModule } from './property/property.module';
 import { ProjectModule } from './project/project.module';
 import { EnquiryModule } from './enquiry/enquiry.module';
-import { CrmModule } from './crm/crm.module';
+import { CrmLeadModule } from './crm-lead/crm-lead.module';
 import { AdminModule } from './admin/admin.module';
 import { SavedModule } from './saved/saved.module';
 import { DeveloperModule } from './developer/developer.module';
@@ -42,7 +42,7 @@ import { S3Module } from './s3/s3.module';
     PropertyModule,
     ProjectModule,
     EnquiryModule,
-    CrmModule,
+    CrmLeadModule,
     AdminModule,
     SavedModule,
     DeveloperModule,

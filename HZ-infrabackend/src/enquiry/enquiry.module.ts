@@ -5,9 +5,10 @@ import { InfraProperty } from '../property/entities/infra-property.entity';
 import { EnquiryService } from './enquiry.service';
 import { EnquiryController } from './enquiry.controller';
 import { InfraMailService } from '../common/mail/infra-mail.service';
+import { CrmLeadModule } from '../crm-lead/crm-lead.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([InfraEnquiry, InfraProperty])],
+  imports: [TypeOrmModule.forFeature([InfraEnquiry, InfraProperty]), CrmLeadModule],
   controllers: [EnquiryController],
   providers: [EnquiryService, InfraMailService],
   exports: [EnquiryService],

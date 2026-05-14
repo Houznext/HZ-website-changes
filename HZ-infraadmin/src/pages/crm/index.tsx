@@ -1,154 +1,260 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 import { AdminLayout } from '@/components/layout/AdminLayout';
+import { CrmLayout } from '@/components/crm/CrmLayout';
 import adminApi from '@/lib/axios';
+import {
+  Users,
+  Zap,
+  MapPin,
+  CheckCircle,
+  CheckCircle2,
+  CalendarDays,
+  ArrowRight,
+} from 'lucide-react';
+import { CRM_STAGES } from '@/components/crm/crmConstants';
+import { StageBadge } from '@/components/crm/StageBadge';
+import { LeadScoreRing } from '@/components/crm/LeadScoreRing';
+import { getAvatarColor } from '@/components/crm/crmConstants';
 import { formatDate } from '@/lib/utils';
 
-type Lead = {
-  leadId: string;
-  name: string;
-  phone: string;
-  email?: string | null;
-  stage: string;
-  budget?: string | null;
-  assignedTo?: string | null;
-  nextFollowUpAt?: string | null;
-  lastContactNote?: string | null;
-  createdAt?: string;
-  property?: { title?: string; propertyCode?: string | null } | null;
+type Stats = {
+  totalLeads?: number;
+  hotLeads?: number;
+  siteVisits?: number;
+  siteVisitsToday?: number;
+  tokenPaid?: number;
+  registered?: number;
+  followUpsDue?: number;
+  stageCounts?: Record<string, number>;
+  sourceCounts?: Record<string, number>;
+  pipelineValue?: number;
+  weightedValue?: number;
+  avgDealSize?: number;
+  conversionRate?: number;
+  avgDaysToClose?: number;
+  overdueLeadsPreview?: Array<{
+    id: string;
+    fullName: string;
+    phone: string;
+    nextFollowUpAt?: string | null;
+    stage?: string;
+  }>;
+  recentLeads?: Array<{
+    id: string;
+    fullName: string;
+    phone: string;
+    stage: string;
+    priority: string;
+    propertyType: string;
+    bhkPreference?: string | null;
+    budgetRange?: string | null;
+    source?: string;
+    leadScore: number;
+    createdAt?: string;
+  }>;
 };
 
-const STAGES = ['new', 'contacted', 'qualified', 'proposal_sent', 'won', 'lost'] as const;
+const ic = { size: 22, strokeWidth: 1.8 as const, fill: 'none' as const };
 
-const stageClass: Record<string, string> = {
-  new: 'b-blue',
-  contacted: 'b-purple',
-  qualified: 'b-teal',
-  proposal_sent: 'b-amber',
-  won: 'b-green',
-  lost: 'b-red',
-};
+export default function CrmDashboardPage() {
+  const router = useRouter();
+  const [stats, setStats] = useState<Stats | null>(null);
 
-export default function CrmPage() {
-  const [rows, setRows] = useState<Lead[]>([]);
-  const [drawer, setDrawer] = useState<Lead | null>(null);
-  const [filter, setFilter] = useState('');
-
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
-      const res = await adminApi.get('/admin/crm/leads', { params: filter ? { stage: filter } : {} });
-      setRows(Array.isArray(res.data) ? res.data : []);
+      const res = await adminApi.get<Stats>('/admin/crm/stats');
+      setStats(res.data);
     } catch {
-      toast.error('Failed to load leads');
+      toast.error('Failed to load CRM stats');
     }
-  };
+  }, []);
 
   useEffect(() => {
     void load();
-  }, [filter]);
+  }, [load]);
 
-  const patch = async (id: string, body: Record<string, unknown>) => {
-    try {
-      await adminApi.patch(`/admin/crm/leads/${id}`, body);
-      toast.success('Updated');
-      void load();
-      setDrawer((d) => (d && d.leadId === id ? { ...d, ...(body as Partial<Lead>) } : d));
-    } catch {
-      toast.error('Update failed');
-    }
-  };
+  const kpi = [
+    { label: 'Total Leads', value: stats?.totalLeads ?? 0, icon: Users, bg: '#eff6ff', color: '#1f2933' },
+    { label: 'Hot Leads', value: stats?.hotLeads ?? 0, icon: Zap, bg: '#fff7ed', color: '#ea580c' },
+    { label: 'Site Visits', value: stats?.siteVisits ?? 0, icon: MapPin, bg: '#fdf4ff', color: '#a21caf' },
+    { label: 'Token Paid', value: stats?.tokenPaid ?? 0, icon: CheckCircle, bg: '#ccfbf1', color: '#0d9488' },
+    { label: 'Registered', value: stats?.registered ?? 0, icon: CheckCircle2, bg: '#dcfce7', color: '#16a34a' },
+    { label: 'Follow-ups Due', value: stats?.followUpsDue ?? 0, icon: CalendarDays, bg: '#fffbeb', color: '#ca8a04' },
+  ];
+
+  const maxStage = Math.max(1, ...CRM_STAGES.map((s) => stats?.stageCounts?.[s.id] ?? 0));
 
   return (
-    <AdminLayout title="CRM leads">
-      <div className="acard" style={{ marginBottom: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-        <select className="fi" style={{ maxWidth: 220 }} value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value="">All stages</option>
-          {STAGES.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
+    <AdminLayout title="CRM">
+      <CrmLayout>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+            gap: 12,
+          }}
+        >
+          {kpi.map((k) => (
+            <div
+              key={k.label}
+              className="acard stat-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              style={{ borderColor: '#e2e8f0' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <span style={{ fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b', fontFamily: 'Montserrat, sans-serif' }}>
+                  {k.label}
+                </span>
+                <span style={{ width: 36, height: 36, borderRadius: 10, background: k.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <k.icon {...ic} color={k.color} />
+                </span>
+              </div>
+              <div className="stat-val" style={{ color: k.color }}>
+                {k.value.toLocaleString('en-IN')}
+              </div>
+            </div>
           ))}
-        </select>
-      </div>
-      <div className="acard" style={{ padding: 0, overflow: 'auto' }}>
-        <table className="atbl">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Interest</th>
-              <th>Status</th>
-              <th>Assigned</th>
-              <th>Follow-up</th>
-              <th>Created</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.leadId} style={{ cursor: 'pointer' }} onClick={() => setDrawer(r)}>
-                <td style={{ fontWeight: 600 }}>{r.name}</td>
-                <td>{r.phone}</td>
-                <td>{r.property?.title ?? r.property?.propertyCode ?? '—'}</td>
-                <td>
-                  <span className={`bdg ${stageClass[r.stage] ?? 'b-gray'}`}>{r.stage}</span>
-                </td>
-                <td>{r.assignedTo ?? '—'}</td>
-                <td>{r.nextFollowUpAt ? formatDate(r.nextFollowUpAt) : '—'}</td>
-                <td>{r.createdAt ? formatDate(r.createdAt) : '—'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+        </div>
 
-      {drawer && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 200 }} onClick={() => setDrawer(null)}>
-          <div className="acard" style={{ position: 'absolute', top: 0, right: 0, width: 420, height: '100%', overflow: 'auto' }} onClick={(e) => e.stopPropagation()}>
-            <h3>{drawer.name}</h3>
-            <p style={{ color: '#64748b', marginTop: 6 }}>{drawer.phone}</p>
-            {drawer.email ? <p style={{ fontSize: 12 }}>{drawer.email}</p> : null}
-            {drawer.budget ? <p style={{ fontSize: 12 }}>Budget: {drawer.budget}</p> : null}
-            <label className="label" style={{ marginTop: 12 }}>
-              Status
-            </label>
-            <select className="fi" value={drawer.stage} onChange={(e) => void patch(drawer.leadId, { stage: e.target.value })}>
-              {Array.from(new Set([...STAGES, drawer.stage])).map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: 16, marginTop: 18 }} className="max-lg:grid-cols-1">
+          <div className="acard">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 13, fontWeight: 700 }}>Pipeline</span>
+              <Link href="/crm/pipeline" className="btn btn-ghost btn-sm" style={{ gap: 6 }}>
+                View kanban <ArrowRight size={14} strokeWidth={1.8} />
+              </Link>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {CRM_STAGES.slice(0, 8).map((s) => {
+                const n = stats?.stageCounts?.[s.id] ?? 0;
+                const pct = Math.round((n / maxStage) * 100);
+                return (
+                  <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 150, fontSize: 11.5, color: '#475569', flexShrink: 0 }}>{s.label}</div>
+                    <div style={{ flex: 1, height: 7, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{ width: `${pct}%`, height: '100%', background: s.border, borderRadius: 4, transition: 'width 0.4s ease' }} />
+                    </div>
+                    <div style={{ width: 28, textAlign: 'right', fontSize: 12, fontWeight: 700, color: '#1f2933' }}>{n}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div className="acard">
+              <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 12.5, fontWeight: 700, marginBottom: 10 }}>Leads by source</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {Object.entries(stats?.sourceCounts ?? {})
+                  .sort((a, b) => b[1] - a[1])
+                  .slice(0, 8)
+                  .map(([src, c]) => (
+                    <div key={src} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5 }}>
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#2f80ed', flexShrink: 0 }} />
+                      <span style={{ flex: 1, color: '#475569' }}>{src}</span>
+                      <strong>{c}</strong>
+                    </div>
+                  ))}
+                {Object.keys(stats?.sourceCounts ?? {}).length === 0 ? <span style={{ color: 'var(--mu)', fontSize: 12 }}>No data yet</span> : null}
+              </div>
+            </div>
+
+            <div className="acard" style={{ background: '#fff5f5', borderColor: '#fca5a5' }}>
+              <div style={{ fontWeight: 800, fontSize: 12, color: '#b91c1c', marginBottom: 10 }}>Overdue follow-ups</div>
+              {(stats?.overdueLeadsPreview ?? []).slice(0, 3).map((l) => (
+                <div key={l.id} style={{ fontSize: 12.5, marginBottom: 8 }}>
+                  <Link href={`/crm/leads/${l.id}`} style={{ fontWeight: 700, color: '#1f2933' }}>
+                    {l.fullName}
+                  </Link>
+                  <div style={{ fontSize: 11, color: '#dc2626' }}>
+                    Due {l.nextFollowUpAt ? formatDate(l.nextFollowUpAt) : '—'}
+                  </div>
+                </div>
               ))}
-            </select>
-            <label className="label" style={{ marginTop: 12 }}>
-              Assigned to
-            </label>
-            <input
-              className="fi"
-              defaultValue={drawer.assignedTo ?? ''}
-              onBlur={(e) => {
-                const v = e.target.value.trim();
-                if (v !== (drawer.assignedTo ?? '')) void patch(drawer.leadId, { assignedTo: v || null });
-              }}
-            />
-            <label className="label" style={{ marginTop: 12 }}>
-              Note
-            </label>
-            <textarea
-              className="fi"
-              rows={3}
-              defaultValue={drawer.lastContactNote ?? ''}
-              onBlur={(e) => {
-                const v = e.target.value.trim();
-                if (v !== (drawer.lastContactNote ?? '')) void patch(drawer.leadId, { lastContactNote: v || null });
-              }}
-            />
-            <button type="button" className="btn btn-ghost" style={{ marginTop: 16 }} onClick={() => setDrawer(null)}>
-              Close
-            </button>
+              <Link href="/crm/follow-ups" className="btn btn-ghost btn-sm" style={{ marginTop: 4 }}>
+                View all →
+              </Link>
+            </div>
           </div>
         </div>
-      )}
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 16, marginTop: 16 }} className="max-lg:grid-cols-1">
+          <div className="acard" style={{ padding: 0, overflow: 'auto' }}>
+            <div style={{ padding: '14px 16px', borderBottom: '1px solid #f0f4f8', fontWeight: 700, fontFamily: 'Montserrat, sans-serif' }}>Recent leads</div>
+            <table className="atbl">
+              <thead>
+                <tr>
+                  <th>Lead</th>
+                  <th>Interested in</th>
+                  <th>Budget</th>
+                  <th>Stage</th>
+                  <th>Priority</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(stats?.recentLeads ?? []).map((r) => (
+                  <tr key={r.id} style={{ cursor: 'pointer' }} onClick={() => void router.push(`/crm/leads/${r.id}`)}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <span
+                          style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: 10,
+                            background: getAvatarColor(r.fullName),
+                            color: '#fff',
+                            fontWeight: 800,
+                            fontSize: 13,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontFamily: 'Montserrat, sans-serif',
+                          }}
+                        >
+                          {r.fullName.charAt(0).toUpperCase()}
+                        </span>
+                        <div>
+                          <div style={{ fontWeight: 700 }}>{r.fullName}</div>
+                          <div style={{ fontSize: 11, color: 'var(--mu)' }}>{r.phone}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      {r.propertyType}
+                      {r.bhkPreference ? ` · ${r.bhkPreference}` : ''}
+                    </td>
+                    <td style={{ fontWeight: 800, color: '#2f80ed' }}>{r.budgetRange ?? '—'}</td>
+                    <td>
+                      <StageBadge stage={r.stage} />
+                    </td>
+                    <td>
+                      <span className={r.priority === 'hot' ? 'p-hot' : r.priority === 'warm' ? 'p-warm' : 'p-cold'} style={{ borderRadius: 20, padding: '2px 8px', fontWeight: 700 }}>
+                        {r.priority}
+                      </span>
+                    </td>
+                    <td>
+                      <LeadScoreRing score={r.leadScore} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="acard">
+            <div style={{ fontWeight: 700, fontFamily: 'Montserrat, sans-serif', marginBottom: 12 }}>Activity feed</div>
+            <div style={{ fontSize: 12.5, color: 'var(--mu)', lineHeight: 1.6 }}>
+              <p>✨ New leads and stage changes appear here as your team logs activity on lead detail pages.</p>
+              <p className="mt-2">Pipeline value (est.): ₹{(stats?.pipelineValue ?? 0).toLocaleString('en-IN')}</p>
+            </div>
+          </div>
+        </div>
+      </CrmLayout>
     </AdminLayout>
   );
 }
