@@ -6,7 +6,7 @@ export class CreateEnquiryDto {
   name: string;
 
   @IsString()
-  @MaxLength(20)
+  @MaxLength(24)
   phone: string;
 
   @IsOptional()

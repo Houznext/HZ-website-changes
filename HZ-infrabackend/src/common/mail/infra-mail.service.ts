@@ -30,6 +30,11 @@ export class InfraMailService {
     return this.config.get<string>('PROPERTY_ALERT_EMAIL') || 'business@houznext.com';
   }
 
+  /** Website property enquiries — defaults to business@houznext.com (override with ENQUIRY_NOTIFY_EMAIL). */
+  private enquiryNotifyTo(): string {
+    return this.config.get<string>('ENQUIRY_NOTIFY_EMAIL') || this.alertTo();
+  }
+
   private fromAddress(): string {
     return this.config.get<string>('SMTP_FROM') || this.config.get<string>('SMTP_USER') || 'noreply@houznext.com';
   }
@@ -98,6 +103,58 @@ export class InfraMailService {
       this.log.log(`Property alert (${params.action}) sent to ${to}`);
     } catch (e) {
       this.log.error(`Failed to send property alert: ${(e as Error).message}`);
+    }
+  }
+
+  async sendPropertyEnquiryNotification(params: {
+    enquiryId: string;
+    name: string;
+    phone: string;
+    email?: string | null;
+    message?: string | null;
+    propertyId: string;
+    propertyCode?: string | null;
+    propertyTitle?: string | null;
+    city?: string | null;
+    locality?: string | null;
+  }): Promise<void> {
+    const transport = this.transporter();
+    if (!transport) {
+      this.log.warn('SMTP not configured — skipping enquiry notification email');
+      return;
+    }
+
+    const to = this.enquiryNotifyTo();
+    const subject = `[Infra] New property enquiry — ${params.propertyTitle || params.propertyCode || params.propertyId}`;
+
+    const lines = [
+      'A visitor submitted an enquiry from the Houznext Infra property page.',
+      '',
+      `Enquiry ID: ${params.enquiryId}`,
+      `Name: ${params.name}`,
+      `Phone: ${params.phone}`,
+      `Email: ${params.email?.trim() || '—'}`,
+      '',
+      'Property:',
+      `  ID: ${params.propertyId}`,
+      `  Code: ${params.propertyCode ?? '—'}`,
+      `  Title: ${params.propertyTitle ?? '—'}`,
+      `  Location: ${params.locality ?? '—'}, ${params.city ?? '—'}`,
+      '',
+      'Message:',
+      params.message?.trim() || '(none)',
+    ];
+
+    try {
+      await transport.sendMail({
+        from: this.fromAddress(),
+        to,
+        subject,
+        text: lines.join('\n'),
+      });
+      this.log.log(`Enquiry notification sent to ${to} (${params.enquiryId})`);
+    } catch (e) {
+      this.log.error(`Failed to send enquiry notification: ${(e as Error).message}`);
     }
   }
 }

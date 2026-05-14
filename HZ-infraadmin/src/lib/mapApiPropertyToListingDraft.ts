@@ -106,6 +106,7 @@ export function mapApiPropertyToListingDraft(api: Record<string, unknown>): List
     ecCertUrl: str(api.ecCertUrl),
     floorPlanUrl: str(api.floorPlanUrl),
     brochureUrl: str(api.brochureUrl),
+    youtubeVideoUrl: str(api.youtubeVideoUrl),
     photoUrls: photos,
     coverImageUrl: cover,
     highlights: Array.isArray(api.highlights) ? [...(api.highlights as string[])] : [],

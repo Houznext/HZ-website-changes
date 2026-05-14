@@ -10,12 +10,22 @@ import type { PublicProperty } from '@/types/property.types';
 import { estimateEMI, formatPriceInr, formatPSF, num, showEmiBlock } from '@/lib/property-utils';
 import { EMIWidget } from '@/components/property/EMIWidget';
 import { infraWhatsAppMeUrl } from '@/lib/infra-public-contact';
+import { EnquirySuccessModal } from '@/components/property/EnquirySuccessModal';
 
 const schema = yup.object({
-  name: yup.string().required(),
-  phone: yup.string().required(),
+  name: yup.string().trim().required('Name is required').max(120),
+  phone: yup
+    .string()
+    .required('Mobile number is required')
+    .test('in-mobile', 'Enter a valid Indian mobile (+91 optional)', (v) => {
+      if (!v?.trim()) return false;
+      const digits = v.replace(/\D/g, '');
+      if (digits.length === 10 && /^[6-9]\d{9}$/.test(digits)) return true;
+      if (digits.length === 12 && digits.startsWith('91') && /^[6-9]\d{9}$/.test(digits.slice(2))) return true;
+      return false;
+    }),
   email: yup.string().email().notRequired(),
-  message: yup.string().notRequired(),
+  message: yup.string().trim().max(2000).notRequired(),
 });
 
 type Form = {
@@ -27,10 +37,10 @@ type Form = {
 
 export function EnquiryPanel({ property }: { property: PublicProperty }) {
   const { submit, loading } = useEnquiry();
-  const { register, handleSubmit, reset } = useForm<Form>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<Form>({
     resolver: yupResolver(schema) as Resolver<Form>,
   });
-  const [done, setDone] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const principal = num(property.basePrice);
   const emi = showEmiBlock(property.propertyType) && principal ? estimateEMI(principal) : 0;
   const psfLine = formatPSF(
@@ -42,8 +52,7 @@ export function EnquiryPanel({ property }: { property: PublicProperty }) {
   const onSubmit = async (data: Form) => {
     try {
       await submit({ ...data, propertyId: property.propertyId });
-      toast.success('Enquiry sent! Team will call within 2 hours ✓');
-      setDone(true);
+      setShowSuccess(true);
       reset();
     } catch {
       toast.error('Could not send enquiry');
@@ -91,19 +100,23 @@ export function EnquiryPanel({ property }: { property: PublicProperty }) {
             placeholder="Your name"
             {...register('name')}
           />
+          {errors.name ? <p className="font-inter text-xs text-red-600">{errors.name.message}</p> : null}
           <input
             className="w-full rounded-lg border border-[#dde8f5] px-3 py-2 font-inter text-sm transition duration-150 focus:border-[#2f80ed] focus:outline-none focus:ring-[3px] focus:ring-[rgba(47,128,237,0.08)]"
             placeholder="+91 mobile number"
             type="tel"
+            inputMode="numeric"
+            autoComplete="tel"
             {...register('phone')}
           />
+          {errors.phone ? <p className="font-inter text-xs text-red-600">{errors.phone.message}</p> : null}
           <textarea
             className="w-full resize-none rounded-lg border border-[#dde8f5] px-3 py-2 font-inter text-sm transition duration-150 focus:border-[#2f80ed] focus:outline-none focus:ring-[3px] focus:ring-[rgba(47,128,237,0.08)]"
             rows={3}
             placeholder="I am interested in this property…"
             {...register('message')}
           />
-          <Button variant="primary" className="w-full" disabled={loading}>
+          <Button type="submit" variant="primary" className="w-full" disabled={loading}>
             {loading ? 'Sending…' : 'Send enquiry'}
           </Button>
         </form>
@@ -118,7 +131,7 @@ export function EnquiryPanel({ property }: { property: PublicProperty }) {
             WhatsApp
           </a>
         )}
-        {done && <p className="mt-2 font-inter text-xs text-[#0d9488]">Request logged.</p>}
+        <EnquirySuccessModal open={showSuccess} onClose={() => setShowSuccess(false)} />
       </div>
 
       <div className="flex items-center justify-between rounded-xl border border-[#dde8f5] bg-[#f5f7fa] px-3 py-2.5 font-inter text-xs text-muted">

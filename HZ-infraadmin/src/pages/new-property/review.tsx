@@ -11,6 +11,7 @@ import { PropertyCard } from '@/components/listing/PropertyCard';
 import { useListingForm } from '@/context/ListingFormContext';
 import { buildCreatePropertyPayload } from '@/lib/buildListingPayload';
 import { formatPrice } from '@/lib/utils';
+import { parseYoutubeVideoId } from '@/lib/youtubeUrl';
 
 function Cell({ label, value }: { label: string; value: string }) {
   return (
@@ -39,6 +40,8 @@ export default function NewPropertyReview() {
   const cover = String(form.coverImageUrl ?? '');
   const ordered = cover && photos.includes(cover) ? [cover, ...photos.filter((u) => u !== cover)] : photos;
   const showPhotos = ordered.slice(0, 3);
+  const yt = String(form.youtubeVideoUrl ?? '').trim();
+  const ytOk = yt ? Boolean(parseYoutubeVideoId(yt)) : false;
 
   const runSubmit = async (asDraft?: boolean) => {
     setBusy(true);
@@ -185,6 +188,11 @@ export default function NewPropertyReview() {
                 <span style={{ fontSize: 13, color: 'var(--mu)' }}>No photos yet</span>
               )}
             </div>
+            {yt ? (
+              <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid #f0f4f8' }}>
+                <Cell label="YouTube video" value={ytOk ? yt : `${yt} (invalid — fix on step 4)`} />
+              </div>
+            ) : null}
           </div>
         </div>
 

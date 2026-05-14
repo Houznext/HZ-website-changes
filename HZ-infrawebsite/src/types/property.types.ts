@@ -86,6 +86,8 @@ export interface PublicProperty {
   ecCertUrl?: string | null;
   floorPlanUrl?: string | null;
   brochureUrl?: string | null;
+  /** Paste-style YouTube URL; rendered as an embedded player on the property page. */
+  youtubeVideoUrl?: string | null;
   amenities?: string[] | null;
   highlights?: string[] | null;
   isFeatured?: boolean;

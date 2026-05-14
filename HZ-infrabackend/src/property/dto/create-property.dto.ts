@@ -327,6 +327,11 @@ export class CreatePropertyDto {
   brochureUrl?: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(512)
+  youtubeVideoUrl?: string;
+
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
   amenities?: string[];

@@ -236,6 +236,10 @@ export class InfraProperty {
   @Column({ type: 'varchar', nullable: true })
   brochureUrl: string | null;
 
+  /** Paste-style YouTube URL for an optional property tour embed on the public site. */
+  @Column({ type: 'varchar', length: 512, nullable: true })
+  youtubeVideoUrl: string | null;
+
   @Column('text', { array: true, nullable: true })
   amenities: string[] | null;
 

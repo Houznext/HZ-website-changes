@@ -15,10 +15,10 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
 };
 
-export function Button({ variant = 'primary', className, children, ...rest }: Props) {
+export function Button({ variant = 'primary', className, children, type = 'button', ...rest }: Props) {
   return (
     <button
-      type="button"
+      type={type}
       className={clsx(
         'inline-flex items-center justify-center gap-1.5 rounded-lg px-5 py-2.5 text-[13px] font-bold tracking-wide transition-transform font-montserrat',
         variants[variant],

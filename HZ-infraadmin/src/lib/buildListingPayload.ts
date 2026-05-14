@@ -79,6 +79,10 @@ export function buildCreatePropertyPayload(form: ListingDraft): Record<string, u
     ecCertUrl: form.ecCertUrl,
     floorPlanUrl: form.floorPlanUrl,
     brochureUrl: form.brochureUrl,
+    youtubeVideoUrl: (() => {
+      const t = String(form.youtubeVideoUrl ?? '').trim();
+      return t || null;
+    })(),
     amenities: form.amenities,
     highlights: form.highlights,
     photoUrls: form.photoUrls,

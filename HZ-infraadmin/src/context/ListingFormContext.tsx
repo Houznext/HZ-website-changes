@@ -76,6 +76,7 @@ export const LISTING_FORM_DEFAULTS: ListingDraft = {
   ecCertUrl: '',
   floorPlanUrl: '',
   brochureUrl: '',
+  youtubeVideoUrl: '',
   photoUrls: [] as string[],
   coverImageUrl: '',
   highlights: [] as string[],

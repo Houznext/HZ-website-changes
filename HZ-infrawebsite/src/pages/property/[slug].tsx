@@ -7,6 +7,7 @@ import { Footer } from '@/components/layout/Footer';
 import { RecordPropertyView } from '@/components/property/RecordPropertyView';
 import { SavePropertyButton } from '@/components/property/SavePropertyButton';
 import { PhotoGallery, type GalleryBadge } from '@/components/property/PhotoGallery';
+import { PropertyYoutubeEmbed } from '@/components/property/PropertyYoutubeEmbed';
 import { EnquiryPanel } from '@/components/property/EnquiryPanel';
 import { ApartmentDetail } from '@/components/property/detail/ApartmentDetail';
 import { VillaDetail } from '@/components/property/detail/VillaDetail';
@@ -94,6 +95,8 @@ export default function PropertyPage({ property, pageSlug }: Props) {
                 badges={badges}
                 floorPlanUrl={property.floorPlanUrl}
               />
+
+              <PropertyYoutubeEmbed youtubeVideoUrl={property.youtubeVideoUrl} />
 
               <div className="mt-4 rounded-xl border border-[#dde8f5] bg-white px-5 py-4">
                 <div className="font-montserrat text-[10px] font-bold uppercase tracking-wide text-muted">{sub}</div>

@@ -14,6 +14,7 @@ import {
   GitBranch,
   Home,
   Image,
+  Inbox,
   MessageSquare,
   Search,
   Settings,
@@ -23,7 +24,7 @@ import {
 } from 'lucide-react';
 import adminApi from '@/lib/axios';
 
-type NavCounts = { properties: number; pending: number; leads: number; dev: number };
+type NavCounts = { properties: number; pending: number; leads: number; enquiries: number; dev: number };
 
 const iconProps = { size: 13, strokeWidth: 1.8, fill: 'none' as const };
 
@@ -49,22 +50,24 @@ export function AdminLayout({
 }) {
   const router = useRouter();
   const { user, signOut } = useAuth();
-  const [counts, setCounts] = useState<NavCounts>({ properties: 0, pending: 0, leads: 0, dev: 0 });
+  const [counts, setCounts] = useState<NavCounts>({ properties: 0, pending: 0, leads: 0, enquiries: 0, dev: 0 });
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [listRes, pendRes, crmRes] = await Promise.all([
+        const [listRes, pendRes, crmRes, enqRes] = await Promise.all([
           adminApi.get('/admin/properties', { params: { page: 1, limit: 1 } }).catch(() => null),
           adminApi.get('/admin/properties/pending').catch(() => null),
           adminApi.get('/admin/crm/leads').catch(() => null),
+          adminApi.get('/admin/enquiries').catch(() => null),
         ]);
         if (cancelled) return;
         const total = listRes?.data?.total ?? 0;
         const pending = Array.isArray(pendRes?.data) ? pendRes.data.length : 0;
         const leads = Array.isArray(crmRes?.data) ? crmRes.data.length : 0;
-        setCounts({ properties: total, pending, leads, dev: 0 });
+        const enquiries = Array.isArray(enqRes?.data) ? enqRes.data.length : 0;
+        setCounts({ properties: total, pending, leads, enquiries, dev: 0 });
       } catch {
         /* ignore */
       }
@@ -168,6 +171,14 @@ export function AdminLayout({
           <NavRow href="/hero-cms" label="Hero image CMS" icon={Image} badgeVariant="blue" active={path.startsWith('/hero-cms')} />
 
           <div className="asec">CRM</div>
+          <NavRow
+            href="/enquiries"
+            label="Enquiries"
+            icon={Inbox}
+            badge={counts.enquiries}
+            badgeVariant="blue"
+            active={path.startsWith('/enquiries')}
+          />
           <NavRow
             href="/crm"
             label="CRM leads"

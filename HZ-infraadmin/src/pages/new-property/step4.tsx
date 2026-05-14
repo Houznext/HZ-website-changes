@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
-import { Check, CloudUpload, Eye, Image as ImageIcon, Plus, Tag, X } from 'lucide-react';
+import { Check, CloudUpload, Eye, Image as ImageIcon, Plus, Tag, Video, X } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { ListingStepProgress } from '@/components/listing/ListingStepProgress';
 import { ListingWizardHeader } from '@/components/listing/ListingWizardHeader';
@@ -11,6 +11,7 @@ import { SectionDivider } from '@/components/listing/SectionDivider';
 import { useListingForm } from '@/context/ListingFormContext';
 import { uploadPropertyImage } from '@/lib/uploadMedia';
 import { INFRA_WHATSAPP_DISPLAY } from '@/lib/infra-public-contact';
+import { parseYoutubeVideoId } from '@/lib/youtubeUrl';
 
 const HIGHLIGHTS = ['3BHK', 'East facing', 'Pool', 'Lift', 'RERA', 'Vastu', 'Power backup', 'Gym', 'Gated', 'Dec 2026', 'Smart home'] as const;
 
@@ -46,6 +47,7 @@ export default function NewPropertyStep4() {
   const { form, setField } = useListingForm();
   const photos = (form.photoUrls as string[]) ?? [];
   const highlights = (form.highlights as string[]) ?? [];
+  const youtubeUrl = String(form.youtubeVideoUrl ?? '');
   const [dragOver, setDragOver] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [hlInput, setHlInput] = useState('');
@@ -207,6 +209,42 @@ export default function NewPropertyStep4() {
             <div style={{ fontSize: 11.5, color: 'var(--mu)', marginTop: 10 }}>
               {photos.length} photos uploaded · {slotsLeft} slots remaining · First photo is the cover — drag to reorder
             </div>
+          </div>
+
+          <div className="acard" style={{ marginBottom: 18 }}>
+            <SectionDivider
+              icon={<Video size={16} strokeWidth={1.8} color="#dc2626" />}
+              title="YouTube video (optional)"
+              subtitle="Paste a full YouTube link — it plays embedded on the public property page"
+              iconBackground="#fee2e2"
+            />
+            <input
+              type="url"
+              className="inp"
+              placeholder="https://www.youtube.com/watch?v=… or youtu.be/…"
+              value={youtubeUrl}
+              onChange={(e) => setField('youtubeVideoUrl', e.target.value)}
+              onBlur={() => {
+                const t = String(form.youtubeVideoUrl ?? '').trim();
+                if (!t) return;
+                if (!parseYoutubeVideoId(t)) {
+                  toast.error('That does not look like a valid YouTube video link');
+                  setField('youtubeVideoUrl', '');
+                }
+              }}
+              style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
+            />
+            {youtubeUrl.trim() && parseYoutubeVideoId(youtubeUrl) ? (
+              <p style={{ fontSize: 11.5, color: 'var(--mu)', marginTop: 8 }}>Valid link — visitors will see an inline player on Houznext Infra.</p>
+            ) : null}
+            {youtubeUrl.trim() && !parseYoutubeVideoId(youtubeUrl) ? (
+              <p style={{ fontSize: 11.5, color: '#b45309', marginTop: 8 }}>Enter a standard YouTube watch, Shorts, or youtu.be link.</p>
+            ) : null}
+            {youtubeUrl.trim() ? (
+              <button type="button" className="btn btn-ghost btn-sm" style={{ marginTop: 10 }} onClick={() => setField('youtubeVideoUrl', '')}>
+                Clear video URL
+              </button>
+            ) : null}
           </div>
 
           <div className="acard">

@@ -17,6 +17,7 @@ import { JwtPayload } from '../auth/jwt.strategy';
 import { ListingFor } from '../common/enums/infra.enums';
 import { InfraMailService, PropertyAlertAction } from '../common/mail/infra-mail.service';
 import { infraBusinessWhatsappE164 } from '../common/infra-public-contact';
+import { sanitizeYoutubeVideoUrl } from '../common/youtube-url';
 
 function toDec(n?: number | string | null): string | null {
   if (n === undefined || n === null || n === '') return null;
@@ -198,6 +199,7 @@ export class PropertyService {
       ecCertUrl: p.ecCertUrl,
       floorPlanUrl: p.floorPlanUrl,
       brochureUrl: p.brochureUrl,
+      youtubeVideoUrl: p.youtubeVideoUrl,
       amenities: p.amenities,
       highlights: p.highlights,
       isApproved: p.isApproved,
@@ -328,6 +330,7 @@ export class PropertyService {
     entity.ecCertUrl = dto.ecCertUrl ?? null;
     entity.floorPlanUrl = dto.floorPlanUrl ?? null;
     entity.brochureUrl = dto.brochureUrl ?? null;
+    entity.youtubeVideoUrl = sanitizeYoutubeVideoUrl(dto.youtubeVideoUrl);
     entity.landUseType = dto.landUseType ?? null;
     entity.approvalAuthority = dto.approvalAuthority ?? null;
     entity.approvalType = dto.approvalType ?? null;
@@ -499,6 +502,9 @@ export class PropertyService {
             ? dto.floor
             : p.floorNumber,
     });
+    if (dto.youtubeVideoUrl !== undefined) {
+      p.youtubeVideoUrl = sanitizeYoutubeVideoUrl(dto.youtubeVideoUrl);
+    }
     if (dto.title) p.slug = this.generateSlug(dto.title, p.propertyId);
     if (dto.approvalStatus) this.setApprovalFromStatus(p, dto.approvalStatus);
     if (dto.basePrice !== undefined || dto.gstPercent !== undefined || dto.registrationPercent !== undefined) {

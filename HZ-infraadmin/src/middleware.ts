@@ -38,6 +38,8 @@ export const config = {
     '/projects/:path*',
     '/crm',
     '/crm/:path*',
+    '/enquiries',
+    '/enquiries/:path*',
     '/site-visits',
     '/site-visits/:path*',
     '/branches',
