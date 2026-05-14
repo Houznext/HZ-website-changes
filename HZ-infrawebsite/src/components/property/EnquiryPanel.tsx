@@ -9,6 +9,7 @@ import { useEnquiry } from '@/hooks/useEnquiry';
 import type { PublicProperty } from '@/types/property.types';
 import { estimateEMI, formatPriceInr, formatPSF, num, showEmiBlock } from '@/lib/property-utils';
 import { EMIWidget } from '@/components/property/EMIWidget';
+import { infraWhatsAppMeUrl } from '@/lib/infra-public-contact';
 
 const schema = yup.object({
   name: yup.string().required(),
@@ -50,9 +51,10 @@ export function EnquiryPanel({ property }: { property: PublicProperty }) {
   };
 
   const wa = property.enableWhatsappEnquiry
-    ? `https://wa.me/919876543210?text=${encodeURIComponent(
+    ? infraWhatsAppMeUrl(
         `Hi, I'm interested in ${property.title} (${property.propertyCode || property.propertyId})`,
-      )}`
+        property.businessWhatsappE164,
+      )
     : null;
 
   return (

@@ -8,12 +8,15 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { useRouter } from 'next/router';
 
 const STORAGE_KEY = 'infra_listing_draft';
+const EDIT_ID_KEY = 'infra_listing_edit_id';
 
 export type ListingDraft = Record<string, unknown>;
 
-const defaultDraft: ListingDraft = {
+export const LISTING_FORM_DEFAULTS: ListingDraft = {
+  title: '',
   propertyType: 'Apartment',
   listingFor: 'Buy',
   constructionStatus: 'Ready to Move',
@@ -87,32 +90,53 @@ type Ctx = {
   setField: (key: string, value: unknown) => void;
   setFields: (partial: ListingDraft) => void;
   resetForm: () => void;
+  editingPropertyId: string | null;
+  setEditingPropertyId: (id: string | null) => void;
 };
 
 const ListingFormContext = createContext<Ctx | null>(null);
 
 function loadDraft(): ListingDraft {
-  if (typeof window === 'undefined') return { ...defaultDraft };
+  if (typeof window === 'undefined') return { ...LISTING_FORM_DEFAULTS };
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return { ...defaultDraft };
-    return { ...defaultDraft, ...JSON.parse(raw) };
+    if (!raw) return { ...LISTING_FORM_DEFAULTS };
+    return { ...LISTING_FORM_DEFAULTS, ...JSON.parse(raw) };
   } catch {
-    return { ...defaultDraft };
+    return { ...LISTING_FORM_DEFAULTS };
   }
 }
 
+function loadEditId(): string | null {
+  if (typeof window === 'undefined') return null;
+  return sessionStorage.getItem(EDIT_ID_KEY);
+}
+
 export function ListingFormProvider({ children }: { children: React.ReactNode }) {
-  const [form, setForm] = useState<ListingDraft>(defaultDraft);
+  const router = useRouter();
+  const [form, setForm] = useState<ListingDraft>(() => ({ ...LISTING_FORM_DEFAULTS }));
+  const [editingPropertyId, setEditingPropertyIdState] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!router.isReady) return;
+    if (/^\/listings\/[^/]+\/edit$/.test(router.pathname)) {
+      setEditingPropertyIdState(loadEditId());
+      return;
+    }
     setForm(loadDraft());
-  }, []);
+    setEditingPropertyIdState(loadEditId());
+  }, [router.isReady, router.pathname]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(form));
   }, [form]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (editingPropertyId) sessionStorage.setItem(EDIT_ID_KEY, editingPropertyId);
+    else sessionStorage.removeItem(EDIT_ID_KEY);
+  }, [editingPropertyId]);
 
   const setField = useCallback((key: string, value: unknown) => {
     setForm((f) => ({ ...f, [key]: value }));
@@ -122,12 +146,21 @@ export function ListingFormProvider({ children }: { children: React.ReactNode })
     setForm((f) => ({ ...f, ...partial }));
   }, []);
 
-  const resetForm = useCallback(() => {
-    setForm({ ...defaultDraft });
-    sessionStorage.removeItem(STORAGE_KEY);
+  const setEditingPropertyId = useCallback((id: string | null) => {
+    setEditingPropertyIdState(id);
   }, []);
 
-  const value = useMemo(() => ({ form, setField, setFields, resetForm }), [form, setField, setFields, resetForm]);
+  const resetForm = useCallback(() => {
+    setForm({ ...LISTING_FORM_DEFAULTS });
+    setEditingPropertyIdState(null);
+    sessionStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(EDIT_ID_KEY);
+  }, []);
+
+  const value = useMemo(
+    () => ({ form, setField, setFields, resetForm, editingPropertyId, setEditingPropertyId }),
+    [form, setField, setFields, resetForm, editingPropertyId, setEditingPropertyId],
+  );
 
   return <ListingFormContext.Provider value={value}>{children}</ListingFormContext.Provider>;
 }

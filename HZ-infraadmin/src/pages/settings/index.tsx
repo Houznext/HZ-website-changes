@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import adminApi from '@/lib/axios';
 import { getToken, getUser, saveSession } from '@/lib/session';
+import { INFRA_WHATSAPP_DISPLAY, infraBusinessWhatsappE164, infraWhatsAppMeUrl } from '@/lib/infra-public-contact';
 
 export default function SettingsPage() {
   const [tab, setTab] = useState<'profile' | 'security' | 'prefs'>('profile');
@@ -100,7 +101,25 @@ export default function SettingsPage() {
           </button>
         </div>
       )}
-      {tab === 'prefs' && <div className="acard">Preferences — coming soon.</div>}
+      {tab === 'prefs' && (
+        <div className="acard" style={{ maxWidth: 480 }}>
+          <div className="label">Business WhatsApp (listing enquiries)</div>
+          <p style={{ fontSize: 14, fontWeight: 600, marginTop: 6 }}>{INFRA_WHATSAPP_DISPLAY}</p>
+          <p style={{ fontSize: 12, color: 'var(--mu)', marginTop: 6 }}>wa.me link uses E.164 {infraBusinessWhatsappE164()}.</p>
+          <a
+            href={infraWhatsAppMeUrl('Hi from Infra admin')}
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-ghost btn-sm"
+            style={{ marginTop: 12 }}
+          >
+            Open WhatsApp
+          </a>
+          <p style={{ fontSize: 11, color: 'var(--mu)', marginTop: 14 }}>
+            Override with <code style={{ fontSize: 11 }}>NEXT_PUBLIC_INFRA_WHATSAPP_E164</code> in env (digits only, include country code).
+          </p>
+        </div>
+      )}
     </AdminLayout>
   );
 }

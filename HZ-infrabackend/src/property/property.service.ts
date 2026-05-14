@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -14,6 +15,8 @@ import { UpdatePropertyDto } from './dto/update-property.dto';
 import { FilterPropertyDto } from './dto/filter-property.dto';
 import { JwtPayload } from '../auth/jwt.strategy';
 import { ListingFor } from '../common/enums/infra.enums';
+import { InfraMailService, PropertyAlertAction } from '../common/mail/infra-mail.service';
+import { infraBusinessWhatsappE164 } from '../common/infra-public-contact';
 
 function toDec(n?: number | string | null): string | null {
   if (n === undefined || n === null || n === '') return null;
@@ -24,6 +27,8 @@ function toDec(n?: number | string | null): string | null {
 
 @Injectable()
 export class PropertyService {
+  private readonly log = new Logger(PropertyService.name);
+
   constructor(
     @InjectRepository(InfraProperty)
     private readonly propRepo: Repository<InfraProperty>,
@@ -31,7 +36,31 @@ export class PropertyService {
     private readonly mediaRepo: Repository<InfraPropertyMedia>,
     @InjectRepository(InfraPropertyDetails)
     private readonly detailsRepo: Repository<InfraPropertyDetails>,
+    private readonly mail: InfraMailService,
   ) {}
+
+  private notifyProperty(action: PropertyAlertAction, entity: InfraProperty, actor?: JwtPayload | null): void {
+    void this.mail
+      .sendPropertyAlert({
+        action,
+        propertyId: entity.propertyId,
+        propertyCode: entity.propertyCode,
+        title: entity.title,
+        propertyType: String(entity.propertyType),
+        city: entity.city,
+        locality: entity.locality,
+        basePrice: entity.basePrice,
+        isApproved: entity.isApproved,
+        isActive: entity.isActive,
+        listedBy: entity.listedBy,
+        ownerName: entity.ownerName,
+        ownerPhone: entity.ownerPhone,
+        actorEmail: actor?.email,
+        actorKind: actor?.kind,
+        actorId: actor?.sub,
+      })
+      .catch((err) => this.log.warn(`Property alert failed: ${(err as Error).message}`));
+  }
 
   private async generatePropertyCode(): Promise<{ code: string; seq: number }> {
     const result = await this.propRepo
@@ -176,6 +205,7 @@ export class PropertyService {
       isFeatured: p.isFeatured,
       isZeroBrokerage: p.isZeroBrokerage,
       enableWhatsappEnquiry: p.enableWhatsappEnquiry,
+      businessWhatsappE164: infraBusinessWhatsappE164(),
       linkedProjectId: p.linkedProjectId,
       description: p.description,
       createdAt: p.createdAt,
@@ -239,6 +269,13 @@ export class PropertyService {
       where: { propertyId: id },
       relations: { media: true, details: true },
     });
+    if (!p) throw new NotFoundException('Property not found');
+    return p;
+  }
+
+  /** Admin GET :id — no relations (avoids circular JSON via media.property / details.property). */
+  async findByIdForAdmin(id: string): Promise<InfraProperty> {
+    const p = await this.propRepo.findOne({ where: { propertyId: id } });
     if (!p) throw new NotFoundException('Property not found');
     return p;
   }
@@ -380,7 +417,9 @@ export class PropertyService {
     }
 
     await this.ensureDetails(saved);
-    return this.findById(saved.propertyId);
+    const out = await this.findById(saved.propertyId);
+    this.notifyProperty('created', out, user ?? null);
+    return out;
   }
 
   /** Admin-only create (full payload + approvalStatus). */
@@ -409,7 +448,9 @@ export class PropertyService {
     }
 
     await this.ensureDetails(saved);
-    return this.findById(saved.propertyId);
+    const out = await this.findById(saved.propertyId);
+    this.notifyProperty('created', out, { sub: adminId, kind: 'admin' });
+    return out;
   }
 
   private async ensureDetails(p: InfraProperty) {
@@ -480,7 +521,9 @@ export class PropertyService {
       p.pricePerUnit = toDec(this.calculatePricePerUnit(cp));
     }
     await this.propRepo.save(p);
-    return this.findById(id);
+    const out = await this.findById(id);
+    this.notifyProperty('updated', out, user);
+    return out;
   }
 
   async adminList(filters: FilterPropertyDto) {
@@ -514,6 +557,7 @@ export class PropertyService {
     p.approvedBy = adminId;
     p.approvedAt = new Date();
     await this.propRepo.save(p);
+    this.notifyProperty('approved', p, { sub: adminId, kind: 'admin' });
     return p;
   }
 
@@ -522,11 +566,14 @@ export class PropertyService {
     p.isApproved = false;
     p.isActive = false;
     await this.propRepo.save(p);
+    this.notifyProperty('rejected', p, null);
     return p;
   }
 
   async adminDelete(id: string): Promise<void> {
-    const r = await this.propRepo.delete({ propertyId: id });
-    if (!r.affected) throw new NotFoundException('Property not found');
+    const p = await this.propRepo.findOne({ where: { propertyId: id } });
+    if (!p) throw new NotFoundException('Property not found');
+    await this.propRepo.delete({ propertyId: id });
+    this.notifyProperty('deleted', p, null);
   }
 }

@@ -91,6 +91,8 @@ export interface PublicProperty {
   isFeatured?: boolean;
   isZeroBrokerage?: boolean;
   enableWhatsappEnquiry?: boolean;
+  /** Houznext business WhatsApp (E.164 digits, no +) for wa.me — from API or client default. */
+  businessWhatsappE164?: string | null;
   isApproved?: boolean;
   isActive?: boolean;
   linkedProjectId?: string | null;

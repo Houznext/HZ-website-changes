@@ -28,7 +28,7 @@ export class AdminPropertiesController {
 
   @Get(':id')
   getOne(@Param('id') id: string) {
-    return this.properties.findById(id);
+    return this.properties.findByIdForAdmin(id);
   }
 
   @Post()

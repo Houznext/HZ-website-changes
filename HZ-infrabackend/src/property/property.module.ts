@@ -6,11 +6,12 @@ import { InfraPropertyDetails } from './entities/infra-property-details.entity';
 import { PropertyService } from './property.service';
 import { PropertyController } from './property.controller';
 import { OptionalJwtGuard } from '../common/guards/optional-jwt.guard';
+import { InfraMailService } from '../common/mail/infra-mail.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([InfraProperty, InfraPropertyMedia, InfraPropertyDetails])],
   controllers: [PropertyController],
-  providers: [PropertyService, OptionalJwtGuard],
+  providers: [PropertyService, OptionalJwtGuard, InfraMailService],
   exports: [PropertyService],
 })
 export class PropertyModule {}

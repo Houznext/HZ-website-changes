@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getToken } from '@/lib/session';
+import { clearSession, getToken } from '@/lib/session';
 
 const adminApi = axios.create({
   baseURL: '/api/infra-backend',

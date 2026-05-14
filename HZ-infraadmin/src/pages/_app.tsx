@@ -32,7 +32,8 @@ function AuthSync() {
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const wizard = router.pathname.startsWith('/new-property');
+  const wizard =
+    router.pathname.startsWith('/new-property') || /^\/listings\/[^/]+\/edit$/.test(router.pathname);
 
   const inner = (
     <>

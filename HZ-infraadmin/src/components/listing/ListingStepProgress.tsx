@@ -1,44 +1,68 @@
 'use client';
 
-import { useRouter } from 'next/router';
+type Accent = 'blue' | 'rose' | 'amber' | 'teal';
 
-const labels = ['Basic & Owner', 'Specifics', 'Pricing', 'Photos'];
+const labels = ['Basic & Owner', 'Property specifics', 'Pricing & Docs', 'Photos & Publish'];
 
-export function ListingStepProgress({ step }: { step: 1 | 2 | 3 | 4 }) {
-  const router = useRouter();
+export function ListingStepProgress({
+  step,
+  accent = 'blue',
+}: {
+  step: 1 | 2 | 3 | 4;
+  accent?: Accent;
+}) {
   const pct = step === 1 ? 25 : step === 2 ? 50 : step === 3 ? 75 : 90;
+  const label =
+    step === 1
+      ? 'Step 1 of 4 — Basic details'
+      : step === 2
+        ? 'Step 2 of 4 — Property specifics'
+        : step === 3
+          ? 'Step 3 of 4 — Pricing & documents'
+          : 'Step 4 of 4 — Photos & publish';
+
   return (
-    <div className="acard" style={{ marginBottom: 18 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
-        {labels.map((label, i) => {
-          const n = i + 1;
-          const done = n < step;
-          const active = n === step;
-          return (
-            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div
-                className={`step-num ${done ? '' : active ? '' : ''}`}
-                style={{
-                  background: done ? 'var(--tl)' : active ? 'var(--blue)' : '#fff',
-                  color: done || active ? '#fff' : '#94a3b8',
-                  border: done || active ? 'none' : '2px solid #e2e8f0',
-                  boxShadow: active ? '0 0 0 4px rgba(47,128,237,0.15)' : undefined,
-                }}
-              >
-                {done ? '✓' : n}
-              </div>
-              <span style={{ fontWeight: 600, fontSize: 12, color: active ? 'var(--blue)' : '#64748b' }}>{label}</span>
-              {i < labels.length - 1 ? <div style={{ width: 24, height: 2, background: '#e2e8f0', marginLeft: 4 }} /> : null}
-            </div>
-          );
-        })}
+    <div className={`acard listing-step-flow`} data-accent={accent === 'blue' ? undefined : accent} style={{ padding: '16px 20px', marginBottom: 18 }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
+        <span
+          style={{
+            fontFamily: 'Montserrat, sans-serif',
+            fontSize: 11,
+            fontWeight: 700,
+            color: accent === 'blue' ? 'var(--blue)' : accent === 'rose' ? '#db2777' : accent === 'amber' ? 'var(--am)' : 'var(--tl)',
+          }}
+        >
+          {label}
+        </span>
+        <span style={{ fontSize: 11, color: 'var(--mu)', marginLeft: 'auto' }}>{pct}% complete</span>
       </div>
       <div className="prog-bar">
         <div className="prog-fill" style={{ width: `${pct}%` }} />
       </div>
-      <button type="button" className="btn btn-ghost btn-sm" style={{ marginTop: 10 }} onClick={() => void router.push('/listings')}>
-        Exit wizard
-      </button>
+
+      <div className="step-row">
+        {labels.map((text, i) => {
+          const n = i + 1;
+          const done = n < step;
+          const active = n === step;
+          return (
+            <div key={text} style={{ display: 'contents' }}>
+              <div className={`step ${done ? 'done' : active ? 'active' : 'todo'}`} style={{ display: 'flex', alignItems: 'center', gap: 7, flexShrink: 0 }}>
+                <div className="step-num">{done ? '✓' : n}</div>
+                <span className="step-label">{text}</span>
+              </div>
+              {i < labels.length - 1 ? (
+                <div
+                  className="step-line"
+                  style={{
+                    background: i + 1 < step ? 'var(--tl)' : '#e2e8f0',
+                  }}
+                />
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
