@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { InfraUserBranchMembership } from '../infra-branch/entities/infra-user-branch-membership.entity';
@@ -19,13 +20,17 @@ export type JwtPayload = {
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
+    configService: ConfigService,
     @InjectRepository(InfraUserBranchMembership)
     private readonly membershipRepo: Repository<InfraUserBranchMembership>,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || process.env.INFRA_JWT_SECRET || 'dev-secret-change-me',
+      secretOrKey:
+        configService.get<string>('JWT_SECRET') ||
+        configService.get<string>('INFRA_JWT_SECRET') ||
+        'dev-secret-change-me',
     });
   }
 

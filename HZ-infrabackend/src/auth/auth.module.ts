@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -27,10 +28,17 @@ import { JwtStrategy } from './jwt.strategy';
       InfraBranchRolePermission,
     ]),
     PassportModule,
-    JwtModule.register({
+    JwtModule.registerAsync({
       global: true,
-      secret: process.env.JWT_SECRET || process.env.INFRA_JWT_SECRET || 'dev-secret-change-me',
-      signOptions: { expiresIn: '30d' },
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (cs: ConfigService) => ({
+        secret:
+          cs.get<string>('JWT_SECRET') ||
+          cs.get<string>('INFRA_JWT_SECRET') ||
+          'dev-secret-change-me',
+        signOptions: { expiresIn: '30d' },
+      }),
     }),
   ],
   controllers: [AuthController],

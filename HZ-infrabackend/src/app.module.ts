@@ -25,7 +25,10 @@ import { S3Module } from './s3/s3.module';
 @Module({
   controllers: [HealthController],
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`, '.env'],
+    }),
     ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       useFactory: () => buildTypeOrmOptions(),
