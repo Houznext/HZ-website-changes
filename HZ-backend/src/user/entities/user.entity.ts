@@ -2,7 +2,6 @@ import { Blog } from 'src/blog/entities/blog.entity';
 import { Cart } from 'src/cart/entities/cart.entity';
 import { CostEstimator } from 'src/cost-estimator/entities/cost-estimator.entity';
 import { InvoiceEstimator } from 'src/invoice-estimator/entities/invoice-estimator.entity';
-import { CustomBuilder } from 'src/livebuild/entities/custom-builder.entity';
 import { Property } from 'src/property/entities/property.entity';
 import { Reviews } from 'src/reviews/entities/reviews.entity';
 import { Testimonials } from 'src/testimonials/entity/testimonials.entity';
@@ -21,14 +20,12 @@ import {
 } from 'typeorm';
 import { Project } from 'src/company-onboarding/entities/company-projects.entity';
 import { Company } from 'src/company-onboarding/entities/company.entity';
-import { CBQuery } from 'src/livebuild/Query/entities/query.entity';
 import { BasicDetails } from 'src/property/entities/basicDetails.entity';
 import { IndianState, UserKind, UserRole } from '../enum/user.enum';
 import { LocationDetails } from 'src/property/entities/location.entity';
 import { Exclude } from 'class-transformer';
 import { Referral } from 'src/houznext-rewards/entities/referral.entity';
 import { ContactUs } from 'src/contactus/entities/contact-us.entity';
-import { DailyProgress } from 'src/livebuild/daily-progress/entities/daily-progress.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
 import { UserBranchMembership } from 'src/branch/entities/user-branch-membership.entity';
 import { Order } from 'src/orders/entities/order.entity';
@@ -116,17 +113,6 @@ export class User {
   @OneToMany(() => LocationDetails, (location) => location.user)
   locations: LocationDetails[];
 
-  @OneToMany(() => CustomBuilder, (customBuilder) => customBuilder.customer, {
-    cascade: true,
-  })
-  customBuilders: CustomBuilder[];
-
-  @OneToMany(
-    () => CustomBuilder,
-    (customBuilder) => customBuilder.createdByUser,
-  )
-  createdCustomBuilders: CustomBuilder[];
-
   @OneToMany(() => CostEstimator, (costEstimator) => costEstimator.postedBy, {
     cascade: true,
   })
@@ -160,9 +146,6 @@ export class User {
   @OneToMany(() => Reviews, (review) => review.user)
   reviews: Reviews[];
 
-  @OneToMany(() => DailyProgress, (progress) => progress.uploadedBy)
-  dailyProgressLogs: DailyProgress[];
-
   @OneToOne(() => Wishlist, (wishlist) => wishlist.user, {
     onDelete: 'CASCADE',
   })
@@ -180,9 +163,6 @@ export class User {
     nullable: true,
   })
   project: Project;
-
-  @OneToMany(() => CBQuery, (query) => query.user)
-  queries: CBQuery[];
 
   @OneToOne(() => Company, (company) => company.developerInformation, {
     onDelete: 'SET NULL',

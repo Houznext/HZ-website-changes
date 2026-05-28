@@ -173,7 +173,7 @@ export default function CrmLeadsPage() {
             <button type="button" className="btn btn-ghost btn-sm" style={{ gap: 6 }} onClick={exportCsv}>
               <Download size={14} strokeWidth={1.8} /> Export CSV
             </button>
-            <button type="button" className="btn btn-tl btn-sm" style={{ marginLeft: 'auto', gap: 6 }} onClick={() => setModal(true)}>
+            <button type="button" className="btn btn-blue btn-sm" style={{ marginLeft: 'auto', gap: 6 }} onClick={() => setModal(true)}>
               <Plus size={15} strokeWidth={1.8} /> Add lead
             </button>
             <Link href="/crm/pipeline" className="btn btn-ghost btn-sm" title="Kanban">
@@ -182,12 +182,12 @@ export default function CrmLeadsPage() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12, alignItems: 'center' }}>
+        <div className="tab-bar" style={{ marginBottom: 12 }}>
           {TABS.map((t) => (
             <button
               key={t}
               type="button"
-              className={`btn btn-sm ${tab === t ? 'btn-tl' : 'btn-ghost'}`}
+              className={`tab ${tab === t ? 'on' : ''}`}
               onClick={() => {
                 setTab(t);
                 setPage(1);
@@ -209,7 +209,7 @@ export default function CrmLeadsPage() {
         ) : null}
 
         <div className="acard" style={{ padding: 0, overflow: 'auto' }}>
-          <table className="atbl">
+          <table className="atbl crm-table">
             <thead>
               <tr>
                 <th style={{ width: 36 }} />
@@ -271,14 +271,14 @@ export default function CrmLeadsPage() {
                       <StageBadge stage={r.stage} />
                     </td>
                     <td>
-                      <span className={r.priority === 'hot' ? 'p-hot' : r.priority === 'warm' ? 'p-warm' : 'p-cold'} style={{ borderRadius: 20, padding: '2px 8px', fontWeight: 700 }}>
+                      <span className={`bdg ${r.priority === 'hot' ? 'p-hot' : r.priority === 'warm' ? 'p-warm' : 'p-cold'}`}>
                         {r.priority}
                       </span>
                     </td>
                     <td>
                       <LeadScoreRing score={r.leadScore} />
                     </td>
-                    <td style={{ color: overdue ? '#dc2626' : undefined, fontSize: 12 }}>{r.nextFollowUpAt ? formatDate(r.nextFollowUpAt) : '—'}</td>
+                    <td className={overdue ? 'date-overdue' : 'date-normal'} style={{ fontSize: 12 }}>{r.nextFollowUpAt ? formatDate(r.nextFollowUpAt) : '—'}</td>
                     <td onClick={(e) => e.stopPropagation()}>
                       <a href={`tel:${r.phone}`} className="btn btn-ghost btn-sm" style={{ padding: '4px 8px' }}>
                         <Phone size={14} strokeWidth={1.8} />

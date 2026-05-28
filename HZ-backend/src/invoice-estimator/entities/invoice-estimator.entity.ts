@@ -6,7 +6,6 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
-import { CustomBuilder } from 'src/livebuild/entities/custom-builder.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
 
 @Entity()
@@ -24,16 +23,9 @@ export class InvoiceEstimator {
   @Column({ name: 'branch_id', type: 'uuid', nullable: true })
   branchId?: string;
 
-  // 🔹 Optional link to CustomBuilder
-  @ManyToOne(() => CustomBuilder, (cb) => cb.invoice, {
-    nullable: true,
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'custombuilderid' })
-  customBuilder: CustomBuilder | null;
-
+  /** Legacy LiveBuild project link (column retained; relation removed in rebuild). */
   @Column({ name: 'custombuilderid', type: 'uuid', nullable: true })
-  customBuilderId?: string;
+  customBuilderId?: string | null;
 
   // 🔹 User who created/posted the invoice (from payload)
   @Column('uuid')

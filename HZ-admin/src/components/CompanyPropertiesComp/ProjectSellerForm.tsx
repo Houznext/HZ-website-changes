@@ -1,7 +1,7 @@
 import Button from "@/src/common/Button";
 import CustomInput from "@/src/common/FormElements/CustomInput";
 import ImageFileUploader from "@/src/common/ImageFileUploader";
-import { CautionIcon, ResendIcon } from "@/src/features/CustomBuilder/Icons";
+import { CautionIcon, ResendIcon } from "@/src/components/shared/AdminIcons";
 import { useCompanyPropertyStore } from "@/src/stores/companyproperty";
 import apiClient from "@/src/utils/apiClient";
 import React, {

@@ -163,12 +163,12 @@ export default function CrmLeadDetailPage() {
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
                     <StageBadge stage={String(lead.stage)} />
-                    <span className={String(lead.priority) === 'hot' ? 'p-hot' : String(lead.priority) === 'warm' ? 'p-warm' : 'p-cold'} style={{ borderRadius: 20, padding: '2px 10px', fontWeight: 700 }}>
+                    <span className={`bdg ${String(lead.priority) === 'hot' ? 'p-hot' : String(lead.priority) === 'warm' ? 'p-warm' : 'p-cold'}`}>
                       {String(lead.priority)}
                     </span>
-                    <span className="rounded-full bg-[#f5f7fa] px-2 py-0.5 font-montserrat text-[10px] font-bold text-[#475569]">{String(lead.propertyType)}</span>
+                    <span className="crm-tag crm-tag--gray">{String(lead.propertyType)}</span>
                     {lead.budgetRange ? (
-                      <span className="rounded-full bg-[#e8f1fd] px-2 py-0.5 font-montserrat text-[10px] font-bold text-[#1d4ed8]">{String(lead.budgetRange)}</span>
+                      <span className="crm-tag crm-tag--blue">{String(lead.budgetRange)}</span>
                     ) : null}
                   </div>
                   <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
@@ -176,8 +176,7 @@ export default function CrmLeadDetailPage() {
                       Call
                     </a>
                     <a
-                      className="btn btn-sm"
-                      style={{ background: '#25D36615', borderColor: '#25D366', color: '#128C7E' }}
+                      className="btn btn-wa btn-sm"
                       href={`https://wa.me/91${String(lead.phone).replace(/\D/g, '').slice(-10)}`}
                       target="_blank"
                       rel="noreferrer"
@@ -205,9 +204,9 @@ export default function CrmLeadDetailPage() {
                   ['Loan', lead.loanRequired],
                   ['Timeline', lead.timeline],
                 ] as [string, unknown][]).map(([k, v]) => (
-                  <div key={k} style={{ background: '#f8fafc', borderRadius: 9, padding: '10px 12px' }}>
-                    <div style={{ fontSize: 9.5, fontWeight: 700, textTransform: 'uppercase', color: 'var(--mu)', letterSpacing: '0.06em' }}>{k}</div>
-                    <div style={{ fontWeight: 600, marginTop: 4, fontSize: 13 }}>{v != null && v !== '' ? String(v) : '—'}</div>
+                  <div key={k} className="crm-req-cell">
+                    <div className="crm-req-lbl">{k}</div>
+                    <div className="crm-req-val">{v != null && v !== '' ? String(v) : '—'}</div>
                   </div>
                 ))}
               </div>
@@ -237,9 +236,9 @@ export default function CrmLeadDetailPage() {
 
             <div className="acard">
               <div style={{ fontWeight: 700, marginBottom: 10, fontFamily: 'Montserrat, sans-serif' }}>Log activity</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+              <div className="tab-bar" style={{ marginBottom: 10 }}>
                 {['note', 'call', 'whatsapp', 'followup', 'site_visit', 'token'].map((t) => (
-                  <button key={t} type="button" className={`btn btn-sm ${tab === t ? 'btn-tl' : 'btn-ghost'}`} onClick={() => setTab(t)}>
+                  <button key={t} type="button" className={`tab ${tab === t ? 'on' : ''}`} onClick={() => setTab(t)}>
                     {t}
                   </button>
                 ))}
@@ -251,10 +250,10 @@ export default function CrmLeadDetailPage() {
             </div>
           </div>
 
-          <div style={{ position: 'sticky', top: 82, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div className="crm-detail-side" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div className="acard">
               <div style={{ fontWeight: 700, marginBottom: 10 }}>Stage & assignment</div>
-              <label className="label">Stage</label>
+              <label className="lbl">Stage</label>
               <select className="fi" value={stage} onChange={(e) => setStage(e.target.value)} style={{ width: '100%', marginBottom: 10 }}>
                 {CRM_STAGES.map((s) => (
                   <option key={s.id} value={s.id}>
@@ -291,12 +290,13 @@ export default function CrmLeadDetailPage() {
               <div style={{ fontWeight: 700, marginBottom: 10 }}>Activity history</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 360, overflow: 'auto' }}>
                 {(data?.activities ?? []).map((a) => (
-                  <div key={a.id} style={{ borderLeft: '2px solid #e2e8f0', paddingLeft: 10 }}>
-                    <div style={{ fontSize: 12 }}>
-                      {actEmoji[a.type] ?? '📌'} {a.content}
-                    </div>
-                    <div style={{ fontSize: 10.5, color: 'var(--mu)', marginTop: 4 }}>
-                      {formatDate(a.createdAt)} {a.agentName ? `· ${a.agentName}` : ''}
+                  <div key={a.id} className="act-item">
+                    <span className="act-emoji">{actEmoji[a.type] ?? '📌'}</span>
+                    <div>
+                      <div className="act-text">{a.content}</div>
+                      <div className="act-time">
+                        {formatDate(a.createdAt)} {a.agentName ? `· ${a.agentName}` : ''}
+                      </div>
                     </div>
                   </div>
                 ))}

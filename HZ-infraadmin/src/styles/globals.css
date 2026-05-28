@@ -81,10 +81,53 @@ textarea.fi { resize: vertical; min-height: 80px; }
 .btn-ghost:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-l); }
 .btn-tl    { background: var(--tl); color: #fff; }
 .btn-tl:hover    { background: #0f766e; transform: translateY(-1px); }
+.btn-wa    { background: #25D366; color: #fff; border: none; }
+.btn-wa:hover { background: #128C7E; transform: translateY(-1px); }
+.btn-xs { padding: 4px 10px; font-size: 11px; border-radius: 7px; }
 .btn-danger { background: #fee2e2; color: var(--rd); border: none; }
 .btn-danger:hover { background: #fecaca; }
-.btn-sm { padding: 6px 13px; font-size: 12px; }
+.btn-sm { padding: 6px 13px; font-size: 12px; border-radius: 8px; }
 .btn-lg { padding: 12px 28px; font-size: 13.5px; }
+.btn-blue:disabled { background: #93c5fd; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Modal */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(15, 42, 68, 0.5);
+  z-index: 4000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(2px);
+}
+.modal {
+  background: #fff; border-radius: 16px;
+  width: 100%; max-width: 680px;
+  max-height: 92vh; overflow-y: auto;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.2);
+}
+.modal-hd {
+  padding: 20px 22px;
+  border-bottom: 1px solid #dde8f5;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: #fff; z-index: 2;
+  border-radius: 16px 16px 0 0;
+}
+.modal-bd { padding: 20px 22px; }
+.modal-ft {
+  padding: 14px 22px;
+  border-top: 1px solid #dde8f5;
+  display: flex; gap: 9px; justify-content: flex-end;
+  background: #fff; border-radius: 0 0 16px 16px;
+  position: sticky; bottom: 0;
+}
+
+/* Field label (modal / forms) */
+.lbl {
+  display: block; font-size: 10px; font-weight: 700;
+  color: #5a6a7e; text-transform: uppercase;
+  letter-spacing: 0.07em; margin-bottom: 5px;
+  font-family: 'Montserrat', sans-serif;
+}
 
 /* Badges */
 .bdg {
@@ -92,6 +135,7 @@ textarea.fi { resize: vertical; min-height: 80px; }
   padding: 3px 9px; border-radius: 20px;
   display: inline-flex; align-items: center; gap: 4px;
   font-family: 'Montserrat', sans-serif;
+  white-space: nowrap;
 }
 .b-blue   { background: var(--blue-l); color: #1e40af; }
 .b-teal   { background: #ccfbf1; color: #0f766e; }
@@ -385,4 +429,334 @@ input:checked + .tgl-track .tgl-thumb { transform: translateX(18px); }
 .crm-tab.on { color: #2f80ed; border-bottom-color: #2f80ed; }
 
 @keyframes crmToastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* CRM stat cards */
+.stat {
+  background: #fff;
+  border: 0.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 200ms;
+}
+.stat:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  transform: translateY(-2px);
+}
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.stat .stat-val {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1f2933;
+  line-height: 1;
+}
+.stat-lbl {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #5a6a7e;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-family: 'Montserrat', sans-serif;
+  margin-bottom: 3px;
+}
+.stat-sub { font-size: 11px; color: #5a6a7e; margin-top: 3px; }
+
+/* CRM tables (alias atbl) */
+.crm-table,
+.atbl.crm-table { width: 100%; border-collapse: collapse; }
+.crm-table th,
+.atbl.crm-table th {
+  background: #f8fafc;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #5a6a7e;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  border-bottom: 1.5px solid #e2e8f0;
+  font-family: 'Montserrat', sans-serif;
+  white-space: nowrap;
+}
+.crm-table td,
+.atbl.crm-table td {
+  padding: 12px;
+  border-bottom: 0.5px solid #f1f5f9;
+  font-size: 12.5px;
+  vertical-align: middle;
+}
+.crm-table tbody tr:hover td,
+.atbl.crm-table tbody tr:hover td {
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+/* Tab bar (leads filter tabs, activity logger) */
+.tab-bar {
+  display: flex;
+  gap: 2px;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 9px;
+  flex-wrap: wrap;
+}
+.tab {
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: #5a6a7e;
+  transition: all 180ms;
+  font-family: 'Montserrat', sans-serif;
+  white-space: nowrap;
+}
+.tab:hover { color: #2f80ed; }
+.tab.on,
+.tab.active {
+  background: #fff;
+  color: #2f80ed;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* Score ring tiers */
+.score-ring.score-80 { border: 2px solid #16a34a; background: #dcfce7; color: #16a34a; }
+.score-ring.score-60 { border: 2px solid #ca8a04; background: #fef3c7; color: #ca8a04; }
+.score-ring.score-40 { border: 2px solid #2f80ed; background: #eff6ff; color: #2f80ed; }
+.score-ring.score-low { border: 2px solid #94a3b8; background: #f1f5f9; color: #94a3b8; }
+.score-ring.score-lg { width: 52px; height: 52px; font-size: 15px; }
+
+/* Kanban board row */
+.crm-kanban-board {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+/* Pipeline value summary */
+.crm-pipeline-bar {
+  background: #fff;
+  border: 0.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.crm-pipeline-metric-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  color: #5a6a7e;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-family: 'Montserrat', sans-serif;
+  margin-bottom: 2px;
+}
+.crm-pipeline-metric-val {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: #1f2933;
+}
+.crm-pipeline-divider { width: 1px; height: 32px; background: #e2e8f0; flex-shrink: 0; }
+
+/* Follow-up sections */
+.fu-section {
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+}
+.fu-section--overdue { background: #fff5f5; border-color: #fca5a5; }
+.fu-section--today { background: #fffbeb; border-color: #fbbf24; }
+.fu-section-hd {
+  padding: 12px 16px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  border-bottom: 1px solid #e2e8f0;
+}
+.fu-section--overdue .fu-section-hd {
+  background: #fff5f5;
+  border-bottom-color: #fca5a5;
+  color: #dc2626;
+}
+.fu-section--today .fu-section-hd {
+  background: #fffbeb;
+  border-bottom-color: #fbbf24;
+  color: #ca8a04;
+}
+
+/* Activity feed / timeline items */
+.act-item {
+  display: flex;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 0.5px solid #f1f5f9;
+}
+.act-item:last-child { border-bottom: none; }
+.act-emoji { font-size: 15px; flex-shrink: 0; width: 22px; text-align: center; }
+.act-text { font-size: 12.5px; font-weight: 500; color: #1f2933; }
+.act-time { font-size: 11px; color: #5a6a7e; margin-top: 1px; }
+
+/* Section divider */
+.crm-sdiv {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 18px 0 14px;
+}
+.crm-sdiv-ic {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.crm-sdiv-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1f2933;
+}
+.crm-sdiv-line { flex: 1; height: 1px; background: #f0f4f8; }
+
+/* Avatars */
+.av {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.av-28 { width: 28px; height: 28px; font-size: 11px; }
+.av-36 { width: 36px; height: 36px; font-size: 13px; border-radius: 10px; }
+.av-44 { width: 44px; height: 44px; font-size: 16px; border-radius: 12px; }
+.av-56 { width: 56px; height: 56px; font-size: 22px; border-radius: 14px; }
+
+/* Lead detail */
+.crm-detail-side { position: sticky; top: 82px; }
+.crm-req-cell {
+  background: #f8fafc;
+  border-radius: 9px;
+  padding: 10px 12px;
+}
+.crm-req-lbl {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #5a6a7e;
+  letter-spacing: 0.06em;
+}
+.crm-req-val { font-weight: 600; margin-top: 4px; font-size: 13px; color: #1f2933; }
+
+/* Overdue / today date colors */
+.date-overdue { color: #dc2626; font-weight: 600; }
+.date-today { color: #ca8a04; font-weight: 600; }
+.date-normal { color: #5a6a7e; }
+
+/* Site visits today card tint */
+.sv-today-card {
+  background: #fdf4ff;
+  border: 1px solid #e9d5ff;
+  border-radius: 12px;
+}
+
+/* Priority pills (detail + modal) */
+.pri-pill {
+  flex: 1;
+  padding: 7px 0;
+  border-radius: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 150ms;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  color: #5a6a7e;
+}
+.pri-pill--hot-on { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+.pri-pill--warm-on { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+.pri-pill--cold-on { background: #eff6ff; color: #2563eb; border-color: #93c5fd; }
+.pri-pill-row { display: flex; gap: 7px; }
+
+/* Tag chips on lead header */
+.crm-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-family: 'Montserrat', sans-serif;
+}
+.crm-tag--gray { background: #f5f7fa; color: #475569; }
+.crm-tag--blue { background: #e8f1fd; color: #1d4ed8; }
+
+/* Amber link-property row */
+.crm-amber-row {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.crm-amber-row span { font-size: 13px; font-weight: 600; color: #92400e; user-select: none; }
+
+/* Overdue alert card on dashboard */
+.crm-overdue-card {
+  background: #fff5f5;
+  border-color: #fca5a5 !important;
+}
+
+/* Website enquiries (admin) */
+.infra-enquiry-card {
+  background: #fff;
+  border: 1px solid #dde8f5;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+.infra-enquiry-card:hover {
+  border-color: #93c5fd;
+}
+.infra-enquiry-card-hd {
+  padding: 14px 18px;
+  border-bottom: 1px solid #dde8f5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 

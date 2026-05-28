@@ -12,12 +12,12 @@ import {
   Inbox,
   Settings,
   GitBranch,
+  ShieldCheck,
   LogOut,
   User,
   ChevronDown,
   LayoutTemplate,
   LayoutGrid,
-  UserPlus,
   Image as CmsDesignIdeasIcon,
   Users,
   Star,
@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useSidebarBadges } from "@/src/hooks/useSidebarBadges";
+import { usePermissionStore } from "@/src/stores/usePermissions";
 
 type BadgeColor = "blue" | "green" | "orange" | "red" | "slate";
 
@@ -34,6 +35,8 @@ type NavLink = {
   label: string;
   icon: React.ElementType;
   badgeKey?: "buildlive" | "blog" | "ga4" | "crmOverdue";
+  /** Hide link unless user has this permission */
+  requirePermission?: { resource: string; action: "view" | "create" | "edit" | "delete" };
 };
 
 function NavCalculatorLeadsIcon(props: { className?: string }) {
@@ -143,7 +146,7 @@ function StoreInventoryIcon(props: { className?: string }) {
 function StoreCouponsIcon(props: { className?: string }) {
   return <svg className={props.className} viewBox="0 0 24 24" width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M9 14.25l6-6" /><circle cx="9.75" cy="9" r=".75" /><circle cx="14.25" cy="14.25" r=".75" /><path d="M3.5 12l-.878-.878a2 2 0 010-2.828l7.072-7.072a2 2 0 012.828 0L21 9.7a2 2 0 010 2.828L13.928 19.6a2 2 0 01-2.828 0L9.5 18" /></svg>;
 }
-type NavItem = NavSection | NavLink | { custom: "livebuild" };
+type NavItem = NavSection | NavLink;
 
 const NAV_STRUCTURE: NavItem[] = [
   { section: "Overview" },
@@ -166,7 +169,11 @@ const NAV_STRUCTURE: NavItem[] = [
   { href: "/hero-carousel",      label: "Hero Carousel", icon: NavHeroCarouselIcon },
   { href: "/seo-settings",       label: "SEO settings",  icon: NavSeoSettingsIcon },
   { section: "LiveBuild" },
-  { custom: "livebuild" },
+  { href: "/livebuild", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/livebuild/projects", label: "All Projects", icon: Building2 },
+  { href: "/livebuild/work-types", label: "Work Types", icon: LayoutTemplate },
+  { href: "/livebuild/customers", label: "Customers", icon: Users },
+  { href: "/livebuild/settings", label: "Settings", icon: Settings },
   { section: "CRM" },
   { href: "/crm",                label: "CRM Leads",     icon: MessageSquare, badgeKey: "crmOverdue" },
   { href: "/generalenquires",    label: "Enquiries",     icon: Inbox },
@@ -174,6 +181,12 @@ const NAV_STRUCTURE: NavItem[] = [
   { section: "Settings" },
   { href: "/settings",           label: "Settings",      icon: Settings },
   { href: "/settings/branches",  label: "Branches",      icon: GitBranch },
+  {
+    href: "/settings/roles",
+    label: "Roles",
+    icon: ShieldCheck,
+    requirePermission: { resource: "role", action: "edit" },
+  },
   { section: "Houznext Store" },
   { href: "/store-admin/products",    label: "Products",       icon: StoreProductsIcon },
   { href: "/store-admin/categories",  label: "Categories",     icon: StoreCategIcon },
@@ -194,6 +207,8 @@ export default function Sidebar() {
   const router = useRouter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { activeLiveCount, regularBlogCount, ga4Live, crmOverdueCount } = useSidebarBadges();
+  const hasPermission = usePermissionStore((s) => s.hasPermission);
+  const permissionsReady = usePermissionStore((s) => s.initialized && !s.isLoading);
 
   /** Resolve dynamic badge text + color for a given badgeKey */
   const resolveBadge = (
@@ -271,65 +286,13 @@ export default function Sidebar() {
             );
           }
 
-          if ("custom" in item && item.custom === "livebuild") {
-            const path = router.pathname;
-            const onboardActive = path.startsWith("/interiors/onboard");
-            const dashActive =
-              path === "/interiors" ||
-              (path.startsWith("/interiors/") && !onboardActive);
-            const dashBadge = resolveBadge("buildlive");
-            return (
-              <React.Fragment key="livebuild-block">
-                <Link
-                  href="/interiors"
-                  className={`flex items-center gap-2.5 px-2.5 py-[9px] rounded-[10px] text-[13px] font-medium transition-all duration-150 ${
-                    dashActive
-                      ? "bg-[#2f80ed]/20 text-white border border-[#2f80ed]/30 shadow-[0_2px_10px_rgba(47,128,237,0.15)]"
-                      : "text-slate-400 hover:bg-white/[0.06] hover:text-slate-100 border border-transparent"
-                  }`}
-                >
-                  <span
-                    className={`flex h-7 w-7 items-center justify-center rounded-lg flex-shrink-0 transition-colors ${
-                      dashActive
-                        ? "bg-[#2f80ed] text-white"
-                        : "bg-white/[0.05] text-slate-400"
-                    }`}
-                  >
-                    <LayoutDashboard className="w-[15px] h-[15px]" />
-                  </span>
-                  <span className="flex-1 truncate">Int. dashboard</span>
-                  {dashBadge && (
-                    <span
-                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${badgeStyles[dashBadge.color]}`}
-                    >
-                      {dashBadge.text}
-                    </span>
-                  )}
-                </Link>
-                <Link
-                  href="/interiors/onboard"
-                  className={`flex items-center gap-2.5 px-2.5 py-[9px] rounded-[10px] text-[13px] font-medium transition-all duration-150 ${
-                    onboardActive
-                      ? "bg-[#2f80ed]/20 text-white border border-[#2f80ed]/30 shadow-[0_2px_10px_rgba(47,128,237,0.15)]"
-                      : "text-slate-400 hover:bg-white/[0.06] hover:text-slate-100 border border-transparent"
-                  }`}
-                >
-                  <span
-                    className={`flex h-7 w-7 items-center justify-center rounded-lg flex-shrink-0 transition-colors ${
-                      onboardActive
-                        ? "bg-[#2f80ed] text-white"
-                        : "bg-white/[0.05] text-slate-400"
-                    }`}
-                  >
-                    <UserPlus className="w-[15px] h-[15px]" />
-                  </span>
-                  <span className="flex-1 truncate">Onboard customer</span>
-                </Link>
-              </React.Fragment>
-            );
-          }
-
           const link = item as NavLink;
+          if (link.requirePermission) {
+            if (!permissionsReady) return null;
+            if (!hasPermission(link.requirePermission.resource, link.requirePermission.action)) {
+              return null;
+            }
+          }
           const isActive =
             router.pathname === link.href ||
             router.pathname.startsWith(link.href + "/");

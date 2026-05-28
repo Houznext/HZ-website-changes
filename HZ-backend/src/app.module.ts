@@ -19,29 +19,13 @@ import { CartModule } from './cart/cart.module';
 import { NotificationModule } from './notifications/notification.module';
 import { CareerAdminModule } from './careers/admin/careerAdmin.module';
 import { CareerModule } from './careers/career/career.module';
-import { CustomerModule } from './livebuild/customer/customer.module';
-import { LocationModule } from './livebuild/location/location.module';
-import { LivebuildModule } from './livebuild/custom-builder.module';
-import { DailyProgressModule } from './livebuild/daily-progress/daily-progress.module';
-import { CustomPropertyModule } from './livebuild/custom-property/custom-property.module';
-import { CBServiceModule } from './livebuild/service-required/cb-service.module';
 import { CostEstimatorModule } from './cost-estimator/cost-estimator.module';
 import { ControllerAuthGuard } from './guard';
-import { BorewellModule } from './livebuild/services/borewell/borewell.module';
-import { BrickMasonryModule } from './livebuild/services/brickMasonry/brickMasonry.module';
-import { CentringModule } from './livebuild/services/centring/centring.module';
-import { DocumentDraftingModule } from './livebuild/services/documentDrafting/documentDrafting.module';
-import { ElectricityModule } from './livebuild/services/electricity/electricity.module';
-import { FallCeilingModule } from './livebuild/services/fallCeiling/fallCeiling.module';
-import { FlooringModule } from './livebuild/services/flooring/flooring.module';
-import { PaintingModule } from './livebuild/services/painting/painting.module';
-import { PlumbingModule } from './livebuild/services/plumbing/plumbing.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { CRMLeadModule } from './crm/crm.module';
 import { AwardModule } from './company-onboarding/Awards/awards.module';
 import { CompanyAddressModule } from './company-onboarding/CompanyAddress/companyaddress.module';
-import { InteriorServiceModule } from './livebuild/services/interior/interior.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './tasks/tasks.module';
 import { DeleteAccountModule } from './deleteaccount/delete-account.module';
@@ -49,15 +33,9 @@ import { PropertyLeadModule } from './property/propertyLead/property-lead.module
 import { InvoiceEstimatorModule } from './invoice-estimator/invoice-estimator.module';
 import { WhatsAppModule } from './whatsappSend/whatsapp.module';
 import { UnifiedPropertyListingModule } from './unified-property-listing/unified-property-listing.module';
-import { QueryModule } from './livebuild/Query/query.module';
 import { S3Module } from './common/s3/s3.module';
-import { PackageModule } from './livebuild/package/package.module';
 import { ContactUsModule } from './contactus/contact-us.module';
 import { ResourceModule } from './ResourceName/resource.module';
-import { CbDocumentModule } from './livebuild/cbdocument/cbdocument.module';
-import { PhaseModule } from './livebuild/phase/phase.module';
-import { MaterialsModule } from './livebuild/Materials/materials.module';
-import { PaymentTrackingModule } from './livebuild/payment-tracking/payment-tracking.module';
 import { CityModule } from './geography/city/city.module';
 import { StateModule } from './geography/state/state.module';
 import { OrdersModule } from './orders/order.module';
@@ -83,13 +61,13 @@ import { ServicesContentModule } from './services-content/services-content.modul
 import { CmsModule } from './cms/cms.module';
 import { SiteCmsModule } from './site-cms/site-cms.module';
 import { PageSeoModule } from './page-seo/page-seo.module';
+import { LivebuildModule } from './livebuild/livebuild.module';
 
 @Module({
   imports: [
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      // Env is loaded in `main.ts` from project root; avoid a second implicit `.env` load from cwd only.
       ignoreEnvFile: true,
     }),
     TypeOrmModule.forRootAsync({
@@ -128,26 +106,7 @@ import { PageSeoModule } from './page-seo/page-seo.module';
     CareerAdminModule,
     CareerModule,
     WhatsAppModule,
-    CustomerModule,
-    LocationModule,
-    LivebuildModule,
-    QueryModule,
-    DailyProgressModule,
-    CustomPropertyModule,
-    CBServiceModule,
     CostEstimatorModule,
-    BorewellModule,
-    BrickMasonryModule,
-    CentringModule,
-    DocumentDraftingModule,
-    ElectricityModule,
-    FallCeilingModule,
-
-    FlooringModule,
-
-    PaintingModule,
-    PlumbingModule,
-    InteriorServiceModule,
     ReviewsModule,
     WishlistModule,
     CRMLeadModule,
@@ -157,14 +116,9 @@ import { PageSeoModule } from './page-seo/page-seo.module';
     PropertyLeadModule,
     PropertyPremiumPlansModule,
     InvoiceEstimatorModule,
-    PackageModule,
     StateModule,
     ResourceModule,
     ContactUsModule,
-    CbDocumentModule,
-    PhaseModule,
-    MaterialsModule,
-    PaymentTrackingModule,
     CityModule,
     HouznextRewardsModule,
     ChatModule,
@@ -182,6 +136,7 @@ import { PageSeoModule } from './page-seo/page-seo.module';
     CmsModule,
     SiteCmsModule,
     PageSeoModule,
+    LivebuildModule,
   ],
   controllers: [AppController],
   providers: [

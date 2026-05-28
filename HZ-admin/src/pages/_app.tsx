@@ -1,6 +1,8 @@
 import { SessionProvider, signOut, useSession } from "next-auth/react";
 import "@/src/styles/tailwind.css";
 import "../styles/globals.css";
+import "@/src/styles/livebuild-admin.css";
+import "@/src/styles/branches-admin.css";
 import type { ReactElement, ReactNode } from "react";
 import type { NextPage } from "next";
 import type { Session } from "next-auth";
@@ -12,7 +14,6 @@ import { Toaster } from "react-hot-toast";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import Script from "next/script";
-import { TourGuideProvider } from "../features/CustomBuilder/TourGuide/TourGuideProvider";
 import SocketInitializer from "../components/chat/SocketInitializer";
 import SessionSync from "@/src/components/SessionSync";
 import Head from "next/head";
@@ -75,6 +76,10 @@ const MyApp: AppType<{ session: Session | null }> = ({
     <>
       <Head>
         <link rel="icon" href="/images/houznext-icon.png" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
       </Head>
       <Script
         strategy="afterInteractive"
@@ -102,11 +107,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
       >
         <SessionSync />
         <SocketInitializer />
-        <TourGuideProvider>
-          <div>{getLayout(<Component {...pageProps} />)}</div>
-          <SpeedInsights />
-          <Toaster position="top-right" reverseOrder={false} containerClassName="text-[12px]" />
-        </TourGuideProvider>
+        <div>{getLayout(<Component {...pageProps} />)}</div>
+        <SpeedInsights />
+        <Toaster position="top-right" reverseOrder={false} containerClassName="text-[12px]" />
 
       </SessionProvider>
     </>

@@ -10,9 +10,12 @@ export class SmsService {
     const token = process.env.TWILIO_AUTH_TOKEN;
     const from = process.env.TWILIO_PHONE_NUMBER;
 
-    if (!sid || !token || !from) {
+    if (!sid || !token || !from || sid.startsWith('REPLACE_')) {
       if (process.env.NODE_ENV === 'development') {
-        this.logger.warn(`[SMS dev bypass] to=${to} body=${body}`);
+        const codeMatch = body.match(/\b(\d{6})\b/);
+        this.logger.warn(
+          `[SMS dev bypass] to=${to} otp=${codeMatch?.[1] ?? 'see body'} — configure TWILIO_* to send real SMS`,
+        );
         return;
       }
       throw new Error('Twilio is not configured (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER)');

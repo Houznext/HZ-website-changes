@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import { ChevronDown, Eye, Heart, LogIn, LogOut, Menu as MenuIcon, Plus, User, X } from 'lucide-react';
+import { ChevronDown, Eye, Heart, LogIn, LogOut, Menu as MenuIcon, MessageCircle, Plus, User, X } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const buyLinks = [
@@ -30,20 +30,30 @@ function profileRowClass(focus: boolean) {
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { data: session, status } = useSession();
-  const authed = status === 'authenticated' && session?.user;
+  useEffect(() => setMounted(true), []);
+  const authed = mounted && status === 'authenticated' && session?.user;
 
   return (
     <header className="sticky top-0 z-[200] border-b border-white/5 bg-navy shadow-[0_1px_0_rgba(255,255,255,0.04)]">
-      <div className="mx-auto flex h-16 max-w-infra items-center gap-3 px-4 md:px-7">
-        <Link href="/" className="flex shrink-0 items-center gap-2 font-montserrat text-lg font-extrabold tracking-tight text-white">
-          Houznext<span className="text-hz-accent">Infra</span>
-          <span className="rounded bg-hz-blue px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-widest text-white">
-            Beta
-          </span>
-        </Link>
+      <div className="mx-auto grid h-16 max-w-infra grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 md:gap-6 md:px-7">
+        <div className="flex min-w-0 items-center justify-start">
+          <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="Houznext home">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/Houznext Logo.png"
+              alt="Houznext"
+              className="h-[26px] w-auto md:h-8"
+              style={{ objectFit: 'contain' }}
+            />
+            <span className="rounded bg-hz-blue px-1.5 py-0.5 font-montserrat text-[8px] font-bold uppercase tracking-widest text-white">
+              Infra
+            </span>
+          </Link>
+        </div>
 
-        <nav className="ml-1 hidden flex-1 items-center gap-0.5 lg:flex">
+        <nav className="hidden items-center justify-center gap-0.5 px-6 sm:px-10 md:px-14 lg:flex">
           <Menu as="div" className="relative">
             <MenuButton className="flex items-center gap-1 rounded-lg px-3 py-1.5 font-inter text-[13px] font-medium text-white/70 hover:bg-white/[0.07] hover:text-white data-[open]:bg-hz-blue/20 data-[open]:text-white">
               Buy <ChevronDown className="h-3.5 w-3.5 opacity-70" />
@@ -123,12 +133,6 @@ export function Navbar() {
             News
           </Link>
           <Link
-            href="/developers"
-            className="rounded-lg px-3 py-1.5 font-inter text-[13px] font-medium text-white/70 hover:bg-white/[0.07] hover:text-white"
-          >
-            Developers
-          </Link>
-          <Link
             href="/about"
             className="rounded-lg px-3 py-1.5 font-inter text-[13px] font-medium text-white/70 hover:bg-white/[0.07] hover:text-white"
           >
@@ -136,7 +140,7 @@ export function Navbar() {
           </Link>
         </nav>
 
-        <div className="ml-auto flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center justify-end gap-2 sm:gap-3">
           <Link
             href="/sell"
             className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-4 py-2 font-montserrat text-[13px] font-bold text-navy shadow-sm transition hover:bg-white/95 active:scale-[0.98] sm:px-5"
@@ -197,21 +201,40 @@ export function Navbar() {
               )}
               <MenuItem>
                 {({ focus }) => (
-                  <Link href="/seen-properties" className={profileRowClass(focus)}>
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
-                      <Eye className="h-4 w-4" strokeWidth={2} aria-hidden />
+                  <Link
+                    href={authed ? '/profile?tab=saved' : '/login?callbackUrl=%2Fprofile%3Ftab%3Dsaved'}
+                    className={profileRowClass(focus)}
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-orange-600">
+                      <Heart className="h-4 w-4" strokeWidth={2} aria-hidden />
                     </span>
-                    See properties
+                    Saved properties
                   </Link>
                 )}
               </MenuItem>
               <MenuItem>
                 {({ focus }) => (
-                  <Link href="/saved-properties" className={profileRowClass(focus)}>
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-orange-600">
-                      <Heart className="h-4 w-4" strokeWidth={2} aria-hidden />
+                  <Link
+                    href={authed ? '/profile?tab=seen' : '/login?callbackUrl=%2Fprofile%3Ftab%3Dseen'}
+                    className={profileRowClass(focus)}
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                      <Eye className="h-4 w-4" strokeWidth={2} aria-hidden />
                     </span>
-                    Saved properties
+                    Seen properties
+                  </Link>
+                )}
+              </MenuItem>
+              <MenuItem>
+                {({ focus }) => (
+                  <Link
+                    href={authed ? '/profile?tab=enq' : '/login?callbackUrl=%2Fprofile%3Ftab%3Denq'}
+                    className={profileRowClass(focus)}
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                      <MessageCircle className="h-4 w-4" strokeWidth={2} aria-hidden />
+                    </span>
+                    My enquiries
                   </Link>
                 )}
               </MenuItem>
@@ -257,11 +280,23 @@ export function Navbar() {
             <Link href="/emi-calculator" onClick={() => setOpen(false)}>
               EMI Calculator
             </Link>
-            <Link href="/seen-properties" onClick={() => setOpen(false)}>
-              See properties
-            </Link>
-            <Link href="/saved-properties" onClick={() => setOpen(false)}>
+            <Link
+              href={authed ? '/profile?tab=saved' : '/login?callbackUrl=%2Fprofile%3Ftab%3Dsaved'}
+              onClick={() => setOpen(false)}
+            >
               Saved properties
+            </Link>
+            <Link
+              href={authed ? '/profile?tab=seen' : '/login?callbackUrl=%2Fprofile%3Ftab%3Dseen'}
+              onClick={() => setOpen(false)}
+            >
+              Seen properties
+            </Link>
+            <Link
+              href={authed ? '/profile?tab=enq' : '/login?callbackUrl=%2Fprofile%3Ftab%3Denq'}
+              onClick={() => setOpen(false)}
+            >
+              My enquiries
             </Link>
             <Link href={authed ? '/profile' : '/login?callbackUrl=/profile'} onClick={() => setOpen(false)}>
               My profile

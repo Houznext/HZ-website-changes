@@ -29,8 +29,7 @@ export default function CrmPipelinePage() {
   return (
     <AdminLayout title="CRM — Pipeline">
       <CrmLayout>
-        <div className="acard" style={{ marginBottom: 16, padding: '14px 18px' }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, alignItems: 'center' }}>
+        <div className="crm-pipeline-bar">
             {[
               ['Pipeline value', `₹${Number(stats?.pipelineValue ?? 0).toLocaleString('en-IN')}`],
               ['Weighted value', `₹${Number(stats?.weightedValue ?? 0).toLocaleString('en-IN')}`],
@@ -40,13 +39,12 @@ export default function CrmPipelinePage() {
             ].map(([a, b], i, arr) => (
               <div key={String(a)} style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
                 <div>
-                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: '#94a3b8' }}>{a}</div>
-                  <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 16, fontWeight: 800, color: '#1f2933' }}>{b}</div>
+                  <div className="crm-pipeline-metric-lbl">{a}</div>
+                  <div className="crm-pipeline-metric-val">{b}</div>
                 </div>
-                {i < arr.length - 1 ? <div style={{ width: 1, height: 32, background: '#e2e8f0' }} /> : null}
+                {i < arr.length - 1 ? <div className="crm-pipeline-divider" /> : null}
               </div>
             ))}
-          </div>
         </div>
         <KanbanBoard pipeline={pipe} onRefresh={() => void load()} />
       </CrmLayout>

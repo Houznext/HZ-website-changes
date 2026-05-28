@@ -7,6 +7,16 @@ export class FilterPropertyDto {
   @IsString()
   city?: string;
 
+  /** Free-text search (title, type, locality, details, property ID, fuzzy spelling). */
+  @IsOptional()
+  @IsString()
+  q?: string;
+
+  /** Soft type boost for search (hero tab); does not hard-filter results when `q` is set. */
+  @IsOptional()
+  @IsString()
+  hintType?: string;
+
   @IsOptional()
   @IsEnum(PropertyType)
   type?: PropertyType;

@@ -176,7 +176,7 @@ export default function StoreNavbar() {
             </button>
             {profileOpen && isLoggedIn && (
               <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, background: '#fff', border: '1px solid #dde8f5', borderRadius: 12, width: 220, zIndex: 500 }}>
-                {[{ label: 'My account', href: '/my-account' }, { label: 'My orders', href: '/my-account?tab=orders' }, { label: 'Wishlist', href: '/store/wishlist' }, { label: 'Saved designs', href: '/my-account/saved-designs' }, { label: 'LiveBuild project', href: '/my-account/livebuild' }].map((item) => (
+                {[{ label: 'My account', href: '/my-account' }, { label: 'My orders', href: '/my-account?tab=orders' }, { label: 'Wishlist', href: '/store/wishlist' }, { label: 'Saved designs', href: '/my-account/saved-designs' }, { label: 'LiveBuild project', href: '/livebuild' }].map((item) => (
                   <div key={item.href} onClick={() => { router.push(item.href); setProfileOpen(false) }} style={{ padding: '11px 14px', cursor: 'pointer', borderBottom: '1px solid #dde8f5', fontSize: 13 }}>{item.label}</div>
                 ))}
                 <div onClick={() => { logout(); setProfileOpen(false) }} style={{ padding: '11px 14px', cursor: 'pointer', fontSize: 13 }}>Log out</div>

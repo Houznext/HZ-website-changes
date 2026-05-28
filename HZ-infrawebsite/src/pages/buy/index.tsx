@@ -12,8 +12,15 @@ export default function BuyPage() {
 
   const params = useMemo(
     () => ({
+      q: (router.query.q as string) || undefined,
+      hintType: (router.query.hintType as string) || undefined,
       city: (router.query.city as string) || extra.city || undefined,
-      propertyType: (router.query.propertyType as string) || (router.query.type as string) || extra.type || undefined,
+      propertyType: (router.query.q as string)
+        ? undefined
+        : (router.query.propertyType as string) ||
+          (router.query.type as string) ||
+          extra.type ||
+          undefined,
       bhk: extra.bhk || undefined,
       status: (router.query.status as string) || extra.status || undefined,
       minPrice: router.query.minPrice ? Number(router.query.minPrice) : extra.minPrice ? Number(extra.minPrice) : undefined,
@@ -22,9 +29,12 @@ export default function BuyPage() {
       limit: 20,
     }),
     [
+      router.query.q,
+      router.query.hintType,
       router.query.city,
       router.query.type,
       router.query.propertyType,
+      router.query.hintType,
       router.query.status,
       router.query.minPrice,
       router.query.maxPrice,
@@ -48,7 +58,11 @@ export default function BuyPage() {
       <Navbar />
       <div className="mx-auto max-w-infra px-4 py-8 md:px-7">
         <h1 className="font-montserrat text-2xl font-extrabold text-charcoal">Properties for sale</h1>
-        <p className="mt-1 font-inter text-sm text-muted">Verified inventory with filters.</p>
+        <p className="mt-1 font-inter text-sm text-muted">
+          {params.q
+            ? `Results for “${params.q}” — search matches title, type, locality, details, and property ID.`
+            : 'Verified inventory with filters.'}
+        </p>
         <div className="mt-8 grid gap-6 lg:grid-cols-[260px_1fr]">
           <FilterSidebar
             filters={{

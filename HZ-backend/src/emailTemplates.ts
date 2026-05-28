@@ -1,4 +1,5 @@
-import { CreateDailyProgressDto } from './livebuild/daily-progress/dto/daily-progress.dto';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type CreateDailyProgressDto = any;
 
 export const otpEmailTemplate = (otp: string) => `
 <!DOCTYPE html>

@@ -45,7 +45,11 @@ export class CustomerService {
     if (owner && owner.customerId !== customerId) {
       throw new ConflictException('This phone number is already linked to another account');
     }
-    await this.otpService.send({ phone });
+    await this.otpService.send({
+      phone,
+      mode: 'signup',
+      fullName: me.name?.trim() || undefined,
+    });
     return { message: 'OTP sent to your phone' };
   }
 

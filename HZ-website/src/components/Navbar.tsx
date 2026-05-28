@@ -419,7 +419,7 @@ export default function Navbar() {
                         <span>Saved designs</span>
                       </div>
                       <div
-                        onClick={() => openLoginFor('/my-account/livebuild')}
+                        onClick={() => openLoginFor('/livebuild/dashboard')}
                         style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s' }}
                       >
                         <span>My Home (LiveBuild)</span>
@@ -466,7 +466,7 @@ export default function Navbar() {
                         <span>Saved designs</span>
                         {savedCount > 0 && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#e8f1fd', color: '#2f80ed' }}>{savedCount}</span>}
                       </div>
-                      <div onClick={() => { setProfileOpen(false); void router.push('/my-account/livebuild') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}>
+                      <div onClick={() => { setProfileOpen(false); void router.push('/livebuild/dashboard') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}>
                         <span>My Home (LiveBuild)</span>
                         <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#d97706' }}>Active</span>
                       </div>
@@ -569,7 +569,7 @@ export default function Navbar() {
                         <div onClick={() => openLoginFor('/my-account/quotations')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>My quotations</span></div>
                         <div onClick={() => openLoginFor('/my-account/invoices')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>Invoices</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fee2e2', color: '#dc2626' }}>Due</span></div>
                         <div onClick={() => openLoginFor('/my-account/saved-designs')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>Saved designs</span></div>
-                        <div onClick={() => openLoginFor('/my-account/livebuild')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s' }}><span>My Home (LiveBuild)</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#d97706' }}>Active</span></div>
+                        <div onClick={() => openLoginFor('/livebuild/dashboard')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s' }}><span>My Home (LiveBuild)</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#d97706' }}>Active</span></div>
                       </>
                     ) : (
                       <>
@@ -580,7 +580,7 @@ export default function Navbar() {
                         <div onClick={() => { setProfileOpen(false); void router.push('/my-account/quotations') }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}>My quotations</div>
                         <div onClick={() => { setProfileOpen(false); void router.push('/my-account/invoices') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>Invoices</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fee2e2', color: '#dc2626' }}>Due</span></div>
                         <div onClick={() => { setProfileOpen(false); void router.push('/my-account/saved-designs') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>Saved designs</span>{savedCount > 0 && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#e8f1fd', color: '#2f80ed' }}>{savedCount}</span>}</div>
-                        <div onClick={() => { setProfileOpen(false); void router.push('/my-account/livebuild') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>My Home (LiveBuild)</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#d97706' }}>Active</span></div>
+                        <div onClick={() => { setProfileOpen(false); void router.push('/livebuild/dashboard') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>My Home (LiveBuild)</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#d97706' }}>Active</span></div>
                         <div style={{ padding: '10px 16px', borderTop: '0.5px solid #dde8f5' }}>
                           <button type="button" onClick={() => { logout(); setProfileOpen(false); void router.push('/') }} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #dbe4f1', background: '#fff', color: '#5a6a7e', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Logout</button>
                         </div>

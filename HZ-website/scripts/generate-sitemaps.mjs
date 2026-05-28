@@ -143,20 +143,23 @@ async function fetchBlogPosts() {
 }
 
 function shouldSkipPath(pathStr) {
+  const normalized = String(pathStr || '').toLowerCase()
   return (
-    pathStr.startsWith('/user') ||
-    pathStr.startsWith('/portal') ||
-    pathStr.startsWith('/api') ||
-    pathStr === '/cart' ||
-    pathStr === '/signup' ||
-    pathStr === '/login' ||
-    pathStr.startsWith('/verify-otp') ||
-    pathStr.startsWith('/forgot-password') ||
-    pathStr === '/saved-designs' ||
-    pathStr.startsWith('/post-property') ||
-    pathStr.startsWith('/company/') ||
-    pathStr.startsWith('/properties') ||
-    pathStr.startsWith('/real-estate')
+    normalized.startsWith('/user') ||
+    normalized.startsWith('/portal') ||
+    normalized.startsWith('/api') ||
+    normalized === '/cart' ||
+    normalized === '/signup' ||
+    normalized === '/login' ||
+    normalized.startsWith('/verify-otp') ||
+    normalized.startsWith('/forgot-password') ||
+    normalized === '/saved-designs' ||
+    normalized.startsWith('/post-property') ||
+    normalized.startsWith('/company/') ||
+    normalized.startsWith('/properties') ||
+    normalized.startsWith('/real-estate') ||
+    normalized === '/careers/apply' ||
+    normalized === '/interiors/privacy-policy'
   )
 }
 
@@ -216,8 +219,6 @@ async function main() {
   const addMain = createAdder()
   const addInteriors = createAdder()
   const addBlogs = createAdder()
-  const addLivebuild = createAdder()
-
   // ─── sitemap-main.xml — order = primary marketing / sitelink hinting ───
   const main = []
   addMain(main, '/', { changefreq: 'weekly', priority: 1.0 })
@@ -252,12 +253,6 @@ async function main() {
     })
   }
 
-  // ─── sitemap-livebuild.xml ───
-  const livebuild = []
-  if (fs.existsSync(path.join(PAGES, 'buildlive.tsx'))) {
-    addLivebuild(livebuild, '/buildlive', { changefreq: 'monthly', priority: 0.8 })
-  }
-
   const writtenIndexNames = []
 
   const writeIfNonEmpty = (name, entries, { sort = false } = {}) => {
@@ -274,8 +269,6 @@ async function main() {
   writeIfNonEmpty('sitemap-main.xml', main, { sort: false })
   writeIfNonEmpty('sitemap-interiors.xml', interiors, { sort: true })
   writeIfNonEmpty('sitemap-blogs.xml', blogs, { sort: true })
-  writeIfNonEmpty('sitemap-livebuild.xml', livebuild, { sort: true })
-
   fs.writeFileSync(
     path.join(PUBLIC, 'sitemap.xml'),
     sitemapIndex(writtenIndexNames),
@@ -288,6 +281,7 @@ async function main() {
     'sitemap-design-ideas.xml',
     'sitemap-inspiration.xml',
     'sitemap-0.xml',
+    'sitemap-livebuild.xml',
   ]) {
     const p = path.join(PUBLIC, obsolete)
     if (fs.existsSync(p)) {

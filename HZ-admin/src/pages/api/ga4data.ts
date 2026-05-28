@@ -1,86 +1,64 @@
-import { NextApiRequest, NextApiResponse } from "next"; // Import the types
-import { BetaAnalyticsDataClient } from "@google-analytics/data";
-import path from "path";
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { GA4_PROPERTY_ID, getGa4Client, isGa4Configured } from '@/src/lib/ga4Server';
 
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (!isGa4Configured()) {
+    return res.status(200).json({
+      data: [],
+      message: 'GA4 reporting is disabled or not configured.',
+    });
+  }
 
-const analyticsDataClient = new BetaAnalyticsDataClient({
-  keyFilename: path.join(process.cwd(), "my-service-account-file.json"),
-});
+  const analyticsDataClient = getGa4Client();
+  if (!analyticsDataClient) {
+    return res.status(200).json({ data: [], message: 'GA4 client unavailable.' });
+  }
 
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
   try {
-    // If GA4 is not configured, return an empty dataset instead of erroring
-    if (!process.env.GA4_ENABLED) {
-      return res.status(200).json({
-        data: [],
-        message: "GA4 reporting is disabled or not configured.",
-      });
-    }
-
     const [response] = await analyticsDataClient.runReport({
-      property: "properties/529425140",
-      dateRanges: [{ startDate: "30 daysAgo", endDate: "today" }],
+      property: GA4_PROPERTY_ID,
+      dateRanges: [{ startDate: '30 daysAgo', endDate: 'today' }],
       dimensions: [
-        { name: "pageTitle" },
-        { name: "pagePath" },
-        { name: "country" },
-        { name: "deviceCategory" },
-        {
-          name: "Browser",
-        },
-        { name: "city" },
-        {name:'eventName'},
-       
-        { name: "sessionSource" },
-        { name: "date" },
-        
+        { name: 'pageTitle' },
+        { name: 'pagePath' },
+        { name: 'country' },
+        { name: 'deviceCategory' },
+        { name: 'Browser' },
+        { name: 'city' },
+        { name: 'eventName' },
+        { name: 'sessionSource' },
+        { name: 'date' },
       ],
       metrics: [
-        { name: "screenPageViews" },
-        { name: "userEngagementDuration" },
-        { name: "sessions" },
-        { name: "eventCount" },
-        { name: "activeUsers" },
-        { name: "engagedSessions" },
-       
-        
-
+        { name: 'screenPageViews' },
+        { name: 'userEngagementDuration' },
+        { name: 'sessions' },
+        { name: 'eventCount' },
+        { name: 'activeUsers' },
+        { name: 'engagedSessions' },
       ],
-      
     });
 
-   
     if (!response.rows) {
-      return res.status(500).json({ error: "No data found in GA4 response" });
+      return res.status(200).json({ data: [], message: 'No data in GA4 response.' });
     }
 
-    
     const data = response.rows.map((row) => {
-     
-      const pageTitle = row.dimensionValues?.[0]?.value || "Unknown Page Title";
-      const pagePath = row.dimensionValues?.[1]?.value || "Unknown Page Path"; 
-      const pageViews = row.metricValues?.[0]?.value || "0";
-      const country = row.dimensionValues?.[2]?.value || "unknown country";
-      const deviceCategory =
-        row.dimensionValues?.[3].value || "unknown device category";
-      const browser = row.dimensionValues?.[4].value || "unknown browser";
-      const city = row.dimensionValues?.[5].value || "unknown city";
-      //const operatingSystem = row.dimensionValues?.[6]?.value || "Unknown OS";
-      const eventname=row.dimensionValues?.[6].value||'unknown event';
-      const sessionsource = row.dimensionValues?.[7].value || "0";
-      const Date = row.dimensionValues?.[8].value || "0";
-      
-      const userEngagementDuration = row.metricValues?.[1]?.value || "0";
-      const sessions = parseFloat(row.metricValues?.[2]?.value || "0")
-      const eventCount = row.metricValues?.[3].value || "0";
-      const activeuser = row.metricValues?.[4].value || "0";
-      const engagedSessions = parseFloat(row.metricValues?.[5]?.value || "0");
-
-      
+      const pageTitle = row.dimensionValues?.[0]?.value || 'Unknown Page Title';
+      const pagePath = row.dimensionValues?.[1]?.value || 'Unknown Page Path';
+      const pageViews = row.metricValues?.[0]?.value || '0';
+      const country = row.dimensionValues?.[2]?.value || 'unknown country';
+      const deviceCategory = row.dimensionValues?.[3]?.value || 'unknown device category';
+      const browser = row.dimensionValues?.[4]?.value || 'unknown browser';
+      const city = row.dimensionValues?.[5]?.value || 'unknown city';
+      const eventname = row.dimensionValues?.[6]?.value || 'unknown event';
+      const sessionsource = row.dimensionValues?.[7]?.value || '0';
+      const Date = row.dimensionValues?.[8]?.value || '0';
+      const userEngagementDuration = row.metricValues?.[1]?.value || '0';
+      const sessions = parseFloat(row.metricValues?.[2]?.value || '0');
+      const eventCount = row.metricValues?.[3]?.value || '0';
+      const activeuser = row.metricValues?.[4]?.value || '0';
+      const engagedSessions = parseFloat(row.metricValues?.[5]?.value || '0');
       const bounceRate =
         sessions > 0 ? ((sessions - engagedSessions) / sessions) * 100 : 0;
 
@@ -92,7 +70,6 @@ export default async function handler(
         deviceCategory,
         browser,
         city,
-        //operatingSystem,
         eventname,
         userEngagementDuration,
         sessions,
@@ -101,20 +78,15 @@ export default async function handler(
         sessionsource,
         Date,
         engagedSessions,
-         bounceRate: bounceRate.toFixed(2) + "%",
-       
-        
+        bounceRate: bounceRate.toFixed(2) + '%',
       };
     });
 
-    
     return res.status(200).json(data);
-  } catch (error) {
-    console.error("Error fetching GA4 data:", error);
-    // In production we don't want this to surface as a 500 – just return empty data
+  } catch {
     return res.status(200).json({
       data: [],
-      error: "GA4 data unavailable (authentication or configuration issue).",
+      error: 'GA4 data unavailable (authentication or configuration issue).',
     });
   }
 }

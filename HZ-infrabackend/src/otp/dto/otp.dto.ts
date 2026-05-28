@@ -1,4 +1,13 @@
-import { IsEmail, IsOptional, IsString, Length, Matches, ValidateIf } from 'class-validator';
+import {
+  IsEmail,
+  IsIn,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+  MinLength,
+  ValidateIf,
+} from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class SendOtpDto {
@@ -12,6 +21,17 @@ export class SendOtpDto {
   @IsString()
   @Matches(/^\+?[0-9]{10,15}$/)
   phone?: string;
+
+  @ApiPropertyOptional({ enum: ['login', 'signup'] })
+  @IsOptional()
+  @IsIn(['login', 'signup'])
+  mode?: 'login' | 'signup';
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  fullName?: string;
 }
 
 export class VerifyOtpDto {
@@ -28,4 +48,22 @@ export class VerifyOtpDto {
   @IsString()
   @Length(6, 6)
   otp: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  fullName?: string;
+
+  @ApiPropertyOptional()
+  @ValidateIf((o) => Boolean(o.email))
+  @IsOptional()
+  @IsString()
+  @MinLength(8)
+  password?: string;
+
+  @ApiPropertyOptional({ enum: ['login', 'signup'] })
+  @IsOptional()
+  @IsIn(['login', 'signup'])
+  mode?: 'login' | 'signup';
 }

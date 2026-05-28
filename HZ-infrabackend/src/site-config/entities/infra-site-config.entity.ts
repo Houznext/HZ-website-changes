@@ -12,8 +12,27 @@ export class InfraSiteConfig {
   @Column({ type: 'text', nullable: true })
   heroImageUrl: string | null;
 
+  @Column({ type: 'simple-json', nullable: true })
+  heroImageUrls: string[] | null;
+
+  @Column({ type: 'text', nullable: true })
+  heroHeadline: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  heroSubheadline: string | null;
+
   @Column({ type: 'int', default: 18 })
   heroOpacity: number;
+
+  @Column({ type: 'simple-json', nullable: true })
+  heroPopularTags: string[] | null;
+
+  @Column({ type: 'simple-json', nullable: true })
+  heroMetrics: { value: string; label: string; accent?: boolean }[] | null;
+
+  /** Browse-by-type home cards: { Land, Villa, Apartment, Plot } image URLs. */
+  @Column({ type: 'simple-json', nullable: true })
+  browseTypeImages: Record<string, string> | null;
 
   @UpdateDateColumn()
   updatedAt: Date;

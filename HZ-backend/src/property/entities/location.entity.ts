@@ -10,7 +10,6 @@ import {
 import { Property } from 'src/property/entities/property.entity';
 import { Project } from 'src/company-onboarding/entities/company-projects.entity';
 import { User } from 'src/user/entities/user.entity';
-import { CustomBuilder } from 'src/livebuild/entities/custom-builder.entity';
 import { Company } from 'src/company-onboarding/entities/company.entity';
 
 @Entity('location_details')
@@ -74,10 +73,6 @@ export class LocationDetails {
   @Column({ type: 'boolean', default: false })
   isDefault: boolean;
 
-  // 🔹 CustomBuilder-specific fields
-  @Column({ nullable: true })
-  customBuilderId: string;
-
   @Column({ type: 'varchar', length: 255, nullable: true })
   address_line_1: string;
 
@@ -99,12 +94,6 @@ export class LocationDetails {
 
   @ManyToOne(() => Company, (company) => company.locatedIn)
   company: Company;
-
-  @OneToOne(() => CustomBuilder, (cb) => cb.location, {
-    nullable: true,
-    onDelete: 'CASCADE',
-  })
-  customBuilder: CustomBuilder;
 
   @ManyToOne(() => User, (user) => user.locations, {
     nullable: true,

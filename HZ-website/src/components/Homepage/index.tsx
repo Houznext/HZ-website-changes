@@ -38,8 +38,8 @@ const Homepage = ({ initialBlogs }: HomepageProps) => {
 
       <section className="mx-auto grid max-w-7xl grid-cols-1 gap-4 px-4 pb-8 md:grid-cols-3">
         {[
-          { title: "Interior Projects", desc: "Track all active interior projects in one dashboard.", href: "/user/livebuild" },
-          { title: "Interior Tracking", desc: "View real-time progress updates from your project team.", href: "/user/livebuild" },
+          { title: "Interior Projects", desc: "Track all active interior projects in one dashboard.", href: "/livebuild/dashboard" },
+          { title: "Interior Tracking", desc: "View real-time progress updates from your project team.", href: "/livebuild/dashboard" },
           { title: "Houznext Rewards", desc: "Invite friends and earn benefits on successful interior referrals.", href: "/houznext-rewards" },
         ].map((card) => (
           <Link key={card.title} href={card.href} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">

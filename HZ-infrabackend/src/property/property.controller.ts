@@ -13,6 +13,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { PropertyService } from './property.service';
 import { FilterPropertyDto } from './dto/filter-property.dto';
+import { SearchPropertyDto } from './dto/search-property.dto';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -28,6 +29,24 @@ export class PropertyController {
   @Get()
   list(@Query() q: FilterPropertyDto) {
     return this.properties.list(q, true);
+  }
+
+  @Get('search')
+  search(@Query() dto: SearchPropertyDto) {
+    return this.properties.searchPublic(dto.q, {
+      hintType: dto.hintType,
+      limit: dto.limit ?? 12,
+      page: 1,
+    });
+  }
+
+  @Get('by-slugs/list')
+  bulkBySlugs(@Query('slugs') slugs?: string) {
+    const list = (slugs ?? '')
+      .split(',')
+      .map((s) => decodeURIComponent(s.trim()))
+      .filter(Boolean);
+    return this.properties.findBySlugs(list);
   }
 
   @Get(':slug')

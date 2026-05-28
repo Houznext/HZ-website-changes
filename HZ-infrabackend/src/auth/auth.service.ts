@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,6 +24,7 @@ import {
   CustomerEmailLoginDto,
   CustomerEmailRegisterDto,
   DeveloperLoginDto,
+  GoogleAccessTokenDto,
   GoogleIdTokenDto,
   LoginDto,
 } from './dto/auth.dto';
@@ -345,7 +347,9 @@ export class AuthService {
       .createQueryBuilder('c')
       .where('LOWER(c.email) = LOWER(:email)', { email })
       .getOne();
-    if (!customer) throw new UnauthorizedException('Invalid email or password');
+    if (!customer) {
+      throw new NotFoundException('No account for this email. Sign up to create one.');
+    }
     if (!customer.passwordHash) {
       throw new UnauthorizedException('Use Google or OTP to sign in');
     }
@@ -426,6 +430,59 @@ export class AuthService {
         email,
         googleSub: sub,
         name: name ?? null,
+        phone: null,
+        passwordHash: null,
+        isVerified: true,
+      });
+      await this.customerRepo.save(customer);
+    }
+
+    const accessToken = await this.signCustomerAccessToken(customer);
+    return { accessToken, customer };
+  }
+
+  async customerGoogleAccessToken(
+    dto: GoogleAccessTokenDto,
+  ): Promise<{ accessToken: string; customer: InfraCustomer }> {
+    const trimmed = dto.accessToken?.trim();
+    if (!trimmed) {
+      throw new BadRequestException('Missing access token');
+    }
+    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${trimmed}` },
+    });
+    if (!res.ok) {
+      throw new UnauthorizedException('Invalid or expired Google session');
+    }
+    const body = (await res.json()) as { email?: string; name?: string; sub?: string };
+    if (!body.email) {
+      throw new UnauthorizedException('Google account has no email');
+    }
+    const email = body.email.trim().toLowerCase();
+    const sub = body.sub;
+    const name = body.name?.trim() || null;
+
+    let customer = sub
+      ? await this.customerRepo.findOne({ where: { googleSub: sub } })
+      : null;
+    if (!customer) {
+      customer = await this.customerRepo
+        .createQueryBuilder('c')
+        .where('LOWER(c.email) = LOWER(:email)', { email })
+        .getOne();
+    }
+
+    if (customer) {
+      customer.email = email;
+      if (sub && !customer.googleSub) customer.googleSub = sub;
+      if (name && !customer.name) customer.name = name;
+      customer.isVerified = true;
+      await this.customerRepo.save(customer);
+    } else {
+      customer = this.customerRepo.create({
+        email,
+        googleSub: sub ?? null,
+        name,
         phone: null,
         passwordHash: null,
         isVerified: true,

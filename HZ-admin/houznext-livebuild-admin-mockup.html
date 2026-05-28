@@ -1,0 +1,2244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LiveBuild Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f2a44;--blue:#2f80ed;--bh:#1a6dd6;--bl:#e8f1fd;
+  --accent:#f2994a;--ch:#1f2933;--mu:#5a6a7e;--brd:#dde8f5;
+  --off:#f5f7fa;--rd:#dc2626;--am:#d97706;--pu:#7c3aed;--tl:#0d9488;
+  --m:'Montserrat',sans-serif;--i:'Inter',sans-serif;
+}
+body{font-family:var(--i);font-size:13px;color:var(--ch);background:var(--off)}
+button,input,select,textarea{font-family:var(--i);font-size:13px}
+
+/* ── DEV NAV ── */
+.dn{display:flex;gap:2px;padding:5px 10px;background:#020b14;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:9999}
+.dl{font-size:8px;font-weight:700;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;font-family:var(--m);margin-right:3px}
+.ds{width:1px;height:12px;background:rgba(255,255,255,.1);margin:0 5px}
+.dt{padding:3px 9px;border-radius:4px;font-size:9.5px;font-weight:600;cursor:pointer;border:none;color:rgba(255,255,255,.38);background:transparent;font-family:var(--m);white-space:nowrap;transition:all .14s}
+.dt.on{background:rgba(47,128,237,.25);color:#6db8ff}
+.dt:hover:not(.on){background:rgba(255,255,255,.06);color:rgba(255,255,255,.7)}
+.pg{display:none!important}.pg.on{display:flex!important;flex-direction:column;min-height:calc(100vh - 28px)}
+
+/* ── LAYOUT ── */
+.shell{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 28px);flex:1}
+.sb{background:var(--navy);width:240px;position:sticky;top:28px;height:calc(100vh - 28px);overflow-y:auto;display:flex;flex-direction:column;flex-shrink:0}
+.main-area{display:flex;flex-direction:column;min-height:calc(100vh - 28px);overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sb-logo{height:56px;padding:0 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.sb-logo-text{font-family:var(--m);font-size:15px;font-weight:800;color:#fff}
+.sb-logo-text span{color:var(--accent)}
+.sb-badge{font-size:7.5px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--blue);color:#fff;font-family:var(--m);text-transform:uppercase;letter-spacing:.08em}
+.sb-nav{flex:1;padding:8px 0;overflow-y:auto}
+.sb-section{padding:12px 14px 4px;font-size:9px;font-weight:700;color:rgba(255,255,255,.22);text-transform:uppercase;letter-spacing:.1em;font-family:var(--m)}
+.sb-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:9px;margin:1px 8px;cursor:pointer;color:rgba(255,255,255,.55);font-size:12.5px;font-weight:500;transition:all .14s;position:relative}
+.sb-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.sb-item.on{background:rgba(47,128,237,.2);color:#fff;border-left:2px solid var(--blue);padding-left:10px}
+.sb-ic{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(255,255,255,.06);transition:background .14s}
+.sb-item.on .sb-ic{background:var(--blue)}
+.sb-cnt{font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;margin-left:auto;font-family:var(--m)}
+.sb-foot{padding:10px;border-top:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.sb-user{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;cursor:pointer;transition:background .14s}
+.sb-user:hover{background:rgba(255,255,255,.06)}
+.sb-av{width:32px;height:32px;border-radius:50%;background:rgba(47,128,237,.25);border:1.5px solid rgba(47,128,237,.4);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#90bdf0;font-family:var(--m);flex-shrink:0}
+
+/* ── TOPBAR ── */
+.topbar{height:52px;background:#fff;border-bottom:1px solid var(--brd);display:flex;align-items:center;padding:0 22px;gap:12px;position:sticky;top:28px;z-index:100;flex-shrink:0}
+.tb-title{font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)}
+.tb-sub{font-size:11.5px;color:var(--mu);margin-top:1px}
+
+/* ── CONTENT ── */
+.content{flex:1;padding:22px;background:var(--off);overflow-y:auto}
+
+/* ── CARDS ── */
+.card{background:#fff;border:.5px solid #e2e8f0;border-radius:13px;padding:20px;transition:box-shadow .2s}
+.card-sm{background:#fff;border:.5px solid #e2e8f0;border-radius:10px;padding:14px}
+
+/* ── STAT CARD ── */
+.stat{background:#fff;border:.5px solid #e2e8f0;border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s}
+.stat:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-2px)}
+.stat-ic{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-val{font-family:var(--m);font-size:24px;font-weight:800;line-height:1}
+.stat-lbl{font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:var(--m);margin-bottom:3px}
+.stat-sub{font-size:11px;color:var(--mu);margin-top:3px}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{background:#f8fafc;padding:10px 12px;text-align:left;font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;border-bottom:1.5px solid #e2e8f0;font-family:var(--m);white-space:nowrap}
+.tbl td{padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px;vertical-align:middle}
+.tbl tr:hover td{background:#f8fafc}
+.tbl tbody tr{cursor:pointer;transition:background .12s}
+
+/* ── BADGE ── */
+.bdg{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;font-family:var(--m);white-space:nowrap}
+.b-blue{background:#e8f1fd;color:#1d4ed8}
+.b-amber{background:#fef3c7;color:#92400e}
+.b-gray{background:#f1f5f9;color:#475569}
+.b-red{background:#fee2e2;color:var(--rd)}
+.b-tl{background:#ccfbf1;color:#0f766e}
+.b-pu{background:#f3e8ff;color:#6d28d9}
+.b-navy{background:#e0e7ef;color:#0f2a44}
+.b-prog{background:#e8f1fd;color:var(--blue)}
+
+/* ── PROGRESS BAR ── */
+.prog-track{height:6px;background:#e2e8f0;border-radius:6px;overflow:hidden}
+.prog-fill{height:100%;border-radius:6px;transition:width .8s ease}
+
+/* ── FORM ── */
+.fi{width:100%;padding:9px 13px;border:1.5px solid var(--brd);border-radius:9px;outline:none;font-size:13px;font-family:var(--i);color:var(--ch);background:#fff;transition:all .15s}
+.fi:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(47,128,237,.08)}
+.fi:hover:not(:focus){border-color:#b0c8e8}
+select.fi{cursor:pointer}
+textarea.fi{resize:vertical;min-height:80px}
+.lbl{display:block;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;font-family:var(--m)}
+.lbl-req::after{content:' *';color:var(--rd)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:9px;font-size:12.5px;font-weight:700;border:none;cursor:pointer;transition:all .18s;font-family:var(--m);white-space:nowrap}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:var(--bh);transform:translateY(-1px);box-shadow:0 4px 14px rgba(47,128,237,.28)}
+.btn-ghost{background:#fff;color:var(--ch);border:1.5px solid #e2e8f0}.btn-ghost:hover{border-color:var(--blue);color:var(--blue);background:var(--bl)}
+.btn-tl{background:var(--tl);color:#fff}.btn-tl:hover{background:#0f766e;transform:translateY(-1px)}
+.btn-red{background:#fee2e2;color:var(--rd);border:1px solid #fca5a5}.btn-red:hover{background:#fecaca}
+.btn-am{background:#fef3c7;color:#92400e;border:1px solid #fde68a}.btn-am:hover{background:#fde68a}
+.btn-sm{padding:6px 13px;font-size:12px;border-radius:8px}
+.btn-xs{padding:4px 10px;font-size:11px;border-radius:7px}
+.btn-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;border:.5px solid #e2e8f0;background:#fff;cursor:pointer;transition:all .18s;flex-shrink:0}
+.btn-icon:hover{border-color:var(--blue);background:var(--bl);color:var(--blue)}
+.btn-icon:hover svg{stroke:var(--blue)}
+
+/* ── TOGGLE ── */
+.tgl{width:40px;height:22px;border-radius:11px;background:#e2e8f0;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.tgl.on{background:var(--blue)}
+.tgl-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+.tgl.on .tgl-thumb{transform:translateX(18px)}
+
+/* ── CHIP ── */
+.chip{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:8px;font-size:12px;font-weight:600;font-family:var(--m);cursor:pointer;transition:all .15s;border:1.5px solid var(--brd);background:#fff;color:var(--mu);user-select:none}
+.chip.sel{border-color:var(--blue);background:var(--bl);color:var(--blue)}
+.chip:hover:not(.sel){border-color:#93c5fd;color:var(--blue);background:var(--bl)}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(15,42,68,.5);z-index:4000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px);animation:fadeIn .18s ease}
+.modal{background:#fff;border-radius:16px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.22);animation:slideUp .22s ease}
+.modal-hd{padding:18px 22px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2;border-radius:16px 16px 0 0}
+.modal-bd{padding:20px 22px}
+.modal-ft{padding:14px 22px;border-top:1px solid var(--brd);display:flex;gap:9px;justify-content:flex-end;background:#fff;border-radius:0 0 16px 16px;position:sticky;bottom:0}
+.hidden{display:none!important}
+
+/* ── TAB BAR ── */
+.tab-bar{display:flex;gap:2px;background:#f1f5f9;padding:3px;border-radius:9px}
+.tab{padding:6px 14px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--mu);transition:all .18s;font-family:var(--m);white-space:nowrap}
+.tab.on{background:#fff;color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+
+/* ── SECTION DIVIDER ── */
+.sdiv{display:flex;align-items:center;gap:9px;margin:18px 0 14px}
+.sdiv-ic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sdiv-t{font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch)}
+.sdiv-line{flex:1;height:1px;background:#f0f4f8}
+
+/* ── PCT METHOD ── */
+.pct-method{border:1.5px solid var(--brd);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .18s;position:relative}
+.pct-method:hover{border-color:#93c5fd;background:var(--bl)}
+.pct-method.sel{border-color:var(--blue);background:var(--bl)}
+.pct-method.sel::after{content:'✓';position:absolute;top:8px;right:10px;font-size:11px;font-weight:700;color:var(--blue);font-family:var(--m)}
+
+/* ── WORK TYPE CHIP ── */
+.wt-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:8px;border:1.5px solid var(--brd);background:#fff;font-size:12px;font-weight:600;font-family:var(--m);cursor:pointer;transition:all .15s;color:var(--mu)}
+.wt-chip.on{border-color:var(--blue);background:var(--bl);color:var(--blue)}
+.wt-chip:hover:not(.on){border-color:#93c5fd;color:var(--blue)}
+.wt-chip.active-sys{border-color:var(--tl);background:#ccfbf1;color:#0f766e}
+
+/* ── TIMELINE ROW ── */
+.tl-row{display:flex;gap:12px;padding:10px 0;border-bottom:.5px solid #f1f5f9}
+.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+
+/* ── DRAG HANDLE ── */
+.drag-handle{cursor:grab;color:var(--mu);opacity:.4;transition:opacity .15s}
+.drag-handle:hover{opacity:.8}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fa{animation:fadeUp .3s ease both}
+.fa1{animation-delay:.05s}.fa2{animation-delay:.1s}.fa3{animation-delay:.15s}.fa4{animation-delay:.2s}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);animation:pulse 1.4s infinite;flex-shrink:0}
+
+/* ── TOAST ── */
+.tw{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast-item{background:var(--ch);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;border-left:3px solid var(--blue);animation:fadeUp .3s ease}
+.toast-item.err{border-left-color:var(--rd)}
+.toast-item.ok{border-left-color:var(--tl)}
+
+/* ── GRID UTILS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+@media(max-width:1000px){.g4{grid-template-columns:1fr 1fr!important}}
+@media(max-width:700px){.g3,.g2,.g4{grid-template-columns:1fr!important}.shell{grid-template-columns:1fr}}
+
+/* ── INLINE EDIT ── */
+.editable{border-bottom:1.5px dashed transparent;cursor:pointer;transition:border-color .15s;padding:1px 3px;border-radius:3px}
+.editable:hover{border-bottom-color:var(--blue);background:var(--bl)}
+.editable:focus{outline:none;border-bottom:1.5px solid var(--blue);background:var(--bl)}
+
+/* ── Project Detail inner tabs ── */
+.pd-tab{padding:0 16px;height:44px;display:flex;align-items:center;gap:7px;font-family:var(--m);font-size:12.5px;font-weight:700;color:var(--mu);cursor:pointer;border-bottom:2.5px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap;flex-shrink:0}
+.pd-tab:hover{color:var(--ch)}
+.pd-tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.pdt-panel{animation:fadeUp .25s ease both}
+/* ── Project card view ── */
+.proj-card-item{background:#fff;border:.5px solid #e2e8f0;border-radius:14px;overflow:hidden;cursor:pointer;transition:all .22s}
+.proj-card-item:hover{box-shadow:0 12px 36px rgba(15,42,68,.12);transform:translateY(-3px);border-color:rgba(47,128,237,.3)}
+.proj-card-item:hover .pc-arrow{opacity:1;transform:translateX(0)}
+.pc-arrow{opacity:0;transform:translateX(-4px);transition:all .2s}
+
+/* pdt-panel content breathing room */
+.pdt-panel { padding-top: 20px; }
+</style>
+</head>
+<body>
+<div class="tw" id="tw"></div>
+<div class="dn">
+  <span class="dl">LiveBuild Admin</span>
+  <button class="dt on" onclick="P('dashboard',this)">Dashboard</button>
+  <button class="dt" onclick="P('projects',this)">All Projects</button>
+  <div class="ds"></div>
+  <span class="dl">Project Detail</span>
+  <button class="dt" onclick="openProject('HZB-2401','overview')">Overview</button>
+  <button class="dt" onclick="openProject('HZB-2401','rooms')">Rooms</button>
+  <button class="dt" onclick="openProject('HZB-2401','dpr')">DPR</button>
+  <button class="dt" onclick="openProject('HZB-2401','payments')">Payments</button>
+  <button class="dt" onclick="openProject('HZB-2401','queries')">Queries</button>
+  <button class="dt" onclick="openProject('HZB-2401','documents')">Documents</button>
+  <button class="dt" onclick="openProject('HZB-2401','materials')">Materials &amp; BOQ</button>
+  <div class="ds"></div>
+  <button class="dt" onclick="P('worktypes',this)">Work Types</button>
+  <button class="dt" onclick="P('customers',this)">Customers</button>
+  <button class="dt" onclick="P('settings',this)">Settings</button>
+</div>
+
+<!-- ══ SHARED SIDEBAR TEMPLATE ══ -->
+<template id="sb-tpl">
+<nav class="sb">
+  <div class="sb-logo">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <div class="sb-logo-text">Live<span>Build</span></div>
+    <span class="sb-badge">Admin</span>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-section">Overview</div>
+    <div class="sb-item" data-pg="dashboard" onclick="P('dashboard',null)"><span class="sb-ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>Dashboard</div>
+    <div class="sb-section">Projects</div>
+    <div class="sb-item" data-pg="projects" onclick="P('projects',null)"><span class="sb-ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>All Projects<span class="sb-cnt" style="background:rgba(47,128,237,.2);color:#93c5fd">3</span></div>
+    <div class="sb-item" data-pg="project-detail" onclick="P('project-detail',null)"><span class="sb-ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>Project Detail</div>
+
+    <div class="sb-section">Configuration</div>
+    <div class="sb-item" data-pg="worktypes" onclick="P('worktypes',null)"><span class="sb-ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></span>Work Types</div>
+
+    <div class="sb-section">People</div>
+    <div class="sb-item" data-pg="customers" onclick="P('customers',null)"><span class="sb-ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span>Customers</div>
+    <div class="sb-section">System</div>
+    <div class="sb-item" data-pg="settings" onclick="P('settings',null)"><span class="sb-ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>Settings</div>
+  </div>
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-av">S</div>
+      <div><div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.9)">Suresh Babu</div><div style="font-size:10.5px;color:rgba(255,255,255,.38)">Site Manager</div></div>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.8" stroke-linecap="round" style="margin-left:auto"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+  </div>
+</nav>
+</template>
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div class="pg on" id="pg-dashboard">
+<div class="shell">
+<div id="sb-d"></div>
+<div class="main-area">
+<div class="topbar">
+  <div><div class="tb-title">Dashboard</div><div class="tb-sub">LiveBuild admin overview</div></div>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <button class="btn btn-ghost btn-sm" onclick="openModal('new-project-modal');initNewProjectModal()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New project
+    </button>
+  </div>
+</div>
+<div class="content">
+  <!-- KPIs -->
+  <div class="g4 fa" style="margin-bottom:18px">
+    <div class="stat"><div class="stat-ic" style="background:#e8f1fd"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><div><div class="stat-lbl">Active projects</div><div class="stat-val" style="color:var(--blue)">2</div><div class="stat-sub">1 completed</div></div></div>
+    <div class="stat"><div class="stat-ic" style="background:#fef3c7"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><div><div class="stat-lbl">Open queries</div><div class="stat-val" style="color:var(--am)">2</div><div class="stat-sub">Needs reply</div></div></div>
+    <div class="stat"><div class="stat-ic" style="background:#fee2e2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><div><div class="stat-lbl">Pending payments</div><div class="stat-val" style="color:var(--rd)">2</div><div class="stat-sub">2 milestones due</div></div></div>
+    <div class="stat"><div class="stat-ic" style="background:#ccfbf1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><div class="stat-lbl">Customers</div><div class="stat-val" style="color:var(--tl)">3</div><div class="stat-sub">All active</div></div></div>
+  </div>
+  <div class="g2 fa fa2" style="margin-bottom:16px">
+    <!-- Projects summary -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-family:var(--m);font-size:13px;font-weight:700">Projects</div>
+        <button class="btn btn-ghost btn-sm" onclick="P('projects',null)">View all →</button>
+      </div>
+      <div id="dash-proj-list"></div>
+    </div>
+    <!-- Recent activity -->
+    <div class="card">
+      <div style="font-family:var(--m);font-size:13px;font-weight:700;margin-bottom:14px">Recent activity</div>
+      <div id="dash-activity"></div>
+    </div>
+  </div>
+  <!-- Overdue queries -->
+  <div class="card fa fa3" style="border-color:#fca5a5;background:#fff8f8">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--rd)">Open queries — need response</div>
+      <button class="btn btn-ghost btn-sm" onclick="openProject('HZB-2401','queries')">View all →</button>
+    </div>
+    <div id="dash-queries"></div>
+  </div>
+</div>
+</div></div></div>
+
+<!-- ══════════ ALL PROJECTS ══════════ -->
+<div class="pg" id="pg-projects">
+<div class="shell"><div id="sb-proj"></div>
+<div class="main-area">
+<div class="topbar">
+  <div><div class="tb-title">All Projects</div></div>
+  <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+    <div style="position:relative"><svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%)" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="fi" placeholder="Search projects…" style="padding-left:30px;width:200px;font-size:12.5px" oninput="filterProjSearch(this.value)"></div>
+    <!-- View toggle -->
+    <div style="display:flex;background:#f1f5f9;padding:3px;border-radius:8px;gap:2px">
+      <button id="btn-card-view" title="Card view" onclick="setProjView('card')" style="width:30px;height:26px;border-radius:6px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--blue);color:#fff;transition:all .15s">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </button>
+      <button id="btn-list-view" title="List view" onclick="setProjView('list')" style="width:30px;height:26px;border-radius:6px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;background:transparent;color:var(--mu);transition:all .15s">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      </button>
+    </div>
+    <button class="btn btn-blue btn-sm" onclick="openModal('new-project-modal');initNewProjectModal()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New project
+    </button>
+  </div>
+</div>
+<div class="content">
+  <!-- Card view (default) -->
+  <div id="proj-card-view" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px"></div>
+  <!-- List view (hidden by default) -->
+  <div id="proj-list-view" style="display:none">
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="tbl">
+        <thead><tr>
+          <th>Project</th><th>Customer</th><th>Type</th><th>Progress</th>
+          <th>Phase</th><th>Status</th><th>% Method</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="proj-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div></div></div>
+
+<!-- ══════════ PROJECT DETAIL ══════════ -->
+<div class="pg" id="pg-project-detail">
+<div class="shell"><div id="sb-pd"></div>
+<div class="main-area">
+<div class="topbar">
+  <button class="btn btn-ghost btn-sm" onclick="P('projects',null)">← Back</button>
+  <div><div class="tb-title" id="pd-title">2BHK Modern Flat <span class="bdg b-prog" style="font-size:10px">HZB-2401</span></div><div class="tb-sub">Gachibowli, Hyderabad · Arjun Kumar</div></div>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <button class="btn btn-ghost btn-sm" onclick="toast('Saving…','ok')">Save changes</button>
+    <button class="btn btn-blue btn-sm" onclick="toast('Project updated ✓','ok')">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>Publish update
+    </button>
+  </div>
+</div>
+
+<!-- ── Inner project tab bar ── -->
+<div style="background:#fff;border-bottom:1px solid var(--brd);display:flex;gap:0;overflow-x:auto;scrollbar-width:none;position:sticky;top:80px;z-index:99;min-height:44px" id="pd-tab-bar">
+  <div class="pd-tab on" data-tab="overview" onclick="switchPdTab(this,'overview')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Overview
+  </div>
+  <div class="pd-tab" data-tab="rooms" onclick="switchPdTab(this,'rooms')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Rooms &amp; Progress
+  </div>
+  <div class="pd-tab" data-tab="dpr" onclick="switchPdTab(this,'dpr')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg>DPR Upload
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;animation:pulse 1.4s infinite"></span>
+  </div>
+  <div class="pd-tab" data-tab="payments" onclick="switchPdTab(this,'payments')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Payments
+  </div>
+  <div class="pd-tab" data-tab="queries" onclick="switchPdTab(this,'queries')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Queries
+    <span class="bdg b-red" style="font-size:8px;padding:1px 5px">2</span>
+  </div>
+  <div class="pd-tab" data-tab="documents" onclick="switchPdTab(this,'documents')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Documents
+  </div>
+  <div class="pd-tab" data-tab="materials" onclick="switchPdTab(this,'materials')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Materials &amp; BOQ
+  </div>
+</div>
+
+<div class="content" id="pd-content" style="padding-top:2px">
+
+<!-- ── TAB: OVERVIEW ── -->
+<div id="pdt-overview" class="pdt-panel">
+  <div style="display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card fa">
+        <div class="sdiv" style="margin-top:0"><div class="sdiv-ic" style="background:var(--bl)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg></div><div class="sdiv-t">Project details</div><div class="sdiv-line"></div><span style="font-size:11px;color:var(--mu)">Click any field to edit</span></div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div><label class="lbl lbl-req">Project name</label><input class="fi" value="2BHK Modern Flat" id="pd-name"></div>
+          <div><label class="lbl lbl-req">Project code</label><input class="fi" value="HZB-2401" id="pd-code"></div>
+        </div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div><label class="lbl lbl-req">Customer</label><select class="fi" id="pd-customer"><option>Arjun Kumar</option><option>Priya Mehta</option><option>Rajesh Verma</option></select></div>
+          <div><label class="lbl">Property type</label><select class="fi"><option>2BHK Apartment</option><option>3BHK Apartment</option><option>4BHK Villa</option></select></div>
+        </div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div><label class="lbl">Project type</label><select class="fi"><option>Interior</option><option>Renovation</option><option>Construction</option></select></div>
+          <div><label class="lbl">Site manager</label><select class="fi"><option>Suresh Babu</option><option>Kavitha Nair</option></select></div>
+        </div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div><label class="lbl lbl-req">Start date</label><input class="fi" type="date" value="2025-01-01"></div>
+          <div><label class="lbl lbl-req">Due date</label><input class="fi" type="date" value="2025-02-20"></div>
+        </div>
+        <div><label class="lbl">Address / location</label><input class="fi" value="Tower B, Unit 904, Skyline Apartments, Gachibowli, Hyderabad 500032"></div>
+      </div>
+      <div class="card fa fa2">
+        <div class="sdiv" style="margin-top:0"><div class="sdiv-ic" style="background:#fef3c7"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="1.8" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="sdiv-t">Progress calculation method</div><div class="sdiv-line"></div></div>
+        <div style="background:linear-gradient(135deg,#f0f7ff,#e8f1fd);border:1px solid #bfdbfe;border-radius:10px;padding:13px 16px;margin-bottom:14px">
+          <div style="font-family:var(--m);font-size:12px;font-weight:700;color:var(--blue);margin-bottom:5px">💡 Recommendation: Hybrid method</div>
+          <div style="font-size:12px;color:var(--ch);line-height:1.6">Auto-calculates from completed items ÷ total items per room. Admin can <strong>override with a reason</strong> if needed.</div>
+        </div>
+        <div class="g3" id="pct-method-options">
+          <div class="pct-method sel" onclick="selectPctMethod(this,'hybrid')"><div style="font-family:var(--m);font-size:12.5px;font-weight:700;color:var(--ch);margin-bottom:4px">⚡ Hybrid (recommended)</div><div style="font-size:11.5px;color:var(--mu)">Auto-calculates. Admin can override with note.</div></div>
+          <div class="pct-method" onclick="selectPctMethod(this,'items')"><div style="font-family:var(--m);font-size:12.5px;font-weight:700;color:var(--ch);margin-bottom:4px">📋 Item completion</div><div style="font-size:11.5px;color:var(--mu)">% = completed items ÷ total items per room.</div></div>
+          <div class="pct-method" onclick="selectPctMethod(this,'manual')"><div style="font-family:var(--m);font-size:12.5px;font-weight:700;color:var(--ch);margin-bottom:4px">✏️ Manual entry</div><div style="font-size:11.5px;color:var(--mu)">Admin enters % directly.</div></div>
+        </div>
+        <div style="margin-top:14px;padding:12px 14px;background:var(--off);border-radius:10px" id="pct-override-section">
+          <div style="font-family:var(--m);font-size:12px;font-weight:700;color:var(--ch);margin-bottom:10px">Override progress %</div>
+          <div class="form-row">
+            <div><label class="lbl">Override % <span style="color:var(--mu);font-weight:400;text-transform:none;font-size:10px">(leave blank to use auto)</span></label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input class="fi" type="number" min="0" max="100" placeholder="Auto: 72%" id="pct-override-val" style="width:100px">
+                <div style="height:7px;flex:1;background:#e2e8f0;border-radius:6px;overflow:hidden"><div style="height:100%;width:72%;background:var(--blue);border-radius:6px" id="pct-bar"></div></div>
+                <span style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch)" id="pct-display">72%</span>
+              </div>
+            </div>
+            <div><label class="lbl">Override reason</label><input class="fi" placeholder="e.g. On-hold days excluded" id="pct-reason"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card fa fa3">
+        <div class="sdiv" style="margin-top:0"><div class="sdiv-ic" style="background:#fef3c7"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></div><div class="sdiv-t">Timeline &amp; phase</div><div class="sdiv-line"></div></div>
+        <div class="form-row">
+          <div><label class="lbl">Current phase</label><select class="fi"><option>Design</option><option>Procurement</option><option selected>Execution</option><option>Finishing</option><option>Handover</option></select></div>
+          <div><label class="lbl">Project status</label><select class="fi"><option>In Progress</option><option>On Hold</option><option>Completed</option><option>Cancelled</option></select></div>
+        </div>
+        <div style="margin-top:12px"><label class="lbl">On-hold reason (if on hold)</label><textarea class="fi" rows="2" placeholder="Reason for hold — visible to customer"></textarea></div>
+      </div>
+    </div>
+    <div style="position:sticky;top:128px;display:flex;flex-direction:column;gap:14px">
+      <div class="card"><div style="font-family:var(--m);font-size:13px;font-weight:700;margin-bottom:14px">Progress summary</div><div style="text-align:center;margin-bottom:14px" id="detail-ring-wrap"></div><div style="display:flex;flex-direction:column;gap:7px;font-size:12.5px"><div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Days elapsed</span><span style="font-weight:600">38 / 50</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Rooms completed</span><span style="font-weight:600">2 / 6</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Work types active</span><span style="font-weight:600">4</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Photos today</span><span style="font-weight:600;color:var(--blue)">12</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Open queries</span><span style="font-weight:600;color:var(--am)">2</span></div></div></div>
+      <div class="card"><div style="font-family:var(--m);font-size:13px;font-weight:700;margin-bottom:10px">Customer</div><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--bh));display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:14px;font-weight:700;color:#fff;flex-shrink:0">AK</div><div><div style="font-weight:600;font-size:13px">Arjun Kumar</div><div style="font-size:11.5px;color:var(--mu)">+91 98765 43210</div></div></div><button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center" onclick="P('customers',null)">View customer profile</button></div>
+      <div class="card" style="background:#fff8f3;border-color:#fcd9b0;padding:14px"><div style="font-family:var(--m);font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">⚠ Attention needed</div><div style="font-size:12px;color:#7c3303;display:flex;flex-direction:column;gap:5px"><div>• 2 open queries need reply</div><div>• Milestone 3 payment overdue</div><div>• No DPR submitted today</div></div></div>
+      <!-- Quick links -->
+      <div class="card" style="padding:14px">
+        <div style="font-family:var(--m);font-size:12.5px;font-weight:700;color:var(--ch);margin-bottom:10px">Quick links</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:flex-start;gap:8px" onclick="switchPdTab(document.querySelector('.pd-tab[data-tab='rooms']'),'rooms')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Rooms &amp; Progress
+          </button>
+          <button class="btn btn-sm" style="width:100%;justify-content:flex-start;gap:8px;background:linear-gradient(135deg,var(--accent),#e8751a);color:#fff;font-weight:800" onclick="switchPdTab(document.querySelector('.pd-tab[data-tab='dpr']'),'dpr')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><polyline points="9 16 11 18 15 14"/></svg>Upload DPR
+          </button>
+          <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:flex-start;gap:8px" onclick="switchPdTab(document.querySelector('.pd-tab[data-tab='payments']'),'payments')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Payments
+          </button>
+          <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:flex-start;gap:8px" onclick="switchPdTab(document.querySelector('.pd-tab[data-tab='queries']'),'queries')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Queries
+          </button>
+          <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:flex-start;gap:8px" onclick="switchPdTab(document.querySelector('.pd-tab[data-tab='documents']'),'documents')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Documents
+          </button>
+          <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:flex-start;gap:8px" onclick="switchPdTab(document.querySelector('.pd-tab[data-tab='materials']'),'materials')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Materials &amp; BOQ
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TAB: ROOMS & PROGRESS ── -->
+<div id="pdt-rooms" class="pdt-panel" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)">Rooms &amp; Progress — <span id="pdt-rooms-projname">2BHK Modern Flat</span></div>
+    <button class="btn btn-ghost btn-sm" onclick="openModal('add-room-modal')">+ Add room</button>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:14px" id="pdt-rooms-list"></div>
+</div>
+
+<!-- ── TAB: DPR UPLOAD ── -->
+<div id="pdt-dpr" class="pdt-panel" style="display:none">
+  <div style="background:linear-gradient(135deg,var(--accent),#e8751a);border-radius:13px;padding:16px 20px;margin-bottom:18px;display:flex;align-items:center;gap:14px">
+    <div style="width:44px;height:44px;border-radius:11px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg></div>
+    <div><div style="font-family:var(--m);font-size:15px;font-weight:800;color:#fff;margin-bottom:3px">Daily Progress Report</div><div style="font-size:12.5px;color:rgba(255,255,255,.8)">Upload today's site photos per work type. This is the primary customer-facing update.</div></div>
+    <div style="margin-left:auto;text-align:right;flex-shrink:0"><div style="font-size:10px;color:rgba(255,255,255,.6);font-family:var(--m);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Project</div><div style="font-family:var(--m);font-size:13px;font-weight:700;color:#fff" id="pdt-dpr-projname">2BHK Modern Flat</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 280px;gap:18px;align-items:start">
+    <div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="form-row">
+          <div><label class="lbl lbl-req">DPR date</label><input class="fi" type="date" value="2025-01-14"></div>
+          <div><label class="lbl lbl-req">Room</label><select class="fi" id="pdt-dpr-room" onchange="renderDPRWorkTypes()"><option>Master Bedroom</option><option>Children's Bedroom</option><option>Living Room</option><option>Kitchen</option><option>Master Bath</option><option>Common Bath</option></select></div>
+        </div>
+      </div>
+      <div id="pdt-dpr-wt-cards"></div>
+    </div>
+    <div style="position:sticky;top:128px">
+      <div class="card">
+        <div style="font-family:var(--m);font-size:13px;font-weight:700;margin-bottom:12px">Today's summary</div>
+        <div id="pdt-dpr-summary"></div>
+        <div style="margin-top:12px;padding:11px 12px;background:var(--off);border-radius:9px">
+          <div style="font-family:var(--m);font-size:11.5px;font-weight:700;color:var(--ch);margin-bottom:5px">Auto-calculated update</div>
+          <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;margin-bottom:3px"><span>Master Bedroom</span><span style="color:var(--blue)">+3% → 88%</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:600"><span>Overall project</span><span style="color:var(--blue)">+1% → 73%</span></div>
+        </div>
+        <button class="btn" style="width:100%;justify-content:center;margin-top:12px;background:linear-gradient(135deg,var(--accent),#e8751a);color:#fff;font-weight:800" onclick="toast('DPR submitted ✓','ok')">Submit DPR</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TAB: PAYMENTS ── -->
+<div id="pdt-payments" class="pdt-panel" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)">Payments — <span id="pdt-pay-projname">2BHK Modern Flat</span></div>
+    <button class="btn btn-blue btn-sm" onclick="openModal('add-milestone-modal')">+ Add milestone</button>
+  </div>
+  <div class="g3" style="margin-bottom:16px" id="pdt-pay-stats"></div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table class="tbl"><thead><tr><th>Milestone</th><th>% of total</th><th>Due date</th><th>Status</th><th>Paid date</th><th>Actions</th></tr></thead>
+    <tbody id="pdt-pay-tbody"></tbody></table>
+  </div>
+</div>
+
+<!-- ── TAB: QUERIES ── -->
+<div id="pdt-queries" class="pdt-panel" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)">Queries — <span id="pdt-q-projname">2BHK Modern Flat</span></div>
+    <div class="tab-bar">
+      <button class="tab on" onclick="filterPdtQueries(this,'all')">All (5)</button>
+      <button class="tab" onclick="filterPdtQueries(this,'open')">Open (2)</button>
+      <button class="tab" onclick="filterPdtQueries(this,'resolved')">Resolved (3)</button>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px" id="pdt-queries-list"></div>
+</div>
+
+<!-- ── TAB: DOCUMENTS ── -->
+<div id="pdt-documents" class="pdt-panel" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)">Documents — <span id="pdt-doc-projname">2BHK Modern Flat</span></div>
+    <button class="btn btn-blue btn-sm" onclick="openModal('upload-doc-modal')">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload document
+    </button>
+  </div>
+  <div class="g4" style="margin-bottom:14px" id="pdt-doc-stats"></div>
+  <div class="tab-bar" style="margin-bottom:14px">
+    <button class="tab on" onclick="filterPdtDocs(this,'all')">All</button>
+    <button class="tab" onclick="filterPdtDocs(this,'warranty')">Warranty slips</button>
+    <button class="tab" onclick="filterPdtDocs(this,'boq')">BOQ</button>
+    <button class="tab" onclick="filterPdtDocs(this,'agreement')">Agreements</button>
+    <button class="tab" onclick="filterPdtDocs(this,'design')">Design files</button>
+    <button class="tab" onclick="filterPdtDocs(this,'other')">Other</button>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px" id="pdt-doc-list"></div>
+</div>
+
+<!-- ── TAB: MATERIALS & BOQ ── -->
+<div id="pdt-materials" class="pdt-panel" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)">Materials &amp; BOQ — <span id="pdt-matl-projname">2BHK Modern Flat</span></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="toast('Downloading BOQ…')">↓ Download BOQ</button>
+      <button class="btn btn-blue btn-sm" onclick="openModal('add-material-modal')">+ Add item</button>
+    </div>
+  </div>
+  <div class="g3" style="margin-bottom:16px">
+    <div class="stat"><div class="stat-ic" style="background:#e8f1fd"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div><div><div class="stat-lbl">Total items</div><div class="stat-val" style="color:var(--blue)" id="matl-total-val">0</div></div></div>
+    <div class="stat"><div class="stat-ic" style="background:#ccfbf1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--tl)" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg></div><div><div class="stat-lbl">Installed</div><div class="stat-val" style="color:var(--tl)" id="matl-installed-val">0</div></div></div>
+    <div class="stat"><div class="stat-ic" style="background:#fef3c7"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="stat-lbl">Pending</div><div class="stat-val" style="color:var(--am)" id="matl-pending-val">0</div></div></div>
+  </div>
+  <div class="card" style="padding:11px 16px;margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <div class="tab-bar" id="matl-room-filter">
+      <button class="tab on" onclick="filterMatlRoom(this,'all')">All rooms</button>
+      <button class="tab" onclick="filterMatlRoom(this,'Master Bedroom')">Master Bedroom</button>
+      <button class="tab" onclick="filterMatlRoom(this,'Living Room')">Living Room</button>
+      <button class="tab" onclick="filterMatlRoom(this,'Kitchen')">Kitchen</button>
+      <button class="tab" onclick="filterMatlRoom(this,'Bath')">Bathrooms</button>
+    </div>
+    <div class="tab-bar" style="margin-left:auto" id="matl-status-filter">
+      <button class="tab on" onclick="filterMatlStatus(this,'all')">All</button>
+      <button class="tab" onclick="filterMatlStatus(this,'installed')">Installed</button>
+      <button class="tab" onclick="filterMatlStatus(this,'procured')">Procured</button>
+      <button class="tab" onclick="filterMatlStatus(this,'not_started')">Not started</button>
+    </div>
+  </div>
+  <div id="pdt-matl-list"></div>
+</div>
+
+</div><!-- end pd-content -->
+</div></div></div>
+<!-- ══════════ ROOMS & PROGRESS ══════════ -->
+<div class="pg" id="pg-rooms">
+<div class="shell"><div id="sb-rm"></div>
+<div class="main-area">
+<div class="topbar">
+  <button class="btn btn-ghost btn-sm" onclick="P('project-detail',null)">← Project</button>
+  <div><div class="tb-title">Rooms &amp; Progress — 2BHK Modern Flat</div></div>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <button class="btn btn-ghost btn-sm" onclick="openModal('add-room-modal')">+ Add room</button>
+    <button class="btn btn-blue btn-sm" onclick="toast('Progress saved ✓','ok')">Save all</button>
+  </div>
+</div>
+<div class="content">
+  <div style="display:flex;flex-direction:column;gap:14px" id="rooms-list"></div>
+</div>
+</div></div></div>
+
+<!-- ══════════ WORK TYPES ══════════ -->
+<div class="pg" id="pg-worktypes">
+<div class="shell"><div id="sb-wt"></div>
+<div class="main-area">
+<div class="topbar">
+  <div><div class="tb-title">Work Types</div><div class="tb-sub">Manage all work type categories</div></div>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <button class="btn btn-blue btn-sm" onclick="openModal('add-wt-modal')">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New work type
+    </button>
+  </div>
+</div>
+<div class="content">
+  <!-- Stats -->
+  <div class="g4" style="margin-bottom:16px">
+    <div class="stat"><div class="stat-ic" style="background:#e8f1fd"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div><div><div class="stat-lbl">Total types</div><div class="stat-val" style="color:var(--blue)">8</div></div></div>
+    <div class="stat"><div class="stat-ic" style="background:#ccfbf1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--tl)" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg></div><div><div class="stat-lbl">Active</div><div class="stat-val" style="color:var(--tl)">6</div></div></div>
+    <div class="stat"><div class="stat-ic" style="background:#fef3c7"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="stat-lbl">In use (projects)</div><div class="stat-val" style="color:var(--am)">4</div></div></div>
+    <div class="stat"><div class="stat-ic" style="background:#f1f5f9"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="stat-lbl">Disabled</div><div class="stat-val" style="color:var(--mu)">2</div></div></div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table class="tbl">
+      <thead><tr>
+        <th style="width:32px"></th>
+        <th>Work type name</th><th>Category</th><th>Default for</th>
+        <th>Active projects</th><th>Status</th><th>Actions</th>
+      </tr></thead>
+      <tbody id="wt-tbody"></tbody>
+    </table>
+  </div>
+</div>
+</div></div></div>
+
+<!-- ══════════ DPR UPLOAD ══════════ -->
+<div class="pg" id="pg-dpr">
+<div class="shell"><div id="sb-dpr"></div>
+<div class="main-area">
+<div class="topbar">
+  <div><div class="tb-title">Daily Progress Report</div><div class="tb-sub">Upload photos &amp; update work progress</div></div>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <select class="fi" style="width:auto;font-size:12.5px" id="dpr-project-select">
+      <option>2BHK Modern Flat — HZB-2401</option>
+      <option>3BHK Contemporary — HZB-2398</option>
+    </select>
+    <button class="btn btn-blue btn-sm" onclick="toast('DPR saved ✓','ok')">Save DPR</button>
+  </div>
+</div>
+<div class="content">
+  <div style="display:grid;grid-template-columns:1fr 300px;gap:18px;align-items:start">
+    <div>
+      <!-- Date + room selector -->
+      <div class="card fa" style="margin-bottom:14px">
+        <div class="form-row">
+          <div><label class="lbl lbl-req">DPR date</label><input class="fi" type="date" value="2025-01-14"></div>
+          <div><label class="lbl">Select room</label><select class="fi" id="dpr-room-sel"><option>Master Bedroom</option><option>Children's Bedroom</option><option>Living Room</option><option>Kitchen</option><option>Master Bath</option><option>Common Bath</option></select></div>
+        </div>
+      </div>
+      <!-- Work types for selected room -->
+      <div class="card fa fa2" style="margin-bottom:14px">
+        <div class="sdiv" style="margin-top:0"><div class="sdiv-ic" style="background:var(--bl)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div><div class="sdiv-t">Work types — Master Bedroom</div><div class="sdiv-line"></div></div>
+        <div style="display:flex;flex-direction:column;gap:12px" id="dpr-wt-rows"></div>
+      </div>
+      <!-- Photo upload -->
+      <div class="card fa fa3">
+        <div class="sdiv" style="margin-top:0"><div class="sdiv-ic" style="background:#f3e8ff"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--pu)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div><div class="sdiv-t">Upload progress photos</div><div class="sdiv-line"></div><span style="font-size:11px;color:var(--mu)">Max 10 per work type</span></div>
+        <div style="border:2px dashed var(--brd);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .22s" onmouseenter="this.style.borderColor='var(--blue)';this.style.background='var(--bl)'" onmouseleave="this.style.borderColor='var(--brd)';this.style.background='transparent'" onclick="toast('Upload photos…')">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--bl);display:flex;align-items:center;justify-content:center;margin:0 auto 10px">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch);margin-bottom:4px">Drop photos or click to upload</div>
+          <div style="font-size:12px;color:var(--mu)">JPG, PNG · Max 10MB each · Up to 10 photos per work type</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap" id="dpr-photo-thumbs"></div>
+      </div>
+    </div>
+    <!-- Right: Today's summary -->
+    <div style="position:sticky;top:82px">
+      <div class="card">
+        <div style="font-family:var(--m);font-size:13px;font-weight:700;margin-bottom:14px">Today's DPR summary</div>
+        <div style="display:flex;flex-direction:column;gap:8px" id="dpr-summary"></div>
+        <div style="margin-top:14px;padding:12px;background:var(--off);border-radius:9px">
+          <div style="font-family:var(--m);font-size:11.5px;font-weight:700;color:var(--ch);margin-bottom:6px">Auto-calculated progress</div>
+          <div style="font-size:12px;color:var(--mu);margin-bottom:8px">Based on items marked complete today</div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600"><span>Master Bedroom</span><span style="color:var(--blue)">+3% → 88%</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-top:4px"><span>Overall project</span><span style="color:var(--blue)">+1% → 73%</span></div>
+        </div>
+        <button class="btn btn-blue btn-sm" style="width:100%;justify-content:center;margin-top:12px" onclick="toast('DPR submitted ✓','ok')">Submit DPR</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div></div></div>
+
+<!-- ══════════ PAYMENTS ADMIN ══════════ -->
+<div class="pg" id="pg-payments-admin">
+<div class="shell"><div id="sb-pay"></div>
+<div class="main-area">
+<div class="topbar">
+  <div><div class="tb-title">Payments</div></div>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <select class="fi" style="width:auto;font-size:12.5px"><option>2BHK Modern Flat</option><option>3BHK Contemporary</option></select>
+    <button class="btn btn-blue btn-sm" onclick="openModal('add-milestone-modal')">+ Add milestone</button>
+  </div>
+</div>
+<div class="content">
+  <div class="g3" style="margin-bottom:16px">
+    <div class="stat"><div class="stat-ic" style="background:#e8f1fd"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><div><div class="stat-lbl">Total milestones</div><div class="stat-val" style="color:var(--blue)">5</div></div></div>
+    <div class="stat"><div class="stat-ic" style="background:#ccfbf1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--tl)" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg></div><div><div class="stat-lbl">Paid</div><div class="stat-val" style="color:var(--tl)">3</div><div class="stat-sub">60% of total</div></div></div>
+    <div class="stat" style="border-color:#fca5a5;background:#fff5f5"><div class="stat-ic" style="background:#fee2e2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="stat-lbl" style="color:var(--rd)">Overdue</div><div class="stat-val" style="color:var(--rd)">1</div></div></div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table class="tbl">
+      <thead><tr><th>Milestone</th><th>% of total</th><th>Due date</th><th>Status</th><th>Paid date</th><th>Actions</th></tr></thead>
+      <tbody id="pay-tbody"></tbody>
+    </table>
+  </div>
+</div>
+</div></div></div>
+
+<!-- ══════════ QUERIES ADMIN ══════════ -->
+<div class="pg" id="pg-queries-admin">
+<div class="shell"><div id="sb-qa"></div>
+<div class="main-area">
+<div class="topbar">
+  <div><div class="tb-title">Customer Queries</div></div>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <div class="tab-bar">
+      <button class="tab on" onclick="switchTab(this,'q-all')">All (5)</button>
+      <button class="tab" onclick="switchTab(this,'q-open')">Open (2)</button>
+      <button class="tab" onclick="switchTab(this,'q-resolved')">Resolved (3)</button>
+    </div>
+  </div>
+</div>
+<div class="content">
+  <div style="display:flex;flex-direction:column;gap:12px" id="queries-list"></div>
+</div>
+</div></div></div>
+
+<!-- ══════════ DOCUMENTS ══════════ -->
+<div class="pg" id="pg-documents">
+<div class="shell"><div id="sb-doc"></div>
+<div class="main-area">
+<div class="topbar">
+  <div><div class="tb-title">Documents</div><div class="tb-sub">Warranty slips, BOQ, agreements &amp; project files</div></div>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <select class="fi" style="width:auto;font-size:12.5px"><option>2BHK Modern Flat</option><option>3BHK Contemporary</option></select>
+    <button class="btn btn-blue btn-sm" onclick="openModal('upload-doc-modal')">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload document
+    </button>
+  </div>
+</div>
+<div class="content">
+  <div class="g4" style="margin-bottom:16px" id="doc-stats"></div>
+  <!-- Category tabs -->
+  <div class="tab-bar" style="margin-bottom:14px">
+    <button class="tab on" onclick="switchDocTab(this,'all')">All</button>
+    <button class="tab" onclick="switchDocTab(this,'warranty')">Warranty slips</button>
+    <button class="tab" onclick="switchDocTab(this,'boq')">BOQ</button>
+    <button class="tab" onclick="switchDocTab(this,'agreement')">Agreements</button>
+    <button class="tab" onclick="switchDocTab(this,'design')">Design files</button>
+    <button class="tab" onclick="switchDocTab(this,'other')">Other</button>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px" id="doc-list"></div>
+</div>
+</div></div></div>
+
+<!-- ══════════ CUSTOMERS ══════════ -->
+<div class="pg" id="pg-customers">
+<div class="shell"><div id="sb-cu"></div>
+<div class="main-area">
+<div class="topbar">
+  <div><div class="tb-title">Customers</div></div>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <button class="btn btn-blue btn-sm" onclick="openModal('add-customer-modal')">+ Add customer</button>
+  </div>
+</div>
+<div class="content">
+  <div class="card" style="padding:0;overflow:hidden">
+    <table class="tbl">
+      <thead><tr><th>Customer</th><th>Contact</th><th>Projects</th><th>Active project</th><th>Overall progress</th><th>Queries</th><th>Actions</th></tr></thead>
+      <tbody id="cu-tbody"></tbody>
+    </table>
+  </div>
+</div>
+</div></div></div>
+
+<!-- ══════════ SETTINGS ══════════ -->
+<div class="pg" id="pg-settings">
+<div class="shell"><div id="sb-set"></div>
+<div class="main-area">
+<div class="topbar"><div><div class="tb-title">Settings</div></div></div>
+<div class="content">
+  <div style="display:grid;grid-template-columns:220px 1fr;gap:18px;align-items:start">
+    <div class="card" style="padding:8px">
+      <div style="padding:9px 12px;border-radius:8px;background:var(--bl);color:var(--blue);font-weight:600;font-size:12.5px;font-family:var(--m);cursor:pointer;margin-bottom:2px">Team members</div>
+      <div style="padding:9px 12px;border-radius:8px;color:var(--mu);font-size:12.5px;cursor:pointer;margin-bottom:2px" onclick="toast('Notifications settings')">Notifications</div>
+      <div style="padding:9px 12px;border-radius:8px;color:var(--mu);font-size:12.5px;cursor:pointer;margin-bottom:2px" onclick="toast('Branding')">Branding</div>
+      <div style="padding:9px 12px;border-radius:8px;color:var(--mu);font-size:12.5px;cursor:pointer" onclick="toast('Integrations')">Integrations</div>
+    </div>
+    <div class="card">
+      <div style="font-family:var(--m);font-size:14px;font-weight:700;margin-bottom:16px">Team members</div>
+      <div id="team-list"></div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="toast('Add team member…')">+ Add member</button>
+    </div>
+  </div>
+</div>
+</div></div></div>
+
+<!-- ══════════════════ MODALS ══════════════════ -->
+
+<!-- New Project Modal -->
+<div class="overlay hidden" id="new-project-modal" onclick="if(event.target===this)closeModal('new-project-modal')">
+<div class="modal" style="max-width:640px">
+  <div class="modal-hd">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--bh));display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+      <div><div style="font-family:var(--m);font-size:15px;font-weight:700">Create new project</div><div style="font-size:12px;color:var(--mu)">Set up a new LiveBuild project</div></div>
+    </div>
+    <button class="btn-icon" onclick="closeModal('new-project-modal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="modal-bd">
+    <!-- Auto project code preview -->
+    <div style="background:var(--off);border-radius:9px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;border:1px solid var(--brd)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <div style="font-size:12px;color:var(--mu)">Project code will be auto-assigned:</div>
+      <div style="font-family:var(--m);font-size:13px;font-weight:800;color:var(--blue)" id="proj-code-preview">HZLB-0004</div>
+      <div style="font-size:11px;color:var(--mu);margin-left:auto">(next in series)</div>
+    </div>
+    <div class="form-row" style="margin-bottom:12px">
+      <div><label class="lbl lbl-req">Project name</label><input class="fi" placeholder="e.g. 2BHK Modern Flat" id="new-proj-name"></div>
+      <div><label class="lbl lbl-req">Customer full name</label><input class="fi" placeholder="Type customer name" id="new-proj-customer"></div>
+    </div>
+    <div class="form-row" style="margin-bottom:12px">
+      <div>
+        <label class="lbl lbl-req">Customer mobile number</label>
+        <div style="display:flex;gap:7px">
+          <input class="fi" type="tel" placeholder="+91 XXXXX XXXXX" id="new-proj-mobile" style="flex:1">
+          <button class="btn btn-ghost btn-sm" style="white-space:nowrap;flex-shrink:0" onclick="sendOtp()">Send OTP</button>
+        </div>
+        <div style="font-size:11px;color:var(--mu);margin-top:4px">This number is used for customer login to LiveBuild portal</div>
+      </div>
+      <div><label class="lbl lbl-req">OTP verification</label>
+        <div style="display:flex;gap:7px">
+          <input class="fi" placeholder="Enter 6-digit OTP" id="new-proj-otp" style="flex:1;letter-spacing:.15em;font-family:var(--m)">
+          <button class="btn btn-tl btn-sm" style="white-space:nowrap;flex-shrink:0" onclick="verifyOtp()">Verify</button>
+        </div>
+        <div id="otp-status" style="font-size:11px;margin-top:4px;color:var(--mu)">Enter mobile number and send OTP first</div>
+      </div>
+    </div>
+    <div class="form-row" style="margin-bottom:12px">
+      <div><label class="lbl">Property type</label><select class="fi"><option>2BHK Apartment</option><option>3BHK Apartment</option><option>4BHK Villa</option><option>1BHK Apartment</option><option>Independent House</option></select></div>
+      <div><label class="lbl">Project type</label><select class="fi"><option>Interior</option><option>Renovation</option><option>Construction</option></select></div>
+    </div>
+    <div class="form-row" style="margin-bottom:12px">
+      <div><label class="lbl lbl-req">Start date</label><input class="fi" type="date"></div>
+      <div><label class="lbl lbl-req">Due date</label><input class="fi" type="date"></div>
+    </div>
+    <div style="margin-bottom:12px"><label class="lbl">Address</label><input class="fi" placeholder="Site address"></div>
+    <div><label class="lbl">Site manager</label><select class="fi"><option>Suresh Babu</option><option>Kavitha Nair</option></select></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn btn-blue" onclick="createProject()">Create project</button>
+    <button class="btn btn-ghost" onclick="closeModal('new-project-modal')">Cancel</button>
+  </div>
+</div></div>
+
+<!-- Add / Edit Work Type Modal -->
+<div class="overlay hidden" id="add-wt-modal" onclick="if(event.target===this)closeModal('add-wt-modal')">
+<div class="modal" style="max-width:600px">
+  <div class="modal-hd">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0d9488,#0f766e);display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div>
+      <div><div style="font-family:var(--m);font-size:15px;font-weight:700" id="wt-modal-title">Add new work type</div><div style="font-size:12px;color:var(--mu)">Will be available to assign to any project room</div></div>
+    </div>
+    <button class="btn-icon" onclick="closeModal('add-wt-modal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="modal-bd">
+    <div class="form-row" style="margin-bottom:12px">
+      <div><label class="lbl lbl-req">Work type name</label><input class="fi" placeholder="e.g. False ceiling" id="wt-name-input"></div>
+      <div><label class="lbl lbl-req">Category</label><select class="fi" id="wt-cat-input"><option>Carpentry</option><option>Electrical</option><option>Plumbing</option><option>Flooring</option><option>Painting</option><option>False ceiling</option><option>Civil</option><option>Finishing</option><option>Custom</option></select></div>
+    </div>
+    <div style="margin-bottom:12px"><label class="lbl">Description</label><textarea class="fi" rows="2" placeholder="Brief description of what this work type involves…" id="wt-desc-input"></textarea></div>
+    <div style="margin-bottom:12px">
+      <label class="lbl">Applicable rooms (default)</label>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:5px" id="wt-rooms-chips">
+        <span class="chip sel" onclick="this.classList.toggle('sel')">Master Bedroom</span>
+        <span class="chip" onclick="this.classList.toggle('sel')">Children's Bedroom</span>
+        <span class="chip" onclick="this.classList.toggle('sel')">Living Room</span>
+        <span class="chip" onclick="this.classList.toggle('sel')">Kitchen</span>
+        <span class="chip" onclick="this.classList.toggle('sel')">Master Bath</span>
+        <span class="chip" onclick="this.classList.toggle('sel')">Common Bath</span>
+        <span class="chip" onclick="this.classList.toggle('sel')">All rooms</span>
+      </div>
+    </div>
+    <div class="form-row">
+      <div><label class="lbl">Status</label><select class="fi" id="wt-status-input"><option>Active</option><option>Disabled</option></select></div>
+      <div style="display:flex;align-items:flex-end;gap:10px;padding-bottom:1px">
+        <div style="flex:1"><label class="lbl">Requires photos</label>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+          <div class="tgl on" onclick="this.classList.toggle('on')"><div class="tgl-thumb"></div></div>
+          <span style="font-size:12.5px;color:var(--ch)">Photos mandatory for DPR</span>
+        </div></div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn btn-tl" onclick="toast('Work type saved ✓','ok');closeModal('add-wt-modal')">Save work type</button>
+    <button class="btn btn-ghost" onclick="closeModal('add-wt-modal')">Cancel</button>
+  </div>
+</div></div>
+
+<!-- Add Room Modal -->
+<div class="overlay hidden" id="add-room-modal" onclick="if(event.target===this)closeModal('add-room-modal')">
+<div class="modal" style="max-width:560px">
+  <div class="modal-hd">
+    <div><div style="font-family:var(--m);font-size:15px;font-weight:700">Add room to project</div></div>
+    <button class="btn-icon" onclick="closeModal('add-room-modal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="modal-bd">
+    <div class="form-row" style="margin-bottom:12px">
+      <div><label class="lbl lbl-req">Room name</label><input class="fi" placeholder="e.g. Master Bedroom"></div>
+      <div><label class="lbl">Room type</label><select class="fi"><option>Bedroom</option><option>Living room</option><option>Kitchen</option><option>Bathroom</option><option>Balcony</option><option>Study</option><option>Other</option></select></div>
+    </div>
+    <div class="form-row" style="margin-bottom:12px">
+      <div><label class="lbl">Length (ft)</label><input class="fi" type="number" placeholder="14"></div>
+      <div><label class="lbl">Width (ft)</label><input class="fi" type="number" placeholder="12"></div>
+    </div>
+    <div style="margin-bottom:12px">
+      <label class="lbl">Assign work types</label>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:5px" id="room-wt-assign">
+        <span class="chip sel" onclick="this.classList.toggle('sel')">Plywood work</span>
+        <span class="chip" onclick="this.classList.toggle('sel')">Electrical work</span>
+        <span class="chip" onclick="this.classList.toggle('sel')">Painting</span>
+        <span class="chip" onclick="this.classList.toggle('sel')">Flooring</span>
+        <span class="chip" onclick="this.classList.toggle('sel')">False ceiling</span>
+        <span class="chip" onclick="this.classList.toggle('sel')">Plumbing</span>
+      </div>
+    </div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn btn-blue" onclick="toast('Room added ✓','ok');closeModal('add-room-modal')">Add room</button>
+    <button class="btn btn-ghost" onclick="closeModal('add-room-modal')">Cancel</button>
+  </div>
+</div></div>
+
+<!-- Upload Document Modal -->
+<div class="overlay hidden" id="upload-doc-modal" onclick="if(event.target===this)closeModal('upload-doc-modal')">
+<div class="modal" style="max-width:520px">
+  <div class="modal-hd">
+    <div><div style="font-family:var(--m);font-size:15px;font-weight:700">Upload document</div></div>
+    <button class="btn-icon" onclick="closeModal('upload-doc-modal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="modal-bd">
+    <div class="form-row" style="margin-bottom:12px">
+      <div><label class="lbl lbl-req">Document name</label><input class="fi" placeholder="e.g. Greenply Warranty Card"></div>
+      <div><label class="lbl lbl-req">Category</label><select class="fi"><option>Warranty slip</option><option>BOQ</option><option>Agreement</option><option>Design file</option><option>Other</option></select></div>
+    </div>
+    <div class="form-row" style="margin-bottom:12px">
+      <div><label class="lbl">Related room</label><select class="fi"><option>All rooms</option><option>Master Bedroom</option><option>Kitchen</option><option>Master Bath</option></select></div>
+      <div><label class="lbl">Related work type</label><select class="fi"><option>General</option><option>Plywood work</option><option>Electrical work</option><option>Flooring</option></select></div>
+    </div>
+    <div style="margin-bottom:12px"><label class="lbl">Expiry date (for warranty)</label><input class="fi" type="date"></div>
+    <div style="border:2px dashed var(--brd);border-radius:10px;padding:22px;text-align:center;cursor:pointer;transition:all .2s" onmouseenter="this.style.borderColor='var(--blue)';this.style.background='var(--bl)'" onmouseleave="this.style.borderColor='var(--brd)';this.style.background='transparent'" onclick="toast('Choose file…')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round" style="margin-bottom:7px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <div style="font-family:var(--m);font-size:12.5px;font-weight:700;color:var(--ch)">Click to choose file</div>
+      <div style="font-size:11.5px;color:var(--mu);margin-top:3px">PDF, JPG, PNG · Max 20MB</div>
+    </div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn btn-blue" onclick="toast('Document uploaded ✓','ok');closeModal('upload-doc-modal')">Upload</button>
+    <button class="btn btn-ghost" onclick="closeModal('upload-doc-modal')">Cancel</button>
+  </div>
+</div></div>
+
+<!-- Add Milestone Modal -->
+<div class="overlay hidden" id="add-milestone-modal" onclick="if(event.target===this)closeModal('add-milestone-modal')">
+<div class="modal" style="max-width:500px">
+  <div class="modal-hd">
+    <div><div style="font-family:var(--m);font-size:15px;font-weight:700">Add payment milestone</div></div>
+    <button class="btn-icon" onclick="closeModal('add-milestone-modal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="modal-bd">
+    <div style="margin-bottom:12px"><label class="lbl lbl-req">Milestone name</label><input class="fi" placeholder="e.g. Milestone 4 — Finishing works"></div>
+    <div class="form-row" style="margin-bottom:12px">
+      <div><label class="lbl lbl-req">% of total</label><input class="fi" type="number" placeholder="20" min="1" max="100"></div>
+      <div><label class="lbl lbl-req">Due date</label><input class="fi" type="date"></div>
+    </div>
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:9px;padding:10px 13px;font-size:12px;color:#92400e;display:flex;gap:7px;align-items:flex-start">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="1.8" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Amount values are not shown to customers — only % of total project cost.
+    </div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn btn-blue" onclick="toast('Milestone added ✓','ok');closeModal('add-milestone-modal')">Add milestone</button>
+    <button class="btn btn-ghost" onclick="closeModal('add-milestone-modal')">Cancel</button>
+  </div>
+</div></div>
+
+<!-- Add Customer Modal -->
+<div class="overlay hidden" id="add-customer-modal" onclick="if(event.target===this)closeModal('add-customer-modal')">
+<div class="modal" style="max-width:520px">
+  <div class="modal-hd">
+    <div><div style="font-family:var(--m);font-size:15px;font-weight:700">Add customer</div></div>
+    <button class="btn-icon" onclick="closeModal('add-customer-modal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="modal-bd">
+    <div class="form-row" style="margin-bottom:12px">
+      <div><label class="lbl lbl-req">Full name</label><input class="fi" placeholder="Customer full name" id="cust-name"></div>
+      <div><label class="lbl">Email</label><input class="fi" type="email" placeholder="email@example.com" id="cust-email"></div>
+    </div>
+    <!-- Mobile + OTP — primary login credential -->
+    <div style="background:linear-gradient(135deg,#f0f7ff,#e8f1fd);border:1px solid #bfdbfe;border-radius:10px;padding:13px 14px;margin-bottom:12px">
+      <div style="font-family:var(--m);font-size:11.5px;font-weight:700;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        Mobile number — used for LiveBuild portal login
+      </div>
+      <div class="form-row" style="margin-bottom:10px">
+        <div>
+          <label class="lbl lbl-req">Mobile number</label>
+          <div style="display:flex;gap:7px">
+            <input class="fi" type="tel" placeholder="+91 XXXXX XXXXX" id="cust-mobile" style="flex:1">
+            <button class="btn btn-blue btn-sm" style="flex-shrink:0;white-space:nowrap" onclick="sendCustOtp()">Send OTP</button>
+          </div>
+        </div>
+        <div>
+          <label class="lbl lbl-req">Verify OTP</label>
+          <div style="display:flex;gap:7px">
+            <input class="fi" placeholder="6-digit OTP" id="cust-otp" style="flex:1;letter-spacing:.15em;font-family:var(--m)">
+            <button class="btn btn-tl btn-sm" style="flex-shrink:0;white-space:nowrap" onclick="verifyCustOtp()">Verify</button>
+          </div>
+        </div>
+      </div>
+      <div id="cust-otp-status" style="font-size:11.5px;color:var(--mu)">
+        ℹ️ Customer logs into <strong>houznext.com/livebuild</strong> with this mobile number. Any project created with this number will be visible to them.
+      </div>
+    </div>
+    <div style="margin-bottom:12px"><label class="lbl">Address</label><textarea class="fi" rows="2" placeholder="Customer address" id="cust-address"></textarea></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn btn-blue" onclick="addCustomer()">Add customer</button>
+    <button class="btn btn-ghost" onclick="closeModal('add-customer-modal')">Cancel</button>
+  </div>
+</div></div>
+<!-- Add Material Modal -->
+<div class="overlay hidden" id="add-material-modal" onclick="if(event.target===this)closeModal('add-material-modal')">
+<div class="modal" style="max-width:600px">
+  <div class="modal-hd">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--am),#b45309);display:flex;align-items:center;justify-content:center">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      </div>
+      <div><div style="font-family:var(--m);font-size:15px;font-weight:700">Add material / BOQ item</div><div style="font-size:12px;color:var(--mu)">Added to this project's BOQ</div></div>
+    </div>
+    <button class="btn-icon" onclick="closeModal('add-material-modal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="modal-bd">
+    <div class="form-row" style="margin-bottom:12px">
+      <div><label class="lbl lbl-req">Material / item name</label><input class="fi" placeholder="e.g. Greenply Gold Plywood" id="matl-name-input"></div>
+      <div><label class="lbl lbl-req">Category</label><select class="fi" id="matl-cat-input"><option>Plywood &amp; carpentry</option><option>Electrical</option><option>Flooring</option><option>Tiles</option><option>Painting</option><option>False ceiling</option><option>Plumbing</option><option>Fittings</option><option>Countertop</option><option>Hardware</option><option>Other</option></select></div>
+    </div>
+    <div style="margin-bottom:12px"><label class="lbl lbl-req">Specification</label><input class="fi" placeholder="e.g. 18mm BWR ISI grade, MR grade" id="matl-spec-input"></div>
+    <div class="form-row" style="margin-bottom:12px">
+      <div><label class="lbl lbl-req">Quantity</label><input class="fi" type="number" placeholder="24" id="matl-qty-input"></div>
+      <div><label class="lbl lbl-req">Unit</label><select class="fi" id="matl-unit-input"><option>No.</option><option>sqft</option><option>sqyd</option><option>Mtrs</option><option>Set</option><option>Kg</option><option>Ltrs</option><option>Bags</option></select></div>
+    </div>
+    <div class="form-row" style="margin-bottom:12px">
+      <div><label class="lbl lbl-req">Room</label><select class="fi" id="matl-room-input"><option>Master Bedroom</option><option>Children's Bedroom</option><option>Living Room</option><option>Kitchen</option><option>Master Bath</option><option>Common Bath</option><option>All rooms</option></select></div>
+      <div><label class="lbl">Brand</label><input class="fi" placeholder="e.g. Greenply, Kajaria" id="matl-brand-input"></div>
+    </div>
+    <div class="form-row">
+      <div><label class="lbl">Status</label><select class="fi" id="matl-status-input"><option value="not_started">Not started</option><option value="procured">Procured</option><option value="installed">Installed</option></select></div>
+      <div><label class="lbl">Install date</label><input class="fi" type="date" id="matl-date-input"></div>
+    </div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn btn-am" onclick="addMaterialItem();closeModal('add-material-modal')">Add to BOQ</button>
+    <button class="btn btn-ghost" onclick="closeModal('add-material-modal')">Cancel</button>
+  </div>
+</div></div>
+
+<script>
+// ══════════ DATA ══════════
+var PROJECTS = [
+  { id:'HZB-2401', name:'2BHK Modern Flat', customer:'Arjun Kumar', type:'Interior', prop:'2BHK Apartment', pct:72, status:'progress', phase:'Execution', days:'38/50', pctMethod:'hybrid' },
+  { id:'HZB-2398', name:'3BHK Contemporary', customer:'Priya Mehta', type:'Interior', prop:'3BHK Apartment', pct:41, status:'progress', phase:'Procurement', days:'22/60', pctMethod:'items' },
+  { id:'HZB-2312', name:'Villa Renovation', customer:'Rajesh Verma', type:'Renovation', prop:'4BHK Villa', pct:100, status:'completed', phase:'Handover', days:'72/72', pctMethod:'manual' },
+];
+
+var ROOMS_DATA = [
+  { id:'master', name:'Master Bedroom', icon:'🛏', pct:85, status:'live', wt:['Plywood work','Electrical work','Painting'], dim:'14×12 ft' },
+  { id:'child',  name:"Children's Bedroom", icon:'🛏', pct:72, status:'live', wt:['Plywood work','Flooring'], dim:'12×10 ft' },
+  { id:'living', name:'Living Room', icon:'🛋', pct:60, status:'live', wt:['Electrical work','False ceiling','Painting'], dim:'18×14 ft' },
+  { id:'kitchen',name:'Kitchen', icon:'🍳', pct:45, status:'hold', wt:['Tiles','Plumbing','Counter work'], dim:'10×8 ft' },
+  { id:'bath1',  name:'Master Bath', icon:'🚿', pct:90, status:'live', wt:['Tiles','Fittings'], dim:'8×6 ft' },
+  { id:'bath2',  name:'Common Bath', icon:'🚿', pct:88, status:'live', wt:['Tiles','Fittings'], dim:'6×5 ft' },
+];
+
+var WORK_TYPES_DATA = [
+  { id:1, name:'Plywood work', cat:'Carpentry', rooms:['All rooms'], active:2, status:'active', photos:true },
+  { id:2, name:'Electrical work', cat:'Electrical', rooms:['All rooms'], active:2, status:'active', photos:true },
+  { id:3, name:'Painting', cat:'Painting', rooms:['All rooms'], active:1, status:'active', photos:true },
+  { id:4, name:'Flooring', cat:'Flooring', rooms:['All rooms'], active:2, status:'active', photos:true },
+  { id:5, name:'False ceiling', cat:'False ceiling', rooms:['Living Room','Master Bedroom'], active:1, status:'active', photos:true },
+  { id:6, name:'Tiles', cat:'Flooring', rooms:['Kitchen','Bathrooms'], active:2, status:'active', photos:true },
+  { id:7, name:'Plumbing', cat:'Plumbing', rooms:['Kitchen','Bathrooms'], active:0, status:'disabled', photos:false },
+  { id:8, name:'Counter work', cat:'Carpentry', rooms:['Kitchen'], active:0, status:'disabled', photos:false },
+];
+
+var PAYMENTS_DATA = [
+  { label:'Advance / Mobilisation', pct:20, due:'1 Jan 2025', status:'paid', paidDate:'1 Jan 2025' },
+  { label:'Milestone 1 — Design approval', pct:10, due:'10 Jan 2025', status:'paid', paidDate:'10 Jan 2025' },
+  { label:'Milestone 2 — Procurement', pct:30, due:'15 Jan 2025', status:'paid', paidDate:'15 Jan 2025' },
+  { label:'Milestone 3 — 70% execution', pct:21.6, due:'20 Jan 2025', status:'due', paidDate:'' },
+  { label:'Final — Handover', pct:18.4, due:'20 Feb 2025', status:'upcoming', paidDate:'' },
+];
+
+var QUERIES_DATA = [
+  { id:'Q001', project:'HZB-2401', room:'Master Bedroom', customer:'Arjun Kumar', subject:'Plywood quality concern', msg:'The plywood used seems thinner than BOQ spec. Please check.', status:'open', date:'12 Jan 2025' },
+  { id:'Q002', project:'HZB-2401', room:'Kitchen', customer:'Arjun Kumar', subject:'Tile pattern not matching design', msg:"Tiles installed don't match the reference image from design phase.", status:'open', date:'11 Jan 2025' },
+  { id:'Q003', project:'HZB-2401', room:'Living Room', customer:'Arjun Kumar', subject:'False ceiling height', msg:'What will be the final height after false ceiling?', status:'resolved', date:'9 Jan 2025', reply:'Final height: 9ft 2in as per design specs.' },
+  { id:'Q004', project:'HZB-2401', room:'Master Bath', customer:'Arjun Kumar', subject:'Tap brand confirmation', msg:'Please confirm fittings brand for master bathroom.', status:'resolved', date:'8 Jan 2025', reply:'Jaquar ARIA series as per BOQ.' },
+  { id:'Q005', project:'HZB-2398', room:'General', customer:'Priya Mehta', subject:'Project completion date', msg:'Can we get updated timeline?', status:'resolved', date:'6 Jan 2025', reply:'On track for completion by 15 Mar 2025.' },
+];
+
+var DOCS_DATA = [
+  { name:'Greenply Gold Plywood — Warranty', cat:'warranty', room:'Master Bedroom', wt:'Plywood work', date:'10 Jan 2025', expiry:'10 Jan 2030', size:'245 KB' },
+  { name:'Legrand Switches — Warranty Card', cat:'warranty', room:'All rooms', wt:'Electrical work', date:'9 Jan 2025', expiry:'9 Jan 2028', size:'198 KB' },
+  { name:'Jaquar ARIA Fittings — Warranty', cat:'warranty', room:'Master Bath', wt:'Fittings', date:'10 Jan 2025', expiry:'10 Jan 2030', size:'312 KB' },
+  { name:'Asian Paints — Product Warranty', cat:'warranty', room:'All rooms', wt:'Painting', date:'12 Jan 2025', expiry:'12 Jan 2026', size:'156 KB' },
+  { name:'Project BOQ — Full specification', cat:'boq', room:'All rooms', wt:'General', date:'1 Jan 2025', expiry:'', size:'1.2 MB' },
+  { name:'Interior Design Agreement', cat:'agreement', room:'General', wt:'General', date:'28 Dec 2024', expiry:'', size:'890 KB' },
+  { name:'2BHK Floor Plan — Final', cat:'design', room:'All rooms', wt:'General', date:'2 Jan 2025', expiry:'', size:'3.4 MB' },
+  { name:'3D Renders — All rooms', cat:'design', room:'All rooms', wt:'General', date:'5 Jan 2025', expiry:'', size:'28 MB' },
+];
+
+var CUSTOMERS_DATA = [
+  { name:'Arjun Kumar', phone:'+91 98765 43210', email:'arjun@email.com', projects:1, activeProj:'2BHK Modern Flat', pct:72, queries:2, initials:'AK', col:'#2563eb' },
+  { name:'Priya Mehta', phone:'+91 87654 32109', email:'priya@email.com', projects:1, activeProj:'3BHK Contemporary', pct:41, queries:0, initials:'PM', col:'#7c3aed' },
+  { name:'Rajesh Verma', phone:'+91 76543 21098', email:'rajesh@email.com', projects:1, activeProj:'Villa Renovation', pct:100, queries:0, initials:'RV', col:'#0d9488' },
+];
+
+var ACTIVITY_DATA = [
+  { icon:'📷', text:'12 photos uploaded — Master Bedroom', time:'2h ago', proj:'HZB-2401' },
+  { icon:'💬', text:'Query replied: Plywood quality concern', time:'3h ago', proj:'HZB-2401' },
+  { icon:'📋', text:'DPR submitted for 14 Jan 2025', time:'4h ago', proj:'HZB-2401' },
+  { icon:'💰', text:'Milestone 2 marked as paid', time:'Yesterday', proj:'HZB-2398' },
+  { icon:'🔄', text:'Room status updated: Kitchen → On Hold', time:'Yesterday', proj:'HZB-2401' },
+  { icon:'✅', text:'Villa Renovation marked as completed', time:'2 days ago', proj:'HZB-2312' },
+];
+
+var activeDocs = 'all';
+
+// ══════════ PAGE SWITCHER ══════════
+function P(id, btn) {
+  document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('on'); });
+  document.querySelectorAll('.dt').forEach(function(b){ b.classList.remove('on'); });
+  var pg = document.getElementById('pg-'+id);
+  if (pg) pg.classList.add('on');
+  if (btn) btn.classList.add('on');
+  else {
+    var m = document.querySelector('.dt[onclick*="\''+id+'\'"]');
+    if (m) m.classList.add('on');
+  }
+  // Inject sidebars
+  document.querySelectorAll('[class="shell"] > div:first-child').forEach(function(sb){
+    if (sb.children.length === 0) {
+      var tpl = document.getElementById('sb-tpl');
+      if (tpl) sb.appendChild(tpl.content.cloneNode(true));
+    }
+  });
+  // Mark active sidebar item
+  document.querySelectorAll('.sb-item').forEach(function(item){
+    item.classList.toggle('on', item.getAttribute('data-pg') === id);
+  });
+  window.scrollTo(0,0);
+  renderPage(id);
+}
+
+function renderPage(id) {
+  if (id === 'dashboard')      renderDashboard();
+  if (id === 'projects')       { renderProjects(); renderProjCards(); }
+  if (id === 'project-detail') {
+    renderProjectDetail();
+    // Activate overview tab on first load
+    setTimeout(function(){
+      var activePanel = document.querySelector('.pdt-panel:not([style*="display:none"])');
+      if (!activePanel) switchPdTab(document.querySelector('.pd-tab[data-tab="overview"]'), 'overview');
+    }, 50);
+  }
+  if (id === 'rooms')          renderRooms();
+  if (id === 'worktypes')      renderWorkTypes();
+  if (id === 'dpr')            renderDPR();
+  if (id === 'payments-admin') renderPayments();
+  if (id === 'queries-admin')  renderQueries();
+  if (id === 'documents')      renderDocuments();
+  if (id === 'customers')      renderCustomers();
+  if (id === 'settings')       renderSettings();
+}
+
+// ══════════ RING HELPER ══════════
+function makeRing(pct, size, color) {
+  size = size || 80; color = color || 'var(--blue)';
+  var r = size/2 - 7; var circ = 2*Math.PI*r;
+  var offset = circ - (pct/100)*circ;
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'">'
+    +'<circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="#f1f5f9" stroke-width="6"/>'
+    +'<circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="6" stroke-linecap="round"'
+    +' stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'" transform="rotate(-90 '+size/2+' '+size/2+')"'
+    +' style="transition:stroke-dashoffset .8s ease"/>'
+    +'<text x="'+size/2+'" y="'+(size/2+5)+'" text-anchor="middle" font-size="'+(size===52?13:16)+'" font-weight="800" font-family="Montserrat" fill="var(--ch)">'+pct+'%</text>'
+    +'</svg>';
+}
+
+// ══════════ DASHBOARD ══════════
+function renderDashboard() {
+  var pl = document.getElementById('dash-proj-list');
+  if (pl) pl.innerHTML = PROJECTS.map(function(p){
+    var stBdg = p.status==='progress'?'<span class="bdg b-blue">In progress</span>':p.status==='completed'?'<span class="bdg b-tl">Completed</span>':'<span class="bdg b-gray">On hold</span>';
+    return '<div style="padding:12px 18px;border-bottom:.5px solid #f1f5f9;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s" onmouseenter="this.style.background=\'#f8fafc\'" onmouseleave="this.style.background=\'#fff\'" onclick="P(\'project-detail\',null)">'
+      +'<div style="flex:1"><div style="font-weight:600;font-size:13px;color:var(--ch)">'+p.name+'</div>'
+      +'<div style="font-size:11.5px;color:var(--mu);margin-top:2px">'+p.customer+' · Day '+p.days+'</div></div>'
+      +stBdg
+      +'<div style="display:flex;align-items:center;gap:8px;min-width:120px"><div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden"><div style="height:100%;width:'+p.pct+'%;background:var(--blue);border-radius:5px;transition:width .8s ease"></div></div><span style="font-family:var(--m);font-size:11.5px;font-weight:700;color:var(--ch)">'+p.pct+'%</span></div>'
+      +'</div>';
+  }).join('');
+
+  var af = document.getElementById('dash-activity');
+  if (af) af.innerHTML = ACTIVITY_DATA.map(function(a){
+    return '<div style="display:flex;gap:10px;padding:8px 0;border-bottom:.5px solid #f1f5f9">'
+      +'<div style="font-size:14px;width:22px;text-align:center;flex-shrink:0">'+a.icon+'</div>'
+      +'<div style="flex:1"><div style="font-size:12.5px;font-weight:500;color:var(--ch)">'+a.text+'</div>'
+      +'<div style="font-size:11px;color:var(--mu);margin-top:1px">'+a.time+' · '+a.proj+'</div></div>'
+      +'</div>';
+  }).join('');
+
+  var dq = document.getElementById('dash-queries');
+  if (dq) dq.innerHTML = QUERIES_DATA.filter(function(q){ return q.status==='open'; }).map(function(q){
+    return '<div style="background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;border:.5px solid #fca5a5;display:flex;align-items:flex-start;gap:12px">'
+      +'<div style="width:34px;height:34px;border-radius:8px;background:#fee2e2;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;font-family:var(--m);color:var(--rd)">'+q.id.slice(-1)+'</div>'
+      +'<div style="flex:1"><div style="font-weight:600;font-size:13px;color:var(--ch)">'+q.subject+'</div>'
+      +'<div style="font-size:11.5px;color:var(--mu);margin-top:2px">'+q.customer+' · '+q.room+' · '+q.date+'</div>'
+      +'<div style="font-size:12.5px;color:var(--mu);margin-top:4px;line-height:1.5">'+q.msg+'</div></div>'
+      +'<button class="btn btn-am btn-xs" onclick="toast(\'Opening query…\')">Reply</button>'
+      +'</div>';
+  }).join('');
+}
+
+// ══════════ PROJECTS LIST ══════════
+function renderProjects() {
+  var tb = document.getElementById('proj-tbody');
+  if (!tb) return;
+  tb.innerHTML = PROJECTS.map(function(p){
+    var stBdg = p.status==='progress'?'<span class="bdg b-blue">In progress</span>':p.status==='completed'?'<span class="bdg b-tl">Completed</span>':'<span class="bdg b-amber">On hold</span>';
+    var methodBdg = p.pctMethod==='hybrid'?'<span class="bdg b-pu" style="font-size:8.5px">⚡ Hybrid</span>':p.pctMethod==='items'?'<span class="bdg b-blue" style="font-size:8.5px">📋 Items</span>':'<span class="bdg b-gray" style="font-size:8.5px">✏️ Manual</span>';
+    return '<tr onclick="P(\'project-detail\',null)">'
+      +'<td><div style="font-weight:600;font-size:13px;color:var(--ch)">'+p.name+'</div><div style="font-size:11px;color:var(--mu)">'+p.id+'</div></td>'
+      +'<td style="font-size:12.5px">'+p.customer+'</td>'
+      +'<td><span class="bdg b-gray" style="font-size:8.5px">'+p.type+'</span></td>'
+      +'<td><div style="display:flex;align-items:center;gap:8px;min-width:100px"><div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden"><div style="height:100%;width:'+p.pct+'%;background:var(--blue);border-radius:5px;transition:width .8s ease"></div></div><span style="font-family:var(--m);font-size:11.5px;font-weight:700;min-width:32px">'+p.pct+'%</span></div></td>'
+      +'<td style="font-size:12.5px">'+p.phase+'</td>'
+      +'<td>'+stBdg+'</td>'
+      +'<td>'+methodBdg+'</td>'
+      +'<td onclick="event.stopPropagation()"><div style="display:flex;gap:5px">'
+      +'<button class="btn-icon" onclick="P(\'project-detail\',null)" title="Edit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
+      +'<button class="btn-icon" title="Rooms" onclick="P(\'rooms\',null)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></button>'
+      +'<button class="btn-icon" title="DPR" onclick="P(\'dpr\',null)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/></svg></button>'
+      +'</div></td>'
+      +'</tr>';
+  }).join('');
+}
+
+// ══════════ PROJECT DETAIL ══════════
+function renderProjectDetail() {
+  var rw = document.getElementById('detail-ring-wrap');
+  if (rw && !rw.innerHTML) rw.innerHTML = makeRing(72, 80, 'var(--blue)');
+  var po = document.getElementById('pct-override-val');
+  if (po && !po._wired) {
+    po._wired = true;
+    po.addEventListener('input', function(){
+      var v = Math.min(parseInt(this.value)||72, 100);
+      var bar = document.getElementById('pct-bar');
+      var disp = document.getElementById('pct-display');
+      if (bar) bar.style.width = v+'%';
+      if (disp) disp.textContent = v+'%';
+    });
+  }
+  // Activate first tab on first load
+  var firstTab = document.querySelector('.pd-tab.on');
+  if (!firstTab) switchPdTab(document.querySelector('.pd-tab'), 'overview');
+}
+
+// ══════════ ROOMS ══════════
+function renderRooms() {
+  var rl = document.getElementById('rooms-list');
+  if (!rl) return;
+  rl.innerHTML = ROOMS_DATA.map(function(r, ri){
+    var barColor = r.status==='live'?'var(--blue)':r.status==='hold'?'var(--am)':'#94a3b8';
+    var stBdg = r.status==='live'?'<span class="bdg b-blue" style="font-size:8.5px"><span class="live-dot" style="display:inline-block;margin-right:3px"></span>Live</span>':r.status==='hold'?'<span class="bdg b-amber" style="font-size:8.5px">On Hold</span>':'<span class="bdg b-tl" style="font-size:8.5px">Done</span>';
+    return '<div class="card fa" style="animation-delay:'+(ri*0.05)+'s">'
+      +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f0f4f8">'
+      +'<div style="font-size:22px">'+r.icon+'</div>'
+      +'<div style="flex:1">'
+      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
+      +'<input class="fi" value="'+r.name+'" style="font-family:var(--m);font-size:14px;font-weight:700;border:none;padding:0;background:transparent;outline:none;cursor:pointer;color:var(--ch)" onfocus="this.style.outline=\'2px solid var(--blue)\'" onblur="this.style.outline=\'none\'">'
+      +stBdg
+      +'</div>'
+      +'<div style="font-size:12px;color:var(--mu)">'+r.dim+' · '+r.wt.length+' work types</div>'
+      +'</div>'
+      +'<div style="text-align:right;flex-shrink:0">'
+      +makeRing(r.pct, 64, barColor)
+      +'</div>'
+      +'</div>'
+      // Progress control
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px" class="g3">'
+      +'<div><label class="lbl">Progress %</label>'
+      +'<div style="display:flex;gap:8px;align-items:center">'
+      +'<input class="fi" type="number" min="0" max="100" value="'+r.pct+'" style="width:80px" oninput="updateRoomPct(this,\''+r.id+'\')">'
+      +'<div style="flex:1;height:6px;background:#e2e8f0;border-radius:6px;overflow:hidden"><div style="height:100%;width:'+r.pct+'%;background:'+barColor+';border-radius:6px;transition:width .4s ease" id="rm-bar-'+r.id+'"></div></div>'
+      +'</div></div>'
+      +'<div><label class="lbl">Status</label>'
+      +'<select class="fi" onchange="toast(\'Status updated ✓\',\'ok\')">'
+      +'<option '+(r.status==='live'?'selected':'')+'>Live</option>'
+      +'<option '+(r.status==='hold'?'selected':'')+'>On Hold</option>'
+      +'<option '+(r.status==='done'?'selected':'')+'>Done</option>'
+      +'</select></div>'
+      +'<div><label class="lbl">Hold reason</label><input class="fi" placeholder="Optional — if on hold" '+(r.status!=='hold'?'disabled style="opacity:.4"':'')+'></div>'
+      +'</div>'
+      // Work types
+      +'<div><label class="lbl" style="margin-bottom:7px">Work types assigned</label>'
+      +'<div style="display:flex;gap:7px;flex-wrap:wrap">'
+      +r.wt.map(function(w){ return '<span class="wt-chip on">'+w+' <span onclick="event.stopPropagation();toast(\''+w+' removed\')" style="margin-left:3px;opacity:.5;cursor:pointer">×</span></span>'; }).join('')
+      +'<button class="wt-chip" onclick="toast(\'Add work type…\')">+ Add</button>'
+      +'</div></div>'
+      +'</div>';
+  }).join('');
+}
+
+function updateRoomPct(input, rid) {
+  var bar = document.getElementById('rm-bar-'+rid);
+  if (bar) bar.style.width = Math.min(parseInt(input.value)||0, 100)+'%';
+}
+
+// ══════════ WORK TYPES ══════════
+function renderWorkTypes() {
+  var tb = document.getElementById('wt-tbody');
+  if (!tb) return;
+  tb.innerHTML = WORK_TYPES_DATA.map(function(w, wi){
+    var stBdg = w.status==='active'?'<span class="bdg b-tl" style="font-size:8.5px">Active</span>':'<span class="bdg b-gray" style="font-size:8.5px">Disabled</span>';
+    return '<tr>'
+      +'<td><div class="drag-handle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div></td>'
+      +'<td><span class="editable" contenteditable="true" onblur="toast(\'Work type name saved\',\'ok\')" onfocus="this.style.borderBottomColor=\'var(--blue)\'" style="font-weight:600;font-size:13px">'+w.name+'</span></td>'
+      +'<td><span class="bdg b-gray" style="font-size:8.5px">'+w.cat+'</span></td>'
+      +'<td style="font-size:12px;color:var(--mu)">'+w.rooms.join(', ')+'</td>'
+      +'<td><span class="bdg b-prog" style="font-size:8.5px">'+w.active+' projects</span></td>'
+      +'<td><div style="display:flex;align-items:center;gap:7px">'+stBdg
+      +'<div class="tgl '+(w.status==='active'?'on':'')+'" onclick="this.classList.toggle(\'on\');toast(this.classList.contains(\'on\')?\'Activated\':\'Disabled\',\'ok\')"><div class="tgl-thumb"></div></div>'
+      +'</div></td>'
+      +'<td onclick="event.stopPropagation()"><div style="display:flex;gap:5px">'
+      +'<button class="btn-icon" onclick="openEditWt('+wi+')" title="Edit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
+      +'<button class="btn-icon" onclick="toast(\'Work type duplicated\',\'ok\')" title="Duplicate"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>'
+      +'<button class="btn-icon btn-red" onclick="toast(\'Work type deleted\',\'err\')" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="1.8" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>'
+      +'</div></td>'
+      +'</tr>';
+  }).join('');
+}
+
+function openEditWt(idx) {
+  var wt = WORK_TYPES_DATA[idx];
+  document.getElementById('wt-modal-title').textContent = 'Edit work type: ' + wt.name;
+  document.getElementById('wt-name-input').value = wt.name;
+  openModal('add-wt-modal');
+}
+
+// ══════════ DPR ══════════
+function renderDPR() {
+  var rows = document.getElementById('dpr-wt-rows');
+  if (rows) rows.innerHTML = ['Plywood work','Electrical work','Painting'].map(function(wt){
+    return '<div style="background:var(--off);border-radius:10px;padding:13px 15px">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+      +'<div style="display:flex;align-items:center;gap:9px">'
+      +'<div style="width:32px;height:32px;border-radius:8px;background:var(--bl);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div>'
+      +'<div><div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch)">'+wt+'</div>'
+      +'<div style="font-size:11.5px;color:var(--mu)">Mark completion for today</div></div>'
+      +'</div>'
+      +'<div class="tgl" onclick="this.classList.toggle(\'on\');toast(this.classList.contains(\'on\')?\''+wt+' marked done today\':\'Unmarked\')"><div class="tgl-thumb"></div></div>'
+      +'</div>'
+      +'<div class="form-row">'
+      +'<div><label class="lbl" style="font-size:9px">Today\'s progress (%)</label><div style="display:flex;gap:8px;align-items:center"><input class="fi" type="number" min="0" max="100" placeholder="e.g. 95" style="width:80px"><span style="font-size:11.5px;color:var(--mu)">prev: 85%</span></div></div>'
+      +'<div><label class="lbl" style="font-size:9px">Notes</label><input class="fi" placeholder="Optional notes for today…"></div>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+
+  var sm = document.getElementById('dpr-summary');
+  if (sm) sm.innerHTML = ['Plywood work','Electrical work','Painting'].map(function(wt, i){
+    var p = [90,65,20][i];
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid #f1f5f9">'
+      +'<div style="flex:1;font-size:12.5px;font-weight:600;color:var(--ch)">'+wt+'</div>'
+      +'<div style="font-size:12px;font-weight:700;color:var(--blue)">'+p+'%</div>'
+      +'</div>';
+  }).join('');
+
+  var pt = document.getElementById('dpr-photo-thumbs');
+  if (pt) pt.innerHTML = ['#e8f1fd','#fef3c7','#f3e8ff'].map(function(c,i){
+    return '<div style="width:64px;height:52px;border-radius:8px;background:'+c+';position:relative;cursor:pointer;overflow:hidden;border:.5px solid #e2e8f0;transition:transform .18s" onmouseenter="this.style.transform=\'scale(1.05)\'" onmouseleave="this.style.transform=\'none\'" onclick="toast(\'Viewing photo '+(i+1)+'\')">'
+      +'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;opacity:.3">📷</div>'
+      +'<button style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(220,38,38,.8);border:none;color:#fff;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center" onclick="event.stopPropagation();toast(\'Photo removed\')">×</button>'
+      +'</div>';
+  }).join('') + '<div style="width:64px;height:52px;border-radius:8px;border:1.5px dashed #e2e8f0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .18s" onmouseenter="this.style.borderColor=\'var(--blue)\'" onmouseleave="this.style.borderColor=\'#e2e8f0\'" onclick="toast(\'Upload more photos…\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>';
+}
+
+// ══════════ PAYMENTS ══════════
+function renderPayments() {
+  var tb = document.getElementById('pay-tbody');
+  if (!tb) return;
+  tb.innerHTML = PAYMENTS_DATA.map(function(p){
+    var stBdg = p.status==='paid'?'<span class="bdg b-tl">Paid ✓</span>':p.status==='due'?'<span class="bdg b-red">Due now</span>':'<span class="bdg b-gray">Upcoming</span>';
+    return '<tr>'
+      +'<td><span class="editable" contenteditable="true" onfocus="this.style.outline=\'1px solid var(--blue)\'" onblur="this.style.outline=\'none\';toast(\'Saved\',\'ok\')" style="font-weight:600">'+p.label+'</span></td>'
+      +'<td><input class="fi" type="number" value="'+Math.round(p.pct)+'" style="width:70px;padding:5px 9px" oninput="toast(\'% updated\')"> %</td>'
+      +'<td><input class="fi" type="date" value="'+p.due.split(' ').reverse().join('-').replace('Jan','01').replace('Feb','02').replace('Mar','03')+'" style="font-size:12px;padding:6px 10px" onchange="toast(\'Date updated\',\'ok\')"></td>'
+      +'<td>'+stBdg+'</td>'
+      +'<td style="font-size:12.5px;color:var(--mu)">'+(p.paidDate||'—')+'</td>'
+      +'<td onclick="event.stopPropagation()"><div style="display:flex;gap:5px">'
+      +(p.status!=='paid'?'<button class="btn btn-tl btn-xs" onclick="toast(\'Marked as paid ✓\',\'ok\')">Mark paid</button>':'<span style="font-size:12px;color:var(--tl)">✓ Paid</span>')
+      +'<button class="btn-icon btn-red" onclick="toast(\'Milestone deleted\',\'err\')" title="Delete"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="1.8" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>'
+      +'</div></td>'
+      +'</tr>';
+  }).join('');
+}
+
+// ══════════ QUERIES ══════════
+function renderQueries() {
+  var ql = document.getElementById('queries-list');
+  if (!ql) return;
+  ql.innerHTML = QUERIES_DATA.map(function(q){
+    return '<div class="card fa" style="border-left:3px solid '+(q.status==='open'?'var(--am)':'var(--tl)')+'">'
+      +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap">'
+      +'<div><span class="bdg b-gray" style="font-size:8px;margin-bottom:5px;display:inline-flex">'+q.room+'</span>'
+      +'<div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch)">'+q.subject+'</div>'
+      +'<div style="font-size:11.5px;color:var(--mu);margin-top:2px">'+q.customer+' · '+q.project+' · '+q.date+'</div></div>'
+      +'<span class="bdg '+(q.status==='open'?'b-amber':'b-tl')+'">'+q.status+'</span>'
+      +'</div>'
+      +'<div style="font-size:12.5px;color:var(--mu);line-height:1.6;margin-bottom:10px">'+q.msg+'</div>'
+      +(q.reply?'<div style="background:var(--bl);border-radius:9px;padding:10px 12px;border-left:3px solid var(--blue);margin-bottom:10px"><div style="font-size:10px;font-weight:700;color:var(--blue);font-family:var(--m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Reply sent</div><div style="font-size:12.5px;color:var(--ch)">'+q.reply+'</div></div>':'')
+      +(q.status==='open'?'<div style="display:flex;flex-direction:column;gap:8px"><textarea class="fi" rows="2" placeholder="Type your reply…" style="resize:none"></textarea><div style="display:flex;gap:8px"><button class="btn btn-blue btn-sm" onclick="toast(\'Reply sent ✓\',\'ok\')">Send reply</button><button class="btn btn-ghost btn-sm" onclick="toast(\'Marked resolved\',\'ok\')">Mark resolved</button></div></div>':'')
+      +'</div>';
+  }).join('');
+}
+
+// ══════════ DOCUMENTS ══════════
+function renderDocuments(filter) {
+  filter = filter || 'all';
+  var stats = document.getElementById('doc-stats');
+  if (stats) {
+    var cats = [{k:'warranty',l:'Warranty slips',ic:'#fef3c7',sc:'#ca8a04'},{k:'boq',l:'BOQ',ic:'#e8f1fd',sc:'#2563eb'},{k:'agreement',l:'Agreements',ic:'#f3e8ff',sc:'#7c3aed'},{k:'design',l:'Design files',ic:'#ccfbf1',sc:'#0d9488'}];
+    stats.innerHTML = cats.map(function(c){
+      var cnt = DOCS_DATA.filter(function(d){ return d.cat===c.k; }).length;
+      return '<div class="stat"><div class="stat-ic" style="background:'+c.ic+'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="'+c.sc+'" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="stat-lbl">'+c.l+'</div><div class="stat-val" style="color:'+c.sc+';font-size:20px">'+cnt+'</div></div></div>';
+    }).join('');
+  }
+  var dl = document.getElementById('doc-list');
+  if (!dl) return;
+  var filtered = filter==='all' ? DOCS_DATA : DOCS_DATA.filter(function(d){ return d.cat===filter; });
+  dl.innerHTML = filtered.map(function(d){
+    var catColors = {warranty:'#ca8a04',boq:'#2563eb',agreement:'#7c3aed',design:'#0d9488',other:'#475569'};
+    var catBg = {warranty:'#fef3c7',boq:'#e8f1fd',agreement:'#f3e8ff',design:'#ccfbf1',other:'#f1f5f9'};
+    return '<div class="card" style="padding:14px 18px;border-left:3px solid '+catColors[d.cat]+';transition:all .2s;cursor:pointer" onmouseenter="this.style.boxShadow=\'0 4px 16px rgba(0,0,0,.07)\'" onmouseleave="this.style.boxShadow=\'none\'" onclick="toast(\'Opening '+d.name+'…\')">'
+      +'<div style="display:flex;align-items:center;gap:12px">'
+      +'<div style="width:40px;height:40px;border-radius:10px;background:'+catBg[d.cat]+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+      +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="'+catColors[d.cat]+'" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'
+      +'</div>'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-weight:600;font-size:13px;color:var(--ch)">'+d.name+'</div>'
+      +'<div style="font-size:11.5px;color:var(--mu);margin-top:2px">'+d.room+' · '+d.wt+' · '+d.date+' · '+d.size+'</div>'
+      +(d.expiry?'<div style="font-size:11px;color:var(--am);margin-top:2px">Expires: '+d.expiry+'</div>':'')
+      +'</div>'
+      +'<div style="display:flex;gap:6px;flex-shrink:0">'
+      +'<button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();toast(\'Downloading…\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>'
+      +'<button class="btn-icon btn-red" onclick="event.stopPropagation();toast(\'Document deleted\',\'err\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="1.8" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>'
+      +'</div></div></div>';
+  }).join('');
+}
+
+function switchDocTab(btn, filter) {
+  document.querySelectorAll('.tab-bar .tab').forEach(function(t){ t.classList.remove('on'); });
+  btn.classList.add('on');
+  renderDocuments(filter);
+}
+
+// ══════════ CUSTOMERS ══════════
+function renderCustomers() {
+  var tb = document.getElementById('cu-tbody');
+  if (!tb) return;
+  tb.innerHTML = CUSTOMERS_DATA.map(function(c){
+    return '<tr onclick="P(\'project-detail\',null)">'
+      +'<td><div style="display:flex;align-items:center;gap:9px"><div style="width:32px;height:32px;border-radius:50%;background:'+c.col+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;font-family:var(--m)">'+c.initials+'</div><div><div style="font-weight:600">'+c.name+'</div></div></div></td>'
+      +'<td style="font-size:12px"><div>'+c.phone+'</div><div style="color:var(--mu);font-size:11px">'+c.email+'</div></td>'
+      +'<td><span class="bdg b-gray" style="font-size:8.5px">'+c.projects+' project'+(c.projects>1?'s':'')+'</span></td>'
+      +'<td style="font-size:12.5px">'+c.activeProj+'</td>'
+      +'<td><div style="display:flex;align-items:center;gap:8px;min-width:100px"><div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden"><div style="height:100%;width:'+c.pct+'%;background:'+(c.pct===100?'var(--tl)':'var(--blue)')+';border-radius:5px"></div></div><span style="font-family:var(--m);font-size:11px;font-weight:700">'+c.pct+'%</span></div></td>'
+      +'<td>'+(c.queries>0?'<span class="bdg b-amber" style="font-size:8.5px">'+c.queries+' open</span>':'<span class="bdg b-tl" style="font-size:8.5px">None</span>')+'</td>'
+      +'<td onclick="event.stopPropagation()"><div style="display:flex;gap:5px">'
+      +'<button class="btn-icon" title="View" onclick="P(\'project-detail\',null)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>'
+      +'<button class="btn-icon" title="Message" onclick="toast(\'Message sent\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button>'
+      +'</div></td>'
+      +'</tr>';
+  }).join('');
+}
+
+// ══════════ SETTINGS ══════════
+function renderSettings() {
+  var tl = document.getElementById('team-list');
+  if (tl) tl.innerHTML = [
+    { name:'Suresh Babu', role:'Site Manager', initials:'SB', col:'#2563eb' },
+    { name:'Kavitha Nair', role:'Project Coordinator', initials:'KN', col:'#0d9488' },
+    { name:'Mohan Das', role:'Electrician Lead', initials:'MD', col:'#7c3aed' },
+  ].map(function(t){
+    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:.5px solid #f1f5f9">'
+      +'<div style="width:36px;height:36px;border-radius:50%;background:'+t.col+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;font-family:var(--m)">'+t.initials+'</div>'
+      +'<div style="flex:1"><div style="font-weight:600;font-size:13px">'+t.name+'</div><div style="font-size:11.5px;color:var(--mu)">'+t.role+'</div></div>'
+      +'<div style="display:flex;gap:5px">'
+      +'<button class="btn-icon" onclick="toast(\'Edit member\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
+      +'<button class="btn-icon btn-red" onclick="toast(\'Member removed\',\'err\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="1.8" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>'
+      +'</div></div>';
+  }).join('');
+}
+
+// ══════════ MISC ══════════
+function selectPctMethod(el, method) {
+  document.querySelectorAll('.pct-method').forEach(function(e){ e.classList.remove('sel'); });
+  el.classList.add('sel');
+  var section = document.getElementById('pct-override-section');
+  if (section) section.style.display = method==='items' ? 'none' : 'block';
+  toast('Method: '+method+' selected', 'ok');
+}
+
+function switchTab(btn, id) {
+  var bar = btn.closest('.tab-bar');
+  bar.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); });
+  btn.classList.add('on');
+  if (id.startsWith('q-')) {
+    var ql = document.getElementById('queries-list');
+    if (!ql) return;
+    var filter = id.replace('q-','');
+    var filtered = filter==='all' ? QUERIES_DATA : QUERIES_DATA.filter(function(q){ return q.status===filter; });
+    ql.innerHTML = '';
+    var orig = QUERIES_DATA;
+    QUERIES_DATA = filtered;
+    renderQueries();
+    QUERIES_DATA = orig;
+  }
+}
+
+// ══════════ MODAL ══════════
+function openModal(id) {
+  var m = document.getElementById(id);
+  if (m) m.classList.remove('hidden');
+}
+function closeModal(id) {
+  var m = document.getElementById(id);
+  if (m) m.classList.add('hidden');
+}
+
+// ══════════ TOAST ══════════
+function toast(msg, type) {
+  var w = document.getElementById('tw');
+  var t = document.createElement('div');
+  t.className = 'toast-item' + (type==='err'?' err':type==='ok'?' ok':'');
+  var iconColor = type==='err'?'var(--rd)':type==='ok'?'var(--tl)':'var(--blue)';
+  var iconPath = type==='err'?'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>':type==='ok'?'<path d="M9 11l3 3L22 4"/>':'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+  t.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="'+iconColor+'" stroke-width="2.5" stroke-linecap="round">'+iconPath+'</svg>'+msg;
+  w.appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 2800);
+}
+
+// ══════════ INIT ══════════
+document.addEventListener('DOMContentLoaded', function(){
+  // Inject first sidebar
+  var firstSb = document.querySelector('.pg.on .shell > div:first-child');
+  if (firstSb && firstSb.children.length === 0) {
+    var tpl = document.getElementById('sb-tpl');
+    if (tpl) firstSb.appendChild(tpl.content.cloneNode(true));
+  }
+  // Mark dashboard active
+  document.querySelectorAll('.sb-item').forEach(function(item){
+    item.classList.toggle('on', item.getAttribute('data-pg') === 'dashboard');
+  });
+  renderDashboard();
+  setProjView('card');
+  renderWorkTypes();
+  renderDocuments();
+  renderCustomers();
+});
+
+// ══════════ MATERIALS DATA ══════════
+var MATERIALS_DATA = [
+  { room:'Master Bedroom', cat:'Plywood & carpentry', name:'Greenply Gold Plywood',      spec:'18mm BWR ISI grade',            qty:24,  unit:'No.',  status:'installed',  date:'10 Jan', brand:'Greenply' },
+  { room:'Master Bedroom', cat:'Electrical',          name:'Legrand Arteor Switches',    spec:'6A/16A Matt white',             qty:12,  unit:'No.',  status:'installed',  date:'9 Jan',  brand:'Legrand' },
+  { room:'Master Bedroom', cat:'Flooring',            name:'Kajaria Vitrified Tiles',    spec:'800x800mm Slate Grey',          qty:168, unit:'sqft', status:'procured',   date:'—',      brand:'Kajaria' },
+  { room:'Master Bedroom', cat:'Painting',            name:'Asian Paints Royale',        spec:'Interior emulsion, 5 coats',    qty:18,  unit:'Ltrs', status:'not_started',date:'—',      brand:'Asian Paints' },
+  { room:"Children's Bedroom", cat:'Plywood & carpentry', name:'Greenply Gold Plywood', spec:'18mm BWR ISI grade',            qty:18,  unit:'No.',  status:'installed',  date:'12 Jan', brand:'Greenply' },
+  { room:"Children's Bedroom", cat:'Flooring',        name:'Somany Tiles',              spec:'600x600mm wood finish',         qty:120, unit:'sqft', status:'installed',  date:'13 Jan', brand:'Somany' },
+  { room:'Living Room',    cat:'False ceiling',       name:'Saint-Gobain Gypsum',        spec:'12.5mm tapered edge',           qty:280, unit:'sqft', status:'procured',   date:'—',      brand:'Saint-Gobain' },
+  { room:'Living Room',    cat:'Electrical',          name:'Philips LED Downlights',     spec:'6W warm white recessed',        qty:14,  unit:'No.',  status:'procured',   date:'—',      brand:'Philips' },
+  { room:'Kitchen',        cat:'Tiles',               name:'Johnson Wall Tiles',         spec:'300x600mm anti-skid white',     qty:210, unit:'sqft', status:'not_started',date:'—',      brand:'Johnson' },
+  { room:'Kitchen',        cat:'Countertop',          name:'Black Galaxy Granite',       spec:'20mm polished slab',            qty:28,  unit:'sqft', status:'not_started',date:'—',      brand:'—' },
+  { room:'Master Bath',    cat:'Tiles',               name:'Nitco Tiles',                spec:'300x600mm anti-skid',           qty:160, unit:'sqft', status:'installed',  date:'9 Jan',  brand:'Nitco' },
+  { room:'Master Bath',    cat:'Fittings',            name:'Jaquar ARIA Fittings',       spec:'Chrome single lever',           qty:1,   unit:'Set',  status:'installed',  date:'10 Jan', brand:'Jaquar' },
+  { room:'Common Bath',    cat:'Tiles',               name:'RAK Tiles',                  spec:'300x300mm anti-skid',           qty:80,  unit:'sqft', status:'installed',  date:'11 Jan', brand:'RAK' },
+  { room:'Common Bath',    cat:'Fittings',            name:'Parryware Fittings',         spec:'Wall mount basin + EWC',        qty:1,   unit:'Set',  status:'installed',  date:'12 Jan', brand:'Parryware' },
+];
+
+var activeMatlRoom   = 'all';
+var activeMatlStatus = 'all';
+
+// ══════════ PROJECT DETAIL INNER TAB SWITCHER ══════════
+function switchPdTab(btn, tabId) {
+  document.querySelectorAll('.pd-tab').forEach(function(t){ t.classList.remove('on'); });
+  if (btn) btn.classList.add('on');
+  else {
+    var found = document.querySelector('.pd-tab[data-tab="'+tabId+'"]');
+    if (found) found.classList.add('on');
+  }
+  var panels = ['overview','rooms','dpr','payments','queries','documents','materials'];
+  panels.forEach(function(id){
+    var el = document.getElementById('pdt-'+id);
+    if (el) el.style.display = (id === tabId) ? 'block' : 'none';
+  });
+  if (tabId === 'overview')   renderPdtOverview();
+  if (tabId === 'rooms')      renderPdtRooms();
+  if (tabId === 'dpr')        renderPdtDpr();
+  if (tabId === 'payments')   renderPdtPayments();
+  if (tabId === 'queries')    renderPdtQueries('all');
+  if (tabId === 'documents')  renderPdtDocuments('all');
+  if (tabId === 'materials')  renderPdtMaterials();
+}
+
+// ── Overview tab init ──
+function renderPdtOverview() {
+  var rw = document.getElementById('detail-ring-wrap');
+  if (rw && !rw.innerHTML) rw.innerHTML = makeRing(72, 80, 'var(--blue)');
+  var po = document.getElementById('pct-override-val');
+  if (po && !po._wired) {
+    po._wired = true;
+    po.addEventListener('input', function(){
+      var v = Math.min(parseInt(this.value)||72, 100);
+      var bar = document.getElementById('pct-bar'); var disp = document.getElementById('pct-display');
+      if (bar) bar.style.width = v+'%'; if (disp) disp.textContent = v+'%';
+    });
+  }
+}
+
+// ── Rooms & Progress tab ──
+function renderPdtRooms() {
+  var proj = activeProject;
+  var el = document.getElementById('pdt-rooms-projname');
+  if (el) el.textContent = proj.name;
+  var rl = document.getElementById('pdt-rooms-list');
+  if (!rl) return;
+  var rooms = proj.id === 'HZB-2401' ? ROOMS_DATA : ROOMS_DATA.map(function(r){
+    return Object.assign({}, r, { pct: Math.max(0, r.pct - 20) });
+  });
+  rl.innerHTML = rooms.map(function(r, ri){
+    var bc = r.status==='live'?'var(--blue)':r.status==='hold'?'var(--am)':'#94a3b8';
+    var stBdg = r.status==='live'
+      ? '<span class="bdg b-blue" style="font-size:8.5px">● Live</span>'
+      : r.status==='hold'
+      ? '<span class="bdg b-amber" style="font-size:8.5px">On Hold</span>'
+      : '<span class="bdg b-tl" style="font-size:8.5px">Done</span>';
+    return '<div class="card fa" style="animation-delay:'+(ri*0.05)+'s">'
+      +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f0f4f8">'
+      +'<div style="font-size:22px">'+r.icon+'</div>'
+      +'<div style="flex:1">'
+      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">'
+      +'<input class="fi" value="'+r.name+'" style="font-family:var(--m);font-size:14px;font-weight:700;border:none;padding:0;background:transparent;cursor:pointer;color:var(--ch);flex:1;outline:none" onfocus="this.style.outline=\'2px solid var(--blue)\';this.style.borderRadius=\'4px\'" onblur="this.style.outline=\'none\'">'
+      +stBdg+'</div>'
+      +'<div style="font-size:12px;color:var(--mu)">'+r.dim+' &middot; '+r.wt.length+' work types</div>'
+      +'</div>'+makeRing(r.pct, 64, bc)+'</div>'
+      +'<div class="g3" style="margin-bottom:12px">'
+      +'<div><label class="lbl">Progress %</label>'
+      +'<div style="display:flex;gap:8px;align-items:center">'
+      +'<input class="fi" type="number" min="0" max="100" value="'+r.pct+'" style="width:75px" oninput="updateRoomPct(this,\''+r.id+'\')">'
+      +'<div style="flex:1;height:5px;background:#e2e8f0;border-radius:5px;overflow:hidden"><div style="height:100%;width:'+r.pct+'%;background:'+bc+';border-radius:5px;transition:width .4s" id="rm-bar-'+r.id+'"></div></div>'
+      +'</div></div>'
+      +'<div><label class="lbl">Status</label>'
+      +'<select class="fi" onchange="toast(\'Status updated\',\'ok\')">'
+      +'<option '+(r.status==='live'?'selected':'')+'>Live</option>'
+      +'<option '+(r.status==='hold'?'selected':'')+'>On Hold</option>'
+      +'<option '+(r.status==='done'?'selected':'')+'>Done</option>'
+      +'</select></div>'
+      +'<div><label class="lbl">Hold reason</label>'
+      +'<input class="fi" placeholder="If on hold…" '+(r.status!=='hold'?'disabled style="opacity:.4"':'')+' ></div>'
+      +'</div>'
+      +'<div><label class="lbl" style="margin-bottom:7px">Work types</label>'
+      +'<div style="display:flex;gap:7px;flex-wrap:wrap">'
+      +r.wt.map(function(w){ return '<span class="wt-chip on">'+w+' <span onclick="event.stopPropagation();toast(\''+w+' removed\',\'ok\')" style="margin-left:3px;opacity:.5;cursor:pointer">&times;</span></span>'; }).join('')
+      +'<button class="wt-chip" onclick="openModal(\'add-room-modal\')">+ Add</button>'
+      +'</div></div></div>';
+  }).join('');
+}
+
+// ── DPR tab ──
+var DPR_ROOM_WT = {
+  'Master Bedroom':   ['Plywood work','Electrical work','Painting'],
+  "Children's Bedroom": ['Plywood work','Flooring'],
+  'Living Room':      ['Electrical work','False ceiling','Painting'],
+  'Kitchen':          ['Tiles','Plumbing'],
+  'Master Bath':      ['Tiles','Fittings'],
+  'Common Bath':      ['Tiles','Fittings']
+};
+
+function renderPdtDpr() {
+  var proj = activeProject;
+  var el = document.getElementById('pdt-dpr-projname');
+  if (el) el.textContent = proj.name;
+  renderDPRWorkTypes();
+}
+
+function renderDPRWorkTypes() {
+  var roomSel = document.getElementById('pdt-dpr-room');
+  if (!roomSel) return;
+  var roomName = roomSel.value;
+  var wts = DPR_WT_COLORS;
+  var wtNames = DPR_ROOM_WT[roomName] || ['Plywood work','Electrical work'];
+  var container = document.getElementById('pdt-dpr-wt-cards');
+  if (!container) return;
+  container.innerHTML = '';
+  wtNames.forEach(function(wtName, wi){
+    var col = wts[wtName] || 'var(--blue)';
+    var card = document.createElement('div');
+    card.className = 'card fa';
+    card.style.cssText = 'margin-bottom:14px;animation-delay:'+(wi*0.07)+'s;border-left:3px solid '+col;
+    card.innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f0f4f8">'
+      +'<div style="display:flex;align-items:center;gap:10px">'
+      +'<div style="width:34px;height:34px;border-radius:8px;background:'+col+'18;display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+      +'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="'+col+'" stroke-width="1.8" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>'
+      +'</div>'
+      +'<div><div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch)">'+wtName+'</div>'
+      +'<div style="font-size:11.5px;color:var(--mu)">Upload photos for this work type only</div></div>'
+      +'</div>'
+      +'<div style="display:flex;align-items:center;gap:8px">'
+      +'<span class="tgl" onclick="this.classList.toggle(\'on\');toast(this.classList.contains(\'on\')?\''+wtName+' done today\':\'Unmarked\')"><span class="tgl-thumb"></span></span>'
+      +'<span style="font-size:11.5px;color:var(--mu)">Done today</span>'
+      +'</div></div>'
+      +'<div class="form-row" style="margin-bottom:14px">'
+      +'<div><label class="lbl">% for '+wtName+'</label>'
+      +'<div style="display:flex;gap:8px;align-items:center">'
+      +'<input class="fi" type="number" min="0" max="100" placeholder="e.g. 90" style="width:90px" oninput="var b=this.parentNode.querySelector(\'.dpr-bar\');if(b)b.style.width=Math.min(this.value||0,100)+\'%\'">'
+      +'<div style="flex:1;height:5px;background:#e2e8f0;border-radius:5px;overflow:hidden"><div class="dpr-bar" style="height:100%;width:0%;background:'+col+';border-radius:5px;transition:width .4s"></div></div>'
+      +'<span style="font-size:11px;color:var(--mu)">prev: 80%</span>'
+      +'</div></div>'
+      +'<div><label class="lbl">Notes</label><input class="fi" placeholder="Optional notes…"></div>'
+      +'</div>'
+      // Per-work-type photo upload zone
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
+      +'<label class="lbl" style="margin-bottom:0">Photos — '+wtName+' <span style="color:var(--mu);font-weight:400;text-transform:none">(max 10)</span></label>'
+      +'<span style="font-size:11px;color:var(--mu)" id="dpr-count-'+wi+'">0 / 10</span>'
+      +'</div>'
+      +'<div class="dpr-upload-zone" style="border:2px dashed #e2e8f0;border-radius:10px;padding:18px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:10px" '
+      +'onmouseenter="this.style.borderColor=\''+col+'\';this.style.background=\''+col+'10\'" '
+      +'onmouseleave="this.style.borderColor=\'#e2e8f0\';this.style.background=\'transparent\'" '
+      +'onclick="addDprPhotos(this,'+wi+',\''+wtName+'\')">'
+      +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="'+col+'" stroke-width="1.8" stroke-linecap="round" style="margin-bottom:6px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'
+      +'<div style="font-family:var(--m);font-size:12px;font-weight:700;color:var(--ch);margin-bottom:2px">Upload '+wtName+' photos</div>'
+      +'<div style="font-size:11px;color:var(--mu)">Drop or click &middot; JPG, PNG</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:7px;flex-wrap:wrap" id="dpr-thumbs-'+wi+'"></div>';
+    container.appendChild(card);
+  });
+  // DPR summary
+  var sumEl = document.getElementById('pdt-dpr-summary');
+  if (sumEl) sumEl.innerHTML = wtNames.map(function(wt){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:.5px solid #f1f5f9">'
+      +'<div style="font-size:12.5px;font-weight:600">'+wt+'</div>'
+      +'<div style="font-size:11.5px;color:var(--mu)">prev 80% &rarr; <span style="font-weight:700;color:var(--blue)">—%</span></div>'
+      +'</div>';
+  }).join('');
+}
+
+var DPR_WT_COLORS = {
+  'Plywood work':'#2563eb','Electrical work':'#d97706','Painting':'#7c3aed',
+  'Flooring':'#0d9488','Tiles':'#dc2626','Fittings':'#0891b2',
+  'False ceiling':'#6366f1','Plumbing':'#059669','Counter work':'#92400e'
+};
+var dprPhotoCounts = {};
+
+function addDprPhotos(zone, idx, wtName) {
+  if (!dprPhotoCounts[idx]) dprPhotoCounts[idx] = 0;
+  if (dprPhotoCounts[idx] >= 10) { toast('Max 10 photos per work type','err'); return; }
+  var add = Math.min(2, 10 - dprPhotoCounts[idx]);
+  var thumbsEl = document.getElementById('dpr-thumbs-'+idx);
+  var countEl  = document.getElementById('dpr-count-'+idx);
+  var palettes = ['#e8f1fd','#fef3c7','#f3e8ff','#dcfce7','#fff7ed','#fce7f3','#eff6ff','#fef9c3'];
+  for (var i = 0; i < add; i++) {
+    dprPhotoCounts[idx]++;
+    var thumb = document.createElement('div');
+    thumb.style.cssText = 'width:66px;height:54px;border-radius:8px;background:'+palettes[(dprPhotoCounts[idx]-1)%palettes.length]+';position:relative;cursor:pointer;overflow:hidden;border:.5px solid #e2e8f0;flex-shrink:0;transition:transform .18s';
+    thumb.onmouseenter = function(){ this.style.transform='scale(1.05)'; };
+    thumb.onmouseleave = function(){ this.style.transform='none'; };
+    var num = dprPhotoCounts[idx];
+    thumb.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;opacity:.25">&#128247;</div>'
+      +'<div style="position:absolute;bottom:2px;left:3px;font-size:7.5px;font-weight:700;color:rgba(0,0,0,.45);font-family:var(--m)">#'+num+'</div>'
+      +'<button style="position:absolute;top:2px;right:2px;width:14px;height:14px;border-radius:50%;background:rgba(220,38,38,.8);border:none;color:#fff;font-size:8px;cursor:pointer;line-height:1" onclick="event.stopPropagation();this.parentNode.remove()">&#215;</button>';
+    if (thumbsEl) thumbsEl.appendChild(thumb);
+  }
+  if (countEl) countEl.textContent = dprPhotoCounts[idx]+' / 10';
+  toast(add+' photo'+(add>1?'s':'')+' added to '+wtName, 'ok');
+}
+
+// ── Payments tab ──
+function renderPdtPayments() {
+  var proj = activeProject;
+  var el = document.getElementById('pdt-pay-projname');
+  if (el) el.textContent = proj.name;
+  // Stats
+  var statsEl = document.getElementById('pdt-pay-stats');
+  if (statsEl) {
+    var paid = PAYMENTS_DATA.filter(function(p){ return p.status==='paid'; }).length;
+    statsEl.innerHTML = [
+      {ic:'#e8f1fd',sc:'#2563eb',lbl:'Total milestones',val:PAYMENTS_DATA.length},
+      {ic:'#ccfbf1',sc:'var(--tl)',lbl:'Paid',val:paid,sub:Math.round(paid/PAYMENTS_DATA.length*100)+'%'},
+      {ic:'#fee2e2',sc:'var(--rd)',lbl:'Overdue',val:PAYMENTS_DATA.filter(function(p){return p.status==='due';}).length}
+    ].map(function(s){
+      return '<div class="stat"><div class="stat-ic" style="background:'+s.ic+'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="'+s.sc+'" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><div><div class="stat-lbl">'+s.lbl+'</div><div class="stat-val" style="color:'+s.sc+'">'+s.val+'</div>'+(s.sub?'<div class="stat-sub">'+s.sub+'</div>':'')+'</div></div>';
+    }).join('');
+  }
+  // Table
+  var tb = document.getElementById('pdt-pay-tbody');
+  if (!tb) return;
+  tb.innerHTML = PAYMENTS_DATA.map(function(p){
+    var stBdg = p.status==='paid'?'<span class="bdg b-tl">Paid &#10003;</span>'
+      :p.status==='due'?'<span class="bdg b-red">Due now</span>'
+      :'<span class="bdg b-gray">Upcoming</span>';
+    return '<tr>'
+      +'<td><span class="editable" contenteditable="true" onfocus="this.style.outline=\'1px solid var(--blue)\'" onblur="this.style.outline=\'none\';toast(\'Saved\',\'ok\')" style="font-weight:600">'+p.label+'</span></td>'
+      +'<td><input class="fi" type="number" value="'+Math.round(p.pct)+'" style="width:65px;padding:5px 8px" oninput="toast(\'Updated\')"> %</td>'
+      +'<td><input class="fi" type="date" style="font-size:12px;padding:5px 9px" onchange="toast(\'Date updated\',\'ok\')"></td>'
+      +'<td>'+stBdg+'</td>'
+      +'<td style="font-size:12.5px;color:var(--mu)">'+(p.paidDate||'—')+'</td>'
+      +'<td onclick="event.stopPropagation()"><div style="display:flex;gap:5px">'
+      +(p.status!=='paid'?'<button class="btn btn-tl btn-xs" onclick="toast(\'Marked paid &#10003;\',\'ok\')">Mark paid</button>':'<span style="font-size:11px;color:var(--tl)">&#10003; Paid</span>')
+      +'<button class="btn-icon btn-red" onclick="toast(\'Deleted\',\'err\')" title="Delete"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="1.8" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>'
+      +'</div></td></tr>';
+  }).join('');
+}
+
+// ── Queries tab ──
+function renderPdtQueries(filter) {
+  filter = filter || 'all';
+  var proj = activeProject;
+  var el = document.getElementById('pdt-q-projname');
+  if (el) el.textContent = proj.name;
+  var ql = document.getElementById('pdt-queries-list');
+  if (!ql) return;
+  // Filter to only queries for this project
+  var list = QUERIES_DATA.filter(function(q){
+    return q.project === proj.id || !q.project;
+  });
+  if (filter === 'open')     list = list.filter(function(q){ return q.status==='open'; });
+  if (filter === 'resolved') list = list.filter(function(q){ return q.status==='resolved'; });
+  ql.innerHTML = list.length ? list.map(function(q){
+    return '<div class="card" style="border-left:3px solid '+(q.status==='open'?'var(--am)':'var(--tl)')+'">'
+      +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap">'
+      +'<div><span class="bdg b-gray" style="font-size:8px;margin-bottom:4px;display:inline-flex">'+q.room+'</span>'
+      +'<div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch)">'+q.subject+'</div>'
+      +'<div style="font-size:11.5px;color:var(--mu);margin-top:2px">'+q.customer+' &middot; '+q.date+'</div></div>'
+      +'<span class="bdg '+(q.status==='open'?'b-amber':'b-tl')+'">'+q.status+'</span>'
+      +'</div>'
+      +'<div style="font-size:12.5px;color:var(--mu);line-height:1.6;margin-bottom:10px">'+q.msg+'</div>'
+      +(q.reply?'<div style="background:var(--bl);border-radius:9px;padding:10px 12px;border-left:3px solid var(--blue);margin-bottom:10px"><div style="font-size:10px;font-weight:700;color:var(--blue);font-family:var(--m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Reply sent</div><div style="font-size:12.5px">'+q.reply+'</div></div>':'')
+      +(q.status==='open'?'<div style="display:flex;flex-direction:column;gap:8px"><textarea class="fi" rows="2" placeholder="Reply to '+q.customer+'…" style="resize:none"></textarea><div style="display:flex;gap:8px"><button class="btn btn-blue btn-sm" onclick="toast(\'Reply sent &#10003;\',\'ok\')">Send reply</button><button class="btn btn-ghost btn-sm" onclick="toast(\'Resolved\',\'ok\')">Mark resolved</button></div></div>':'')
+      +'</div>';
+  }).join('')
+  : '<div style="text-align:center;padding:32px;color:var(--mu);font-size:13px">No '+filter+' queries for this project.</div>';
+}
+
+function filterPdtQueries(btn, filter) {
+  var bar = btn.closest('.tab-bar');
+  bar.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); });
+  btn.classList.add('on');
+  renderPdtQueries(filter);
+}
+
+// ── Documents tab ──
+function renderPdtDocuments(filter) {
+  filter = filter || 'all';
+  var proj = activeProject;
+  var el = document.getElementById('pdt-doc-projname');
+  if (el) el.textContent = proj.name;
+  // Stats
+  var cats = ['warranty','boq','agreement','design','other'];
+  var catColors = {warranty:'#ca8a04',boq:'#2563eb',agreement:'#7c3aed',design:'#0d9488',other:'#475569'};
+  var catBg     = {warranty:'#fef3c7',boq:'#e8f1fd',agreement:'#f3e8ff',design:'#ccfbf1',other:'#f1f5f9'};
+  var catLabel  = {warranty:'Warranty',boq:'BOQ',agreement:'Agreements',design:'Design',other:'Other'};
+  var statsEl = document.getElementById('pdt-doc-stats');
+  if (statsEl) {
+    statsEl.innerHTML = cats.map(function(cat){
+      var cnt = DOCS_DATA.filter(function(d){ return d.cat===cat; }).length;
+      if (!cnt) return '';
+      return '<div class="stat"><div class="stat-ic" style="background:'+catBg[cat]+'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="'+catColors[cat]+'" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="stat-lbl">'+catLabel[cat]+'</div><div class="stat-val" style="color:'+catColors[cat]+';font-size:20px">'+cnt+'</div></div></div>';
+    }).join('');
+  }
+  var dl = document.getElementById('pdt-doc-list');
+  if (!dl) return;
+  var filtered = filter==='all' ? DOCS_DATA : DOCS_DATA.filter(function(d){ return d.cat===filter; });
+  dl.innerHTML = filtered.length ? filtered.map(function(d){
+    var cc = catColors[d.cat]||catColors.other, cb = catBg[d.cat]||catBg.other, cl = catLabel[d.cat]||'Other';
+    return '<div class="card" style="padding:13px 16px;border-left:3px solid '+cc+';cursor:pointer;transition:box-shadow .2s" onmouseenter="this.style.boxShadow=\'0 4px 16px rgba(0,0,0,.07)\'" onmouseleave="this.style.boxShadow=\'none\'">'
+      +'<div style="display:flex;align-items:center;gap:12px">'
+      +'<div style="width:38px;height:38px;border-radius:9px;background:'+cb+';display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="'+cc+'" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>'
+      +'<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">'+d.name+'</div><div style="font-size:11.5px;color:var(--mu);margin-top:2px">'+d.room+' &middot; '+d.wt+' &middot; '+d.date+' &middot; '+d.size+'</div>'+(d.expiry?'<div style="font-size:11px;color:var(--am)">Expires: '+d.expiry+'</div>':'')+'</div>'
+      +'<div style="display:flex;gap:5px;flex-shrink:0">'
+      +'<button class="btn btn-ghost btn-xs" onclick="toast(\'Downloading…\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>'
+      +'<button class="btn-icon btn-red" onclick="toast(\'Deleted\',\'err\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="1.8" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>'
+      +'</div></div></div>';
+  }).join('')
+  : '<div style="text-align:center;padding:28px;color:var(--mu)">No documents in this category.</div>';
+}
+
+function filterPdtDocs(btn, filter) {
+  var bar = btn.closest('.tab-bar');
+  bar.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); });
+  btn.classList.add('on');
+  renderPdtDocuments(filter);
+}
+
+// ── Materials & BOQ tab ──
+function renderPdtMaterials() {
+  var proj = activeProject;
+  var el = document.getElementById('pdt-matl-projname');
+  if (el) el.textContent = proj.name;
+  applyMatlFilters();
+}
+
+function filterMatlRoom(btn, room) {
+  var bar = btn.closest('.tab-bar');
+  bar.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); });
+  btn.classList.add('on');
+  activeMatlRoom = room;
+  applyMatlFilters();
+}
+
+function filterMatlStatus(btn, status) {
+  var bar = btn.closest('.tab-bar');
+  bar.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); });
+  btn.classList.add('on');
+  activeMatlStatus = status;
+  applyMatlFilters();
+}
+
+function applyMatlFilters() {
+  var el = document.getElementById('pdt-matl-list');
+  if (!el) return;
+  var filtered = MATERIALS_DATA.filter(function(m){
+    var rOk = activeMatlRoom==='all' || m.room.indexOf(activeMatlRoom)>-1 || (activeMatlRoom==='Bath' && m.room.indexOf('Bath')>-1);
+    var sOk = activeMatlStatus==='all' || m.status===activeMatlStatus;
+    return rOk && sOk;
+  });
+  // Update stat cards
+  var total = MATERIALS_DATA.length;
+  var installed = MATERIALS_DATA.filter(function(m){ return m.status==='installed'; }).length;
+  var pending   = MATERIALS_DATA.filter(function(m){ return m.status==='not_started'; }).length;
+  var tv = document.getElementById('matl-total-val');     if(tv) tv.textContent = total;
+  var iv = document.getElementById('matl-installed-val'); if(iv) iv.textContent = installed;
+  var pv = document.getElementById('matl-pending-val');   if(pv) pv.textContent = pending;
+  if (!filtered.length) {
+    el.innerHTML = '<div class="card" style="text-align:center;padding:28px;color:var(--mu)">No items match this filter.</div>';
+    return;
+  }
+  // Group by room
+  var rooms = []; var seen = {};
+  filtered.forEach(function(m){ if(!seen[m.room]){ seen[m.room]=true; rooms.push(m.room); } });
+  el.innerHTML = rooms.map(function(room){
+    var items = filtered.filter(function(m){ return m.room===room; });
+    var installedCnt = items.filter(function(m){ return m.status==='installed'; }).length;
+    return '<div class="card fa" style="margin-bottom:14px">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1.5px solid #f0f4f8">'
+      +'<div style="font-family:var(--m);font-size:13.5px;font-weight:700">'+room+'</div>'
+      +'<div style="display:flex;gap:7px"><span class="bdg b-tl" style="font-size:8.5px">'+installedCnt+'/'+items.length+' installed</span>'
+      +'<button class="btn btn-ghost btn-xs" onclick="openModal(\'add-material-modal\')">+ Add item</button></div>'
+      +'</div>'
+      +items.map(function(m){
+        var stBg = m.status==='installed'?'#e8f1fd':m.status==='procured'?'#fef3c7':'#f1f5f9';
+        var stCl = m.status==='installed'?'#1d4ed8':m.status==='procured'?'#92400e':'#64748b';
+        var stTx = m.status==='installed'?'&#10003; Installed':m.status==='procured'?'Procured':'Not started';
+        return '<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:.5px solid #f1f5f9">'
+          +'<div style="width:34px;height:34px;border-radius:8px;background:var(--off);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="1.8" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>'
+          +'<div style="flex:1;min-width:0">'
+          +'<input class="fi" value="'+m.name+'" style="font-weight:600;font-size:13px;border:none;padding:0;background:transparent;width:100%;margin-bottom:2px" onfocus="this.style.cssText+=\'border:1.5px solid var(--blue);padding:4px 8px;border-radius:6px\'" onblur="this.style.cssText=this.style.cssText.replace(/border[^;]*;padding[^;]*;border-radius[^;]*/,\'\');toast(\'Saved\',\'ok\')">'
+          +'<div style="font-size:11.5px;color:var(--mu)">'+m.spec+'</div>'
+          +'<div style="font-size:10.5px;color:var(--mu);margin-top:2px">'+m.cat+' &middot; Brand: <span class="editable" contenteditable="true" onblur="toast(\'Saved\',\'ok\')">'+m.brand+'</span></div>'
+          +'</div>'
+          +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;min-width:115px">'
+          +'<div style="display:flex;align-items:center;gap:5px"><input class="fi" type="number" value="'+m.qty+'" style="width:58px;padding:4px 8px;font-size:12px;text-align:center" onblur="toast(\'Saved\',\'ok\')"><span style="font-size:11px;color:var(--mu)">'+m.unit+'</span></div>'
+          +'<select class="fi" style="padding:4px 8px;font-size:11.5px;width:100%" onchange="toast(\'Updated\',\'ok\')">'
+          +'<option '+(m.status==='not_started'?'selected':'')+'>Not started</option>'
+          +'<option '+(m.status==='procured'?'selected':'')+'>Procured</option>'
+          +'<option '+(m.status==='installed'?'selected':'')+'>Installed</option>'
+          +'</select>'
+          +'<div style="display:flex;gap:4px">'
+          +'<button class="btn-icon" onclick="openModal(\'add-material-modal\')" title="Edit"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
+          +'<button class="btn-icon btn-red" onclick="toast(\'Removed\',\'err\')" title="Delete"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="1.8" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>'
+          +'</div></div></div>';
+      }).join('')+'</div>';
+  }).join('');
+}
+
+// ── Add Material Modal function ──
+function addMaterialItem() {
+  var name   = (document.getElementById('matl-name-input')||{}).value   || 'New item';
+  var cat    = (document.getElementById('matl-cat-input')||{}).value    || 'Other';
+  var spec   = (document.getElementById('matl-spec-input')||{}).value   || '—';
+  var qty    = parseInt((document.getElementById('matl-qty-input')||{}).value) || 1;
+  var unit   = (document.getElementById('matl-unit-input')||{}).value   || 'No.';
+  var room   = (document.getElementById('matl-room-input')||{}).value   || 'All rooms';
+  var brand  = (document.getElementById('matl-brand-input')||{}).value  || '—';
+  var status = ((document.getElementById('matl-status-input')||{}).value||'not_started').toLowerCase().replace(' ','_');
+  MATERIALS_DATA.push({ room:room, cat:cat, name:name, spec:spec, qty:qty, unit:unit, status:status, date:'—', brand:brand });
+  renderPdtMaterials();
+  toast(name+' added to BOQ &#10003;','ok');
+}
+
+// ══════════ CARD / LIST VIEW (All Projects) ══════════
+var currentProjView = 'card';
+
+function setProjView(view) {
+  currentProjView = view;
+  var cv = document.getElementById('proj-card-view');
+  var lv = document.getElementById('proj-list-view');
+  var cb = document.getElementById('btn-card-view');
+  var lb = document.getElementById('btn-list-view');
+  if (view === 'card') {
+    if (cv) cv.style.display = 'grid';
+    if (lv) lv.style.display = 'none';
+    if (cb) { cb.style.background='var(--blue)'; cb.style.color='#fff'; }
+    if (lb) { lb.style.background='transparent'; lb.style.color='var(--mu)'; }
+    renderProjCards();
+  } else {
+    if (cv) cv.style.display = 'none';
+    if (lv) lv.style.display = 'block';
+    if (cb) { cb.style.background='transparent'; cb.style.color='var(--mu)'; }
+    if (lb) { lb.style.background='var(--blue)'; lb.style.color='#fff'; }
+    renderProjects();
+  }
+}
+
+function renderProjCards() {
+  var grid = document.getElementById('proj-card-view');
+  if (!grid) return;
+  var ml = {hybrid:'&#9889; Hybrid', items:'&#128203; Items', manual:'&#9999; Manual'};
+  var bgMap = {progress:'linear-gradient(135deg,#1a3d5c,#0f2a44)',completed:'linear-gradient(135deg,#0d4f3c,#0a3d2e)',hold:'linear-gradient(135deg,#3d2a0a,#2a1a04)'};
+  grid.innerHTML = PROJECTS.map(function(p, pi){
+    var bg = bgMap[p.status]||bgMap.progress;
+    var stLabel = p.status==='progress'?'In Progress':p.status==='completed'?'Completed':'On Hold';
+    var stBdg = p.status==='progress'
+      ? '<span class="bdg" style="background:rgba(47,128,237,.25);color:#93c5fd;font-size:8.5px">&#9679; In Progress</span>'
+      : p.status==='completed'
+      ? '<span class="bdg b-tl" style="font-size:8.5px">&#10003; Completed</span>'
+      : '<span class="bdg b-amber" style="font-size:8.5px">On Hold</span>';
+    return '<div class="proj-card-item fa" style="animation-delay:'+(pi*0.07)+'s" onclick="openProject(\''+p.id+'\')">'
+      // Dark gradient header with progress ring
+      +'<div style="height:155px;background:'+bg+';position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden">'
+      +makeRing(p.pct, 82, 'rgba(255,255,255,.9)')
+      +'<div style="position:absolute;top:10px;left:10px">'+stBdg+'</div>'
+      +'<div style="position:absolute;top:10px;right:10px"><span class="bdg" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.65);font-size:8px">'+ml[p.pctMethod]+'</span></div>'
+      +'<div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.15)"><div style="height:100%;width:'+p.pct+'%;background:rgba(255,255,255,.55)"></div></div>'
+      +'<div class="pc-arrow" style="position:absolute;bottom:12px;right:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.8" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>'
+      +'</div>'
+      // Card body
+      +'<div style="padding:14px 16px">'
+      +'<div style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch);margin-bottom:3px">'+p.name+'</div>'
+      +'<div style="font-size:11.5px;color:var(--mu);margin-bottom:10px;display:flex;align-items:center;gap:5px">'
+      +'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'+p.customer+'</div>'
+      +'<div class="g2" style="gap:8px;margin-bottom:12px">'
+      +'<div style="background:var(--off);border-radius:8px;padding:8px 10px"><div style="font-size:9px;font-weight:700;color:var(--mu);text-transform:uppercase;font-family:var(--m);margin-bottom:2px">Phase</div><div style="font-family:var(--m);font-size:12px;font-weight:700">'+p.phase+'</div></div>'
+      +'<div style="background:var(--off);border-radius:8px;padding:8px 10px"><div style="font-size:9px;font-weight:700;color:var(--mu);text-transform:uppercase;font-family:var(--m);margin-bottom:2px">Day</div><div style="font-family:var(--m);font-size:12px;font-weight:700">'+p.days+'</div></div>'
+      +'</div>'
+      +'<div style="display:flex;gap:6px">'
+      +'<button class="btn btn-sm" style="background:linear-gradient(135deg,var(--accent),#e8751a);color:#fff;font-weight:800;flex:1;justify-content:center;font-size:12px" onclick="event.stopPropagation();openProject(\''+p.id+'\',\'dpr\')">'
+      +'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><polyline points="9 16 11 18 15 14"/></svg>DPR</button>'
+      +'<button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center" onclick="event.stopPropagation();openProject(\''+p.id+'\')">'
+      +'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>'
+      +'</div>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function filterProjSearch(val) {
+  var orig = PROJECTS;
+  var filtered = PROJECTS.filter(function(p){
+    return p.name.toLowerCase().indexOf(val.toLowerCase())>-1
+      || p.customer.toLowerCase().indexOf(val.toLowerCase())>-1
+      || p.id.toLowerCase().indexOf(val.toLowerCase())>-1;
+  });
+  PROJECTS = filtered;
+  if (currentProjView === 'card') renderProjCards(); else renderProjects();
+  PROJECTS = orig;
+}
+
+// Active project for all inner tabs
+var activeProject = PROJECTS[0];
+
+function openProject(id, tab) {
+  activeProject = PROJECTS.filter(function(p){ return p.id===id; })[0] || PROJECTS[0];
+  // Update project detail header
+  var titleEl = document.getElementById('pd-title');
+  if (titleEl) titleEl.innerHTML = activeProject.name+' <span class="bdg b-prog" style="font-size:10px">'+activeProject.id+'</span>';
+  P('project-detail', null);
+  if (tab) {
+    setTimeout(function(){
+      var tabEl = document.querySelector('.pd-tab[data-tab="'+tab+'"]');
+      if (tabEl) switchPdTab(tabEl, tab);
+    }, 50);
+  }
+}
+
+
+// ══════════ PROJECT CODE AUTO-SERIES ══════════
+var PROJECT_SERIES_COUNT = 3; // existing projects HZB-2401 etc; new ones start HZLB-0004
+
+function getNextProjectCode() {
+  PROJECT_SERIES_COUNT++;
+  return 'HZLB-' + String(PROJECT_SERIES_COUNT).padStart(4, '0');
+}
+
+function initNewProjectModal() {
+  var code = getNextProjectCode();
+  var el = document.getElementById('proj-code-preview');
+  if (el) el.textContent = code;
+  // Reset fields
+  var fields = ['new-proj-name','new-proj-customer','new-proj-mobile','new-proj-otp'];
+  fields.forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  var st = document.getElementById('otp-status');
+  if (st) { st.textContent='Enter mobile number and send OTP first'; st.style.color='var(--mu)'; }
+}
+
+// ══════════ OTP SIMULATION (New Project Modal) ══════════
+function sendOtp() {
+  var mob = (document.getElementById('new-proj-mobile')||{}).value || '';
+  if (!mob || mob.length < 10) { toast('Enter a valid mobile number first','err'); return; }
+  var st = document.getElementById('otp-status');
+  if (st) { st.textContent = '📱 OTP sent to ' + mob + ' (use 123456 for demo)'; st.style.color='var(--blue)'; }
+  toast('OTP sent to ' + mob, 'ok');
+}
+
+function verifyOtp() {
+  var otp = (document.getElementById('new-proj-otp')||{}).value || '';
+  var st = document.getElementById('otp-status');
+  if (otp === '123456') {
+    if (st) { st.textContent = '✓ Mobile verified — customer will be linked to this number'; st.style.color='var(--tl)'; }
+    toast('Mobile number verified ✓', 'ok');
+  } else {
+    if (st) { st.textContent = '✗ Invalid OTP. Try again (use 123456 for demo)'; st.style.color='var(--rd)'; }
+    toast('Invalid OTP', 'err');
+  }
+}
+
+// ══════════ CREATE PROJECT ══════════
+function createProject() {
+  var name = (document.getElementById('new-proj-name')||{}).value || '';
+  var customer = (document.getElementById('new-proj-customer')||{}).value || '';
+  var mobile = (document.getElementById('new-proj-mobile')||{}).value || '';
+  if (!name) { toast('Enter project name','err'); return; }
+  if (!customer) { toast('Enter customer name','err'); return; }
+  if (!mobile) { toast('Enter customer mobile number','err'); return; }
+  var code = (document.getElementById('proj-code-preview')||{}).textContent || getNextProjectCode();
+  // Add to PROJECTS array
+  PROJECTS.push({
+    id: code, name: name, customer: customer, mobile: mobile,
+    type: 'Interior', prop: '2BHK Apartment', pct: 0,
+    status: 'progress', phase: 'Design', days: '0/60', pctMethod: 'hybrid'
+  });
+  toast('Project ' + code + ' created ✓', 'ok');
+  closeModal('new-project-modal');
+  // Refresh projects view
+  if (currentProjView === 'card') renderProjCards(); else renderProjects();
+}
+
+// ══════════ OTP SIMULATION (Add Customer Modal) ══════════
+function sendCustOtp() {
+  var mob = (document.getElementById('cust-mobile')||{}).value || '';
+  if (!mob || mob.length < 10) { toast('Enter a valid mobile number first','err'); return; }
+  var st = document.getElementById('cust-otp-status');
+  if (st) { st.innerHTML = '📱 OTP sent to <strong>' + mob + '</strong> — use <strong>123456</strong> for demo'; st.style.color='var(--blue)'; }
+  toast('OTP sent to ' + mob, 'ok');
+}
+
+function verifyCustOtp() {
+  var otp = (document.getElementById('cust-otp')||{}).value || '';
+  var st = document.getElementById('cust-otp-status');
+  if (otp === '123456') {
+    if (st) { st.innerHTML = '✓ Mobile verified — customer can now log in at houznext.com/livebuild'; st.style.color='var(--tl)'; }
+    toast('Mobile verified ✓', 'ok');
+  } else {
+    if (st) { st.innerHTML = '✗ Invalid OTP. Use 123456 for demo'; st.style.color='var(--rd)'; }
+    toast('Invalid OTP', 'err');
+  }
+}
+
+// ══════════ ADD CUSTOMER ══════════
+function addCustomer() {
+  var name    = (document.getElementById('cust-name')||{}).value   || '';
+  var mobile  = (document.getElementById('cust-mobile')||{}).value || '';
+  var email   = (document.getElementById('cust-email')||{}).value  || '';
+  if (!name)   { toast('Enter customer name','err');   return; }
+  if (!mobile) { toast('Enter mobile number','err');   return; }
+  var initials = name.split(' ').map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2);
+  CUSTOMERS_DATA.push({
+    name: name, phone: mobile, email: email || '—',
+    projects: 0, activeProj: '—', pct: 0, queries: 0,
+    initials: initials, col: '#2563eb'
+  });
+  toast(name + ' added ✓', 'ok');
+  closeModal('add-customer-modal');
+  renderCustomers();
+}
+
+</script>
+</body>
+</html>

@@ -28,6 +28,12 @@ function decodeJwt(token?: string | null): any | null {
   }
 }
 
+if (!process.env.NEXTAUTH_SECRET) {
+  console.warn(
+    "[next-auth] NEXTAUTH_SECRET is missing. Set it in .env (must stay stable across restarts).",
+  );
+}
+
 const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -265,8 +271,23 @@ const authOptions: NextAuthOptions = {
     signOut: env.NEXTAUTH_URL,
     signIn: "/login",
   },
+  logger: {
+    error(code, metadata) {
+      if (code === "JWT_SESSION_ERROR") {
+        console.warn(
+          "[next-auth] Could not read session cookie (often after NEXTAUTH_SECRET changed). Clear cookies for this site and sign in again.",
+        );
+        return;
+      }
+      console.error(`[next-auth][error][${code}]`, metadata);
+    },
+    warn(code) {
+      console.warn(`[next-auth][warn][${code}]`);
+    },
+    debug() {
+      /* quiet in dev */
+    },
+  },
 };
 
 export default NextAuth(authOptions);
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };

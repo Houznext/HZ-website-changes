@@ -102,19 +102,16 @@ export default function CrmDashboardPage() {
           {kpi.map((k) => (
             <div
               key={k.label}
-              className="acard stat-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-              style={{ borderColor: '#e2e8f0' }}
+              className="stat"
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                <span style={{ fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b', fontFamily: 'Montserrat, sans-serif' }}>
-                  {k.label}
-                </span>
-                <span style={{ width: 36, height: 36, borderRadius: 10, background: k.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <k.icon {...ic} color={k.color} />
-                </span>
-              </div>
-              <div className="stat-val" style={{ color: k.color }}>
-                {k.value.toLocaleString('en-IN')}
+              <span className="stat-icon" style={{ background: k.bg }}>
+                <k.icon {...ic} color={k.color} />
+              </span>
+              <div>
+                <div className="stat-lbl">{k.label}</div>
+                <div className="stat-val" style={{ color: k.color }}>
+                  {k.value.toLocaleString('en-IN')}
+                </div>
               </div>
             </div>
           ))}
@@ -163,7 +160,7 @@ export default function CrmDashboardPage() {
               </div>
             </div>
 
-            <div className="acard" style={{ background: '#fff5f5', borderColor: '#fca5a5' }}>
+            <div className="acard crm-overdue-card">
               <div style={{ fontWeight: 800, fontSize: 12, color: '#b91c1c', marginBottom: 10 }}>Overdue follow-ups</div>
               {(stats?.overdueLeadsPreview ?? []).slice(0, 3).map((l) => (
                 <div key={l.id} style={{ fontSize: 12.5, marginBottom: 8 }}>
@@ -185,7 +182,7 @@ export default function CrmDashboardPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 16, marginTop: 16 }} className="max-lg:grid-cols-1">
           <div className="acard" style={{ padding: 0, overflow: 'auto' }}>
             <div style={{ padding: '14px 16px', borderBottom: '1px solid #f0f4f8', fontWeight: 700, fontFamily: 'Montserrat, sans-serif' }}>Recent leads</div>
-            <table className="atbl">
+            <table className="atbl crm-table">
               <thead>
                 <tr>
                   <th>Lead</th>
@@ -233,7 +230,7 @@ export default function CrmDashboardPage() {
                       <StageBadge stage={r.stage} />
                     </td>
                     <td>
-                      <span className={r.priority === 'hot' ? 'p-hot' : r.priority === 'warm' ? 'p-warm' : 'p-cold'} style={{ borderRadius: 20, padding: '2px 8px', fontWeight: 700 }}>
+                      <span className={`bdg ${r.priority === 'hot' ? 'p-hot' : r.priority === 'warm' ? 'p-warm' : 'p-cold'}`}>
                         {r.priority}
                       </span>
                     </td>

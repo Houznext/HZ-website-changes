@@ -15,6 +15,7 @@ import {
   GitBranch,
   Home,
   Image,
+  LayoutGrid,
   Inbox,
   MessageSquare,
   Search,
@@ -183,7 +184,21 @@ export function AdminLayout({
           <div className="asec">Content</div>
           <NavRow href="/projects" label="Projects" icon={Home} badgeVariant="blue" active={path.startsWith('/projects')} />
           <NavRow href="/rera-docs" label="RERA & documents" icon={FileText} badgeVariant="blue" active={path.startsWith('/rera-docs')} />
-          <NavRow href="/hero-cms" label="Hero image CMS" icon={Image} badgeVariant="blue" active={path.startsWith('/hero-cms')} />
+          <div className="asec">Website CMS</div>
+          <NavRow
+            href="/website-cms/hero"
+            label="Website Hero"
+            icon={Image}
+            badgeVariant="blue"
+            active={path.startsWith('/website-cms/hero')}
+          />
+          <NavRow
+            href="/website-cms/browse-by-type"
+            label="Browse by type"
+            icon={LayoutGrid}
+            badgeVariant="blue"
+            active={path.startsWith('/website-cms/browse-by-type')}
+          />
 
           <div className="asec">CRM</div>
           <NavRow
@@ -324,3 +339,4 @@ export function AdminLayout({
     </div>
   );
 }
+

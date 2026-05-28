@@ -55,9 +55,6 @@ export function Footer() {
             <Link href="/news" className="hover:text-white">
               News & Guides
             </Link>
-            <Link href="/developers" className="hover:text-white">
-              Developer portal
-            </Link>
           </ul>
         </div>
       </div>

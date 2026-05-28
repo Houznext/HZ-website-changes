@@ -6,7 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { InfraProperty } from './entities/infra-property.entity';
 import { InfraPropertyMedia } from './entities/infra-property-media.entity';
 import { InfraPropertyDetails } from './entities/infra-property-details.entity';
@@ -18,6 +18,13 @@ import { ListingFor } from '../common/enums/infra.enums';
 import { InfraMailService, PropertyAlertAction } from '../common/mail/infra-mail.service';
 import { infraBusinessWhatsappE164 } from '../common/infra-public-contact';
 import { sanitizeYoutubeVideoUrl } from '../common/youtube-url';
+import {
+  buildPropertySearchBlob,
+  fuzzyTokenVariants,
+  normalizeSearchText,
+  parsePropertySearchQuery,
+  scorePropertyMatch,
+} from './property-search.util';
 
 function toDec(n?: number | string | null): string | null {
   if (n === undefined || n === null || n === '') return null;
@@ -217,6 +224,23 @@ export class PropertyService {
   }
 
   async list(filters: FilterPropertyDto, publicOnly: boolean) {
+    const q = filters.q?.trim();
+    if (q && q.length >= 2) {
+      return this.searchPublic(q, {
+        hintType: filters.hintType ?? filters.propertyType ?? filters.type,
+        page: filters.page,
+        limit: filters.limit,
+        city: filters.city,
+        bhk: filters.bhk,
+        minPrice: filters.minPrice,
+        maxPrice: filters.maxPrice,
+        status: filters.status,
+        listingFor: filters.listingFor,
+        isFeatured: filters.isFeatured,
+        sortBy: filters.sortBy,
+      });
+    }
+
     const page = Math.max(1, filters.page ?? 1);
     const limit = Math.min(50, Math.max(1, filters.limit ?? 20));
     const qb = this.propRepo
@@ -257,6 +281,165 @@ export class PropertyService {
     return { data, items: data, total, page, limit, totalPages };
   }
 
+  async searchPublic(
+    rawQuery: string,
+    opts?: {
+      hintType?: string;
+      page?: number;
+      limit?: number;
+      city?: string;
+      type?: string;
+      bhk?: string;
+      minPrice?: number;
+      maxPrice?: number;
+      status?: string;
+      listingFor?: string;
+      isFeatured?: boolean;
+      sortBy?: string;
+    },
+  ) {
+    const parsed = parsePropertySearchQuery(rawQuery);
+    const page = Math.max(1, opts?.page ?? 1);
+    const limit = Math.min(50, Math.max(1, opts?.limit ?? 20));
+
+    const searchTokens = [
+      ...new Set([
+        ...parsed.tokens,
+        ...parsed.locationTokens,
+        ...parsed.tokens.flatMap((t) => fuzzyTokenVariants(t)),
+      ]),
+    ].slice(0, 14);
+
+    const qb = this.propRepo
+      .createQueryBuilder('p')
+      .leftJoinAndSelect('p.media', 'm')
+      .leftJoinAndSelect('p.details', 'd')
+      .where('p.isApproved = true')
+      .andWhere('p.isActive = true');
+
+    const textFields = [
+      'p.title',
+      'p.city',
+      'p.locality',
+      'p.address',
+      'p.description',
+      'p.landUseType',
+      'p.layoutName',
+      'p.zoneType',
+      'p.bhkType',
+      'p.towerName',
+      'p.surveyNumber',
+      'p.approvalAuthority',
+      'p.approvalType',
+      'p.propertyCode',
+      'p.slug',
+      'd.additionalNotes',
+    ];
+
+    if (searchTokens.length || parsed.propertyIdHint || parsed.propertyCodeHint) {
+      qb.andWhere(
+        new Brackets((sub) => {
+          searchTokens.forEach((tok, i) => {
+            const pat = `%${tok}%`;
+            sub.orWhere(
+              new Brackets((inner) => {
+                textFields.forEach((field) => {
+                  inner.orWhere(`LOWER(${field}) LIKE :tok${i}`, { [`tok${i}`]: pat });
+                });
+                inner.orWhere(`LOWER(CAST(p.propertyType AS TEXT)) LIKE :tok${i}`, { [`tok${i}`]: pat });
+                inner.orWhere(`LOWER(CAST(p.propertyId AS TEXT)) LIKE :tok${i}`, { [`tok${i}`]: pat });
+                inner.orWhere(`LOWER(COALESCE(array_to_string(p.amenities, ' '), '')) LIKE :tok${i}`, {
+                  [`tok${i}`]: pat,
+                });
+                inner.orWhere(`LOWER(COALESCE(array_to_string(p.highlights, ' '), '')) LIKE :tok${i}`, {
+                  [`tok${i}`]: pat,
+                });
+              }),
+            );
+          });
+          const compact = normalizeSearchText(rawQuery).replace(/\s+/g, '');
+          if (compact.length >= 2) {
+            sub.orWhere('LOWER(COALESCE(p.propertyCode, \'\')) LIKE :compact', {
+              compact: `%${compact}%`,
+            });
+          }
+          if (parsed.propertyIdHint) {
+            sub.orWhere('CAST(p.propertyId AS TEXT) ILIKE :pid', {
+              pid: `%${parsed.propertyIdHint}%`,
+            });
+          }
+          if (parsed.propertyCodeHint) {
+            const digits = parsed.propertyCodeHint.replace(/\D/g, '');
+            if (digits) {
+              sub.orWhere('LOWER(COALESCE(p.propertyCode, \'\')) LIKE :codeDigits', {
+                codeDigits: `%${digits}%`,
+              });
+            }
+          }
+        }),
+      );
+    }
+
+    const candidates = await qb.take(150).getMany();
+
+    let scored = candidates
+      .map((p) => {
+        const score = scorePropertyMatch(
+          {
+            ...p,
+            additionalNotes: (p as InfraProperty & { details?: InfraPropertyDetails }).details
+              ?.additionalNotes,
+          },
+          parsed,
+          opts?.hintType ?? opts?.type,
+        );
+        return { p, score };
+      })
+      .filter((x) => x.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    if (!scored.length && candidates.length) {
+      scored = candidates.map((p) => ({ p, score: 1 }));
+    }
+
+    let rows = scored.map((x) => x.p);
+
+    if (opts?.city) {
+      const city = opts.city.toLowerCase();
+      rows = rows.filter((p) => p.city?.toLowerCase().includes(city) || p.locality?.toLowerCase().includes(city));
+    }
+    if (opts?.type) {
+      rows = rows.filter((p) => String(p.propertyType) === opts.type);
+    }
+    if (opts?.bhk) rows = rows.filter((p) => p.bhkType === opts.bhk);
+    if (opts?.status) rows = rows.filter((p) => String(p.constructionStatus) === opts.status);
+    if (opts?.listingFor) rows = rows.filter((p) => String(p.listingFor) === opts.listingFor);
+    if (opts?.isFeatured === true) rows = rows.filter((p) => p.isFeatured);
+    if (opts?.minPrice !== undefined) {
+      rows = rows.filter((p) => Number(p.basePrice ?? 0) >= opts.minPrice!);
+    }
+    if (opts?.maxPrice !== undefined) {
+      rows = rows.filter((p) => Number(p.basePrice ?? 0) <= opts.maxPrice!);
+    }
+
+    const sort = opts?.sortBy || 'relevance';
+    if (sort === 'price_asc') {
+      rows.sort((a, b) => Number(a.basePrice ?? 0) - Number(b.basePrice ?? 0));
+    } else if (sort === 'price_desc') {
+      rows.sort((a, b) => Number(b.basePrice ?? 0) - Number(a.basePrice ?? 0));
+    } else if (sort === 'oldest') {
+      rows.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    } else if (sort !== 'relevance') {
+      rows.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    }
+
+    const total = rows.length;
+    const slice = rows.slice((page - 1) * limit, page * limit);
+    const data = slice.map((p) => this.toPublic(p));
+    const totalPages = Math.ceil(total / limit) || 1;
+    return { data, items: data, total, page, limit, totalPages };
+  }
+
   async findBySlug(slug: string): Promise<Record<string, unknown>> {
     const p = await this.propRepo.findOne({
       where: { slug },
@@ -264,6 +447,21 @@ export class PropertyService {
     });
     if (!p || !p.isActive || !p.isApproved) throw new NotFoundException('Property not found');
     return this.toPublic(p);
+  }
+
+  async findBySlugs(slugs: string[]): Promise<Record<string, unknown>[]> {
+    const unique = [...new Set(slugs.map((s) => s.trim()).filter(Boolean))].slice(0, 24);
+    if (!unique.length) return [];
+    const rows = await this.propRepo
+      .createQueryBuilder('p')
+      .leftJoinAndSelect('p.media', 'm')
+      .where('p.slug IN (:...slugs)', { slugs: unique })
+      .andWhere('p.isApproved = true')
+      .andWhere('p.isActive = true')
+      .getMany();
+    const order = new Map(unique.map((s, i) => [s, i]));
+    rows.sort((a, b) => (order.get(a.slug ?? '') ?? 0) - (order.get(b.slug ?? '') ?? 0));
+    return rows.map((p) => this.toPublic(p));
   }
 
   async findById(id: string): Promise<InfraProperty> {

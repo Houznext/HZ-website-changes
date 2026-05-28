@@ -1,6 +1,14 @@
-import { filtersdata } from "@/components/LivebuildComponent/ServicesSelectedView/helper";
+const DATE_FILTERS = [
+  { id: 'all' },
+  { id: 'today' },
+  { id: 'yesterday' },
+  { id: 'last7Days' },
+  { id: 'last14Days' },
+  { id: 'lastMonth' },
+  { id: 'custom' },
+] as const;
 
-type FilterType = (typeof filtersdata)[number]["id"];
+type FilterType = (typeof DATE_FILTERS)[number]['id'];
 export function getDateRange(
   filter: FilterType,
   customRange?: { startDate: string; endDate: string }

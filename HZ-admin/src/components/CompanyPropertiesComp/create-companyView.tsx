@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import CustomInput from "@/src/common/FormElements/CustomInput";
 import CompanyAddress from "./companyAddress";
 import CompanyAward from "./companyAward";
-import { ResendIcon } from "@/src/features/CustomBuilder/Icons";
+import { ResendIcon } from "@/src/components/shared/AdminIcons";
 import { IoArrowBack } from "react-icons/io5";
 import Loader from "@/src/common/Loader";
 

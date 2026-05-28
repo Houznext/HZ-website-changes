@@ -28,7 +28,6 @@ export class DeleteAccountService {
         'orders',
         'addresses',
         'costEstimators',
-        'customBuilders',
         'project',
         'company'
       ],
@@ -58,7 +57,6 @@ export class DeleteAccountService {
         'wishlist',
         'orders',
         'addresses',
-        'customBuilders',
         'costEstimators',
         'project',
         'company',
@@ -81,7 +79,6 @@ export class DeleteAccountService {
         testimonials: user?.testimonials?.length,
         orders: user?.orders?.length,
         locations: user?.locations?.length,
-        customBuilders: user?.customBuilders?.length,
         costEstimators: user?.costEstimators?.length,
         crmLeads: user?.crmLeads?.length,
         hasCart: !!user?.cart,

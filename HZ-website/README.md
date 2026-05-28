@@ -14,3 +14,13 @@
 ## Closed tasks
 - [X] Add icons in user property view page. (Sharath)
 - [X] Update interior calculator design. (Sharath)
+
+## Sitemap generation
+- Canonical sitemap generation uses `scripts/generate-sitemaps.mjs`.
+- Run:
+  - `npm run sitemap:generate`
+  - `npm run sitemap:verify`
+- Build pipeline runs both automatically via `postbuild`.
+- Legacy URLs are blocked in generation and verification:
+  - `/careers/apply`
+  - `/interiors/privacy-policy` (case-insensitive)

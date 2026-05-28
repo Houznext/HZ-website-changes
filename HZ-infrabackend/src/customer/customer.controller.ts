@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpCode, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CustomerService } from './customer.service';
+import { EnquiryService } from '../enquiry/enquiry.service';
 import { RegisterCustomerDto, UpdateCustomerDto } from './dto/customer.dto';
 import { CustomerPhoneSendDto, CustomerPhoneVerifyDto } from './dto/customer-phone.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -11,7 +12,10 @@ import { JwtPayload } from '../auth/jwt.strategy';
 @ApiTags('customers')
 @Controller('customers')
 export class CustomerController {
-  constructor(private readonly customers: CustomerService) {}
+  constructor(
+    private readonly customers: CustomerService,
+    private readonly enquiries: EnquiryService,
+  ) {}
 
   @Post('register')
   @UseGuards(JwtAuthGuard, CustomerGuard)
@@ -25,6 +29,15 @@ export class CustomerController {
   @ApiBearerAuth()
   me(@CurrentUser() user: JwtPayload) {
     return this.customers.me(user.sub);
+  }
+
+  @Get('me/enquiries')
+  @UseGuards(JwtAuthGuard, CustomerGuard)
+  @ApiBearerAuth()
+  async myEnquiries(@CurrentUser() user: JwtPayload) {
+    const me = await this.customers.me(user.sub);
+    const phone10 = me.phone?.replace(/\D/g, '').slice(-10) ?? null;
+    return this.enquiries.listForCustomer(user.sub, phone10);
   }
 
   @Patch('me')

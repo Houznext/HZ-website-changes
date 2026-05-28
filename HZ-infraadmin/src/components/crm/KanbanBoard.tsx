@@ -16,7 +16,7 @@ export function KanbanBoard({
 
   return (
     <>
-      <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 10 }}>
+      <div className="crm-kanban-board">
         {CRM_STAGES.map((col) => {
           const cards = pipeline[col.id] ?? [];
           return (

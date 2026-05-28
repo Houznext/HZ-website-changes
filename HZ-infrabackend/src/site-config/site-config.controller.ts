@@ -11,4 +11,9 @@ export class SiteConfigController {
   hero() {
     return this.cfg.getHero();
   }
+
+  @Get('browse-by-type')
+  browseByType() {
+    return this.cfg.getBrowseByType();
+  }
 }

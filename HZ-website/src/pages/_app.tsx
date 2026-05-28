@@ -1,5 +1,6 @@
 import { SessionProvider } from "next-auth/react";
 import "../styles/tailwind.css";
+import "../styles/livebuild.css";
 import type { ReactElement, ReactNode } from "react";
 import type { NextPage } from "next";
 import { type Session } from "next-auth";

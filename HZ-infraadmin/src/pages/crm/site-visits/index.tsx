@@ -42,18 +42,17 @@ export default function CrmSiteVisitsPage() {
             ['Completed', rows.filter((v) => v.status === 'completed').length],
             ['Conversion (est.)', rows.length ? Math.round((rows.filter((v) => v.status === 'completed').length / rows.length) * 100) : 0],
           ].map(([a, b]) => (
-            <div key={String(a)} className="acard stat-card">
-              <div style={{ fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase', color: '#64748b' }}>{a}</div>
-              <div className="stat-val" style={{ marginTop: 6 }}>
-                {b}
-                {String(a).includes('Conversion') ? '%' : ''}
+            <div key={String(a)} className="stat" style={{ cursor: 'default' }}>
+              <div>
+                <div className="stat-lbl">{a}</div>
+                <div className="stat-val">{b}{String(a).includes('Conversion') ? '%' : ''}</div>
               </div>
             </div>
           ))}
         </div>
 
         <div className="acard" style={{ marginTop: 16, padding: 0, overflow: 'auto' }}>
-          <table className="atbl">
+          <table className="atbl crm-table">
             <thead>
               <tr>
                 <th>Lead</th>

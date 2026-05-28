@@ -14,7 +14,6 @@ import {
   UpdateInvoiceEstimatorDto,
 } from './dto/invoice-estimator.dto';
 import { InvoiceEstimator } from './entities/invoice-estimator.entity';
-import { CustomBuilder } from 'src/livebuild/entities/custom-builder.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
 import { RequestUser } from 'src/guard';
 import { MailerService } from 'src/sendEmail.service';
@@ -27,9 +26,6 @@ export class InvoiceEstimatorService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-
-    @InjectRepository(CustomBuilder)
-    private readonly customBuilderRepository: Repository<CustomBuilder>,
 
     @InjectRepository(Branch)
     private readonly branchRepository: Repository<Branch>,
@@ -61,20 +57,10 @@ export class InvoiceEstimatorService {
         }
       }
 
-      let customBuilder: CustomBuilder | null = null;
-      if (customBuilderId) {
-        customBuilder = await this.customBuilderRepository.findOne({
-          where: { id: customBuilderId },
-        });
-        if (!customBuilder) {
-          throw new BadRequestException('Custom builder not found');
-        }
-      }
-
       const invoice = this.invoiceEstimatorRepository.create({
         ...dto,
         branchId: normalizedBranchId,
-        customBuilder,
+        customBuilderId: customBuilderId || null,
         postedBy: adminUser,
         branch,
       });
@@ -172,7 +158,7 @@ export class InvoiceEstimatorService {
     try {
       const invoice = await this.invoiceEstimatorRepository.findOne({
         where: { id },
-        relations: ['postedBy', 'branch', 'customBuilder'],
+        relations: ['postedBy', 'branch'],
       });
       if (!invoice) {
         throw new NotFoundException(`Invoice with ID ${id} not found`);
@@ -191,7 +177,7 @@ export class InvoiceEstimatorService {
     try {
       const invoice = await this.invoiceEstimatorRepository.findOne({
         where: { id },
-        relations: ['postedBy', 'branch', 'customBuilder'],
+        relations: ['postedBy', 'branch'],
       });
 
       if (!invoice) {
@@ -220,25 +206,6 @@ export class InvoiceEstimatorService {
         }
         invoice.branch = branch;
         invoice.branchId = branch.id;
-      }
-
-      if (
-        typeof updateInvoiceEstimatorDto.customBuilderId !== 'undefined' &&
-        updateInvoiceEstimatorDto.customBuilderId !== invoice.customBuilderId
-      ) {
-        if (updateInvoiceEstimatorDto.customBuilderId === null) {
-          invoice.customBuilder = null;
-          invoice.customBuilderId = null;
-        } else {
-          const customBuilder = await this.customBuilderRepository.findOne({
-            where: { id: updateInvoiceEstimatorDto.customBuilderId },
-          });
-          if (!customBuilder) {
-            throw new BadRequestException('Custom builder not found');
-          }
-          invoice.customBuilder = customBuilder;
-          invoice.customBuilderId = customBuilder.id;
-        }
       }
 
       const updatedInvoice = Object.assign(invoice, {
@@ -314,25 +281,6 @@ export class InvoiceEstimatorService {
       console.error('Failed to send email:', error);
       throw new InternalServerErrorException('Unable to send email');
     }
-  }
-
-  async findByCustomBuilderId(
-    customBuilderId: string,
-  ): Promise<InvoiceEstimator[]> {
-    const builder = await this.customBuilderRepository.findOne({
-      where: { id: customBuilderId },
-    });
-
-    if (!builder) {
-      throw new NotFoundException(
-        `CustomBuilder with ID ${customBuilderId} not found`,
-      );
-    }
-
-    return this.invoiceEstimatorRepository.find({
-      where: { customBuilder: { id: customBuilderId } },
-      order: { id: 'DESC' },
-    });
   }
 
   async findByCustomerMobile(mobile: string): Promise<InvoiceEstimator[]> {

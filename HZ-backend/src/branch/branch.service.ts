@@ -29,7 +29,7 @@ import { PermissionResourceEnum } from 'src/permission/enum/permission.enum';
 import {
   VerifyCustomerOtpDto,
   VerifyEmailDto,
-} from 'src/livebuild/customer/dto/customer.dto';
+} from 'src/branch/dto/verify-customer.dto';
 
 type RequestUser = {
   id: string;

@@ -12,6 +12,18 @@ if (!infraBackendUrl) infraBackendUrl = 'http://127.0.0.1:4001';
 const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
+  env: {
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID:
+      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+      process.env.GOOGLE_CLIENT_ID ||
+      '',
+  },
+  async redirects() {
+    return [
+      { source: '/seen-properties', destination: '/profile?tab=seen', permanent: false },
+      { source: '/saved-properties', destination: '/profile?tab=saved', permanent: false },
+    ];
+  },
   async rewrites() {
     return [
       {

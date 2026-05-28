@@ -400,8 +400,8 @@ const handleAddOrUpdateResource = () => {
   };
 
   return (
-    <div className="md:p-6 p-2 bg-white rounded-lg shadow-md w-full max-w-full">
-      <form onSubmit={handleSubmit} className="md:space-y-4 space-y-2">
+    <div className="md:p-4 p-2 w-full max-w-full">
+      <form onSubmit={handleSubmit} className="md:space-y-4 space-y-3">
         <div className="flex flex-col gap-y-[4px] w-full max-w-full  px-0">
           <SingleSelect
             type="single-select"
@@ -453,7 +453,7 @@ const handleAddOrUpdateResource = () => {
 
         <div className="flex flex-col max-h-[600px] h-[300px] justify-between border md:p-3 p-2 rounded-md">
           <div>
-            <p className="md:text-[16px] text-[12px] text-[#3586FF] font-bold mb-2">
+            <p className="md:text-[14px] text-[12px] font-bold mb-2" style={{ fontFamily: "var(--br-m, Montserrat, sans-serif)", color: "var(--br-navy, #0f2a44)" }}>
               {editIndex !== null
                 ? "Edit Resource Permission"
                 : "Add Resource Permission"}
@@ -497,7 +497,7 @@ const handleAddOrUpdateResource = () => {
 
           <div className="flex justify-between w-full">
             <Button
-              className="border-[#5297FF] border-[2px] btn-text  py-[3px] md:px-[20px] mt-3 px-[12px] rounded-[6px] font-medium"
+              className="btn btn-ghost btn-sm"
               onClick={() => {
                 setEditIndex(null);
                 setNewResource({
@@ -513,7 +513,7 @@ const handleAddOrUpdateResource = () => {
               Cancel
             </Button>
             <Button
-              className="bg-[#5297FF] btn-text  py-[3px] md:px-[20px] mt-3 px-[12px] rounded-[6px] text-white font-medium"
+              className="btn btn-blue btn-sm"
               type="button"
               onClick={handleAddOrUpdateResource}
             >
@@ -528,28 +528,16 @@ const handleAddOrUpdateResource = () => {
               No permissions added yet.
             </p>
           ) : (
-            <div className="overflow-x-auto border rounded-md shadow-sm">
-              <table className="min-w-full border-collapse">
-                <thead className="bg-gray-50 border-b">
+            <div className="atbl-wrap" style={{ border: "0.5px solid #e2e8f0", borderRadius: 10 }}>
+              <table className="atbl">
+                <thead>
                   <tr>
-                    <th className="text-left md:py-[6px] py-1 md:px-6 px-3 md:text-sm text-[12px] font-medium text-gray-600">
-                      Resource
-                    </th>
-                    <th className="text-center md:py-[6px] py-1 md:px-6 px-3 text-[12px] font-medium text-gray-600">
-                      Create
-                    </th>
-                    <th className="text-center md:py-[6px] py-1 md:px-6 px-3 text-[12px] font-medium text-gray-600">
-                      Read
-                    </th>
-                    <th className="text-center md:py-[6px] py-1 md:px-6 px-3 text-[12px] font-medium text-gray-600">
-                      Update
-                    </th>
-                    <th className="text-center md:py-[6px] py-1 md:px-6 px-3 text-[12px] font-medium text-gray-600">
-                      Delete
-                    </th>
-                    <th className="text-center md:py-[6px] py-1 md:px-6 px-3 text-[12px] font-medium text-gray-600">
-                      Actions
-                    </th>
+                    <th>Resource</th>
+                    <th>Create</th>
+                    <th>View</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -558,7 +546,7 @@ const handleAddOrUpdateResource = () => {
                       key={idx}
                       className="border-t hover:bg-gray-50 transition-colors"
                     >
-                      <td className="py-2 px-4 text-left font-medium text-[#3586FF]  text-[10px] md:text-[12px]">
+                      <td style={{ fontFamily: "monospace", fontSize: 12 }}>
                         {formatResourceName(perm.resource)}
                       </td>
                       {["create", "view", "edit", "delete"].map((action) => (
@@ -617,18 +605,10 @@ const handleAddOrUpdateResource = () => {
         </div>
 
         <div className="flex justify-end gap-2 mt-4">
-          <Button
-            className="bg-white border border-[#5297ff] btn-text py-[3px] md:px-[10px] mt-3 px-[12px] rounded-[6px] font-medium"
-            onClick={onClose}
-            disabled={loading}
-          >
+          <Button className="btn btn-ghost" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
-          <Button
-            type="submit"
-            className="bg-[#5297FF] btn-text md:py-[5px] py-[3px] md:px-[10px]  mt-3 px-[12px] rounded-[6px] text-white font-medium"
-            disabled={loading}
-          >
+          <Button type="submit" className="btn btn-blue" disabled={loading}>
             {loading ? "Saving..." : role ? "Update Role" : "Create Role"}
           </Button>
         </div>

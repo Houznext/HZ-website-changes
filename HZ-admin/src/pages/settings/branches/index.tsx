@@ -14,11 +14,11 @@ const BranchesPage: React.FC = () => {
   if (!hasAccess) return <AccessDenied resource="Branches" />;
 
   return (
-    <div className="flex flex-col w-full justify-center">
-      <div className=" p-3 md:p-5">
+    <div className="br-admin-root flex flex-col w-full">
+      <div className="px-3 pt-3 md:px-5 md:pt-4">
         <BackRoute />
       </div>
-      <div className="w-full min-h-screen">
+      <div className="w-full px-3 pb-6 md:px-5 md:pb-8">
         <BranchesView />
       </div>
     </div>

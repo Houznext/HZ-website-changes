@@ -25,7 +25,7 @@ export function KanbanCard({ lead }: { lead: KanbanLead }) {
     <Link href={`/crm/leads/${lead.id}`} className="k-card block no-underline text-inherit">
       <div className="flex items-start justify-between gap-2">
         <div className="k-name">{lead.fullName}</div>
-        <span className={clsx('rounded-full px-2 py-0.5 font-montserrat font-bold uppercase', pri)}>{lead.priority}</span>
+        <span className={clsx('bdg', pri)}>{lead.priority}</span>
       </div>
       <div className="k-prop">
         {lead.propertyType}

@@ -11,8 +11,7 @@ import Loader from "@/src/common/Loader";
 import CheckboxInput from "@/src/common/FormElements/CheckBoxInput";
 import SingleSelect from "@/src/common/FormElements/SingleSelect";
 import CustomInput from "@/src/common/FormElements/CustomInput";
-import ReusableSearchFilter from "@/src/common/SearchFilter";
-import { ViewToggleIcons } from "@/src/features/CustomBuilder/ViewSelector";
+import { ViewToggleIcons } from "@/src/components/shared/ViewToggleIcons";
 import BranchNavigation from "./BranchNavigation";
 import UserDetailsView from "./UserDetails";
 import BranchRoleForm from "./BranchRoleForm";
@@ -20,17 +19,11 @@ import BranchStatistics from "./BranchStatistics";
 import { useSession } from "next-auth/react";
 import CreateBranch from "./CreateBranch";
 import {
-  Building2,
   Users as UsersIcon,
   ShieldCheck,
   UserPlus,
   Plus,
-  Pencil,
   Trash2,
-  User,
-  Crown,
-  Phone,
-  Tag,
 } from "lucide-react";
 import PaginationControls from "../CrmView/pagination";
 
@@ -83,9 +76,8 @@ export default function BranchesView() {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState<"users" | "roles">("users");
-  const [view, setView] = useState<"cards" | "compact">("cards");
+  const [view, setView] = useState<"cards" | "compact">("compact");
   const [query, setQuery] = useState("");
-  const [selectedFilters, setSelectedFilters] = useState<any>({});
   const [isLoading, setIsLoading] = useState(false);
 
   // Modals & Drawers
@@ -608,35 +600,23 @@ export default function BranchesView() {
   }
 
   return (
-    <div className="mx-auto md:p-4 p-3 md:space-y-6 space-y-4 w-full bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20 min-h-screen">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white rounded-[6px] shadow-sm border border-gray-200 p-2 md:p-3">
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-gradient-to-br from-blue-400 to-blue-500 rounded-[6px] shadow-lg">
-            <Building2 className="w-6 h-6 md:w-7 md:h-7 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl md:text-2xl font-bold text-gray-800">
-              Branch & Role Management
-            </h1>
-            <p className="text-[10px] md:text-[12px] text-gray-600 font-medium mt-1">
-              Manage your organization's structure and permissions
-            </p>
-          </div>
+    <div className="mx-auto w-full">
+      <div className="page-hd">
+        <div>
+          <h1>Branches</h1>
+          <p>Manage branch hierarchy, users, and roles &amp; permissions</p>
         </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          {canCreateBranch && (
-            <Button
-              onClick={() => {
-                setEditingBranch(null);
-                setOpenDrawer(true);
-              }}
-              className="bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-600 hover:to-blue-600 text-white font-medium text-xs md:text-[12px] px-3 md:px-4 py-2 rounded-lg flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
-            >
-              <Plus className="w-4 h-4" /> Create Branch
-            </Button>
-          )}
-        </div>
+        {canCreateBranch && (
+          <Button
+            onClick={() => {
+              setEditingBranch(null);
+              setOpenDrawer(true);
+            }}
+            className="btn btn-blue"
+          >
+            <Plus className="w-4 h-4" /> Create branch
+          </Button>
+        )}
       </div>
 
       <BranchStatistics
@@ -647,16 +627,8 @@ export default function BranchesView() {
         branchHasHead={branchHasHead}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <section className="lg:col-span-1">
-          <div className="bg-white rounded-[6px] border border-gray-200 shadow-sm overflow-hidden">
-            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
-              <h2 className="text-lg md:text-xl text-[#3586FF]  font-bold flex items-center gap-2">
-                <Building2 className="w-5 h-5" />
-                Branch Hierarchy
-              </h2>
-            </div>
-            <div className="p-4 max-h-[600px] overflow-y-auto">
+      <div className="br-grid">
+        <section className="acard">
               <BranchNavigation
                 branches={branches as any}
                 selectedId={selectedBranchId || ""}
@@ -701,59 +673,59 @@ export default function BranchesView() {
                   setOpenActionModal(true);
                 }}
               />
-            </div>
-          </div>
         </section>
 
-        <section className="lg:col-span-2">
-          <div className="bg-white rounded-[6px] border border-gray-200 shadow-sm px-4 py-2 mb-4">
-            <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
-              <div className="flex-1">
-                <ReusableSearchFilter
-                  searchText={query}
-                  placeholder="Search by name, phone, email, or role..."
-                  onSearchChange={setQuery}
-                  className="py-[4px]"
-                  filters={[]}
-                  rootCls="!mb-0 md:mb-0"
-                  selectedFilters={selectedFilters}
-                  onFilterChange={setSelectedFilters}
-                />
+        <section className="acard" style={{ padding: 0 }}>
+          {!selectedBranch ? (
+            <p className="br-empty" style={{ padding: 48 }}>
+              Select a branch from the tree to view users and roles
+            </p>
+          ) : (
+            <>
+          <div style={{ padding: "16px 18px 0" }}>
+            <div className="acard-hd" style={{ marginBottom: 8 }}>
+              <div>
+                <h3>{selectedBranch.name}</h3>
+                <span className={`bdg ${selectedBranch.level === "ORG" ? "b-navy" : selectedBranch.level === "STATE" ? "b-blue" : selectedBranch.level === "CITY" ? "b-teal" : "b-amber"}`} style={{ marginTop: 6 }}>
+                  {selectedBranch.level}
+                </span>
               </div>
-              <ViewToggleIcons view={view} onChange={setView} />
+            </div>
+            <div className="br-toolbar">
+              <input
+                type="text"
+                className="fi"
+                style={{ maxWidth: 320, flex: 1 }}
+                placeholder="Search users…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              <ViewToggleIcons
+                view={view === "cards" ? "grid" : "list"}
+                onChange={(v) => setView(v === "grid" ? "cards" : "compact")}
+              />
             </div>
           </div>
-          <div className="flex items-center justify-between mb-4 border-b border-gray-300 bg-white rounded-t-[6px] md:px-4 px-2 md:p-3 p-1">
-            <div className="flex gap-2  px-4 pt-1">
-              <Button
-                className={`px-4 py-2 font-medium text-[10px] md:text-[12px] transition-all ${
-                  activeTab === "users"
-                    ? "border-b-2 border-blue-500 text-blue-600"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
+          <div className="br-tabs" style={{ padding: "0 18px" }}>
+            <div style={{ display: "flex", gap: 4 }}>
+              <button
+                type="button"
+                className={`br-tab ${activeTab === "users" ? "active" : ""}`}
                 onClick={() => setActiveTab("users")}
               >
-                <UsersIcon className="md:w-4 w-3 md:h-4 h-3 inline md:mr-2 mr-1" />
-                Users ({paginatedUsers.length})
-              </Button>
-              <Button
-                className={`px-4 py-2 font-medium text-[10px] md:text-[12px] transition-all ${
-                  activeTab === "roles"
-                    ? "border-b-2 border-blue-500 text-blue-600"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
+                Users ({filteredUsers.length})
+              </button>
+              <button
+                type="button"
+                className={`br-tab ${activeTab === "roles" ? "active" : ""}`}
                 onClick={() => setActiveTab("roles")}
               >
-                <ShieldCheck className="md:w-4 w-3 md:h-4 h-3 inline md:mr-2 mr-1" />
-                Roles ({paginatedRoles.length})
-              </Button>
+                Roles ({filteredRoles.length})
+              </button>
             </div>
             {activeTab === "users" ? (
-              <Button
-                onClick={() => setOpenUserModal(true)}
-                className="bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-600 hover:to-gray-700 text-white font-medium text-xs md:text-[12px] px-3 md:px-4 py-2 rounded-lg flex items-center md:gap-2 gap-1 flex-nowrap shadow-md hover:shadow-lg transition-all"
-              >
-                <UserPlus className="w-4 h-4" /> Create User
+              <Button onClick={() => setOpenUserModal(true)} className="btn btn-blue btn-sm">
+                <UserPlus className="w-4 h-4" /> Add user
               </Button>
             ) : (
               <Button
@@ -764,135 +736,93 @@ export default function BranchesView() {
                   }
                   setOpenRoleModal(true);
                 }}
-                className="bg-gradient-to-r from-purple-300   to-purple-500 hover:from-yellow-600 hover:to-purple-700 text-white font-medium text-xs md:text-[12px] px-3 md:px-4 py-2 rounded-lg flex items-center md:gap-2 gap-1 flex-nowrap shadow-md hover:shadow-lg transition-all"
+                className="btn btn-blue btn-sm"
               >
-                <ShieldCheck className="w-4 h-4" /> Create Role
+                <ShieldCheck className="w-4 h-4" /> Add role
               </Button>
             )}
           </div>
 
           {activeTab === "roles" ? (
-            <div className="bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/20 rounded-[6px] border border-gray-200 shadow-sm p-4 md:p-6 min-h-[400px]">
+            <div style={{ padding: "12px 18px 18px", minHeight: 280 }}>
               {loadingRoles ? (
                 <div className="flex justify-center items-center py-10">
                   <Loader />
                 </div>
-              ) : !selectedBranch ? (
-                <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <ShieldCheck className="w-8 h-8 text-[#3586FF] " />
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">
-                    No Branch Selected
-                  </h3>
-                  <p className="text-[12px] text-gray-600 font-medium">
-                    Please select a branch from the hierarchy to view its roles
-                  </p>
-                </div>
               ) : paginatedRoles.length > 0 ? (
                 view === "cards" ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
+                  <div>
                     {paginatedRoles.map((role: any) => (
-                      <div
-                        key={role.id}
-                        className="relative group bg-white rounded-[6px] border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 p-4 md:p-5"
-                      >
-                        <div className="absolute inset-0 rounded-[6px] bg-gradient-to-br from-transparent via-purple-50/10 to-blue-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                        <div className="relative z-10">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2">
-                              <ShieldCheck className="w-5 h-5 text-blue-600" />
-                              <h3 className="text-base font-bold text-gray-900">
-                                {role.roleName}
-                              </h3>
-                            </div>
-                            <span
-                              className={`text-xs px-2 py-1 rounded-full font-bold ${
-                                role.isBranchHead
-                                  ? "bg-yellow-100 text-yellow-700"
-                                  : "bg-gray-100 text-gray-600"
-                              }`}
-                            >
-                              {role.isBranchHead ? "HEAD" : "MEMBER"}
+                      <div key={role.id} className="br-role-row">
+                        <div>
+                          <strong>{role.roleName}</strong>
+                          {role.isBranchHead ? (
+                            <span className="bdg b-teal" style={{ marginLeft: 8 }}>
+                              Branch head
                             </span>
+                          ) : null}
+                          <div style={{ fontSize: 11, color: "var(--br-mu)", marginTop: 4 }}>
+                            {(role.permissions?.length ?? 0)} permissions
                           </div>
-
-                          <div className="h-[1px] bg-gray-200 mb-4"></div>
-
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              onClick={() => handleEditRole(role)}
-                              className="flex items-center gap-1 text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg text-[12px] font-medium"
-                            >
-                              <Pencil className="w-4 h-4" /> Edit
-                            </Button>
-                            <Button
-                              // onClick={() => handleDeleteRole(role.id)}
-                              onClick={() => {
-                                setRoleToDelete(role);
-                                setShowDeleteRoleModal(true);
-                              }}
-                              className="flex items-center gap-1 text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg text-[12px] font-medium"
-                            >
-                              <Trash2 className="w-4 h-4" /> Delete
-                            </Button>
-                          </div>
+                        </div>
+                        <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                          <Button
+                            onClick={() => handleEditRole(role)}
+                            className="btn btn-blue btn-sm"
+                          >
+                            Edit permissions
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              setRoleToDelete(role);
+                              setShowDeleteRoleModal(true);
+                            }}
+                            className="btn btn-danger btn-sm"
+                          >
+                            Delete
+                          </Button>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="bg-white rounded-[6px] border border-gray-200 overflow-hidden">
-                    <table className="w-full">
-                      <thead className="bg-gray-50 border-b">
+                  <div className="atbl-wrap">
+                    <table className="atbl">
+                      <thead>
                         <tr>
-                          <th className="text-left px-4 py-3 text-[12px] font-bold text-gray-700">
-                            Role Name
-                          </th>
-                          <th className="text-center px-4 py-3 text-[12px] font-medium text-gray-600">
-                            Type
-                          </th>
-                          <th className="text-right px-4 py-3 text-[12px] font-bold text-gray-500">
-                            Actions
-                          </th>
+                          <th>Role</th>
+                          <th>Type</th>
+                          <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {paginatedRoles.map((role: any) => (
-                          <tr
-                            key={role.id}
-                            className="border-b hover:bg-blue-50/30"
-                          >
-                            <td className="px-4 py-3 font-medium">
-                              {role.roleName}
+                          <tr key={role.id}>
+                            <td style={{ fontWeight: 600 }}>{role.roleName}</td>
+                            <td>
+                              {role.isBranchHead ? (
+                                <span className="bdg b-teal">Branch head</span>
+                              ) : (
+                                <span className="bdg b-gray">Member</span>
+                              )}
                             </td>
-                            <td className="px-4 py-3 text-center">
-                              <span
-                                className={`text-xs px-3 py-1 rounded-full font-medium ${
-                                  role.isBranchHead
-                                    ? "bg-yellow-100 text-yellow-700"
-                                    : "bg-gray-100 text-gray-600"
-                                }`}
+                            <td>
+                              <Button
+                                onClick={() => handleEditRole(role)}
+                                className="btn btn-blue btn-sm"
+                                style={{ marginRight: 6 }}
                               >
-                                {role.isBranchHead ? "Branch Head" : "Member"}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3">
-                              <div className="flex justify-end gap-2">
-                                <Button
-                                  onClick={() => handleEditRole(role)}
-                                  className="p-2 hover:bg-blue-50 rounded"
-                                >
-                                  <Pencil className="w-4 h-4 text-blue-600" />
-                                </Button>
-                                <Button
-                                  onClick={() => handleDeleteRole(role.id)}
-                                  className="p-2 hover:bg-red-50 rounded"
-                                >
-                                  <Trash2 className="w-4 h-4 text-red-600" />
-                                </Button>
-                              </div>
+                                Edit permissions
+                              </Button>
+                              <Button
+                                onClick={() => {
+                                  setRoleToDelete(role);
+                                  setShowDeleteRoleModal(true);
+                                }}
+                                className="btn btn-danger btn-sm"
+                              >
+                                Delete
+                              </Button>
                             </td>
                           </tr>
                         ))}
@@ -901,119 +831,55 @@ export default function BranchesView() {
                   </div>
                 )
               ) : (
-                <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-blue-200">
-                  <ShieldCheck className="w-10 h-10 mx-auto text-blue-400 mb-3" />
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">
-                    No Roles Found
-                  </h3>
-                  <p className="text-[12px] text-gray-600 font-medium">
-                    Create new roles to assign responsibilities
-                  </p>
+                <div className="br-empty">
+                  <ShieldCheck className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                  <p>No roles in this branch yet</p>
                 </div>
               )}
             </div>
           ) : (
-            <div className="bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/20 rounded-[6px] border border-gray-200 shadow-sm p-4 md:p-6 min-h-[400px]">
+            <div style={{ padding: "12px 18px 18px", minHeight: 280 }}>
               {isLoading ? (
                 <div className="flex justify-center items-center py-10">
                   <Loader />
                 </div>
-              ) : !selectedBranch ? (
-                <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <UsersIcon className="w-8 h-8 text-green-600" />
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">
-                    No Branch Selected
-                  </h3>
-                  <p className="text-[12px] text-gray-600 font-medium">
-                    Please select a branch from the hierarchy to view its users
-                  </p>
-                </div>
               ) : paginatedUsers.length > 0 ? (
                 view === "cards" ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
+                  <div>
                     {paginatedUsers.map((item: any) => {
                       const { user, membership } = item;
                       const isBranchHead = membership.isBranchHead;
+                      const roleNames =
+                        membership.branchRoles
+                          ?.map((r: { roleName?: string }) => r.roleName)
+                          .filter(Boolean)
+                          .join(", ") || "—";
 
                       return (
-                        <div
-                          key={user.id}
-                          className="relative group bg-white rounded-[6px] border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 p-4 md:p-5"
-                        >
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={`relative ${
-                                  isBranchHead
-                                    ? "p-1 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full"
-                                    : ""
-                                }`}
-                              >
-                                <div
-                                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                                    isBranchHead ? "bg-white" : "bg-blue-100"
-                                  }`}
-                                >
-                                  <User
-                                    className={`w-5 h-5 ${
-                                      isBranchHead
-                                        ? "text-yellow-600"
-                                        : "text-blue-600"
-                                    }`}
-                                  />
-                                </div>
-                                {isBranchHead && (
-                                  <Crown className="absolute -top-1 -right-1 w-4 h-4 text-yellow-500" />
-                                )}
-                              </div>
-                              <div>
-                                <h3 className="text-base font-bold text-gray-900">
-                                  {user.firstName} {user.lastName}
-                                  <span
-                                    className={`text-[10px] ml-2 md:text-[12px] px-2 py-1 rounded-[2px] font-medium ${
-                                      isBranchHead
-                                        ? "bg-yellow-100 text-yellow-700"
-                                        : "bg-gray-100 text-gray-600"
-                                    }`}
-                                  >
-                                    {isBranchHead ? "HEAD" : "MEMBER"}
-                                  </span>
-                                </h3>
-                                <p className="text-[12px] text-gray-600 font-medium">
-                                  {user.email}
-                                </p>
-                              </div>
+                        <div key={user.id} className="br-role-row">
+                          <div>
+                            <div style={{ fontWeight: 600 }}>
+                              {user.firstName} {user.lastName}
+                            </div>
+                            <div style={{ fontSize: 11, color: "var(--br-mu)" }}>
+                              {user.email}
+                            </div>
+                            <div style={{ fontSize: 11, color: "var(--br-mu)", marginTop: 4 }}>
+                              {user.phone || "—"} · {membership.kind} · Roles: {roleNames}
                             </div>
                           </div>
-                          <div className="space-y-2 flex flex-row items-center gap-2  mb-1">
-                            <div className="flex items-center gap-2 text-[12px]">
-                              <Phone className="w-3 h-3 text-blue-600" />
-                              <span className="text-gray-600 text-[12px] font-medium">
-                                {user.phone || "—"}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2 text-[12px]">
-                              <Tag className="w-3 h-3 text-green-600" />
-                              <span className="text-gray-600 font-medium text-[12px]">
-                                {membership.kind}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="h-[1px] bg-gray-200"></div>
-                          <div className="flex justify-end gap-2 mt-2">
-                            <Button
-                              onClick={() => handleEditUser(item)}
-                              className="flex items-center border-gray-200 border-[1px] gap-1 text-blue-600 hover:bg-blue-50 px-3 py-1 rounded-lg text-[12px] font-medium"
-                            >
-                              <Pencil className="w-4 h-4" /> Edit
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                            {isBranchHead ? (
+                              <span className="bdg b-teal">Head</span>
+                            ) : null}
+                            <Button onClick={() => handleEditUser(item)} className="btn btn-ghost btn-sm">
+                              Edit
                             </Button>
                             <Button
                               onClick={() => promptDeleteUser(user.id)}
-                              className="flex items-center gap-1 text-red-500 border-gray-200 border-[1px] hover:bg-red-50 px-3 py-1 rounded-lg text-[12px] font-medium"
+                              className="btn btn-danger btn-sm"
                             >
-                              <Trash2 className="w-4 h-4" /> Delete
+                              Delete
                             </Button>
                           </div>
                         </div>
@@ -1021,90 +887,65 @@ export default function BranchesView() {
                     })}
                   </div>
                 ) : (
-                  <div className="bg-white rounded-[6px] border border-gray-200 overflow-hidden">
-                    <table className="w-full">
-                      <thead className="bg-gray-50 border-b">
+                  <div className="atbl-wrap">
+                    <table className="atbl">
+                      <thead>
                         <tr>
-                          <th className="text-left px-4 py-3 text-[12px] font-bold text-gray-700">
-                            User
-                          </th>
-                          <th className="text-left px-4 py-3 text-[12px] font-bold text-gray-700">
-                            Contact
-                          </th>
-                          <th className="text-center px-4 py-3 text-[12px] font-bold text-gray-700">
-                            Status
-                          </th>
-                          <th className="text-right px-4 py-3 text-[12px] font-bold text-gray-700">
-                            Actions
-                          </th>
+                          <th>User</th>
+                          <th>Phone</th>
+                          <th>Kind</th>
+                          <th>Head</th>
+                          <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {paginatedUsers.map((item: any) => {
                           const { user, membership } = item;
                           const isBranchHead = membership.isBranchHead;
+                          const roleNames =
+                            membership.branchRoles
+                              ?.map((r: { roleName?: string }) => r.roleName)
+                              .filter(Boolean)
+                              .join(", ") || "—";
 
                           return (
-                            <tr
-                              key={user.id}
-                              className="border-b hover:bg-blue-50/30"
-                            >
-                              <td className="px-4 py-3">
-                                <div className="flex items-center gap-3">
-                                  <div
-                                    className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                                      isBranchHead
-                                        ? "bg-yellow-100"
-                                        : "bg-blue-100"
-                                    }`}
-                                  >
-                                    <User
-                                      className={`w-5 h-5 ${
-                                        isBranchHead
-                                          ? "text-yellow-600"
-                                          : "text-blue-600"
-                                      }`}
-                                    />
-                                  </div>
-                                  <div>
-                                    <p className="font-bold text-gray-900">
-                                      {user.firstName} {user.lastName}
-                                    </p>
-                                    <p className="text-[12px] text-gray-600">
-                                      {user.email}
-                                    </p>
-                                  </div>
+                            <tr key={user.id}>
+                              <td>
+                                <div style={{ fontWeight: 600 }}>
+                                  {user.firstName} {user.lastName}
+                                </div>
+                                <div style={{ fontSize: 11, color: "var(--br-mu)" }}>
+                                  {user.email}
+                                </div>
+                                <div style={{ fontSize: 11, color: "var(--br-mu)" }}>
+                                  {roleNames}
                                 </div>
                               </td>
-                              <td className="px-4 py-3 text-[12px] text-gray-700">
-                                {user.phone || "—"}
+                              <td>{user.phone || "—"}</td>
+                              <td>
+                                <span className="bdg b-gray">{membership.kind}</span>
                               </td>
-                              <td className="px-4 py-3 text-center">
-                                <span
-                                  className={`text-xs px-3 py-1 rounded-full font-bold ${
-                                    isBranchHead
-                                      ? "bg-yellow-100 text-yellow-700"
-                                      : "bg-gray-100 text-gray-600"
-                                  }`}
+                              <td>
+                                {isBranchHead ? (
+                                  <span className="bdg b-teal">Yes</span>
+                                ) : (
+                                  "—"
+                                )}
+                              </td>
+                              <td>
+                                <Button
+                                  onClick={() => handleEditUser(item)}
+                                  className="btn btn-ghost btn-sm"
+                                  style={{ marginRight: 6 }}
                                 >
-                                  {isBranchHead ? "Branch Head" : "Member"}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3">
-                                <div className="flex justify-end gap-2">
-                                  <Button
-                                    onClick={() => handleEditUser(item)}
-                                    className="p-2 hover:bg-blue-50 rounded"
-                                  >
-                                    <Pencil className="w-4 h-4 text-blue-600" />
-                                  </Button>
-                                  <Button
-                                    onClick={() => promptDeleteUser(user.id)}
-                                    className="p-2 hover:bg-red-50 rounded"
-                                  >
-                                    <Trash2 className="w-4 h-4 text-red-600" />
-                                  </Button>
-                                </div>
+                                  Edit
+                                </Button>
+                                <Button
+                                  onClick={() => promptDeleteUser(user.id)}
+                                  className="btn btn-danger btn-sm"
+                                >
+                                  Delete
+                                </Button>
                               </td>
                             </tr>
                           );
@@ -1114,19 +955,14 @@ export default function BranchesView() {
                   </div>
                 )
               ) : (
-                <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-blue-200">
-                  <User className="w-10 h-10 mx-auto text-blue-400 mb-3" />
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">
-                    No Users Found
-                  </h3>
-                  <p className="text-[12px] text-gray-600 font-medium">
-                    Add team members to manage branch operations
-                  </p>
+                <div className="br-empty">
+                  <UsersIcon className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                  <p>No users in this branch yet</p>
                 </div>
               )}
             </div>
           )}
-          <div className="flex items-end justify-end">
+          <div style={{ padding: "0 18px 14px" }} className="flex items-end justify-end">
             {showPagination && (
               <PaginationControls
                 currentPage={currentPage}
@@ -1142,6 +978,8 @@ export default function BranchesView() {
               />
             )}
           </div>
+            </>
+          )}
         </section>
       </div>
       {openDrawer && (
@@ -1150,7 +988,7 @@ export default function BranchesView() {
           handleDrawerToggle={() => setOpenDrawer(false)}
           closeIconCls="!text-black z-[9999] mt-10"
           openVariant="right"
-          title="Create LiveBuild user"
+          title={editingBranch ? "Edit branch" : "Create branch"}
           panelCls="w-[95%] lg:w-[calc(100%-400px)] shadow-xl"
           overLayCls="bg-black/40"
         >
@@ -1301,10 +1139,10 @@ export default function BranchesView() {
           setOpenRoleModal(false);
           setEditingRole(null);
         }}
-        title={editingRole ? "Edit Branch Role" : "Create Branch Role"}
-        titleCls="font-bold uppercase text-lg text-center text-[#3586FF] "
+        title={editingRole ? "Edit role & permissions" : "Create role & permissions"}
+        titleCls="font-bold text-lg text-center"
         isCloseRequired={false}
-        className="md:max-w-[900px] max-w-[95%]"
+        className="md:max-w-[900px] max-w-[95%] br-admin-root"
         rootCls="z-[99999]"
       >
         {selectedBranchId ? (
@@ -1341,7 +1179,8 @@ export default function BranchesView() {
           handleDrawerToggle={() => setOpenUserModal(false)}
           closeIconCls="text-gray-700"
           openVariant="right"
-          panelCls="w-[95%] md:w-[80%] lg:w-[70%] shadow-2xl bg-white"
+          title={editMode ? "Edit user" : "Add user"}
+          panelCls="w-[95%] md:w-[80%] lg:w-[70%] shadow-2xl bg-white br-admin-root"
           overLayCls="bg-gray-900 bg-opacity-50"
         >
           {formSubmitting ? (

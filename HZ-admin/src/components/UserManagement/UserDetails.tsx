@@ -5,7 +5,7 @@ import { Button } from "@headlessui/react";
 import apiClient from "@/src/utils/apiClient";
 import toast from "react-hot-toast";
 import MultiCheckbox from "@/src/common/FormElements/MultiCheckbox";
-import { indianStateOptions } from "@/src/stores/custom-builder";
+import { indianStateOptions } from "@/src/constants/indian-states";
 import { UserRole } from "../BranchesView/BranchRoleForm";
 
 interface UserDetailsProps {

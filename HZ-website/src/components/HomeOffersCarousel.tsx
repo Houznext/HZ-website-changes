@@ -62,7 +62,7 @@ export default function HomeOffersCarousel({ slides }: { slides: HomeOfferSlide[
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 90vw, 1200px"
-            priority={i === 0}
+            loading={i === 0 ? 'eager' : 'lazy'}
           />
           {/* Text legibility: strong gradient under copy (store-style proportions) */}
           <div

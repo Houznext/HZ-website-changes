@@ -6,19 +6,23 @@ import SeoHead from '@/components/SeoHead'
 import { useCustomerGuard } from '@/hooks/useCustomerGuard'
 import { useCustomerAuth } from '@/context/CustomerAuthContext'
 import { countSavedDesigns } from '@/utils/savedDesigns'
+import LivebuildEntryCard from '@/livebuild/components/LivebuildEntryCard'
+import { configureLivebuildAuth, livebuildApi } from '@/livebuild/lib/api'
+import type { LbAccountStats } from '@/livebuild/lib/types'
 
 export default function MyAccountDashboard() {
   const { customer, isLoading } = useCustomerGuard()
   const { updateCustomerName, updateCustomerMobile } = useCustomerAuth()
   const router = useRouter()
   const [savedCount, setSavedCount] = useState(0)
-  const [projectCount, setProjectCount] = useState<number | null>(null)
   const [invoiceDue, setInvoiceDue] = useState(false)
   const [editingName, setEditingName] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
   const [savingName, setSavingName] = useState(false)
   const [orderCount, setOrderCount] = useState<number | null>(null)
   const [orders, setOrders] = useState<any[]>([])
+  const [lbStats, setLbStats] = useState<LbAccountStats | null>(null)
+  const [lbStatsLoading, setLbStatsLoading] = useState(false)
   const [linkMobile, setLinkMobile] = useState('')
   const [linkOtp, setLinkOtp] = useState('')
   const [linkBusy, setLinkBusy] = useState(false)
@@ -35,9 +39,6 @@ export default function MyAccountDashboard() {
     }
     if (customer) {
       setNameDraft(customer.name || '')
-      fetch(`${API}/interiors/customers/${customer.id}/projects`, {
-        headers: { Authorization: `Bearer ${customer.token}` },
-      }).then((r) => r.json()).then((projects: unknown[]) => setProjectCount(projects?.length ?? 0)).catch(() => setProjectCount(0))
       const m = customer.mobile?.replace(/\D/g, '').slice(-10) ?? ''
       if (m.length === 10) {
         fetch(`${API}/invoice-estimator/by-mobile/${m}`)
@@ -60,6 +61,19 @@ export default function MyAccountDashboard() {
           setOrders([])
           setOrderCount(0)
         })
+    }
+    const m = customer?.mobile?.replace(/\D/g, '').slice(-10) ?? ''
+    if (customer?.token && m.length === 10) {
+      configureLivebuildAuth(customer.token)
+      setLbStatsLoading(true)
+      livebuildApi
+        .myStats()
+        .then((s) => setLbStats(s))
+        .catch(() => setLbStats(null))
+        .finally(() => setLbStatsLoading(false))
+    } else {
+      setLbStats(null)
+      setLbStatsLoading(false)
     }
   }, [customer, API])
 
@@ -283,7 +297,13 @@ export default function MyAccountDashboard() {
               ? 'All your Houznext activity in one place — linked to your mobile number.'
               : 'Profile and orders on this account; link your mobile to load quotations and invoices by phone.'}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 10 }}>
+          <LivebuildEntryCard
+            stats={lbStats}
+            loading={lbStatsLoading}
+            hasMobile={hasMobile}
+            isLoggedIn={!!customer}
+          />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10 }}>
             {[
               {
                 val: '—',
@@ -316,14 +336,6 @@ export default function MyAccountDashboard() {
                 href: '/my-account?tab=orders',
                 accent: '#d97706',
                 icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>,
-              },
-              {
-                val: projectCount !== null ? String(projectCount) : '—',
-                lbl: 'My Home (LiveBuild)',
-                sub: 'Active interior projects',
-                href: '/my-account/livebuild',
-                accent: '#16a34a',
-                icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>,
               },
             ].map((card) => (
               <div key={card.href} onClick={() => void router.push(card.href)} style={{ background: '#fff', border: '1px solid #dde8f5', borderRadius: 11, padding: '13px 15px', cursor: 'pointer', transition: 'all 0.2s' }}>

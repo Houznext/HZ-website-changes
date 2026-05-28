@@ -23,7 +23,7 @@ import { ControllerAuthGuard } from 'src/guard';
 import {
   VerifyCustomerOtpDto,
   VerifyEmailDto,
-} from 'src/livebuild/customer/dto/customer.dto';
+} from 'src/branch/dto/verify-customer.dto';
 
 class MessageResponse {
   message: string;

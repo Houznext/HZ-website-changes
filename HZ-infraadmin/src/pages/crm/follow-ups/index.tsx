@@ -45,12 +45,11 @@ export default function CrmFollowUpsPage() {
     tone: 'red' | 'amber' | 'neutral';
     rows: L[];
   }) => {
-    const bg = tone === 'red' ? '#fff5f5' : tone === 'amber' ? '#fffbeb' : '#fff';
-    const bd = tone === 'red' ? '#fca5a5' : tone === 'amber' ? '#fbbf24' : '#e2e8f0';
+    const sectionClass = tone === 'red' ? 'fu-section fu-section--overdue' : tone === 'amber' ? 'fu-section fu-section--today' : 'fu-section';
     return (
-      <div className="acard" style={{ background: bg, borderColor: bd, padding: 0, overflow: 'auto', marginBottom: 16 }}>
-        <div style={{ padding: '12px 16px', fontWeight: 800, fontSize: 12.5, borderBottom: `1px solid ${bd}` }}>{title}</div>
-        <table className="atbl">
+      <div className={sectionClass}>
+        <div className="fu-section-hd">{title}</div>
+        <table className="atbl crm-table">
           <thead>
             <tr>
               <th>Lead</th>
@@ -68,7 +67,7 @@ export default function CrmFollowUpsPage() {
                   {r.propertyType} {r.bhkPreference ? `· ${r.bhkPreference}` : ''}
                 </td>
                 <td>{r.stage ? <StageBadge stage={r.stage} /> : '—'}</td>
-                <td style={{ color: tone === 'red' ? '#dc2626' : undefined }}>{r.nextFollowUpAt ? formatDate(r.nextFollowUpAt) : '—'}</td>
+                <td className={tone === 'red' ? 'date-overdue' : tone === 'amber' ? 'date-today' : 'date-normal'}>{r.nextFollowUpAt ? formatDate(r.nextFollowUpAt) : '—'}</td>
                 <td>
                   <Link href={`/crm/leads/${r.id}`} className="btn btn-ghost btn-sm">
                     View
@@ -85,23 +84,23 @@ export default function CrmFollowUpsPage() {
   return (
     <AdminLayout title="CRM — Follow-ups">
       <CrmLayout>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }} className="max-md:grid-cols-1">
-          <div className="acard stat-card" style={{ borderColor: '#fca5a5', background: '#fff5f5' }}>
-            <div style={{ fontSize: 10.5, fontWeight: 700, color: '#b91c1c' }}>OVERDUE</div>
-            <div className="stat-val" style={{ color: '#b91c1c' }}>
-              {data?.overdue?.length ?? 0}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }} className="max-md:grid-cols-1">
+          <div className="stat fu-section--overdue" style={{ cursor: 'default' }}>
+            <div>
+              <div className="stat-lbl" style={{ color: '#dc2626' }}>OVERDUE</div>
+              <div className="stat-val" style={{ color: '#dc2626' }}>{data?.overdue?.length ?? 0}</div>
             </div>
           </div>
-          <div className="acard stat-card" style={{ borderColor: '#fbbf24', background: '#fffbeb' }}>
-            <div style={{ fontSize: 10.5, fontWeight: 700, color: '#92400e' }}>DUE TODAY</div>
-            <div className="stat-val" style={{ color: '#92400e' }}>
-              {data?.today?.length ?? 0}
+          <div className="stat fu-section--today" style={{ cursor: 'default' }}>
+            <div>
+              <div className="stat-lbl" style={{ color: '#ca8a04' }}>DUE TODAY</div>
+              <div className="stat-val" style={{ color: '#ca8a04' }}>{data?.today?.length ?? 0}</div>
             </div>
           </div>
-          <div className="acard stat-card" style={{ borderColor: '#93c5fd', background: '#eff6ff' }}>
-            <div style={{ fontSize: 10.5, fontWeight: 700, color: '#1d4ed8' }}>UPCOMING 7D</div>
-            <div className="stat-val" style={{ color: '#1d4ed8' }}>
-              {data?.upcoming?.length ?? 0}
+          <div className="stat" style={{ cursor: 'default', background: '#eff6ff', border: '0.5px solid #93c5fd' }}>
+            <div>
+              <div className="stat-lbl" style={{ color: '#2563eb' }}>UPCOMING 7D</div>
+              <div className="stat-val" style={{ color: '#2563eb' }}>{data?.upcoming?.length ?? 0}</div>
             </div>
           </div>
         </div>

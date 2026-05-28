@@ -1,46 +1,46 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 
 const BUILDLIVE_ROOMS = [
   { label: 'Living room', pct: 90, color: '#2f80ed' },
   { label: 'Kitchen', pct: 100, color: '#4ade80' },
   { label: 'Master bed', pct: 65, color: '#f2994a' },
   { label: 'Bedroom 2', pct: 55, color: '#a78bfa' },
-]
+];
 
-const OVERALL_PCT = 76
+const OVERALL_PCT = 76;
 
 const BUILDLIVE_TIMELINE = [
   { label: 'Civil & flooring', date: 'Feb 2', status: 'done' as const },
   { label: 'Electrical fit-out', date: 'Feb 18', status: 'done' as const },
   { label: 'Furniture & finishing', date: 'Mar 14', status: 'active' as const },
   { label: 'Handover', date: 'Mar 28', status: 'upcoming' as const },
-]
+];
 
 interface DonutProps {
-  pct: number
-  color: string
-  size?: number
-  strokeWidth?: number
-  animate?: boolean
+  pct: number;
+  color: string;
+  size?: number;
+  strokeWidth?: number;
+  animate?: boolean;
 }
 
 function DonutChart({ pct, color, size = 40, strokeWidth = 5, animate = false }: DonutProps) {
-  const r = (size - strokeWidth) / 2
-  const circ = 2 * Math.PI * r
-  const targetOffset = circ * (1 - pct / 100)
-  const [offset, setOffset] = useState(circ)
+  const r = (size - strokeWidth) / 2;
+  const circ = 2 * Math.PI * r;
+  const targetOffset = circ * (1 - pct / 100);
+  const [offset, setOffset] = useState(circ);
 
   useEffect(() => {
     if (!animate) {
-      setOffset(targetOffset)
-      return
+      setOffset(targetOffset);
+      return;
     }
-    const t = setTimeout(() => setOffset(targetOffset), 350)
-    return () => clearTimeout(t)
-  }, [targetOffset, animate])
+    const t = setTimeout(() => setOffset(targetOffset), 350);
+    return () => clearTimeout(t);
+  }, [targetOffset, animate]);
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden>
       <circle
         cx={size / 2}
         cy={size / 2}
@@ -65,40 +65,41 @@ function DonutChart({ pct, color, size = 40, strokeWidth = 5, animate = false }:
         }}
       />
     </svg>
-  )
+  );
 }
 
 function useCountUpOnce(target: number, duration = 1700): number {
-  const [val, setVal] = useState(0)
+  const [val, setVal] = useState(0);
   useEffect(() => {
-    let raf = 0
-    let cancelled = false
-    const t0 = performance.now()
+    let raf = 0;
+    let cancelled = false;
+    const t0 = performance.now();
     const tick = (now: number) => {
-      if (cancelled) return
-      const p = Math.min((now - t0) / duration, 1)
-      setVal(Math.round((1 - Math.pow(1 - p, 3)) * target))
-      if (p < 1) raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
+      if (cancelled) return;
+      const p = Math.min((now - t0) / duration, 1);
+      setVal(Math.round((1 - Math.pow(1 - p, 3)) * target));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
     return () => {
-      cancelled = true
-      cancelAnimationFrame(raf)
-    }
-  }, [target, duration])
-  return val
+      cancelled = true;
+      cancelAnimationFrame(raf);
+    };
+  }, [target, duration]);
+  return val;
 }
 
 type LiveBuildHeroGraphProps = {
   /** Extra Tailwind classes on the outer glass card (e.g. max width, margins). */
-  className?: string
-}
+  className?: string;
+};
 
 /**
- * LiveBuild “graph” preview: overall donut, per-room donuts, timeline — same as homepage hero.
+ * LiveBuild marketing preview: overall donut, per-room donuts, milestone timeline.
+ * Used beside the consultation form (homepage hero), Live Tracking section, and /buildlive.
  */
 export default function LiveBuildHeroGraph({ className = '' }: LiveBuildHeroGraphProps) {
-  const overallCount = useCountUpOnce(OVERALL_PCT)
+  const overallCount = useCountUpOnce(OVERALL_PCT);
 
   return (
     <div
@@ -108,11 +109,18 @@ export default function LiveBuildHeroGraph({ className = '' }: LiveBuildHeroGrap
         border: '1px solid rgba(47,128,237,0.30)',
         backdropFilter: 'blur(18px)',
       }}
+      aria-label="LiveBuild project preview: 76% overall progress"
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="w-2 h-2 rounded-full animate-pulse-dot flex-shrink-0" style={{ background: '#f2994a' }} />
-          <span className="text-[10px] font-extrabold uppercase tracking-[0.1em]" style={{ color: '#f2994a' }}>
+          <span
+            className="w-2 h-2 rounded-full animate-pulse-dot flex-shrink-0"
+            style={{ background: '#f2994a' }}
+          />
+          <span
+            className="text-[10px] font-extrabold uppercase tracking-[0.1em]"
+            style={{ color: '#f2994a' }}
+          >
             LiveBuild
           </span>
         </div>
@@ -169,14 +177,14 @@ export default function LiveBuildHeroGraph({ className = '' }: LiveBuildHeroGrap
             className="flex items-center gap-1.5 rounded-lg p-2 transition-all duration-200 cursor-default min-w-0"
             style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
             onMouseEnter={(e) => {
-              const el = e.currentTarget
-              el.style.background = 'rgba(255,255,255,0.08)'
-              el.style.borderColor = 'rgba(255,255,255,0.14)'
+              const el = e.currentTarget;
+              el.style.background = 'rgba(255,255,255,0.08)';
+              el.style.borderColor = 'rgba(255,255,255,0.14)';
             }}
             onMouseLeave={(e) => {
-              const el = e.currentTarget
-              el.style.background = 'rgba(255,255,255,0.04)'
-              el.style.borderColor = 'rgba(255,255,255,0.07)'
+              const el = e.currentTarget;
+              el.style.background = 'rgba(255,255,255,0.04)';
+              el.style.borderColor = 'rgba(255,255,255,0.07)';
             }}
           >
             <div className="relative flex-shrink-0" style={{ width: 34, height: 34 }}>
@@ -191,7 +199,10 @@ export default function LiveBuildHeroGraph({ className = '' }: LiveBuildHeroGrap
               </div>
             </div>
             <div className="min-w-0">
-              <p className="font-[600] truncate" style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)' }}>
+              <p
+                className="font-[600] truncate"
+                style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)' }}
+              >
                 {room.label}
               </p>
               <p className="font-black mt-0.5" style={{ fontSize: 11, color: room.color }}>
@@ -202,7 +213,10 @@ export default function LiveBuildHeroGraph({ className = '' }: LiveBuildHeroGrap
         ))}
       </div>
 
-      <div className="flex flex-col gap-1 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+      <div
+        className="flex flex-col gap-1 pt-2"
+        style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}
+      >
         {BUILDLIVE_TIMELINE.map((tl) => (
           <div key={tl.label} className="flex items-center gap-2 min-w-0">
             <span
@@ -211,7 +225,11 @@ export default function LiveBuildHeroGraph({ className = '' }: LiveBuildHeroGrap
                 width: 7,
                 height: 7,
                 background:
-                  tl.status === 'done' ? '#4ade80' : tl.status === 'active' ? '#2f80ed' : 'transparent',
+                  tl.status === 'done'
+                    ? '#4ade80'
+                    : tl.status === 'active'
+                      ? '#2f80ed'
+                      : 'transparent',
                 border:
                   tl.status === 'done'
                     ? '1.5px solid #4ade80'
@@ -234,12 +252,15 @@ export default function LiveBuildHeroGraph({ className = '' }: LiveBuildHeroGrap
             >
               {tl.label}
             </span>
-            <span className="text-[9.5px] ml-auto flex-shrink-0" style={{ color: 'rgba(255,255,255,0.25)' }}>
+            <span
+              className="text-[9.5px] ml-auto flex-shrink-0"
+              style={{ color: 'rgba(255,255,255,0.25)' }}
+            >
               {tl.date}
             </span>
           </div>
         ))}
       </div>
     </div>
-  )
+  );
 }

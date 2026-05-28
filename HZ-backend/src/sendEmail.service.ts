@@ -403,6 +403,181 @@ export class MailerService {
     }
   }
 
+  async notifyLivebuildRoomRemoved(params: {
+    projectCode: string;
+    projectName: string;
+    customerName: string;
+    customerEmail?: string | null;
+    siteManager?: string | null;
+    projectAddress?: string | null;
+    roomName: string;
+    roomType?: string | null;
+    dimensions?: string | null;
+    progressPct: number;
+    status: string;
+    workTypeNames: string[];
+    removedBy?: string | null;
+  }): Promise<void> {
+    const raw =
+      process.env.LIVEBUILD_ROOM_DELETE_NOTIFY_EMAIL?.trim() ||
+      process.env.SMTP_USER?.trim() ||
+      'business@houznext.com';
+    const adminRecipients = Array.from(
+      new Set(
+        raw
+          .split(/[,;]+/)
+          .map((e) => e.trim())
+          .filter(Boolean),
+      ),
+    );
+
+    const when = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+    const wtList =
+      params.workTypeNames.length > 0
+        ? params.workTypeNames.map((n) => this.escapeHtml(n)).join(', ')
+        : '—';
+
+    const row = (label: string, value: string) =>
+      `<tr><td style="padding:6px 12px 6px 0;color:#5a6a7e;font-weight:600;vertical-align:top;">${label}</td><td style="padding:6px 0;">${this.escapeHtml(value)}</td></tr>`;
+
+    const html = `
+    <html>
+      <body style="font-family: system-ui, sans-serif; font-size: 14px; color: #1f2933;">
+        <div style="max-width: 640px; margin: 24px auto; padding: 24px; border: 1px solid #dbe4f1; border-radius: 10px;">
+          <h2 style="margin: 0 0 12px; color: #dc2626;">Room removed from LiveBuild project</h2>
+          <p style="margin: 0 0 16px;">A room was removed from an active Houznext LiveBuild project.</p>
+          <table style="border-collapse: collapse; width: 100%; font-size: 13px;">
+            ${row('Project', `${params.projectName} (${params.projectCode})`)}
+            ${row('Customer', params.customerName)}
+            ${row('Site manager', params.siteManager || '—')}
+            ${row('Address', params.projectAddress || '—')}
+            ${row('Room removed', params.roomName)}
+            ${row('Room type', params.roomType || '—')}
+            ${row('Dimensions', params.dimensions || '—')}
+            ${row('Progress at removal', `${params.progressPct}%`)}
+            ${row('Status', params.status)}
+            ${row('Work types', wtList)}
+            ${row('Removed by', params.removedBy || 'Admin')}
+            ${row('Time', `${when} (IST)`)}
+          </table>
+        </div>
+      </body>
+    </html>`;
+
+    const subject = `LiveBuild: Room "${params.roomName}" removed — ${params.projectCode}`;
+    const text = [
+      `Room removed from LiveBuild project`,
+      `Project: ${params.projectName} (${params.projectCode})`,
+      `Customer: ${params.customerName}`,
+      `Room: ${params.roomName}`,
+      `Work types: ${params.workTypeNames.join(', ') || '—'}`,
+      `Removed by: ${params.removedBy || 'Admin'}`,
+      `Time: ${when} (IST)`,
+    ].join('\n');
+
+    const sendTo = new Set(adminRecipients);
+    if (params.customerEmail?.trim()) {
+      sendTo.add(params.customerEmail.trim());
+    }
+
+    for (const email of sendTo) {
+      await this.sendMail(email, subject, text, html);
+    }
+  }
+
+  async notifyLivebuildProjectDeleted(params: {
+    projectCode: string;
+    projectName: string;
+    customerName: string;
+    customerEmail?: string | null;
+    customerMobile?: string | null;
+    siteManager?: string | null;
+    address?: string | null;
+    propertyType?: string | null;
+    projectType?: string | null;
+    status: string;
+    phase?: string | null;
+    progressPct: number;
+    progressMethod?: string | null;
+    startDate?: string | null;
+    dueDate?: string | null;
+    roomCount: number;
+    paymentCount: number;
+    queryCount: number;
+    materialCount: number;
+    deletedBy?: string | null;
+  }): Promise<void> {
+    const raw =
+      process.env.LIVEBUILD_PROJECT_DELETE_NOTIFY_EMAIL?.trim() ||
+      process.env.LIVEBUILD_ROOM_DELETE_NOTIFY_EMAIL?.trim() ||
+      process.env.SMTP_USER?.trim() ||
+      'business@houznext.com';
+    const adminRecipients = Array.from(
+      new Set(
+        raw
+          .split(/[,;]+/)
+          .map((e) => e.trim())
+          .filter(Boolean),
+      ),
+    );
+
+    const when = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+    const row = (label: string, value: string) =>
+      `<tr><td style="padding:6px 12px 6px 0;color:#5a6a7e;font-weight:600;vertical-align:top;">${label}</td><td style="padding:6px 0;">${this.escapeHtml(value)}</td></tr>`;
+
+    const html = `
+    <html>
+      <body style="font-family: system-ui, sans-serif; font-size: 14px; color: #1f2933;">
+        <div style="max-width: 640px; margin: 24px auto; padding: 24px; border: 1px solid #dbe4f1; border-radius: 10px;">
+          <h2 style="margin: 0 0 12px; color: #dc2626;">LiveBuild project deleted</h2>
+          <p style="margin: 0 0 16px;">A Houznext LiveBuild project and all related data were permanently removed from the admin panel.</p>
+          <table style="border-collapse: collapse; width: 100%; font-size: 13px;">
+            ${row('Project', `${params.projectName} (${params.projectCode})`)}
+            ${row('Customer', params.customerName)}
+            ${row('Customer mobile', params.customerMobile || '—')}
+            ${row('Customer email', params.customerEmail || '—')}
+            ${row('Site manager', params.siteManager || '—')}
+            ${row('Address', params.address || '—')}
+            ${row('Property type', params.propertyType || '—')}
+            ${row('Project type', params.projectType || '—')}
+            ${row('Status', params.status)}
+            ${row('Phase', params.phase || '—')}
+            ${row('Progress', `${params.progressPct}%`)}
+            ${row('Progress method', params.progressMethod || '—')}
+            ${row('Start date', params.startDate || '—')}
+            ${row('Due date', params.dueDate || '—')}
+            ${row('Rooms removed', String(params.roomCount))}
+            ${row('Payment milestones', String(params.paymentCount))}
+            ${row('Queries', String(params.queryCount))}
+            ${row('BOQ / materials', String(params.materialCount))}
+            ${row('Deleted by', params.deletedBy || 'Admin')}
+            ${row('Time', `${when} (IST)`)}
+          </table>
+        </div>
+      </body>
+    </html>`;
+
+    const subject = `LiveBuild: Project deleted — ${params.projectCode} (${params.projectName})`;
+    const text = [
+      'LiveBuild project deleted',
+      `Project: ${params.projectName} (${params.projectCode})`,
+      `Customer: ${params.customerName}`,
+      `Progress: ${params.progressPct}% · Status: ${params.status}`,
+      `Related records: ${params.roomCount} rooms, ${params.paymentCount} payments, ${params.queryCount} queries, ${params.materialCount} materials`,
+      `Deleted by: ${params.deletedBy || 'Admin'}`,
+      `Time: ${when} (IST)`,
+    ].join('\n');
+
+    const sendTo = new Set(adminRecipients);
+    if (params.customerEmail?.trim()) {
+      sendTo.add(params.customerEmail.trim());
+    }
+
+    for (const email of sendTo) {
+      await this.sendMail(email, subject, text, html);
+    }
+  }
+
   async notifyAdminsInvoiceAdminPanel(params: {
     action: 'created' | 'deleted';
     invoiceId: string;

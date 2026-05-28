@@ -87,18 +87,6 @@ export class InvoiceEstimatorController {
     );
   }
 
-  @Get('/custom-builder/:id')
-  @ApiOperation({ summary: 'Get invoice estimators by CustomBuilder ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return invoice estimators for the custom builder.',
-    type: [InvoiceEstimator],
-  })
-  @ApiResponse({ status: 404, description: 'Invoice estimator not found.' })
-  findForCustomBuilder(@Param('id') id: string) {
-    return this.invoiceEstimatorService.findByCustomBuilderId(id);
-  }
-
   @Get('by-mobile/:mobile')
   findByMobile(@Param('mobile') mobile: string) {
     return this.invoiceEstimatorService.findByCustomerMobile(mobile);

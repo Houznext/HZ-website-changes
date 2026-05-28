@@ -7,12 +7,12 @@ export default function UserDashBoardView() {
     {
       title: "Interior Projects",
       description: "View all your active and completed interior projects.",
-      href: "/user/livebuild",
+      href: "/livebuild",
     },
     {
       title: "Interior Tracking",
       description: "Track progress updates managed by the admin team.",
-      href: "/user/livebuild",
+      href: "/livebuild",
     },
   ];
 

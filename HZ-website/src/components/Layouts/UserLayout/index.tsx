@@ -83,15 +83,15 @@ function UserLayout({
     },
     {
       name: "Interior Projects",
-      link: "/user/livebuild",
+      link: "/livebuild",
       icon: <FiTool className="text-[18px]" />,
-      isActive: router.asPath.startsWith("/user/livebuild"),
+      isActive: router.asPath.startsWith("/livebuild"),
     },
     {
       name: "Interior Tracking",
-      link: "/user/livebuild",
+      link: "/livebuild",
       icon: <FaHome className="text-[18px]" />,
-      isActive: router.asPath.startsWith("/user/livebuild"),
+      isActive: router.asPath.startsWith("/livebuild"),
     },
     {
       name: "Houznext Rewards Progress",
@@ -310,7 +310,7 @@ function UserLayout({
                     ? "My Properties"
                     : router.pathname === "/user/wishlist"
                     ? "Wishlist"
-                    : router.pathname.startsWith("/user/livebuild")
+                    : router.pathname.startsWith("/livebuild")
                     ? "Interior Tracking"
                     : router.pathname === "/user/company-property"
                     ? "Company Property"

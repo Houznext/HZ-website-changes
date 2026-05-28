@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import CustomInput from "@/src/common/FormElements/CustomInput";
 import MultiCheckbox from "@/src/common/FormElements/MultiCheckbox";
-import { indianStateOptions } from "@/src/stores/custom-builder";
+import { indianStateOptions } from "@/src/constants/indian-states";
 
 type AdminUserItem = {
   user: {

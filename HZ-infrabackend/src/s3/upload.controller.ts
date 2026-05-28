@@ -38,6 +38,46 @@ export class UploadController {
     return { url };
   }
 
+  @Post('hero-image')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 8 * 1024 * 1024 },
+    }),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  async heroImage(@UploadedFile() file: Express.Multer.File) {
+    if (!file) return { url: null };
+    const { url } = await this.s3.uploadBuffer('infra/hero', file.buffer, file.mimetype || 'image/jpeg');
+    return { url };
+  }
+
+  @Post('browse-type-image')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 8 * 1024 * 1024 },
+    }),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  async browseTypeImage(@UploadedFile() file: Express.Multer.File) {
+    if (!file) return { url: null };
+    const { url } = await this.s3.uploadBuffer('infra/browse-type', file.buffer, file.mimetype || 'image/jpeg');
+    return { url };
+  }
+
   @Post('rera-doc')
   @UseInterceptors(
     FileInterceptor('file', {

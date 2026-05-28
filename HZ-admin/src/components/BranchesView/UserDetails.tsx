@@ -6,7 +6,7 @@ import { Button } from "@headlessui/react";
 import apiClient from "@/src/utils/apiClient";
 import toast from "react-hot-toast";
 import SelectBtnGrp from "@/src/common/SelectBtnGrp";
-import { indianStateOptions } from "@/src/stores/custom-builder";
+import { indianStateOptions } from "@/src/constants/indian-states";
 import CheckboxInput from "@/src/common/FormElements/CheckBoxInput";
 import { UserIcon } from "lucide-react";
 

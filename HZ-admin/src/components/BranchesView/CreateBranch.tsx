@@ -5,7 +5,7 @@ import CustomInput from "@/src/common/FormElements/CustomInput";
 import SingleSelect from "@/src/common/FormElements/SingleSelect";
 import Button from "@/src/common/Button";
 import Loader from "@/src/common/Loader";
-import { CautionIcon, ResendIcon } from "@/src/features/CustomBuilder/Icons";
+import { CautionIcon, ResendIcon } from "@/src/components/shared/AdminIcons";
 import apiClient from "@/src/utils/apiClient";
 import CheckboxInput from "@/src/common/FormElements/CheckBoxInput";
 import FileInput from "@/src/common/FileInput";

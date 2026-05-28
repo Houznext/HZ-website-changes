@@ -1,0 +1,2292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Houznext LiveBuild — Customer Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f2a44;--blue:#2f80ed;--bh:#1a6dd6;--bl:#e8f1fd;
+  --accent:#f2994a;--ch:#1f2933;--mu:#5a6a7e;--brd:#dde8f5;
+  --off:#f5f7fa;--rd:#dc2626;--am:#d97706;--pu:#7c3aed;
+  --m:'Montserrat',sans-serif;--i:'Inter',sans-serif;
+}
+body{font-family:var(--i);font-size:13px;color:var(--ch);background:var(--off);min-height:100vh}
+input,select,textarea,button{font-family:var(--i)}
+
+/* ── DEV NAV ── */
+.dn{display:flex;gap:2px;padding:5px 10px;background:#020b14;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:9999;border-bottom:1px solid rgba(255,255,255,.07)}
+.dl{font-size:8px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;font-family:var(--m);margin-right:3px}
+.ds{width:1px;height:12px;background:rgba(255,255,255,.1);margin:0 6px}
+.dt{padding:3px 9px;border-radius:4px;font-size:9.5px;font-weight:600;cursor:pointer;border:none;color:rgba(255,255,255,.38);background:transparent;font-family:var(--m);white-space:nowrap;transition:all .14s}
+.dt.on{background:rgba(47,128,237,.25);color:#6db8ff}
+.dt:hover:not(.on){background:rgba(255,255,255,.06);color:rgba(255,255,255,.7)}
+.pg{display:none!important}.pg.on{display:block!important}
+
+/* ── GLOBAL WEBSITE TOPBAR ── */
+.site-topbar{height:60px;background:#fff;border-bottom:1px solid var(--brd);display:flex;align-items:center;padding:0 24px;gap:0;position:sticky;top:28px;z-index:200;box-shadow:0 1px 3px rgba(15,42,68,.06)}
+.site-logo{font-family:var(--m);font-size:18px;font-weight:800;color:var(--ch);margin-right:auto}
+.site-logo span{color:var(--accent)}
+.av-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--bh));display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:13px;font-weight:700;color:#fff;cursor:pointer;flex-shrink:0;border:2px solid rgba(47,128,237,.3)}
+
+/* ── LIVEBUILD TOPBAR (inside pages) ── */
+.lb-topbar{height:56px;background:#fff;border-bottom:1px solid var(--brd);display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:88px;z-index:100;box-shadow:0 1px 2px rgba(15,42,68,.04)}
+@media(max-width:768px){.lb-topbar{top:116px;padding:0 16px}}
+
+/* ── PAGE TABS (main project tabs) ── */
+.ptabs{display:flex;gap:0;background:#fff;border-bottom:1px solid var(--brd);padding:0 24px;position:sticky;top:144px;z-index:99;overflow-x:auto}
+@media(max-width:768px){.ptabs{padding:0 16px;top:172px}}
+.ptab{padding:0 18px;height:50px;display:flex;align-items:center;gap:8px;font-family:var(--m);font-size:12.5px;font-weight:700;color:var(--mu);cursor:pointer;border-bottom:2.5px solid transparent;transition:all .18s;white-space:nowrap;flex-shrink:0}
+.ptab:hover{color:var(--ch)}
+.ptab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.ptab svg{flex-shrink:0}
+
+/* ── ROOM SUB-TABS ── */
+.stabs{display:flex;gap:0;background:#f8fafc;border-bottom:1px solid #e8eef5;padding:0 24px;overflow-x:auto}
+@media(max-width:768px){.stabs{padding:0 16px}}
+.stab{padding:0 14px;height:40px;display:flex;align-items:center;font-family:var(--m);font-size:12px;font-weight:600;color:var(--mu);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.stab.on{color:var(--blue);border-bottom-color:var(--blue);background:#fff}
+
+/* ── CONTENT AREA ── */
+.content{padding:22px 24px;max-width:1440px;margin:0 auto}
+@media(max-width:768px){.content{padding:16px}}
+
+/* ── CARDS ── */
+.card{background:#fff;border:.5px solid #e2e8f0;border-radius:14px;padding:20px;transition:box-shadow .2s}
+.card:hover{box-shadow:0 4px 20px rgba(15,42,68,.07)}
+.card-sm{background:#fff;border:.5px solid #e2e8f0;border-radius:10px;padding:14px}
+
+/* ── PROJECT CARD (dashboard grid) ── */
+.proj-card{background:#fff;border-radius:16px;border:.5px solid #e2e8f0;overflow:hidden;cursor:pointer;transition:all .22s;position:relative}
+.proj-card:hover{box-shadow:0 12px 40px rgba(15,42,68,.12);transform:translateY(-3px);border-color:rgba(47,128,237,.3)}
+.proj-card:hover .proj-arrow{opacity:1;transform:translateX(0)}
+.proj-img{height:180px;position:relative;overflow:hidden}
+.proj-img-inner{width:100%;height:100%;transition:transform .4s ease}
+.proj-card:hover .proj-img-inner{transform:scale(1.04)}
+.proj-progress-bar{position:absolute;bottom:0;left:0;right:0;height:4px;background:rgba(255,255,255,.3)}
+.proj-progress-fill{height:100%;border-radius:0 2px 2px 0;transition:width .8s ease}
+.proj-body{padding:15px 16px}
+.proj-title{font-family:var(--m);font-size:14.5px;font-weight:700;color:var(--ch);margin-bottom:4px;line-height:1.3}
+.proj-loc{font-size:11.5px;color:var(--mu);display:flex;align-items:center;gap:4px;margin-bottom:10px}
+.proj-arrow{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;opacity:0;transform:translateX(-4px);transition:all .2s}
+
+/* ── STATUS BADGE ── */
+.bdg{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;font-family:var(--m);white-space:nowrap}
+.b-blue{background:#e8f1fd;color:#1d4ed8}
+.b-amber{background:#fef3c7;color:#92400e}
+.b-gray{background:#f1f5f9;color:#475569}
+.b-red{background:#fee2e2;color:var(--rd)}
+.b-pu{background:#f3e8ff;color:#6d28d9}
+.b-navy{background:#e0e7ef;color:#0f2a44}
+.b-prog{background:#e8f1fd;color:var(--blue)}
+
+/* ── PROGRESS RING ── */
+.ring-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.ring-label{position:absolute;font-family:var(--m);font-weight:800;color:var(--ch);text-align:center}
+
+/* ── QUICK LINK CARD ── */
+.ql-card{background:#fff;border:.5px solid #e2e8f0;border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s}
+.ql-card:hover{border-color:var(--blue);background:var(--bl);box-shadow:0 4px 16px rgba(47,128,237,.1)}
+.ql-card:hover .ql-arrow{transform:translateX(3px)}
+.ql-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ql-arrow{transition:transform .2s}
+
+/* ── ROOM CARD ── */
+.room-card{background:#fff;border:.5px solid #e2e8f0;border-radius:14px;padding:18px;cursor:pointer;transition:all .22s;position:relative;overflow:hidden}
+.room-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:14px 0 0 14px}
+.room-card:hover{box-shadow:0 8px 28px rgba(15,42,68,.1);transform:translateY(-2px)}
+.room-card.apt::before{background:var(--blue)}
+.room-card.pu::before{background:var(--pu)}
+.room-card.am::before{background:var(--am)}
+.room-card.navy::before{background:var(--navy)}
+.room-card.red::before{background:var(--rd)}
+
+/* ── GRAPH SVG ── */
+.graph-wrap{position:relative;overflow:hidden;border-radius:12px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:9px;font-size:12.5px;font-weight:700;border:none;cursor:pointer;transition:all .18s;font-family:var(--m)}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:var(--bh);transform:translateY(-1px);box-shadow:0 4px 14px rgba(47,128,237,.28)}
+.btn-ghost{background:#fff;color:var(--ch);border:1.5px solid #e2e8f0}.btn-ghost:hover{border-color:var(--blue);color:var(--blue);background:var(--bl)}
+.btn-sm{padding:6px 13px;font-size:12px;border-radius:8px}
+.btn-xs{padding:4px 10px;font-size:11px;border-radius:7px}
+
+/* ── STATUS FILTER TABS ── */
+.stf{display:flex;gap:4px;background:#f1f5f9;padding:3px;border-radius:8px}
+.stf-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--mu);transition:all .15s;font-family:var(--m)}
+.stf-btn.on{background:#fff;color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+
+/* ── WORK TYPE ROW ── */
+.work-row{background:var(--off);border-radius:10px;padding:13px 16px;margin-bottom:8px;cursor:pointer;transition:all .18s;border:.5px solid transparent}
+.work-row:hover{border-color:rgba(47,128,237,.2);background:#f0f6ff}
+
+/* ── QUERY ITEM ── */
+.query-item{border:.5px solid #e2e8f0;border-radius:10px;padding:13px 15px;margin-bottom:8px;background:#fff}
+
+/* ── PAYMENT ROW ── */
+.pay-row{padding:13px 0;border-bottom:.5px solid #f1f5f9;display:flex;align-items:center;gap:12px}
+
+/* ── 3D CARD ── */
+.viz-card{background:linear-gradient(135deg,#0f2a44,#1a3d5c);border-radius:14px;overflow:hidden;position:relative;cursor:pointer}
+.viz-card:hover .viz-overlay{opacity:1}
+.viz-overlay{position:absolute;inset:0;background:rgba(47,128,237,.15);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
+
+/* ── PROFILE CARD (entry point) ── */
+.lb-entry{background:linear-gradient(135deg,var(--navy),#1a3d5c);border-radius:16px;padding:20px;cursor:pointer;position:relative;overflow:hidden;transition:all .22s}
+.lb-entry:hover{transform:translateY(-2px);box-shadow:0 16px 48px rgba(15,42,68,.25)}
+.lb-entry::after{content:'';position:absolute;right:-20px;bottom:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.04)}
+
+/* ── MOBILE NAV ── */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--brd);padding:8px 0 env(safe-area-inset-bottom);z-index:300}
+@media(max-width:768px){.mob-nav{display:flex}}
+.mob-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;cursor:pointer;color:var(--mu);font-size:9.5px;font-weight:600;font-family:var(--m)}
+.mob-nav-item.on{color:var(--blue)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1200px){.grid-4{grid-template-columns:repeat(3,1fr)!important}}
+@media(max-width:900px){.grid-4{grid-template-columns:repeat(2,1fr)!important}.grid-3{grid-template-columns:repeat(2,1fr)!important}}
+@media(max-width:600px){.grid-4,.grid-3,.grid-2{grid-template-columns:1fr!important}.content{padding:12px}}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes progFill{from{stroke-dashoffset:283}to{stroke-dashoffset:var(--target)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.fade-up{animation:fadeUp .35s ease both}
+.fa1{animation-delay:.05s}.fa2{animation-delay:.1s}.fa3{animation-delay:.15s}.fa4{animation-delay:.2s}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);animation:pulse 1.4s infinite}
+
+/* ── GRAPH LINE ── */
+.graph-line{fill:none;stroke:var(--blue);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.graph-fill{fill:url(#gfill);opacity:.12}
+.graph-target{fill:none;stroke:rgba(244,146,16,.7);stroke-width:1.5;stroke-dasharray:5 4;stroke-linecap:round}
+
+/* ── TOAST ── */
+.tw{position:fixed;bottom:80px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+@media(min-width:769px){.tw{bottom:22px}}
+.toast-item{background:var(--ch);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;border-left:3px solid var(--blue);white-space:nowrap;animation:fadeUp .3s ease}
+
+/* ── CALENDAR FILTER ── */
+.cal-filter{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cal-chip{padding:5px 12px;border-radius:8px;font-size:11.5px;font-weight:600;font-family:var(--m);cursor:pointer;border:1.5px solid var(--brd);background:#fff;color:var(--mu);transition:all .14s}
+.cal-chip.on{border-color:var(--blue);background:var(--bl);color:var(--blue)}
+/* Day tab styles */
+.wt-day-tab.active-day > div:first-child,
+.dp-day-tab.dp-active-day > div:first-child{border-color:var(--blue)!important}
+</style>
+</head>
+<body>
+<div class="tw" id="tw"></div>
+<div class="dn">
+  <span class="dl">LiveBuild</span>
+  <button class="dt on" onclick="P('profile',this)">Profile (entry)</button>
+  <button class="dt" onclick="P('dashboard',this)">Dashboard</button>
+  <div class="ds"></div>
+  <span class="dl">Project</span>
+  <button class="dt" onclick="P('home',this)">Home tab</button>
+  <button class="dt" onclick="P('room',this)">Room detail</button>
+  <button class="dt" onclick="P('viz',this)">3D Visualisation</button>
+  <button class="dt" onclick="P('payments',this)">Payments</button>
+  <button class="dt" onclick="P('queries',this)">Queries</button>
+  <div class="ds"></div>
+  <span class="dl">Device</span>
+  <button class="dt" onclick="setW(375)">Mobile</button>
+  <button class="dt" onclick="setW(768)">Tablet</button>
+  <button class="dt" onclick="setW(null)">Desktop</button>
+  <div class="ds"></div>
+  <span class="dl">Pages</span>
+  <button class="dt" onclick="P('propinfo',this)">Property Info</button>
+  <button class="dt" onclick="P('materials',this)">Materials BOQ</button>
+  <button class="dt" onclick="P('documents',this)">Documents</button>
+</div>
+
+<!-- ══════════════════ SHARED NAV TEMPLATE ══════════════════ -->
+<template id="nav-tpl">
+<div class="site-topbar">
+  <div class="site-logo">Houznext <span>Build</span></div>
+  <div style="display:flex;align-items:center;gap:14px">
+    <button class="btn btn-ghost btn-sm" style="font-size:12px" onclick="toast('Notifications')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <span class="bdg b-red" style="font-size:8px;padding:1px 5px;margin-left:-2px">3</span>
+    </button>
+    <div class="av-btn" onclick="toast('Profile')">AK</div>
+  </div>
+</div>
+</template>
+
+<!-- ══════════════════ SHARED PROJECT TABS TEMPLATE ══════════════════ -->
+<template id="ptabs-tpl">
+<div class="lb-topbar">
+  <button class="btn btn-ghost btn-sm" onclick="P('dashboard',null)" style="flex-shrink:0">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    <span style="display:none" id="back-label">Back</span>
+  </button>
+  <div>
+    <div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch)">2BHK Modern Flat</div>
+    <div style="font-size:11px;color:var(--mu)">Gachibowli, Hyderabad · <span class="bdg b-blue" style="font-size:8px">In Progress</span></div>
+  </div>
+  <div style="margin-left:auto;flex-shrink:0"><span class="bdg b-blue" style="font-size:10px;padding:4px 10px">72% done</span></div>
+</div>
+<div class="ptabs" id="main-ptabs">
+  <div class="ptab on" onclick="switchPTab(this,'home')">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home
+  </div>
+  <div class="ptab" onclick="switchPTab(this,'dayprogress')">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Day Progress
+  </div>
+  <div class="ptab" onclick="switchPTab(this,'viz')">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>3D Visualisation
+  </div>
+  <div class="ptab" onclick="switchPTab(this,'payments')">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Payments
+  </div>
+  <div class="ptab" onclick="switchPTab(this,'queries')">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Queries
+    <span class="bdg b-red" style="font-size:8px;padding:1px 5px">2</span>
+  </div>
+</div>
+</template>
+
+<!-- ══════════════════ PAGE: PROFILE (entry point) ══════════════════ -->
+<div class="pg on" id="pg-profile">
+  <div id="nav-profile"></div>
+  <div class="content" style="max-width:900px;margin:0 auto">
+    <div style="margin-bottom:22px;padding-top:8px">
+      <div style="font-family:var(--m);font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">My Account</div>
+      <h1 style="font-family:var(--m);font-size:24px;font-weight:800;color:var(--ch)">Arjun Kumar</h1>
+      <div style="font-size:13px;color:var(--mu);margin-top:3px">+91 98765 43210 · arjun@email.com</div>
+    </div>
+
+    <!-- Quick stats -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px" class="grid-3">
+      <div class="card-sm" style="text-align:center">
+        <div style="font-family:var(--m);font-size:24px;font-weight:800;color:var(--blue)">2</div>
+        <div style="font-size:12px;color:var(--mu);margin-top:2px">Active projects</div>
+      </div>
+      <div class="card-sm" style="text-align:center">
+        <div style="font-family:var(--m);font-size:24px;font-weight:800;color:var(--ch)">1</div>
+        <div style="font-size:12px;color:var(--mu);margin-top:2px">Completed</div>
+      </div>
+      <div class="card-sm" style="text-align:center">
+        <div style="font-family:var(--m);font-size:24px;font-weight:800;color:var(--am)">₹3.2L</div>
+        <div style="font-size:12px;color:var(--mu);margin-top:2px">Pending payment</div>
+      </div>
+    </div>
+
+    <!-- LiveBuild Entry Card -->
+    <div style="margin-bottom:22px">
+      <div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        My Services
+      </div>
+      <div class="lb-entry" onclick="P('dashboard',null)">
+        <!-- Background pattern -->
+        <div style="position:absolute;top:-30px;right:-30px;width:160px;height:160px;border-radius:50%;background:rgba(47,128,237,.08)"></div>
+        <div style="position:absolute;top:40px;right:20px;width:80px;height:80px;border-radius:50%;background:rgba(47,128,237,.05)"></div>
+        <div style="position:relative;z-index:1">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <div>
+              <div style="font-family:var(--m);font-size:16px;font-weight:800;color:#fff">LiveBuild</div>
+              <div style="font-size:12px;color:rgba(255,255,255,.6)">Real-time construction tracker</div>
+            </div>
+            <div style="margin-left:auto">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.8" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+          <!-- Mini project preview -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:rgba(255,255,255,.1);border-radius:10px;padding:12px">
+              <div style="font-size:10px;color:rgba(255,255,255,.5);font-family:var(--m);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Active</div>
+              <div style="font-family:var(--m);font-size:18px;font-weight:800;color:#fff">2</div>
+              <div style="display:flex;align-items:center;gap:5px;margin-top:6px">
+                <div class="live-dot" style="background:var(--accent)"></div>
+                <span style="font-size:11px;color:rgba(255,255,255,.6)">Projects in progress</span>
+              </div>
+            </div>
+            <div style="background:rgba(255,255,255,.1);border-radius:10px;padding:12px">
+              <div style="font-size:10px;color:rgba(255,255,255,.5);font-family:var(--m);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Latest update</div>
+              <div style="font-size:12px;color:rgba(255,255,255,.8);font-weight:600;line-height:1.4">Plywood work<br>completed</div>
+              <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px">Today, 2:30 PM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Other profile cards -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" class="grid-2">
+      <div class="card-sm" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="toast('Properties')">
+        <div style="width:40px;height:40px;border-radius:10px;background:#e8f1fd;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--ch)">My Properties</div><div style="font-size:11.5px;color:var(--mu)">3 saved properties</div></div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mu)" stroke-width="1.8" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="card-sm" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="toast('Documents')">
+        <div style="width:40px;height:40px;border-radius:10px;background:#fef3c7;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg></div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--ch)">Documents</div><div style="font-size:11.5px;color:var(--mu)">8 files</div></div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mu)" stroke-width="1.8" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE: DASHBOARD ══════════════════ -->
+<div class="pg" id="pg-dashboard">
+  <div id="nav-dashboard"></div>
+  <div style="background:#fff;border-bottom:1px solid var(--brd);padding:0 24px;position:sticky;top:88px;z-index:150">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;gap:12px;flex-wrap:wrap;max-width:1440px;margin:0 auto">
+      <div>
+        <div style="font-family:var(--m);font-size:18px;font-weight:800;color:var(--ch)">My Projects</div>
+        <div style="font-size:12px;color:var(--mu);margin-top:2px">Track your construction progress in real time</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="stf">
+          <button class="stf-btn on" onclick="filterDash(this,'all')">All (3)</button>
+          <button class="stf-btn" onclick="filterDash(this,'progress')">
+            <span class="live-dot" style="display:inline-block;margin-right:3px"></span>In Progress (2)
+          </button>
+          <button class="stf-btn" onclick="filterDash(this,'completed')">Completed (1)</button>
+          <button class="stf-btn" onclick="filterDash(this,'hold')">On Hold (0)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="content" style="padding-top:18px">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1440px;margin:0 auto" class="grid-4" id="dash-grid"></div>
+    <!-- Empty state (hidden) -->
+    <div id="dash-empty" style="display:none;text-align:center;padding:60px 24px">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" style="margin:0 auto 16px"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      <div style="font-family:var(--m);font-size:15px;font-weight:700;color:var(--mu)">No projects found</div>
+    </div>
+  </div>
+  <!-- Mobile bottom nav -->
+  <div class="mob-nav">
+    <div class="mob-nav-item on" onclick="P('dashboard',null)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Projects
+    </div>
+    <div class="mob-nav-item" onclick="toast('Notifications')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      Alerts
+    </div>
+    <div class="mob-nav-item" onclick="P('profile',null)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profile
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE: HOME TAB ══════════════════ -->
+<div class="pg" id="pg-home">
+  <div id="nav-home"></div>
+  <div id="ptabs-home"></div>
+  <div class="content" style="padding-bottom:80px">
+    <div style="max-width:1100px;margin:0 auto">
+
+      <!-- Overall progress graph card -->
+      <div class="card fade-up" style="margin-bottom:16px;padding:22px 24px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-family:var(--m);font-size:15px;font-weight:700;color:var(--ch);margin-bottom:4px">Overall Progress</div>
+            <div style="font-size:12px;color:var(--mu)">50-day project · Started 1 Jan 2025 · Due 20 Feb 2025</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <div class="stf">
+              <button class="stf-btn on" onclick="switchStf(this)">
+                <span class="live-dot" style="display:inline-block;margin-right:3px"></span>Live
+              </button>
+              <button class="stf-btn" onclick="switchStf(this)">On Hold</button>
+              <button class="stf-btn" onclick="switchStf(this)">Finished</button>
+            </div>
+            <div style="display:flex;gap:14px;font-size:11.5px;margin-left:4px">
+              <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:2.5px;background:var(--blue);display:inline-block;border-radius:2px"></span>Actual</span>
+              <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:2px;background:var(--am);display:inline-block;border-radius:2px;border-top:1.5px dashed var(--am);background:transparent;border:none;border-bottom:1.5px dashed var(--am)"></span>Target</span>
+            </div>
+          </div>
+        </div>
+        <!-- SVG Progress Graph -->
+        <div class="graph-wrap" id="main-graph-wrap" style="position:relative">
+          <!-- Hover tooltip -->
+          <div id="graph-tooltip" style="display:none;position:absolute;background:var(--ch);color:#fff;padding:7px 12px;border-radius:9px;font-size:12px;font-weight:600;font-family:'Montserrat',sans-serif;pointer-events:none;z-index:10;box-shadow:0 4px 14px rgba(15,42,68,.2);white-space:nowrap;transform:translate(-50%,-130%);transition:opacity .12s">
+            <div id="tt-day" style="font-size:10px;opacity:.65;margin-bottom:2px"></div>
+            <div id="tt-val" style="font-size:13px"></div>
+            <div id="tt-status" style="font-size:10px;margin-top:2px;opacity:.8"></div>
+            <div style="position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid var(--ch)"></div>
+          </div>
+          <!-- Vertical hover line -->
+          <div id="graph-hline" style="display:none;position:absolute;top:0;bottom:16px;width:1px;background:rgba(47,128,237,.25);pointer-events:none;z-index:4"></div>
+          <svg width="100%" height="220" viewBox="0 0 800 220" preserveAspectRatio="none" id="progress-svg" style="display:block;cursor:crosshair"
+            onmousemove="graphHover(event)" onmouseleave="graphLeave()">
+            <defs>
+              <linearGradient id="gfill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#2f80ed" stop-opacity=".18"/>
+                <stop offset="100%" stop-color="#2f80ed" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="44" x2="800" y2="44" stroke="#f1f5f9" stroke-width="1"/>
+            <line x1="0" y1="88" x2="800" y2="88" stroke="#f1f5f9" stroke-width="1"/>
+            <line x1="0" y1="132" x2="800" y2="132" stroke="#f1f5f9" stroke-width="1"/>
+            <line x1="0" y1="176" x2="800" y2="176" stroke="#f1f5f9" stroke-width="1"/>
+            <text x="8" y="47" font-size="10" fill="#94a3b8" font-family="Inter">100%</text>
+            <text x="8" y="91" font-size="10" fill="#94a3b8" font-family="Inter">75%</text>
+            <text x="8" y="135" font-size="10" fill="#94a3b8" font-family="Inter">50%</text>
+            <text x="8" y="179" font-size="10" fill="#94a3b8" font-family="Inter">25%</text>
+            <!-- Target line dashed amber -->
+            <polyline fill="none" stroke="rgba(245,158,11,.7)" stroke-width="1.5" stroke-dasharray="5 4" stroke-linecap="round" points="40,176 200,132 360,88 520,44 680,10"/>
+            <!-- Actual area -->
+            <polygon fill="url(#gfill)" opacity=".12" points="40,220 40,190 110,185 180,175 220,165 240,157 260,154 280,150 340,130 420,100 500,78 560,68 620,65 680,65 680,220"/>
+            <!-- Actual line -->
+            <polyline fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="40,190 110,185 180,175 220,165 240,157 260,154 280,150 340,130 420,100 500,78 560,68 620,65 680,65"/>
+            <!-- ON HOLD segment — yellow dashed + yellow band -->
+            <rect x="220" y="10" width="72" height="200" fill="#f59e0b" fill-opacity=".04"/>
+            <polyline fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="5 3" stroke-linecap="round" points="220,165 240,157 260,154 280,150"/>
+            <!-- ON HOLD dots (yellow) -->
+            <circle class="graph-hold-dot" cx="220" cy="165" r="6.5" fill="#f59e0b" stroke="#fff" stroke-width="2.5" style="cursor:pointer"
+              data-day="Day 12" data-val="40%" data-status="On Hold" data-svgx="220" data-svgy="165"/>
+            <circle class="graph-hold-dot" cx="240" cy="157" r="6.5" fill="#f59e0b" stroke="#fff" stroke-width="2.5" style="cursor:pointer"
+              data-day="Day 13" data-val="42%" data-status="On Hold" data-svgx="240" data-svgy="157"/>
+            <circle class="graph-hold-dot" cx="260" cy="154" r="6.5" fill="#f59e0b" stroke="#fff" stroke-width="2.5" style="cursor:pointer"
+              data-day="Day 14" data-val="43%" data-status="On Hold" data-svgx="260" data-svgy="154"/>
+            <circle class="graph-hold-dot" cx="280" cy="150" r="6.5" fill="#f59e0b" stroke="#fff" stroke-width="2.5" style="cursor:pointer"
+              data-day="Day 15" data-val="44%" data-status="On Hold" data-svgx="280" data-svgy="150"/>
+            <!-- Regular live dots (opacity 0, shown on hover via JS) -->
+            <g id="graph-live-dots" opacity="0" style="transition:opacity .2s">
+              <circle class="graph-dot" cx="40"  cy="190" r="4.5" fill="var(--blue)" stroke="#fff" stroke-width="2" data-day="Day 1"  data-val="12%" data-status="Live"/>
+              <circle class="graph-dot" cx="110" cy="185" r="4.5" fill="var(--blue)" stroke="#fff" stroke-width="2" data-day="Day 5"  data-val="15%" data-status="Live"/>
+              <circle class="graph-dot" cx="180" cy="175" r="4.5" fill="var(--blue)" stroke="#fff" stroke-width="2" data-day="Day 9"  data-val="20%" data-status="Live"/>
+              <circle class="graph-dot" cx="340" cy="130" r="4.5" fill="var(--blue)" stroke="#fff" stroke-width="2" data-day="Day 18" data-val="43%" data-status="Live"/>
+              <circle class="graph-dot" cx="420" cy="100" r="4.5" fill="var(--blue)" stroke="#fff" stroke-width="2" data-day="Day 22" data-val="58%" data-status="Live"/>
+              <circle class="graph-dot" cx="500" cy="78"  r="4.5" fill="var(--blue)" stroke="#fff" stroke-width="2" data-day="Day 27" data-val="67%" data-status="Live"/>
+              <circle class="graph-dot" cx="560" cy="68"  r="4.5" fill="var(--blue)" stroke="#fff" stroke-width="2" data-day="Day 31" data-val="70%" data-status="Live"/>
+              <circle class="graph-dot" cx="620" cy="65"  r="4.5" fill="var(--blue)" stroke="#fff" stroke-width="2" data-day="Day 35" data-val="71%" data-status="Live"/>
+            </g>
+            <!-- Today marker -->
+            <line x1="680" y1="10" x2="680" y2="210" stroke="rgba(47,128,237,.25)" stroke-width="1" stroke-dasharray="4 3"/>
+            <circle cx="680" cy="65" r="5.5" fill="var(--blue)" stroke="#fff" stroke-width="2.5"/>
+            <rect x="648" y="42" width="74" height="21" rx="6" fill="var(--blue)"/>
+            <text x="685" y="56.5" font-size="10.5" fill="#fff" font-family="Montserrat" font-weight="700" text-anchor="middle">Today 72%</text>
+            <!-- X labels -->
+            <text x="40"  y="215" font-size="9" fill="#94a3b8" text-anchor="middle" font-family="Inter">Day 1</text>
+            <text x="200" y="215" font-size="9" fill="#94a3b8" text-anchor="middle" font-family="Inter">Day 10</text>
+            <text x="252" y="215" font-size="9" fill="#f59e0b" text-anchor="middle" font-family="Inter" font-weight="700">On Hold</text>
+            <text x="360" y="215" font-size="9" fill="#94a3b8" text-anchor="middle" font-family="Inter">Day 20</text>
+            <text x="500" y="215" font-size="9" fill="#94a3b8" text-anchor="middle" font-family="Inter">Day 30</text>
+            <text x="620" y="215" font-size="9" fill="#94a3b8" text-anchor="middle" font-family="Inter">Day 38</text>
+            <text x="760" y="215" font-size="9" fill="#94a3b8" text-anchor="middle" font-family="Inter">Day 50</text>
+          </svg>
+        </div>
+        </div>
+        <!-- Stats below graph -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:.5px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-top:16px" class="grid-4">
+          <div style="padding:12px 14px;background:var(--off)"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:var(--m);margin-bottom:3px">Completed</div><div style="font-family:var(--m);font-size:18px;font-weight:800;color:var(--blue)">72%</div></div>
+          <div style="padding:12px 14px;border-left:.5px solid #e2e8f0"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:var(--m);margin-bottom:3px">Days elapsed</div><div style="font-family:var(--m);font-size:18px;font-weight:800;color:var(--ch)">38/50</div></div>
+          <div style="padding:12px 14px;border-left:.5px solid #e2e8f0;background:var(--off)"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:var(--m);margin-bottom:3px">Days remaining</div><div style="font-family:var(--m);font-size:18px;font-weight:800;color:var(--am)">12</div></div>
+          <div style="padding:12px 14px;border-left:.5px solid #e2e8f0"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:var(--m);margin-bottom:3px">On target</div><div style="font-family:var(--m);font-size:18px;font-weight:800;color:var(--blue)">+4% ahead</div></div>
+        </div>
+      </div>
+
+      <!-- Room-wise cards -->
+      <div style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Room-wise progress
+        <span class="bdg b-blue">2BHK Flat</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px" class="grid-3" id="room-grid"></div>
+
+      <!-- 3D preview card -->
+      <div class="fade-up fa3" style="margin-bottom:16px">
+        <div style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--pu)" stroke-width="1.8" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+          3D Floor Visualisation
+        </div>
+        <div class="viz-card" style="height:200px" onclick="P('viz',null)">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+            <svg width="200" height="130" viewBox="0 0 200 130" style="opacity:.18">
+              <!-- Isometric floor plan sketch -->
+              <polygon points="100,10 180,50 180,90 100,130 20,90 20,50" fill="none" stroke="#fff" stroke-width="1"/>
+              <line x1="20" y1="50" x2="100" y2="90" stroke="#fff" stroke-width=".8"/>
+              <line x1="100" y1="90" x2="180" y2="50" stroke="#fff" stroke-width=".8"/>
+              <line x1="100" y1="90" x2="100" y2="130" stroke="#fff" stroke-width=".8"/>
+              <line x1="60" y1="70" x2="60" y2="110" stroke="#fff" stroke-width=".6"/>
+              <line x1="140" y1="70" x2="140" y2="110" stroke="#fff" stroke-width=".6"/>
+            </svg>
+          </div>
+          <div style="position:absolute;bottom:0;left:0;right:0;padding:20px;background:linear-gradient(to top,rgba(15,42,68,.8),transparent)">
+            <div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:#fff;margin-bottom:4px">View 3D Floor Plan</div>
+            <div style="font-size:11.5px;color:rgba(255,255,255,.6)">Tap to explore your flat in 3D · 72% rendered</div>
+          </div>
+          <div class="viz-overlay"><button class="btn btn-blue" onclick="P('viz',null)">Open 3D View</button></div>
+          <div style="position:absolute;top:14px;right:14px"><span class="bdg" style="background:rgba(124,58,237,.8);color:#fff;font-size:9px">3D READY</span></div>
+        </div>
+      </div>
+
+      <!-- Quick links -->
+      <div style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch);margin-bottom:12px">Quick links</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px" class="grid-4">
+        <div class="ql-card" onclick="P('propinfo',null)">
+          <div class="ql-icon" style="background:#e8f1fd"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+          <div style="flex:1"><div style="font-weight:700;font-size:13px;color:var(--ch)">Property Info</div><div style="font-size:11.5px;color:var(--mu)">Flat details, dimensions</div></div>
+          <svg class="ql-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--mu)" stroke-width="1.8" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="ql-card" onclick="P('materials',null)">
+          <div class="ql-icon" style="background:#fef3c7"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="1.8" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+          <div style="flex:1"><div style="font-weight:700;font-size:13px;color:var(--ch)">Materials</div><div style="font-size:11.5px;color:var(--mu)">BOQ &amp; specifications</div></div>
+          <svg class="ql-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--mu)" stroke-width="1.8" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="ql-card" onclick="P('payments',null)">
+          <div class="ql-icon" style="background:#f3e8ff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--pu)" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+          <div style="flex:1"><div style="font-weight:700;font-size:13px;color:var(--ch)">Payments</div><div style="font-size:11.5px;color:var(--mu)">₹3.2L due · 2 pending</div></div>
+          <svg class="ql-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--mu)" stroke-width="1.8" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="ql-card" onclick="P('documents',null)">
+          <div class="ql-icon" style="background:#ccfbf1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <div style="flex:1"><div style="font-weight:700;font-size:13px;color:var(--ch)">Documents</div><div style="font-size:11.5px;color:var(--mu)">Warranty &amp; project files</div></div>
+          <svg class="ql-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--mu)" stroke-width="1.8" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mob-nav" id="mob-home">
+    <div class="mob-nav-item on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Home</div>
+    <div class="mob-nav-item" onclick="P('home',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Progress</div>
+    <div class="mob-nav-item" onclick="P('viz',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>3D</div>
+    <div class="mob-nav-item" onclick="P('payments',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Payments</div>
+    <div class="mob-nav-item" onclick="P('queries',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Queries</div>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE: ROOM DETAIL ══════════════════ -->
+<div class="pg" id="pg-room">
+  <div id="nav-room"></div>
+  <div id="ptabs-room"></div>
+  <!-- Room sub-header -->
+  <div style="background:#fff;border-bottom:1px solid var(--brd);padding:0 24px;position:sticky;top:194px;z-index:98;box-shadow:0 1px 3px rgba(15,42,68,.04)" id="room-subhd">
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;max-width:1100px;margin:0 auto;overflow-x:auto;scrollbar-width:none" id="room-chips-row"></div>
+  </div>
+  <!-- Room sub-tabs stick below room-subhd -->
+  <div class="stabs" style="position:sticky;top:240px;z-index:97;background:#fff;box-shadow:0 1px 0 #e8eef5" id="room-stabs">
+    <div class="stab on" onclick="switchStab(this,'roverview')">Overview</div>
+    <div class="stab" onclick="switchStab(this,'rmatl')">Material used</div>
+    <div class="stab" onclick="switchStab(this,'rimages')">Images</div>
+    <div class="stab" onclick="switchStab(this,'r3d')">3D</div>
+  </div>
+  <!-- Sub-tab content -->
+  <div class="content" id="room-content" style="max-width:1100px;margin:0 auto;padding-bottom:80px">
+
+    <!-- OVERVIEW sub-tab -->
+    <div id="sub-roverview">
+      <!-- Room progress graph with calendar filter -->
+      <div class="card fade-up" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+          <div>
+            <div style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)" id="room-title-graph">Master Bedroom — Progress</div>
+            <div style="font-size:12px;color:var(--mu);margin-top:2px">Day-by-day completion tracker</div>
+          </div>
+          <div class="cal-filter">
+            <div style="font-size:12px;color:var(--mu)">Filter:</div>
+            <span class="cal-chip on" onclick="calFilter(this,'7d')">Last 7 days</span>
+            <span class="cal-chip" onclick="calFilter(this,'14d')">14 days</span>
+            <span class="cal-chip" onclick="calFilter(this,'30d')">30 days</span>
+            <input type="date" class="cal-chip" style="font-family:var(--i);font-size:11.5px;cursor:pointer" value="2025-01-14" onchange="overviewSpecificDate(this.value)">
+          </div>
+        </div>
+        <!-- Room SVG graph -->
+        <div class="graph-wrap">
+          <svg width="100%" height="180" viewBox="0 0 800 180" preserveAspectRatio="none" style="display:block">
+            <defs>
+              <linearGradient id="gfill2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#2f80ed" stop-opacity=".15"/>
+                <stop offset="100%" stop-color="#2f80ed" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="36" x2="800" y2="36" stroke="#f1f5f9" stroke-width="1"/>
+            <line x1="0" y1="72" x2="800" y2="72" stroke="#f1f5f9" stroke-width="1"/>
+            <line x1="0" y1="108" x2="800" y2="108" stroke="#f1f5f9" stroke-width="1"/>
+            <line x1="0" y1="144" x2="800" y2="144" stroke="#f1f5f9" stroke-width="1"/>
+            <text x="4" y="39" font-size="9" fill="#94a3b8" font-family="Inter">100%</text>
+            <text x="4" y="75" font-size="9" fill="#94a3b8" font-family="Inter">75%</text>
+            <text x="4" y="111" font-size="9" fill="#94a3b8" font-family="Inter">50%</text>
+            <text x="4" y="147" font-size="9" fill="#94a3b8" font-family="Inter">25%</text>
+            <polygon fill="url(#gfill2)" points="60,165 60,148 160,130 240,108 340,90 440,75 540,60 640,48 740,40 740,165"/>
+            <polyline fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="60,148 160,130 240,108 340,90 440,75 540,60 640,48 740,40"/>
+            <!-- Day markers -->
+            <circle cx="160" cy="130" r="3.5" fill="#fff" stroke="var(--blue)" stroke-width="2"/>
+            <circle cx="340" cy="90" r="3.5" fill="#fff" stroke="var(--blue)" stroke-width="2"/>
+            <circle cx="540" cy="60" r="3.5" fill="#fff" stroke="var(--blue)" stroke-width="2"/>
+            <circle cx="740" cy="40" r="3.5" fill="var(--blue)" stroke="#fff" stroke-width="2"/>
+            <!-- Today -->
+            <line x1="740" y1="0" x2="740" y2="170" stroke="rgba(47,128,237,.2)" stroke-width="1" stroke-dasharray="4 3"/>
+            <rect x="710" y="20" width="64" height="18" rx="4" fill="var(--blue)"/>
+            <text x="742" y="33" font-size="9" fill="#fff" font-family="Montserrat" font-weight="700" text-anchor="middle">85%</text>
+            <text x="60" y="175" font-size="8" fill="#94a3b8" text-anchor="middle" font-family="Inter">Jan 8</text>
+            <text x="160" y="175" font-size="8" fill="#94a3b8" text-anchor="middle" font-family="Inter">Jan 9</text>
+            <text x="260" y="175" font-size="8" fill="#94a3b8" text-anchor="middle" font-family="Inter">Jan 10</text>
+            <text x="360" y="175" font-size="8" fill="#94a3b8" text-anchor="middle" font-family="Inter">Jan 11</text>
+            <text x="460" y="175" font-size="8" fill="#94a3b8" text-anchor="middle" font-family="Inter">Jan 12</text>
+            <text x="560" y="175" font-size="8" fill="#94a3b8" text-anchor="middle" font-family="Inter">Jan 13</text>
+            <text x="660" y="175" font-size="8" fill="#94a3b8" text-anchor="middle" font-family="Inter">Jan 14</text>
+            <text x="740" y="175" font-size="8" fill="var(--blue)" text-anchor="middle" font-family="Inter">Today</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Work type sections -->
+      <div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+        Work types in progress
+      </div>
+      <div id="work-types"></div>
+
+      <!-- Room queries -->
+      <div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch);margin:18px 0 12px;display:flex;align-items:center;gap:8px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Room queries <span class="bdg b-amber">1 open</span>
+      </div>
+      <div id="room-queries-list"></div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="toast('New query raised')">+ Raise a query</button>
+    </div>
+
+    <!-- MATERIAL sub-tab -->
+    <div id="sub-rmatl" style="display:none">
+      <div class="card fade-up" style="margin-bottom:14px">
+        <div style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch);margin-bottom:14px">Materials Used — Master Bedroom</div>
+        <div id="matl-list"></div>
+      </div>
+    </div>
+
+    <!-- IMAGES sub-tab -->
+    <div id="sub-rimages" style="display:none">
+      <div class="card fade-up">
+        <!-- Header row: title + work-type filter + date filter -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+          <div style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)" id="imgs-title">Progress Photos — Master Bedroom</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <!-- Work-type filter -->
+            <div class="stf" id="imgs-wt-filter">
+              <button class="stf-btn on" onclick="filterImgs(this,'all')">All</button>
+              <button class="stf-btn" onclick="filterImgs(this,'Plywood work')">Plywood</button>
+              <button class="stf-btn" onclick="filterImgs(this,'Electrical work')">Electrical</button>
+              <button class="stf-btn" onclick="filterImgs(this,'Painting')">Painting</button>
+            </div>
+            <!-- Date filter -->
+            <div class="cal-filter" id="imgs-cal-filter">
+              <span class="cal-chip on" onclick="filterImgsDate(this,'7d')">Last 7 days</span>
+              <span class="cal-chip" onclick="filterImgsDate(this,'14d')">14 days</span>
+              <span class="cal-chip" onclick="filterImgsDate(this,'30d')">30 days</span>
+              <input type="date" class="cal-chip" id="imgs-date-input" style="font-family:var(--i);font-size:11.5px;cursor:pointer" value="2025-01-14" onchange="filterImgsSpecificDate(this.value)">
+            </div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px" class="grid-4" id="room-imgs"></div>
+        <div id="room-imgs-empty" style="display:none;text-align:center;padding:32px;color:var(--mu);font-size:13px">No photos for this filter selection.</div>
+      </div>
+    </div>
+
+    <!-- 3D sub-tab -->
+    <div id="sub-r3d" style="display:none">
+      <div class="card fade-up" style="padding:0;overflow:hidden">
+        <div class="viz-card" style="height:320px;border-radius:14px" onclick="toast('Opening 3D view…')">
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96" stroke-opacity=".4"/><line x1="12" y1="22.08" x2="12" y2="12" stroke-opacity=".4"/></svg>
+            <div style="font-family:var(--m);font-size:16px;font-weight:700;color:rgba(255,255,255,.9)">Master Bedroom — 3D View</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.5)">Tap to interact · Pinch to zoom</div>
+            <button class="btn btn-blue" style="margin-top:8px" onclick="event.stopPropagation();P('viz',null)">Open 3D Environment</button>
+          </div>
+          <div style="position:absolute;top:14px;left:14px"><span class="bdg" style="background:rgba(124,58,237,.8);color:#fff;font-size:9px">3D READY</span></div>
+        </div>
+        <div style="padding:16px">
+          <div style="font-family:var(--m);font-size:12.5px;font-weight:700;color:var(--ch);margin-bottom:8px">Room specifications</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12.5px" class="grid-2">
+            <div style="background:var(--off);border-radius:8px;padding:10px 12px"><div style="font-size:9.5px;color:var(--mu);font-family:var(--m);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Dimensions</div><div style="font-weight:600">14 × 12 ft</div></div>
+            <div style="background:var(--off);border-radius:8px;padding:10px 12px"><div style="font-size:9.5px;color:var(--mu);font-family:var(--m);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Area</div><div style="font-weight:600">168 sqft</div></div>
+            <div style="background:var(--off);border-radius:8px;padding:10px 12px"><div style="font-size:9.5px;color:var(--mu);font-family:var(--m);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Flooring</div><div style="font-weight:600">Vitrified tiles</div></div>
+            <div style="background:var(--off);border-radius:8px;padding:10px 12px"><div style="font-size:9.5px;color:var(--mu);font-family:var(--m);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Ceiling</div><div style="font-weight:600">Pop + Gypsum</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mob-nav"><div class="mob-nav-item" onclick="P('home',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back</div><div class="mob-nav-item on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Room</div><div class="mob-nav-item" onclick="P('viz',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>3D</div><div class="mob-nav-item" onclick="P('queries',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Queries</div></div>
+</div>
+
+<!-- ══════════════════ PAGE: DAY PROGRESS ══════════════════ -->
+<div class="pg" id="pg-dayprogress">
+  <div id="nav-dayprogress"></div>
+  <div id="ptabs-dayprogress"></div>
+  <div class="content" style="max-width:1100px;margin:0 auto;padding-bottom:80px">
+
+    <!-- Top filter bar -->
+    <div class="card" style="margin-bottom:16px;padding:14px 18px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="font-family:var(--m);font-size:12.5px;font-weight:700;color:var(--ch)">Filter by:</div>
+        <div class="cal-filter" id="dp-cal-filter">
+          <span class="cal-chip on" onclick="dpCalFilter(this,'7d')">Last 7 days</span>
+          <span class="cal-chip" onclick="dpCalFilter(this,'14d')">Last 14 days</span>
+          <span class="cal-chip" onclick="dpCalFilter(this,'30d')">Last 30 days</span>
+          <input type="date" id="dp-specific-date" class="cal-chip" style="font-family:var(--i);font-size:11.5px;cursor:pointer" value="2025-01-14" onchange="dpSpecificDate(this.value)">
+        </div>
+        <div style="margin-left:auto;font-size:12px;color:var(--mu)" id="dp-filter-label">Showing last 7 days · 14 Jan – 8 Jan</div>
+      </div>
+    </div>
+
+    <!-- Room selector row -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px" id="dp-room-row"></div>
+
+    <!-- Work types for active room -->
+    <div id="dp-work-sections"></div>
+
+  </div>
+  <div class="mob-nav">
+    <div class="mob-nav-item" onclick="P('home',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Home</div>
+    <div class="mob-nav-item on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Progress</div>
+    <div class="mob-nav-item" onclick="P('viz',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>3D</div>
+    <div class="mob-nav-item" onclick="P('payments',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Pay</div>
+    <div class="mob-nav-item" onclick="P('queries',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Queries</div>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE: 3D VISUALISATION ══════════════════ -->
+<div class="pg" id="pg-viz">
+  <div id="nav-viz"></div>
+  <div id="ptabs-viz"></div>
+  <div class="content" style="max-width:1100px;margin:0 auto;padding-bottom:80px">
+    <div style="display:grid;grid-template-columns:1fr 280px;gap:18px;align-items:start" class="grid-2">
+      <div>
+        <!-- Main 3D viewport -->
+        <div class="viz-card fade-up" style="height:420px;border-radius:16px;margin-bottom:14px">
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <!-- Isometric 3D floor sketch -->
+            <svg width="360" height="280" viewBox="0 0 360 280" style="opacity:.22">
+              <!-- Floor -->
+              <polygon points="180,40 310,110 310,220 180,290 50,220 50,110" fill="#2f80ed" fill-opacity=".15" stroke="#fff" stroke-width="1.5"/>
+              <!-- Walls -->
+              <polygon points="50,110 180,40 180,160 50,220" fill="#fff" fill-opacity=".05" stroke="#fff" stroke-width="1"/>
+              <polygon points="310,110 180,40 180,160 310,220" fill="#fff" fill-opacity=".08" stroke="#fff" stroke-width="1"/>
+              <!-- Room dividers -->
+              <line x1="180" y1="160" x2="180" y2="290" stroke="#fff" stroke-width="1" stroke-opacity=".4"/>
+              <line x1="50" y1="165" x2="310" y2="165" stroke="#fff" stroke-width="1" stroke-opacity=".3"/>
+              <!-- Room labels -->
+              <text x="115" y="130" font-size="11" fill="rgba(255,255,255,.6)" font-family="Montserrat" font-weight="600" text-anchor="middle">Master Bedroom</text>
+              <text x="245" y="130" font-size="11" fill="rgba(255,255,255,.6)" font-family="Montserrat" font-weight="600" text-anchor="middle">Children's Room</text>
+              <text x="115" y="210" font-size="11" fill="rgba(255,255,255,.6)" font-family="Montserrat" font-weight="600" text-anchor="middle">Kitchen</text>
+              <text x="245" y="210" font-size="11" fill="rgba(255,255,255,.6)" font-family="Montserrat" font-weight="600" text-anchor="middle">Living Room</text>
+            </svg>
+          </div>
+          <!-- Controls overlay -->
+          <div style="position:absolute;bottom:16px;left:16px;display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" style="background:rgba(255,255,255,.9);font-size:11px" onclick="toast('Floor 1')">Floor 1</button>
+            <button class="btn btn-ghost btn-sm" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.2);font-size:11px" onclick="toast('Floor 2')">Floor 2</button>
+          </div>
+          <div style="position:absolute;bottom:16px;right:16px;display:flex;flex-direction:column;gap:6px">
+            <button style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.9);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--ch)" onclick="toast('Zoom in')">+</button>
+            <button style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.9);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--ch)" onclick="toast('Zoom out')">−</button>
+          </div>
+          <div style="position:absolute;top:16px;left:16px"><span class="bdg" style="background:rgba(47,128,237,.85);color:#fff;font-size:9px">INTERACTIVE 3D</span></div>
+          <div style="position:absolute;top:16px;right:16px">
+            <button class="btn btn-ghost btn-sm" style="background:rgba(255,255,255,.9);font-size:11px" onclick="toast('Full screen')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              Fullscreen
+            </button>
+          </div>
+          <div class="viz-overlay"><div style="font-family:var(--m);font-size:14px;font-weight:700;color:#fff;text-align:center"><div style="margin-bottom:10px">Rotate · Zoom · Pan</div><div style="font-size:11px;font-weight:400;color:rgba(255,255,255,.6)">Click and drag to explore</div></div></div>
+        </div>
+        <!-- View selector -->
+        <div class="card fade-up fa2" style="margin-bottom:14px">
+          <div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch);margin-bottom:12px">Room views</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px" id="viz-room-grid"></div>
+        </div>
+      </div>
+      <!-- Right panel -->
+      <div style="position:sticky;top:194px;display:flex;flex-direction:column;gap:14px">
+        <div class="card fade-up fa1">
+          <div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch);margin-bottom:12px">2BHK Floor Plan</div>
+          <div style="display:flex;flex-direction:column;gap:7px" id="viz-rooms-list"></div>
+          <div style="margin-top:12px;padding-top:12px;border-top:.5px solid #f1f5f9">
+            <button class="btn btn-blue btn-sm" style="width:100%;justify-content:center" onclick="toast('Downloading floor plan…')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download PDF
+            </button>
+          </div>
+        </div>
+        <div class="card-sm">
+          <div style="font-family:var(--m);font-size:12px;font-weight:700;color:var(--ch);margin-bottom:8px">Design specifications</div>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:12px">
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Style</span><span style="font-weight:600">Modern Minimal</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Color palette</span><span style="font-weight:600">Neutral + Navy</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Flooring</span><span style="font-weight:600">Vitrified 800mm</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Ceiling</span><span style="font-weight:600">Pop + Gypsum</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mob-nav"><div class="mob-nav-item" onclick="P('home',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Home</div><div class="mob-nav-item on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>3D</div><div class="mob-nav-item" onclick="P('payments',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Pay</div></div>
+</div>
+
+<!-- ══════════════════ PAGE: PAYMENTS ══════════════════ -->
+<div class="pg" id="pg-payments">
+  <div id="nav-payments"></div>
+  <div id="ptabs-payments"></div>
+  <div class="content" style="max-width:860px;margin:0 auto;padding-bottom:80px">
+    <!-- Summary row — percentages only, no amounts -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px" class="grid-3">
+      <div class="card-sm" style="text-align:center">
+        <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:var(--m);margin-bottom:4px">Total milestones</div>
+        <div style="font-family:var(--m);font-size:22px;font-weight:800;color:var(--ch)">5</div>
+        <div style="font-size:11px;color:var(--mu);margin-top:2px">Across project</div>
+      </div>
+      <div class="card-sm" style="text-align:center">
+        <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:var(--m);margin-bottom:4px">Paid so far</div>
+        <div style="font-family:var(--m);font-size:22px;font-weight:800;color:var(--blue)" id="pay-paid-pct">60%</div>
+        <div style="font-size:11px;color:var(--mu);margin-top:2px">3 milestones cleared</div>
+      </div>
+      <div class="card-sm" style="text-align:center;border-color:#fca5a5;background:#fff5f5">
+        <div style="font-size:10px;font-weight:700;color:var(--rd);text-transform:uppercase;letter-spacing:.07em;font-family:var(--m);margin-bottom:4px">Pending</div>
+        <div style="font-family:var(--m);font-size:22px;font-weight:800;color:var(--rd)" id="pay-pending-pct">40%</div>
+        <div style="font-size:11px;color:var(--rd);margin-top:2px">2 invoices pending</div>
+      </div>
+    </div>
+    <!-- Progress bar -->
+    <div class="card" style="margin-bottom:16px;padding:18px 22px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px">
+        <span style="color:var(--mu)">Payment progress</span>
+        <span style="font-weight:700;color:var(--ch)">60% complete · 40% remaining</span>
+      </div>
+      <div style="height:8px;background:#e2e8f0;border-radius:8px;overflow:hidden">
+        <div style="height:100%;width:60%;background:linear-gradient(90deg,var(--blue),var(--bh));border-radius:8px;transition:width .8s ease"></div>
+      </div>
+    </div>
+    <!-- Payment schedule -->
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:16px">
+      <div style="padding:16px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-family:var(--m);font-size:14px;font-weight:700;color:var(--ch)">Payment schedule</div>
+        <button class="btn btn-ghost btn-sm" onclick="toast('Downloading statement…')">↓ Statement</button>
+      </div>
+      <div style="padding:0 18px" id="pay-list"></div>
+    </div>
+    <!-- Pay now — no amount shown -->
+    <div class="card" style="border-color:#fca5a5;background:#fff8f8">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="width:40px;height:40px;border-radius:10px;background:#fee2e2;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div><div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch)">Milestone 3 — Payment due</div><div style="font-size:12px;color:var(--mu)">Due 20 Jan 2025 · 21.6% of total project cost</div></div>
+      </div>
+      <button class="btn btn-blue" style="width:100%;justify-content:center;padding:12px" onclick="toast('Redirecting to payment…')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Pay now
+      </button>
+      <div style="font-size:11px;color:var(--mu);text-align:center;margin-top:10px">UPI · Net banking · Cards accepted · 100% secure</div>
+    </div>
+  </div>
+  <div class="mob-nav"><div class="mob-nav-item" onclick="P('home',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Home</div><div class="mob-nav-item on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Payments</div></div>
+</div>
+
+<!-- ══════════════════ PAGE: QUERIES ══════════════════ -->
+<div class="pg" id="pg-queries">
+  <div id="nav-queries"></div>
+  <div id="ptabs-queries"></div>
+  <div class="content" style="max-width:860px;margin:0 auto;padding-bottom:80px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <div class="stf">
+        <button class="stf-btn on" onclick="switchStf(this)">All (5)</button>
+        <button class="stf-btn" onclick="switchStf(this)">Open (2)</button>
+        <button class="stf-btn" onclick="switchStf(this)">Resolved (3)</button>
+      </div>
+      <button class="btn btn-blue btn-sm" onclick="toast('New query raised')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Raise query
+      </button>
+    </div>
+    <div id="queries-list"></div>
+  </div>
+  <div class="mob-nav"><div class="mob-nav-item" onclick="P('home',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Home</div><div class="mob-nav-item on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Queries</div></div>
+</div>
+<!-- ══════════════════ PAGE: PROPERTY INFO ══════════════════ -->
+<div class="pg" id="pg-propinfo">
+  <div id="nav-propinfo"></div>
+  <div id="ptabs-propinfo"></div>
+  <div class="content" style="max-width:900px;margin:0 auto;padding-bottom:80px">
+    <!-- Header -->
+    <div class="card fade-up" style="margin-bottom:14px">
+      <div style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap">
+        <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--bh));display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div style="flex:1">
+          <div style="font-family:var(--m);font-size:20px;font-weight:800;color:var(--ch);margin-bottom:4px">2BHK Modern Flat</div>
+          <div style="font-size:13px;color:var(--mu);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Gachibowli, Hyderabad · Block B, Floor 9, Unit 904
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span class="bdg b-blue">2 BHK</span>
+            <span class="bdg b-navy">Apartment</span>
+            <span class="bdg b-prog">Interior project</span>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:var(--m);margin-bottom:3px">Project ref</div>
+          <div style="font-family:var(--m);font-size:15px;font-weight:800;color:var(--ch)">HZB-2401</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flat dimensions -->
+    <div class="card fade-up" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f0f4f8">
+        <div style="width:30px;height:30px;border-radius:8px;background:var(--bl);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        </div>
+        <div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch)">Flat dimensions &amp; areas</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px" class="grid-3">
+        <div style="background:var(--off);border-radius:10px;padding:12px 14px"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:var(--m);margin-bottom:3px">Carpet area</div><div style="font-family:var(--m);font-size:18px;font-weight:800;color:var(--ch)">980 <span style="font-size:12px;font-weight:500;color:var(--mu)">sqft</span></div></div>
+        <div style="background:var(--off);border-radius:10px;padding:12px 14px"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:var(--m);margin-bottom:3px">Built-up area</div><div style="font-family:var(--m);font-size:18px;font-weight:800;color:var(--ch)">1,150 <span style="font-size:12px;font-weight:500;color:var(--mu)">sqft</span></div></div>
+        <div style="background:var(--off);border-radius:10px;padding:12px 14px"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:var(--m);margin-bottom:3px">Super built-up</div><div style="font-family:var(--m);font-size:18px;font-weight:800;color:var(--ch)">1,320 <span style="font-size:12px;font-weight:500;color:var(--mu)">sqft</span></div></div>
+        <div style="background:var(--off);border-radius:10px;padding:12px 14px"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:var(--m);margin-bottom:3px">Floor / tower</div><div style="font-size:13px;font-weight:600;color:var(--ch)">Floor 9 · Tower B</div></div>
+        <div style="background:var(--off);border-radius:10px;padding:12px 14px"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:var(--m);margin-bottom:3px">Unit number</div><div style="font-size:13px;font-weight:600;color:var(--ch)">B-904</div></div>
+        <div style="background:var(--off);border-radius:10px;padding:12px 14px"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:var(--m);margin-bottom:3px">Facing</div><div style="font-size:13px;font-weight:600;color:var(--ch)">East facing</div></div>
+      </div>
+    </div>
+
+    <!-- Room-wise dimensions -->
+    <div class="card fade-up" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f0f4f8">
+        <div style="width:30px;height:30px;border-radius:8px;background:#fef3c7;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        </div>
+        <div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch)">Room-wise dimensions</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="background:#f8fafc">
+            <th style="padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:var(--m);border-bottom:1.5px solid #e2e8f0">Room</th>
+            <th style="padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:var(--m);border-bottom:1.5px solid #e2e8f0">Length × Width</th>
+            <th style="padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:var(--m);border-bottom:1.5px solid #e2e8f0">Area</th>
+            <th style="padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:var(--m);border-bottom:1.5px solid #e2e8f0">Ceiling ht.</th>
+            <th style="padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:var(--m);border-bottom:1.5px solid #e2e8f0">Flooring</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="cursor:pointer" onclick="P('room',null)"><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:13px;font-weight:600">🛏 Master Bedroom</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px">14 × 12 ft</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px;font-weight:600;color:var(--blue)">168 sqft</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px">10 ft</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px;color:var(--mu)">Vitrified tiles</td></tr>
+          <tr><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:13px;font-weight:600">🛏 Children's Bedroom</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px">12 × 10 ft</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px;font-weight:600;color:var(--blue)">120 sqft</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px">10 ft</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px;color:var(--mu)">Vitrified tiles</td></tr>
+          <tr><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:13px;font-weight:600">🛋 Living + Dining</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px">18 × 14 ft</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px;font-weight:600;color:var(--blue)">252 sqft</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px">10.5 ft</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px;color:var(--mu)">Italian marble</td></tr>
+          <tr><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:13px;font-weight:600">🍳 Kitchen</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px">10 × 8 ft</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px;font-weight:600;color:var(--blue)">80 sqft</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px">10 ft</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px;color:var(--mu)">Anti-skid tiles</td></tr>
+          <tr><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:13px;font-weight:600">🚿 Master Bath</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px">8 × 6 ft</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px;font-weight:600;color:var(--blue)">48 sqft</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px">9 ft</td><td style="padding:11px 12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px;color:var(--mu)">Anti-skid tiles</td></tr>
+          <tr><td style="padding:11px 12px;font-size:13px;font-weight:600">🚿 Common Bath</td><td style="padding:11px 12px;font-size:12.5px">6 × 5 ft</td><td style="padding:11px 12px;font-size:12.5px;font-weight:600;color:var(--blue)">30 sqft</td><td style="padding:11px 12px;font-size:12.5px">9 ft</td><td style="padding:11px 12px;font-size:12.5px;color:var(--mu)">Anti-skid tiles</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Design scope -->
+    <div class="card fade-up" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f0f4f8">
+        <div style="width:30px;height:30px;border-radius:8px;background:#f3e8ff;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--pu)" stroke-width="1.8" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch)">Design scope &amp; specifications</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" class="grid-2">
+        <div>
+          <div style="font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:var(--m);margin-bottom:8px">Included in scope</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;align-items:center;gap:7px;font-size:12.5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>Modular kitchen with lofts</div>
+            <div style="display:flex;align-items:center;gap:7px;font-size:12.5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>Bedroom wardrobes (2 rooms)</div>
+            <div style="display:flex;align-items:center;gap:7px;font-size:12.5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>False ceiling — all rooms</div>
+            <div style="display:flex;align-items:center;gap:7px;font-size:12.5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>Electrical &amp; lighting</div>
+            <div style="display:flex;align-items:center;gap:7px;font-size:12.5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>Full bathroom fittings (2 baths)</div>
+            <div style="display:flex;align-items:center;gap:7px;font-size:12.5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>Painting — all rooms (5 coats)</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:var(--m);margin-bottom:8px">Specifications</div>
+          <div style="display:flex;flex-direction:column;gap:7px;font-size:12.5px">
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Design style</span><span style="font-weight:600">Modern Minimal</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Plywood grade</span><span style="font-weight:600">BWR ISI 18mm</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Laminates</span><span style="font-weight:600">Greenlam / Century</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Handles</span><span style="font-weight:600">CP brass, mortise</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Paint brand</span><span style="font-weight:600">Asian Paints Royale</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Electrical</span><span style="font-weight:600">Legrand Arteor</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="card fade-up">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f0f4f8">
+        <div style="width:30px;height:30px;border-radius:8px;background:#fef3c7;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch)">Project timeline</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px" class="grid-4">
+        <div style="background:var(--off);border-radius:9px;padding:11px 12px;text-align:center"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.05em;font-family:var(--m);margin-bottom:4px">Start date</div><div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch)">1 Jan 2025</div></div>
+        <div style="background:var(--off);border-radius:9px;padding:11px 12px;text-align:center"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.05em;font-family:var(--m);margin-bottom:4px">Due date</div><div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--am)">20 Feb 2025</div></div>
+        <div style="background:var(--off);border-radius:9px;padding:11px 12px;text-align:center"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.05em;font-family:var(--m);margin-bottom:4px">Duration</div><div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch)">50 days</div></div>
+        <div style="background:var(--bl);border-radius:9px;padding:11px 12px;text-align:center;border:.5px solid rgba(47,128,237,.2)"><div style="font-size:9.5px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.05em;font-family:var(--m);margin-bottom:4px">Days left</div><div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--blue)">12 days</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="mob-nav">
+    <div class="mob-nav-item" onclick="P('home',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back</div>
+    <div class="mob-nav-item on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Property</div>
+    <div class="mob-nav-item" onclick="P('materials',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/></svg>Materials</div>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE: MATERIALS BOQ ══════════════════ -->
+<div class="pg" id="pg-materials">
+  <div id="nav-materials"></div>
+  <div id="ptabs-materials"></div>
+  <div class="content" style="max-width:960px;margin:0 auto;padding-bottom:80px">
+    <!-- Header stats -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px" class="grid-3">
+      <div class="card-sm" style="text-align:center">
+        <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:var(--m);margin-bottom:4px">Total items</div>
+        <div style="font-family:var(--m);font-size:22px;font-weight:800;color:var(--ch)">17</div>
+      </div>
+      <div class="card-sm" style="text-align:center">
+        <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:var(--m);margin-bottom:4px">Installed</div>
+        <div style="font-family:var(--m);font-size:22px;font-weight:800;color:var(--blue)">9</div>
+      </div>
+      <div class="card-sm" style="text-align:center;background:#fff8f5;border-color:#fed7aa">
+        <div style="font-size:10px;font-weight:700;color:var(--am);text-transform:uppercase;letter-spacing:.07em;font-family:var(--m);margin-bottom:4px">Pending</div>
+        <div style="font-family:var(--m);font-size:22px;font-weight:800;color:var(--am)">8</div>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="card" style="padding:10px 16px;margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <div class="stf" id="matl-status-filter">
+        <button class="stf-btn on" onclick="filterMatl(this,'all')">All (17)</button>
+        <button class="stf-btn" onclick="filterMatl(this,'installed')">✓ Installed (9)</button>
+        <button class="stf-btn" onclick="filterMatl(this,'procured')">Procured (3)</button>
+        <button class="stf-btn" onclick="filterMatl(this,'not started')">Pending (5)</button>
+      </div>
+      <select class="fi" style="width:auto;font-size:12.5px;margin-left:auto" onchange="filterMatlRoom(this.value)">
+        <option value="all">All rooms</option>
+        <option>Master Bedroom</option>
+        <option>Children's Bedroom</option>
+        <option>Living Room</option>
+        <option>Kitchen</option>
+        <option>Master Bath</option>
+        <option>Common Bath</option>
+      </select>
+      <button class="btn btn-ghost btn-sm" onclick="toast('Downloading BOQ PDF…')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download BOQ
+      </button>
+    </div>
+
+    <!-- Materials list grouped by room -->
+    <div class="card" style="padding:18px 20px" id="matl-full-list">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+  <div class="mob-nav">
+    <div class="mob-nav-item" onclick="P('home',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back</div>
+    <div class="mob-nav-item" onclick="P('propinfo',null)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Property</div>
+    <div class="mob-nav-item on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/></svg>Materials</div>
+  </div>
+</div>
+
+
+
+<!-- ══════════════════ PAGE: DOCUMENTS ══════════════════ -->
+<div class="pg" id="pg-documents">
+  <div id="nav-documents"></div>
+  <div id="ptabs-documents"></div>
+  <div class="content" style="max-width:860px;margin:0 auto;padding-bottom:80px">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+      <div style="width:40px;height:40px;border-radius:11px;background:#ccfbf1;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="1.8" stroke-linecap="round">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-family:var(--m);font-size:20px;font-weight:800;color:var(--ch)">Documents</div>
+        <div style="font-size:13px;color:var(--mu)">Warranty slips, BOQ, agreements &amp; design files</div>
+      </div>
+    </div>
+
+    <!-- Summary stats -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0" class="grid-4">
+      <div class="card-sm" style="text-align:center;border-top:3px solid #ca8a04">
+        <div style="font-family:var(--m);font-size:22px;font-weight:800;color:#ca8a04">4</div>
+        <div style="font-size:11.5px;color:var(--mu);margin-top:2px">Warranty slips</div>
+      </div>
+      <div class="card-sm" style="text-align:center;border-top:3px solid var(--blue)">
+        <div style="font-family:var(--m);font-size:22px;font-weight:800;color:var(--blue)">1</div>
+        <div style="font-size:11.5px;color:var(--mu);margin-top:2px">BOQ</div>
+      </div>
+      <div class="card-sm" style="text-align:center;border-top:3px solid var(--pu)">
+        <div style="font-family:var(--m);font-size:22px;font-weight:800;color:var(--pu)">1</div>
+        <div style="font-size:11.5px;color:var(--mu);margin-top:2px">Agreements</div>
+      </div>
+      <div class="card-sm" style="text-align:center;border-top:3px solid #0d9488">
+        <div style="font-family:var(--m);font-size:22px;font-weight:800;color:#0d9488">2</div>
+        <div style="font-size:11.5px;color:var(--mu);margin-top:2px">Design files</div>
+      </div>
+    </div>
+
+    <!-- Category filter tabs -->
+    <div style="display:flex;gap:4px;background:#f1f5f9;padding:3px;border-radius:9px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none" id="doc-tab-bar">
+      <button style="padding:6px 14px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;background:#fff;color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.08);font-family:var(--m);white-space:nowrap;transition:all .15s" onclick="filterDocs(this,'all')">All (8)</button>
+      <button style="padding:6px 14px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--mu);font-family:var(--m);white-space:nowrap;transition:all .15s" onclick="filterDocs(this,'warranty')">Warranty slips (4)</button>
+      <button style="padding:6px 14px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--mu);font-family:var(--m);white-space:nowrap;transition:all .15s" onclick="filterDocs(this,'boq')">BOQ (1)</button>
+      <button style="padding:6px 14px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--mu);font-family:var(--m);white-space:nowrap;transition:all .15s" onclick="filterDocs(this,'agreement')">Agreements (1)</button>
+      <button style="padding:6px 14px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--mu);font-family:var(--m);white-space:nowrap;transition:all .15s" onclick="filterDocs(this,'design')">Design files (2)</button>
+    </div>
+
+    <!-- Document list -->
+    <div style="display:flex;flex-direction:column;gap:9px" id="doc-list"></div>
+
+  </div>
+  <div class="mob-nav">
+    <div class="mob-nav-item" onclick="P('home',null)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back
+    </div>
+    <div class="mob-nav-item on">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Docs
+    </div>
+    <div class="mob-nav-item" onclick="P('propinfo',null)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Property
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════ DATA ══════════
+var PROJECTS = [
+  { id:1, name:'2BHK Modern Flat', loc:'Gachibowli, Hyderabad', type:'Interior', prop:'2BHK Apartment', pct:72, status:'progress', rooms:5, phase:'Execution', days:'38/50', bg:'linear-gradient(135deg,#1a3d5c,#0f2a44)', update:'Plywood work completed · 2:30 PM', code:'HZB-2401' },
+  { id:2, name:'3BHK Contemporary', loc:'Banjara Hills, Hyderabad', type:'Interior', prop:'3BHK Apartment', pct:41, status:'progress', rooms:7, phase:'Procurement', days:'22/60', bg:'linear-gradient(135deg,#1e3a5f,#162d4a)', update:'Tiles procured · Yesterday', code:'HZB-2398' },
+  { id:3, name:'Villa Renovation', loc:'Jubilee Hills, Hyderabad', type:'Renovation', prop:'4BHK Villa', pct:100, status:'completed', rooms:9, phase:'Handover', days:'72/72', bg:'linear-gradient(135deg,#0d2233,#1a3d5c)', update:'Completed on 28 Dec', code:'HZB-2312' },
+];
+
+var ROOMS = [
+  { id:'master', name:'Master Bedroom', pct:85, status:'live', color:'apt', icon:'🛏', w:14, h:12, wt:['Plywood work','Electrical work','Painting'] },
+  { id:'child',  name:"Children's Bedroom", pct:72, status:'live', color:'pu', icon:'🛏', w:12, h:10, wt:['Plywood work','Flooring'] },
+  { id:'living', name:'Living Room', pct:60, status:'live', color:'am', icon:'🛋', w:18, h:14, wt:['Electrical work','False ceiling','Painting'] },
+  { id:'kitchen',name:'Kitchen', pct:45, status:'hold', color:'navy', icon:'🍳', w:10, h:8, wt:['Tiles','Plumbing','Counter work'] },
+  { id:'bath1',  name:'Master Bath', pct:90, status:'live', color:'apt', icon:'🚿', w:8, h:6, wt:['Tiles','Fittings'] },
+  { id:'bath2',  name:'Common Bath', pct:88, status:'live', color:'pu', icon:'🚿', w:6, h:6, wt:['Tiles','Fittings'] },
+];
+
+// WORK_TYPES — each date key maps to array of photo records (up to 10 per day)
+var WORK_TYPES = [
+  { name:'Plywood work', pct:90, status:'live',
+    datePhotos:{
+      '08-Jan-2025':['#e8f1fd','#bfdbfe','#dbeafe','#eff6ff','#e0f2fe','#cffafe'],
+      '09-Jan-2025':['#fef3c7','#fde68a','#fcd34d','#fef9c3','#fef08a'],
+      '10-Jan-2025':['#f3e8ff','#ddd6fe','#ede9fe','#e9d5ff','#c4b5fd','#a5b4fc','#ddd6fe'],
+      '11-Jan-2025':['#dcfce7','#bbf7d0','#a7f3d0','#6ee7b7','#ecfdf5'],
+      '12-Jan-2025':['#fff7ed','#fed7aa','#fdba74','#fb923c'],
+      '13-Jan-2025':['#fce7f3','#fbcfe8','#f9a8d4','#f472b6','#db2777','#fdf2f8','#fae8ff'],
+      '14-Jan-2025':['#eff6ff','#bfdbfe','#93c5fd','#60a5fa','#3b82f6','#dbeafe','#e0f2fe','#cffafe']
+    }
+  },
+  { name:'Electrical work', pct:65, status:'live',
+    datePhotos:{
+      '10-Jan-2025':['#fef3c7','#fde68a','#fcd34d'],
+      '11-Jan-2025':['#e8f1fd','#bfdbfe','#dbeafe','#eff6ff'],
+      '12-Jan-2025':['#f3e8ff','#ddd6fe','#ede9fe'],
+      '13-Jan-2025':['#dcfce7','#bbf7d0','#a7f3d0','#6ee7b7'],
+      '14-Jan-2025':['#fff7ed','#fed7aa','#fdba74','#fb923c','#fef9c3']
+    }
+  },
+  { name:'Painting', pct:20, status:'upcoming',
+    datePhotos:{
+      '13-Jan-2025':['#fce7f3','#fbcfe8'],
+      '14-Jan-2025':['#eff6ff','#bfdbfe','#dbeafe']
+    }
+  },
+  { name:'Flooring', pct:55, status:'live',
+    datePhotos:{
+      '09-Jan-2025':['#f0fdf4','#dcfce7','#bbf7d0'],
+      '10-Jan-2025':['#ecfdf5','#a7f3d0','#6ee7b7','#34d399'],
+      '11-Jan-2025':['#fef3c7','#fde68a'],
+      '12-Jan-2025':['#e0f2fe','#bae6fd','#7dd3fc','#38bdf8']
+    }
+  },
+];
+
+// Which work types apply per room
+var ROOM_WORK_TYPES = {
+  master: ['Plywood work','Electrical work','Painting'],
+  child:  ['Plywood work','Flooring'],
+  living: ['Electrical work','Painting','Flooring'],
+  kitchen:['Flooring','Plywood work'],
+  bath1:  ['Flooring','Electrical work'],
+  bath2:  ['Flooring'],
+};
+
+// Active filters for day-progress and overview
+var dpActiveFilter = '7d';
+var dpActiveRoom = 'master';
+var dpActiveDate = null; // null = range filter, string = specific date
+var overviewActiveFilter = '7d';
+var overviewActiveDate = null;
+var imgsActiveFilter = '7d';
+var imgsActiveDateSpecific = null;
+var imgsActiveWorkType = 'all';
+
+var PAYMENTS = [
+  { label:'Advance / Mobilisation', amt:'₹2.96L', pct:20, due:'1 Jan 2025', status:'paid', date:'1 Jan 2025' },
+  { label:'Milestone 1 — Design approval', amt:'₹1.48L', pct:10, due:'10 Jan 2025', status:'paid', date:'10 Jan 2025' },
+  { label:'Milestone 2 — Procurement', amt:'₹4.44L', pct:30, due:'15 Jan 2025', status:'paid', date:'15 Jan 2025' },
+  { label:'Milestone 3 — 70% execution', amt:'₹3.2L', pct:21.6, due:'20 Jan 2025', status:'due', date:'' },
+  { label:'Final — Handover', amt:'₹2.72L', pct:18.4, due:'20 Feb 2025', status:'upcoming', date:'' },
+];
+
+var QUERIES = [
+  { id:'Q001', room:'Master Bedroom', subject:'Plywood quality concern', msg:'The plywood used seems thinner than the specification mentioned in BOQ. Please check.', status:'open', date:'12 Jan 2025', reply:null },
+  { id:'Q002', room:'Kitchen', subject:'Tile pattern not matching design', msg:'The tiles installed don\'t match the reference image shared during design phase.', status:'open', date:'11 Jan 2025', reply:null },
+  { id:'Q003', room:'Living Room', subject:'False ceiling height clarification', msg:'What will be the final height after false ceiling installation?', status:'resolved', date:'9 Jan 2025', reply:'Final height will be 9ft 2in as per design specs. Work will commence 16 Jan.' },
+  { id:'Q004', room:'Master Bath', subject:'Tap brand confirmation', msg:'Please confirm which brand fittings will be installed in the master bathroom.', status:'resolved', date:'8 Jan 2025', reply:'Jaquar brand fittings as per BOQ, model ARIA series.' },
+  { id:'Q005', room:'General', subject:'Project completion date', msg:'Can we get an updated timeline based on current progress?', status:'resolved', date:'6 Jan 2025', reply:'On track. Expected completion by 20 Feb 2025 as scheduled.' },
+];
+
+var MATERIALS = [
+  { name:'Greenply Gold Plywood', spec:'18mm BWR grade', qty:'24 sheets', status:'installed', date:'10 Jan' },
+  { name:'Asian Paints Apex', spec:'Exterior emulsion, Base coat', qty:'4 buckets 20L', status:'installed', date:'12 Jan' },
+  { name:'Legrand Switches', spec:'Arteor series, Matt white', qty:'18 units', status:'installed', date:'9 Jan' },
+  { name:'Kajaria Tiles', spec:'800×800mm vitrified, Slate Grey', qty:'168 sqft', status:'procured', date:'14 Jan' },
+  { name:'CP Brass Handles', spec:'Mortise set, Chrome finish', qty:'6 sets', status:'procured', date:'—' },
+];
+
+var activeRoom = ROOMS[0];
+var currentPg = 'profile';
+
+// ══════════ PAGE SWITCHER ══════════
+function P(id, btn) {
+  document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('on'); });
+  document.querySelectorAll('.dt').forEach(function(b){ b.classList.remove('on'); });
+  var pg = document.getElementById('pg-'+id);
+  if (pg) pg.classList.add('on');
+  if (btn) btn.classList.add('on');
+  else {
+    var m = document.querySelector('.dt[onclick*="\''+id+'\'"]');
+    if (m) m.classList.add('on');
+  }
+  currentPg = id;
+  // Inject nav
+  ['nav-'+id].forEach(function(nid){
+    var el = document.getElementById(nid);
+    if (el && el.children.length === 0) {
+      var tpl = document.getElementById('nav-tpl');
+      if (tpl) el.appendChild(tpl.content.cloneNode(true));
+    }
+  });
+  // Inject ptabs
+  var ptEl = document.getElementById('ptabs-'+id);
+  if (ptEl && ptEl.children.length === 0) {
+    var tpl2 = document.getElementById('ptabs-tpl');
+    if (tpl2) ptEl.appendChild(tpl2.content.cloneNode(true));
+    // Activate correct tab
+    var tabMap = { home:'home', room:'home', viz:'viz', payments:'payments', queries:'queries', dayprogress:'dayprogress' };
+    var activeKey = tabMap[id] || id;
+    var tabs = ptEl.querySelectorAll('.ptab');
+    tabs.forEach(function(t){
+      t.classList.remove('on');
+      if (t.getAttribute('onclick') && t.getAttribute('onclick').indexOf("'"+activeKey+"'") > -1) t.classList.add('on');
+    });
+  }
+  window.scrollTo(0,0);
+  renderPage(id);
+}
+
+function renderPage(id) {
+  if (id === 'dashboard')  renderDashboard();
+  if (id === 'home')       renderHome();
+  if (id === 'room')       renderRoom();
+  if (id === 'dayprogress') renderDayProgress();
+  if (id === 'viz')        renderViz();
+  if (id === 'payments')   renderPayments();
+  if (id === 'queries')    renderQueries();
+  if (id === 'propinfo')   renderPropInfo();
+  if (id === 'materials')  renderMaterials();
+  if (id === 'documents')  renderDocuments();
+}
+
+// ══════════ RING HELPER ══════════
+function makeRing(pct, size, color, small) {
+  size = size || 80; color = color || 'var(--blue)';
+  var r = size/2 - 7; var circ = 2*Math.PI*r;
+  var offset = circ - (pct/100)*circ;
+  var fs = small ? '14px' : '16px';
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" style="flex-shrink:0">'
+    +'<circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="#f1f5f9" stroke-width="6"/>'
+    +'<circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="6" stroke-linecap="round"'
+    +' stroke-dasharray="'+circ+'" stroke-dashoffset="'+offset+'" transform="rotate(-90 '+size/2+' '+size/2+')"'
+    +' style="transition:stroke-dashoffset .8s ease"/>'
+    +'<text x="'+size/2+'" y="'+(size/2+5)+'" text-anchor="middle" font-size="'+fs+'" font-weight="800" font-family="Montserrat" fill="var(--ch)">'+pct+'%</text>'
+    +'</svg>';
+}
+
+// ══════════ DASHBOARD ══════════
+function renderDashboard() {
+  var g = document.getElementById('dash-grid');
+  if (!g) return;
+  g.innerHTML = PROJECTS.map(function(p, i){
+    var pctColor = p.pct >= 80 ? 'var(--blue)' : p.pct >= 50 ? 'var(--accent)' : '#f1f5f9';
+    var stBdg = p.status==='progress'
+      ? '<span class="bdg b-blue" style="font-size:8.5px"><span class="live-dot" style="display:inline-block;margin-right:2px;width:5px;height:5px"></span>In Progress</span>'
+      : (p.status==='completed' ? '<span class="bdg b-navy" style="font-size:8.5px">✓ Completed</span>'
+      : '<span class="bdg b-amber" style="font-size:8.5px">On Hold</span>');
+    return '<div class="proj-card fade-up" style="animation-delay:'+(i*0.07)+'s" onclick="P(\'home\',null)">'
+      +'<div class="proj-img" style="background:'+p.bg+'">'
+      +'<div class="proj-img-inner" style="height:100%;display:flex;align-items:center;justify-content:center">'
+      +'<div style="text-align:center">'
+      +'<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.4);font-family:var(--m);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">'+p.prop+'</div>'
+      +makeRing(p.pct, 72, '#fff', true)
+      +'</div></div>'
+      +'<div class="proj-progress-bar"><div class="proj-progress-fill" style="width:'+p.pct+'%;background:var(--blue)"></div></div>'
+      +'<div class="proj-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ch)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>'
+      +'</div>'
+      +'<div class="proj-body">'
+      +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px">'
+      +'<div class="proj-title">'+p.name+'</div>'+stBdg
+      +'</div>'
+      +'<div class="proj-loc"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>'+p.loc+'</div>'
+      +'<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">'
+      +'<span class="bdg b-gray" style="font-size:8.5px">'+p.type+'</span>'
+      +'<span class="bdg b-gray" style="font-size:8.5px">'+p.rooms+' rooms</span>'
+      +'<span class="bdg b-gray" style="font-size:8.5px">Day '+p.days+'</span>'
+      +'</div>'
+      +'<div style="background:var(--off);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:7px">'
+      +'<div class="live-dot" style="flex-shrink:0;background:'+(p.status==='progress'?'var(--blue)':'#94a3b8')+'"></div>'
+      +'<div style="font-size:11.5px;color:var(--mu);line-height:1.4">'+p.update+'</div>'
+      +'</div>'
+      +'<div style="font-size:10.5px;color:var(--mu);margin-top:6px">Ref: '+p.code+'</div>'
+      +'</div></div>';
+  }).join('');
+}
+
+// ══════════ HOME TAB ══════════
+function renderHome() {
+  var g = document.getElementById('room-grid');
+  if (!g) return;
+  g.innerHTML = ROOMS.map(function(r, i){
+    var dotColor = r.status==='live' ? 'var(--blue)' : r.status==='hold' ? 'var(--am)' : 'var(--mu)';
+    var stTxt = r.status==='live' ? 'Live' : r.status==='hold' ? 'On Hold' : 'Done';
+    var ringColor = r.color==='apt'?'var(--blue)':r.color==='pu'?'var(--pu)':r.color==='am'?'var(--am)':'var(--navy)';
+    return '<div class="room-card '+r.color+' fade-up" style="animation-delay:'+(i*0.06)+'s" onclick="openRoom(\''+r.id+'\')">'
+      +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px">'
+      +'<div>'
+      +'<div style="font-size:9px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.08em;font-family:var(--m);margin-bottom:4px">'+r.icon+'</div>'
+      +'<div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch);line-height:1.3">'+r.name+'</div>'
+      +'<div style="display:flex;align-items:center;gap:5px;margin-top:5px"><div class="live-dot" style="background:'+dotColor+'"></div><span style="font-size:11px;color:var(--mu)">'+stTxt+'</span></div>'
+      +'</div>'
+      +makeRing(r.pct, 68, ringColor, true)
+      +'</div>'
+      +'<div style="font-size:11px;color:var(--mu);margin-bottom:6px">'+(r.wt.slice(0,2).join(' · '))+(r.wt.length>2?' +more':'')+'</div>'
+      +'<div style="height:4px;background:#f1f5f9;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+r.pct+'%;background:'+ringColor+';border-radius:4px;transition:width .8s ease"></div></div>'
+      +'<div style="display:flex;justify-content:space-between;margin-top:5px"><span style="font-size:10.5px;color:var(--mu)">Progress</span><span style="font-size:10.5px;font-weight:700;color:var(--ch)">'+r.pct+'%</span></div>'
+      +'</div>';
+  }).join('');
+}
+
+function openRoom(rid) {
+  activeRoom = ROOMS.find(function(r){ return r.id === rid; }) || ROOMS[0];
+  P('room', null);
+}
+
+// ══════════ ROOM DETAIL ══════════
+function renderRoom() {
+  // Room chips
+  var cr = document.getElementById('room-chips-row');
+  if (cr) cr.innerHTML = ROOMS.map(function(r){
+    var active = r.id === activeRoom.id;
+    return '<div onclick="openRoom(\''+r.id+'\')" style="padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;font-family:var(--m);cursor:pointer;flex-shrink:0;transition:all .15s;white-space:nowrap;'
+      +(active?'background:var(--blue);color:#fff;':'background:#f1f5f9;color:var(--mu);"')
+      +'">'+r.icon+' '+r.name+' <span style="opacity:.7">'+r.pct+'%</span></div>';
+  }).join('');
+
+  // Room title in graph
+  var rt = document.getElementById('room-title-graph');
+  if (rt) rt.textContent = activeRoom.name + ' — Progress';
+
+  // Work types — delegated to renderWorkTypes()
+  overviewActiveFilter = '7d';
+  overviewActiveDate = null;
+  renderWorkTypes();
+  // Room queries
+  var rq = document.getElementById('room-queries-list');
+  if (rq) {
+    var roomQs = QUERIES.filter(function(q){ return q.room === activeRoom.name; });
+    rq.innerHTML = roomQs.length > 0 ? roomQs.map(makeQueryCard).join('') : '<div style="color:var(--mu);font-size:13px;padding:12px 0">No queries for this room.</div>';
+  }
+
+  // Material list
+  var ml = document.getElementById('matl-list');
+  if (ml) ml.innerHTML = MATERIALS.map(function(m){
+    return '<div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:.5px solid #f1f5f9">'
+      +'<div style="width:38px;height:38px;border-radius:9px;background:var(--off);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="1.8" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>'
+      +'<div style="flex:1"><div style="font-weight:600;font-size:13px;color:var(--ch)">'+m.name+'</div><div style="font-size:11.5px;color:var(--mu)">'+m.spec+'</div></div>'
+      +'<div style="text-align:right;flex-shrink:0"><div style="font-size:12px;font-weight:600;color:var(--ch)">'+m.qty+'</div><span class="bdg '+(m.status==='installed'?'b-blue':'b-amber')+'" style="font-size:8.5px">'+m.status+'</span></div>'
+      +'</div>';
+  }).join('');
+
+  // Room images
+  var ri = document.getElementById('room-imgs');
+  if (ri) {
+    var grads=['linear-gradient(135deg,#e8f1fd,#bfdbfe)','linear-gradient(135deg,#fef3c7,#fde68a)','linear-gradient(135deg,#f3e8ff,#ddd6fe)','linear-gradient(135deg,#dcfce7,#bbf7d0)','linear-gradient(135deg,#fff7ed,#fed7aa)','linear-gradient(135deg,#f0fdf4,#bbf7d0)','linear-gradient(135deg,#fdf2f8,#f5d0fe)','linear-gradient(135deg,#eff6ff,#bfdbfe)'];
+    ri.innerHTML = grads.map(function(g,i){
+      return '<div style="border-radius:10px;overflow:hidden;cursor:pointer;aspect-ratio:4/3;background:'+g+';position:relative;transition:transform .2s" onmouseenter="this.style.transform=\'scale(1.02)\'" onmouseleave="this.style.transform=\'none\'" onclick="toast(\'Viewing image '+(i+1)+'…\')">'
+        +'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;opacity:.3">📷</div>'
+        +'<div style="position:absolute;bottom:6px;left:6px;font-size:9px;color:rgba(255,255,255,.9);background:rgba(0,0,0,.4);padding:2px 7px;border-radius:10px;font-family:var(--m);font-weight:600">Jan '+(8+i)+'</div>'
+        +'</div>';
+    }).join('');
+  }
+}
+
+// ══════════ 3D VIZ ══════════
+function renderViz() {
+  var vg = document.getElementById('viz-room-grid');
+  if (vg) vg.innerHTML = ROOMS.slice(0,4).map(function(r){
+    var ringColor = r.color==='apt'?'var(--blue)':r.color==='pu'?'var(--pu)':r.color==='am'?'var(--am)':'var(--navy)';
+    return '<div style="border-radius:10px;background:var(--off);border:.5px solid #e2e8f0;padding:10px 8px;text-align:center;cursor:pointer;transition:all .18s" onmouseenter="this.style.borderColor=\'var(--blue)\';this.style.background=\'var(--bl)\'" onmouseleave="this.style.borderColor=\'#e2e8f0\';this.style.background=\'var(--off)\'" onclick="toast(\'Viewing '+r.name+'…\')">'
+      +'<div style="font-size:18px;margin-bottom:5px">'+r.icon+'</div>'
+      +'<div style="font-family:var(--m);font-size:10.5px;font-weight:700;color:var(--ch);margin-bottom:5px;line-height:1.3">'+r.name+'</div>'
+      +'<div style="font-size:11px;font-weight:700;color:'+ringColor+'">'+r.pct+'%</div>'
+      +'</div>';
+  }).join('');
+
+  var vl = document.getElementById('viz-rooms-list');
+  if (vl) vl.innerHTML = ROOMS.map(function(r){
+    var ringColor = r.color==='apt'?'var(--blue)':r.color==='pu'?'var(--pu)':r.color==='am'?'var(--am)':'var(--navy)';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;cursor:pointer;transition:all .15s" onmouseenter="this.style.background=\'var(--off)\'" onmouseleave="this.style.background=\'transparent\'" onclick="toast(\'Viewing '+r.name+'…\')">'
+      +'<div style="font-size:16px;width:24px;text-align:center;flex-shrink:0">'+r.icon+'</div>'
+      +'<div style="flex:1"><div style="font-size:12.5px;font-weight:600;color:var(--ch)">'+r.name+'</div></div>'
+      +'<div style="text-align:right"><div style="font-family:var(--m);font-size:12px;font-weight:700;color:'+ringColor+'">'+r.pct+'%</div></div>'
+      +'</div>';
+  }).join('');
+}
+
+// ══════════ PAYMENTS ══════════
+function renderPayments() {
+  var pl = document.getElementById('pay-list');
+  if (!pl) return;
+  var paid = PAYMENTS.filter(function(p){ return p.status==='paid'; }).reduce(function(a,p){ return a+p.pct; },0);
+  var total = PAYMENTS.reduce(function(a,p){ return a+p.pct; },0);
+  pl.innerHTML = PAYMENTS.map(function(p){
+    var stIcon = p.status==='paid'
+      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>'
+      : p.status==='due'
+      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+      : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+    var stBdg = p.status==='paid' ? '<span class="bdg b-blue" style="font-size:8.5px">Paid</span>'
+      : p.status==='due' ? '<span class="bdg b-red" style="font-size:8.5px">Due now</span>'
+      : '<span class="bdg b-gray" style="font-size:8.5px">Upcoming</span>';
+    // Percentage bar width for this milestone
+    var barW = Math.round((p.pct / total) * 100);
+    return '<div class="pay-row">'
+      +'<div style="width:32px;height:32px;border-radius:8px;background:'+(p.status==='paid'?'var(--bl)':p.status==='due'?'#fee2e2':'#f1f5f9')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'+stIcon+'</div>'
+      +'<div style="flex:1">'
+      +'<div style="font-size:13px;font-weight:600;color:var(--ch)">'+p.label+'</div>'
+      +'<div style="font-size:11.5px;color:var(--mu)">Due: '+p.due+(p.date?' · Paid: '+p.date:'')+'</div>'
+      +'<div style="margin-top:6px;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden">'
+      +'<div style="height:100%;width:'+(p.status==='paid'?'100':'0')+'%;background:'+(p.status==='paid'?'var(--blue)':p.status==='due'?'var(--rd)':'#e2e8f0')+';border-radius:5px;transition:width .7s ease"></div>'
+      +'</div></div>'
+      +'<div style="text-align:right;flex-shrink:0;min-width:60px">'
+      +'<div style="font-family:var(--m);font-size:15px;font-weight:800;color:'+(p.status==='paid'?'var(--blue)':p.status==='due'?'var(--rd)':'var(--mu)')+'">'+Math.round(p.pct)+'%</div>'
+      +stBdg+'</div>'
+      +'</div>';
+  }).join('');
+  // Update summary cards (% only, no amounts)
+  var sc = document.getElementById('pay-paid-pct');
+  if (sc) sc.textContent = Math.round(paid) + '%';
+  var sp = document.getElementById('pay-pending-pct');
+  if (sp) sp.textContent = Math.round(total - paid) + '%';
+}
+
+// ══════════ QUERIES ══════════
+function makeQueryCard(q) {
+  var stBdg = q.status==='open'
+    ? '<span class="bdg b-amber" style="font-size:8.5px">Open</span>'
+    : '<span class="bdg b-blue" style="font-size:8.5px">✓ Resolved</span>';
+  return '<div class="query-item fade-up">'
+    +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap">'
+    +'<div><span class="bdg b-gray" style="font-size:8px;margin-bottom:5px;display:inline-flex">'+q.room+'</span><div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch)">'+q.subject+'</div></div>'
+    +'<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">'+stBdg+'<span style="font-size:11px;color:var(--mu)">'+q.date+'</span></div>'
+    +'</div>'
+    +'<div style="font-size:12.5px;color:var(--mu);line-height:1.6;margin-bottom:'+(q.reply?'10px':'0')+'">'+q.msg+'</div>'
+    +(q.reply?'<div style="background:var(--bl);border-radius:9px;padding:10px 12px;border-left:3px solid var(--blue)">'
+      +'<div style="font-size:10px;font-weight:700;color:var(--blue);font-family:var(--m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Houznext Team replied</div>'
+      +'<div style="font-size:12.5px;color:var(--ch);line-height:1.5">'+q.reply+'</div></div>':'')
+    +'</div>';
+}
+
+function renderQueries() {
+  var ql = document.getElementById('queries-list');
+  if (ql) ql.innerHTML = QUERIES.map(makeQueryCard).join('');
+  var rql = document.getElementById('room-queries-list');
+  if (rql) {
+    var rqs = QUERIES.filter(function(q){ return q.room === activeRoom.name; });
+    rql.innerHTML = rqs.length > 0 ? rqs.map(makeQueryCard).join('') : '<div style="color:var(--mu);font-size:13px">No queries for this room.</div>';
+  }
+}
+
+// ══════════ TAB SWITCHERS ══════════
+function switchPTab(btn, id) {
+  var bar = btn.closest('.ptabs');
+  bar.querySelectorAll('.ptab').forEach(function(t){ t.classList.remove('on'); });
+  btn.classList.add('on');
+  var pageMap = { home:'home', dayprogress:'dayprogress', viz:'viz', payments:'payments', queries:'queries' };
+  if (pageMap[id]) P(pageMap[id], null);
+}
+
+function switchStab(btn, subId) {
+  var bar = btn.closest('.stabs');
+  bar.querySelectorAll('.stab').forEach(function(s){ s.classList.remove('on'); });
+  btn.classList.add('on');
+  ['roverview','rmatl','rimages','r3d'].forEach(function(sid){
+    var el = document.getElementById('sub-'+sid);
+    if (el) el.style.display = sid === subId ? 'block' : 'none';
+  });
+  if (subId === 'rimages') renderRoomImages();
+}
+
+function switchStf(btn) {
+  var bar = btn.closest('.stf');
+  bar.querySelectorAll('.stf-btn').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+}
+
+function filterDash(btn, filter) {
+  switchStf(btn);
+  var g = document.getElementById('dash-grid');
+  var e = document.getElementById('dash-empty');
+  var filtered = filter === 'all' ? PROJECTS : PROJECTS.filter(function(p){ return p.status === filter; });
+  if (filtered.length === 0) {
+    if (g) g.style.display = 'none';
+    if (e) e.style.display = 'block';
+  } else {
+    if (g) { g.style.display = 'grid'; renderDashboard(); }
+    if (e) e.style.display = 'none';
+  }
+}
+
+// ══════════ DATE HELPERS ══════════
+// All dates in data: 08-Jan-2025 format
+var ALL_DATES_SORTED = ['08-Jan-2025','09-Jan-2025','10-Jan-2025','11-Jan-2025','12-Jan-2025','13-Jan-2025','14-Jan-2025'];
+var DATE_OBJ = { '08-Jan-2025':new Date(2025,0,8),'09-Jan-2025':new Date(2025,0,9),'10-Jan-2025':new Date(2025,0,10),'11-Jan-2025':new Date(2025,0,11),'12-Jan-2025':new Date(2025,0,12),'13-Jan-2025':new Date(2025,0,13),'14-Jan-2025':new Date(2025,0,14) };
+
+function getDatesForRange(range) {
+  // range: '7d','14d','30d'
+  var n = parseInt(range);
+  return ALL_DATES_SORTED.slice(-n);
+}
+
+function formatDateLabel(d) {
+  // d = '08-Jan-2025' -> '08 Jan 2025'
+  return d.replace(/-/g,' ');
+}
+
+function parseInputDate(ymd) {
+  // ymd = '2025-01-14' -> '14-Jan-2025'
+  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var parts = ymd.split('-');
+  return parts[2]+'-'+months[parseInt(parts[1])-1]+'-'+parts[0];
+}
+
+// ══════════ OVERVIEW CAL FILTER (room detail) ══════════
+function calFilter(chip, range) {
+  document.querySelectorAll('#sub-roverview .cal-chip').forEach(function(c){ c.classList.remove('on'); });
+  chip.classList.add('on');
+  overviewActiveFilter = range;
+  overviewActiveDate = null;
+  // Clear date input
+  var di = document.querySelector('#sub-roverview input[type=date]');
+  if (di) di.value = '2025-01-14';
+  renderWorkTypes();
+}
+
+function overviewSpecificDate(val) {
+  // Called when date input changes in overview
+  document.querySelectorAll('#sub-roverview .cal-chip:not(input)').forEach(function(c){ c.classList.remove('on'); });
+  overviewActiveDate = parseInputDate(val);
+  overviewActiveFilter = null;
+  renderWorkTypes();
+  toast('Showing ' + formatDateLabel(overviewActiveDate));
+}
+
+// ══════════ IMAGES TAB FILTERS ══════════
+function filterImgs(btn, wt) {
+  var bar = btn.closest('.stf');
+  bar.querySelectorAll('.stf-btn').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  imgsActiveWorkType = wt;
+  renderRoomImages();
+}
+
+function filterImgsDate(chip, range) {
+  document.querySelectorAll('#imgs-cal-filter .cal-chip:not(input)').forEach(function(c){ c.classList.remove('on'); });
+  chip.classList.add('on');
+  imgsActiveFilter = range;
+  imgsActiveDateSpecific = null;
+  var di = document.getElementById('imgs-date-input');
+  if (di) di.value = '2025-01-14';
+  renderRoomImages();
+}
+
+function filterImgsSpecificDate(val) {
+  document.querySelectorAll('#imgs-cal-filter .cal-chip:not(input)').forEach(function(c){ c.classList.remove('on'); });
+  imgsActiveDateSpecific = parseInputDate(val);
+  imgsActiveFilter = null;
+  renderRoomImages();
+  toast('Showing ' + formatDateLabel(imgsActiveDateSpecific));
+}
+
+function renderRoomImages() {
+  var ri = document.getElementById('room-imgs');
+  var re = document.getElementById('room-imgs-empty');
+  if (!ri) return;
+  // Determine dates to show
+  var datesToShow;
+  if (imgsActiveDateSpecific) {
+    datesToShow = [imgsActiveDateSpecific];
+  } else {
+    var n = parseInt(imgsActiveFilter || '7');
+    datesToShow = getDatesForRange(imgsActiveFilter || '7d');
+  }
+  // Collect work types for this room
+  var roomWts = ROOM_WORK_TYPES[activeRoom.id] || [];
+  // Filter by work type selection
+  var wtsToShow = imgsActiveWorkType === 'all' ? roomWts : roomWts.filter(function(w){ return w === imgsActiveWorkType; });
+  // Gather all photos
+  var photos = [];
+  WORK_TYPES.forEach(function(wt){
+    if (wtsToShow.indexOf(wt.name) === -1) return;
+    datesToShow.forEach(function(d){
+      if (wt.datePhotos[d]) {
+        wt.datePhotos[d].forEach(function(color){
+          photos.push({ color:color, date:d, wt:wt.name });
+        });
+      }
+    });
+  });
+  if (photos.length === 0) {
+    ri.innerHTML = '';
+    if (re) re.style.display = 'block';
+    return;
+  }
+  if (re) re.style.display = 'none';
+  ri.innerHTML = photos.map(function(ph, i){
+    return '<div style="border-radius:10px;overflow:hidden;cursor:pointer;aspect-ratio:4/3;background:'+ph.color+';position:relative;transition:transform .2s" '
+      +'onmouseenter="this.style.transform=\'scale(1.02)\'" onmouseleave="this.style.transform=\'none\'" onclick="toast(\'Viewing '+formatDateLabel(ph.date)+' · '+ph.wt+'\')">'
+      +'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;opacity:.25">📷</div>'
+      +'<div style="position:absolute;bottom:6px;left:6px;font-size:9px;color:rgba(255,255,255,.95);background:rgba(0,0,0,.45);padding:2px 7px;border-radius:10px;font-family:var(--m);font-weight:600">'+formatDateLabel(ph.date)+'</div>'
+      +'<div style="position:absolute;top:6px;right:6px;font-size:8.5px;background:rgba(47,128,237,.75);color:#fff;padding:2px 7px;border-radius:10px;font-family:var(--m);font-weight:600">'+ph.wt.split(' ')[0]+'</div>'
+      +'</div>';
+  }).join('');
+  // Update title
+  var t = document.getElementById('imgs-title');
+  if (t) t.textContent = 'Progress Photos — '+activeRoom.name;
+}
+
+// ══════════ WORK TYPES (overview sub-tab) ══════════
+function renderWorkTypes() {
+  var wt = document.getElementById('work-types');
+  if (!wt) return;
+  var roomWts = ROOM_WORK_TYPES[activeRoom.id] || [];
+  var datesToShow;
+  if (overviewActiveDate) {
+    datesToShow = [overviewActiveDate];
+  } else {
+    datesToShow = getDatesForRange(overviewActiveFilter || '7d');
+  }
+  var html = WORK_TYPES.filter(function(w){ return roomWts.indexOf(w.name) > -1; }).map(function(w, wi){
+    var barColor = w.status==='live'?'var(--blue)':w.status==='upcoming'?'#e2e8f0':'var(--mu)';
+    // Filter days to show
+    var daysFiltered = datesToShow.filter(function(d){ return w.datePhotos[d]; });
+    var totalPhotos = daysFiltered.reduce(function(a,d){ return a+(w.datePhotos[d]?w.datePhotos[d].length:0); },0);
+    var dayTabsHtml = daysFiltered.map(function(d, di){
+      var firstColor = w.datePhotos[d][0];
+      var isActive = di === daysFiltered.length - 1; // last date = most recent = active
+      return '<div class="wt-day-tab '+(isActive?'active-day':'')+'" data-wt="'+w.name+'" data-date="'+d+'" '
+        +'onclick="selectDayTab(this,\''+w.name+'\',\''+d+'\')" '
+        +'style="flex-shrink:0;width:58px;cursor:pointer;">'
+        +'<div style="height:48px;border-radius:9px;border:2px solid '+(isActive?'var(--blue)':'transparent')+';background:'+firstColor+';position:relative;overflow:hidden;transition:all .18s" '
+        +'onmouseenter="if(!this.style.borderColor.includes(\'blue\'))this.style.borderColor=\'var(--brd)\'" '
+        +'onmouseleave="if(!this.closest(\'.wt-day-tab\').classList.contains(\'active-day\'))this.style.borderColor=\'transparent\'">'
+        +'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;opacity:.3">📷</div>'
+        +'<div style="position:absolute;top:3px;right:3px;background:rgba(0,0,0,.45);color:#fff;font-size:7.5px;padding:1px 5px;border-radius:8px;font-family:var(--m);font-weight:700">'+w.datePhotos[d].length+'</div>'
+        +'</div>'
+        +'<div style="font-size:9px;color:'+(isActive?'var(--blue)':'var(--mu)')+';text-align:center;margin-top:3px;font-family:var(--m);font-weight:'+(isActive?'700':'400')+'">'+d.split('-')[0]+' '+d.split('-')[1]+'</div>'
+        +'</div>';
+    }).join('');
+    // Photos for last selected date
+    var activeDateForWt = daysFiltered.length > 0 ? daysFiltered[daysFiltered.length-1] : null;
+    var activePhotosHtml = activeDateForWt ? makePhotoStrip(w.name, activeDateForWt) : '';
+    return '<div class="work-row fade-up" style="animation-delay:'+(wi*0.06)+'s" id="wt-block-'+w.name.replace(/\s/g,'-')+'">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+      +'<div style="display:flex;align-items:center;gap:10px">'
+      +'<div style="width:36px;height:36px;border-radius:9px;background:var(--bl);display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+      +'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>'
+      +'</div>'
+      +'<div><div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--ch)">'+w.name+'</div>'
+      +'<div style="font-size:11.5px;color:var(--mu);margin-top:2px">'+totalPhotos+' photos · '+daysFiltered.length+' days</div>'
+      +'</div></div>'
+      +'<div style="display:flex;align-items:center;gap:10px">'
+      +(w.status==='live'?'<div style="display:flex;align-items:center;gap:4px"><div class="live-dot"></div><span style="font-size:11px;color:var(--blue);font-weight:600">Live</span></div>':'')
+      +'<div style="font-family:var(--m);font-size:15px;font-weight:800;color:var(--ch)">'+w.pct+'%</div>'
+      +'</div></div>'
+      +'<div style="height:6px;background:#f1f5f9;border-radius:6px;overflow:hidden;margin-bottom:12px">'
+      +'<div style="height:100%;width:'+w.pct+'%;background:'+barColor+';border-radius:6px;transition:width .8s ease"></div></div>'
+      // Day tabs row
+      +(daysFiltered.length > 0
+        ? '<div style="display:flex;gap:7px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px">'
+          +dayTabsHtml
+          +'</div>'
+          // Active day photo strip
+          +'<div id="day-photos-'+w.name.replace(/\s/g,'-')+'" style="margin-top:2px">'
+          +activePhotosHtml
+          +'</div>'
+        : '<div style="font-size:12px;color:var(--mu);padding:8px 0">No data for selected period.</div>')
+      +'</div>';
+  }).join('');
+  wt.innerHTML = html || '<div style="color:var(--mu);font-size:13px;padding:12px 0">No work type data for selected filter.</div>';
+}
+
+function makePhotoStrip(wtName, date) {
+  var wt = WORK_TYPES.find(function(w){ return w.name===wtName; });
+  if (!wt || !wt.datePhotos[date]) return '';
+  var photos = wt.datePhotos[date];
+  return '<div style="background:var(--off);border-radius:10px;padding:10px 12px">'
+    +'<div style="font-size:10.5px;font-weight:700;color:var(--blue);font-family:var(--m);margin-bottom:8px">'+formatDateLabel(date)+' · '+photos.length+' photos</div>'
+    +'<div style="display:flex;gap:7px;overflow-x:auto;padding-bottom:4px">'
+    +photos.map(function(color, i){
+      return '<div style="flex-shrink:0;width:72px;cursor:pointer" onclick="toast(\'Photo '+(i+1)+' · '+date+'\')">'
+        +'<div style="height:56px;border-radius:9px;background:'+color+';position:relative;overflow:hidden;transition:transform .18s" '
+        +'onmouseenter="this.style.transform=\'scale(1.05)\'" onmouseleave="this.style.transform=\'none\'">'
+        +'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.25">📷</div>'
+        +'</div>'
+        +'<div style="font-size:8.5px;color:var(--mu);text-align:center;margin-top:3px;font-family:var(--m)">Photo '+(i+1)+'</div>'
+        +'</div>';
+    }).join('')
+    +'</div></div>';
+}
+
+function selectDayTab(el, wtName, date) {
+  // Deactivate all tabs for this work type
+  var blockId = 'wt-block-'+wtName.replace(/\s/g,'-');
+  var block = document.getElementById(blockId);
+  if (!block) return;
+  block.querySelectorAll('.wt-day-tab').forEach(function(t){
+    t.classList.remove('active-day');
+    var img = t.querySelector('div[style*="height:48px"]');
+    if (img) img.style.borderColor = 'transparent';
+    var lbl = t.querySelector('div:last-child');
+    if (lbl) { lbl.style.color='var(--mu)'; lbl.style.fontWeight='400'; }
+  });
+  el.classList.add('active-day');
+  var img = el.querySelector('div[style*="height:48px"]');
+  if (img) img.style.borderColor = 'var(--blue)';
+  var lbl = el.querySelector('div:last-child');
+  if (lbl) { lbl.style.color='var(--blue)'; lbl.style.fontWeight='700'; }
+  // Update photo strip
+  var stripEl = document.getElementById('day-photos-'+wtName.replace(/\s/g,'-'));
+  if (stripEl) stripEl.innerHTML = makePhotoStrip(wtName, date);
+}
+
+// ══════════ DAY PROGRESS PAGE ══════════
+function renderDayProgress() {
+  renderDpRoomRow();
+  renderDpWorkSections();
+}
+
+function renderDpRoomRow() {
+  var row = document.getElementById('dp-room-row');
+  if (!row) return;
+  row.innerHTML = ROOMS.map(function(r){
+    var active = r.id === dpActiveRoom;
+    var ringColor = r.color==='apt'?'var(--blue)':r.color==='pu'?'var(--pu)':r.color==='am'?'var(--am)':'var(--navy)';
+    return '<div onclick="dpSelectRoom(\''+r.id+'\')" style="'
+      +'flex-shrink:0;padding:8px 14px;border-radius:10px;border:1.5px solid '+(active?'var(--blue)':'#e2e8f0')+';'
+      +'background:'+(active?'var(--bl)':'#fff')+';cursor:pointer;transition:all .15s;'
+      +'display:flex;align-items:center;gap:7px;">'
+      +'<span style="font-size:15px">'+r.icon+'</span>'
+      +'<div>'
+      +'<div style="font-family:var(--m);font-size:12px;font-weight:700;color:'+(active?'var(--blue)':'var(--ch)')+'">'+r.name+'</div>'
+      +'<div style="font-size:10.5px;color:var(--mu)">'+r.pct+'% done</div>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function dpSelectRoom(rid) {
+  dpActiveRoom = rid;
+  renderDpRoomRow();
+  renderDpWorkSections();
+}
+
+function dpCalFilter(chip, range) {
+  document.querySelectorAll('#dp-cal-filter .cal-chip:not(input)').forEach(function(c){ c.classList.remove('on'); });
+  chip.classList.add('on');
+  dpActiveFilter = range;
+  dpActiveDate = null;
+  var di = document.getElementById('dp-specific-date');
+  if (di) di.value = '2025-01-14';
+  var n = parseInt(range);
+  var dates = getDatesForRange(range);
+  var lbl = document.getElementById('dp-filter-label');
+  if (lbl) lbl.textContent = 'Showing last '+n+' days · '+formatDateLabel(dates[dates.length-1])+' – '+formatDateLabel(dates[0]);
+  renderDpWorkSections();
+}
+
+function dpSpecificDate(val) {
+  document.querySelectorAll('#dp-cal-filter .cal-chip:not(input)').forEach(function(c){ c.classList.remove('on'); });
+  dpActiveDate = parseInputDate(val);
+  dpActiveFilter = null;
+  var lbl = document.getElementById('dp-filter-label');
+  if (lbl) lbl.textContent = 'Showing specific date: '+formatDateLabel(dpActiveDate);
+  renderDpWorkSections();
+  toast('Showing '+formatDateLabel(dpActiveDate));
+}
+
+function renderDpWorkSections() {
+  var sec = document.getElementById('dp-work-sections');
+  if (!sec) return;
+  var room = ROOMS.find(function(r){ return r.id===dpActiveRoom; }) || ROOMS[0];
+  var roomWts = ROOM_WORK_TYPES[room.id] || [];
+  var datesToShow = dpActiveDate ? [dpActiveDate] : getDatesForRange(dpActiveFilter||'7d');
+  var html = '';
+  WORK_TYPES.filter(function(w){ return roomWts.indexOf(w.name)>-1; }).forEach(function(w, wi){
+    var barColor = w.status==='live'?'var(--blue)':'#e2e8f0';
+    var daysFiltered = datesToShow.filter(function(d){ return w.datePhotos[d]; });
+    var totalPhotos = daysFiltered.reduce(function(a,d){ return a+(w.datePhotos[d]?w.datePhotos[d].length:0); },0);
+    var activeDateDp = daysFiltered.length>0 ? daysFiltered[daysFiltered.length-1] : null;
+    var dayTabsHtml = daysFiltered.map(function(d, di){
+      var firstColor = w.datePhotos[d][0];
+      var isActive = d === activeDateDp;
+      return '<div class="dp-day-tab '+(isActive?'dp-active-day':'')+'" data-wt="'+w.name+'" data-date="'+d+'" '
+        +'onclick="dpSelectDay(this,\''+w.name+'\',\''+d+'\')" '
+        +'style="flex-shrink:0;width:58px;cursor:pointer">'
+        +'<div style="height:48px;border-radius:9px;border:2px solid '+(isActive?'var(--blue)':'transparent')+';background:'+firstColor+';position:relative;overflow:hidden;transition:all .18s">'
+        +'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;opacity:.3">📷</div>'
+        +'<div style="position:absolute;top:3px;right:3px;background:rgba(0,0,0,.45);color:#fff;font-size:7.5px;padding:1px 5px;border-radius:8px;font-family:var(--m);font-weight:700">'+w.datePhotos[d].length+'</div>'
+        +'</div>'
+        +'<div style="font-size:9px;color:'+(isActive?'var(--blue)':'var(--mu)')+';text-align:center;margin-top:3px;font-family:var(--m);font-weight:'+(isActive?'700':'400')+'">'+d.split('-')[0]+' '+d.split('-')[1]+'</div>'
+        +'</div>';
+    }).join('');
+
+    html += '<div class="card fade-up" style="margin-bottom:14px;animation-delay:'+(wi*0.07)+'s" id="dp-wt-'+w.name.replace(/\s/g,'-')+'">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+      +'<div style="display:flex;align-items:center;gap:10px">'
+      +'<div style="width:36px;height:36px;border-radius:9px;background:var(--bl);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div>'
+      +'<div><div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch)">'+w.name+'</div>'
+      +'<div style="font-size:11.5px;color:var(--mu);margin-top:2px">'+totalPhotos+' photos across '+daysFiltered.length+' days</div>'
+      +'</div></div>'
+      +'<div style="display:flex;align-items:center;gap:10px">'
+      +(w.status==='live'?'<div style="display:flex;align-items:center;gap:4px"><div class="live-dot"></div><span style="font-size:11px;color:var(--blue);font-weight:600">Live</span></div>':'')
+      +'<div style="font-family:var(--m);font-size:16px;font-weight:800;color:var(--ch)">'+w.pct+'%</div>'
+      +'</div></div>'
+      +'<div style="height:6px;background:#f1f5f9;border-radius:6px;overflow:hidden;margin-bottom:12px"><div style="height:100%;width:'+w.pct+'%;background:'+barColor+';border-radius:6px;transition:width .8s ease"></div></div>'
+      +(daysFiltered.length>0
+        ? '<div style="display:flex;gap:7px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px">'+dayTabsHtml+'</div>'
+          +'<div id="dp-photos-'+w.name.replace(/\s/g,'-')+'">'+makePhotoStrip(w.name, activeDateDp)+'</div>'
+        : '<div style="font-size:12.5px;color:var(--mu);padding:6px 0">No photos for selected period.</div>')
+      +'</div>';
+  });
+  sec.innerHTML = html || '<div class="card" style="text-align:center;padding:32px;color:var(--mu)">No work type data for this room and filter.</div>';
+}
+
+function dpSelectDay(el, wtName, date) {
+  var blockId = 'dp-wt-'+wtName.replace(/\s/g,'-');
+  var block = document.getElementById(blockId);
+  if (!block) return;
+  block.querySelectorAll('.dp-day-tab').forEach(function(t){
+    t.classList.remove('dp-active-day');
+    var img = t.querySelector('div[style*="height:48px"]');
+    if (img) img.style.borderColor='transparent';
+    var lbl = t.querySelector('div:last-child');
+    if (lbl){ lbl.style.color='var(--mu)'; lbl.style.fontWeight='400'; }
+  });
+  el.classList.add('dp-active-day');
+  var img = el.querySelector('div[style*="height:48px"]');
+  if (img) img.style.borderColor='var(--blue)';
+  var lbl = el.querySelector('div:last-child');
+  if (lbl){ lbl.style.color='var(--blue)'; lbl.style.fontWeight='700'; }
+  var stripEl = document.getElementById('dp-photos-'+wtName.replace(/\s/g,'-'));
+  if (stripEl) stripEl.innerHTML = makePhotoStrip(wtName, date);
+}
+
+// ══════════ GRAPH HOVER ══════════
+// Data points: [svgX, svgY, label, value, status]
+var GRAPH_POINTS = [
+  [40,190,'Day 1','12%','Live'],[110,185,'Day 5','15%','Live'],[180,175,'Day 9','20%','Live'],
+  [220,165,'Day 12','40%','On Hold'],[240,157,'Day 13','42%','On Hold'],
+  [260,154,'Day 14','43%','On Hold'],[280,150,'Day 15','44%','On Hold'],
+  [340,130,'Day 18','43%','Live'],[420,100,'Day 22','58%','Live'],
+  [500,78,'Day 27','67%','Live'],[560,68,'Day 31','70%','Live'],
+  [620,65,'Day 35','71%','Live'],[680,65,'Day 38','72%','Live'],
+];
+
+function graphHover(e) {
+  var svg = document.getElementById('progress-svg');
+  var wrap = document.getElementById('main-graph-wrap');
+  if (!svg || !wrap) return;
+  // Show live dots group
+  var dotGroup = document.getElementById('graph-live-dots');
+  if (dotGroup) dotGroup.style.opacity = '1';
+  // Get mouse position relative to wrap
+  var rect = wrap.getBoundingClientRect();
+  var svgRect = svg.getBoundingClientRect();
+  var mouseX = e.clientX - svgRect.left;
+  var svgW = svgRect.width;
+  var scaleX = 800 / svgW; // viewBox width / actual width
+  var svgMouseX = mouseX * scaleX;
+  // Find nearest data point
+  var nearest = GRAPH_POINTS.reduce(function(best, pt) {
+    var dist = Math.abs(pt[0] - svgMouseX);
+    return dist < best.dist ? { dist:dist, pt:pt } : best;
+  }, { dist:Infinity, pt:null });
+  if (!nearest.pt || nearest.dist > 60) { graphLeave(); return; }
+  var pt = nearest.pt;
+  // Position tooltip
+  var tt = document.getElementById('graph-tooltip');
+  var hl = document.getElementById('graph-hline');
+  var ptScreenX = (pt[0] / scaleX); // px from svg left
+  var ptScreenY = (pt[1] / (220 / svgRect.height)); // px from svg top
+  if (tt) {
+    tt.style.display = 'block';
+    tt.style.left = (svgRect.left - rect.left + ptScreenX) + 'px';
+    tt.style.top  = (svgRect.top  - rect.top  + ptScreenY) + 'px';
+    document.getElementById('tt-day').textContent = pt[2];
+    document.getElementById('tt-val').textContent = pt[3] + ' complete';
+    var stEl = document.getElementById('tt-status');
+    if (stEl) {
+      stEl.textContent = pt[4] === 'On Hold' ? '⏸ On Hold' : '● Live';
+      stEl.style.color = pt[4] === 'On Hold' ? '#f59e0b' : 'rgba(255,255,255,.6)';
+    }
+    // Amber bg for on-hold
+    tt.style.background = pt[4] === 'On Hold' ? '#92400e' : 'var(--ch)';
+    tt.querySelectorAll('div').forEach(function(d,i){ if(i===3) d.style.borderTopColor = (pt[4]==='On Hold'?'#92400e':'var(--ch)'); });
+  }
+  if (hl) {
+    hl.style.display = 'block';
+    hl.style.left = (svgRect.left - rect.left + ptScreenX) + 'px';
+    hl.style.background = pt[4] === 'On Hold' ? 'rgba(245,158,11,.35)' : 'rgba(47,128,237,.25)';
+  }
+}
+
+function graphLeave() {
+  var tt = document.getElementById('graph-tooltip');
+  var hl = document.getElementById('graph-hline');
+  var dotGroup = document.getElementById('graph-live-dots');
+  if (tt)  tt.style.display = 'none';
+  if (hl)  hl.style.display = 'none';
+  if (dotGroup) dotGroup.style.opacity = '0';
+}
+
+function dotHover(e, el) {
+  e.stopPropagation();
+  var day    = el.getAttribute('data-day');
+  var val    = el.getAttribute('data-val');
+  var status = el.getAttribute('data-status');
+  var wrap   = document.getElementById('main-graph-wrap');
+  var tt     = document.getElementById('graph-tooltip');
+  if (!tt || !wrap) return;
+  var wRect  = wrap.getBoundingClientRect();
+  var eRect  = el.getBoundingClientRect();
+  tt.style.display = 'block';
+  tt.style.left = (eRect.left + eRect.width/2 - wRect.left) + 'px';
+  tt.style.top  = (eRect.top  - wRect.top) + 'px';
+  document.getElementById('tt-day').textContent = day;
+  document.getElementById('tt-val').textContent = val + ' complete';
+  var stEl = document.getElementById('tt-status');
+  if (stEl) { stEl.textContent = '⏸ On Hold'; stEl.style.color = '#f59e0b'; }
+  tt.style.background = '#92400e';
+}
+function dotLeave(e) { graphLeave(); }
+
+// ══════════ MATERIAL FILTERS ══════════
+var matlStatusFilter = 'all';
+var matlRoomFilter = 'all';
+
+function filterMatl(btn, status) {
+  var bar = btn.closest('.stf');
+  bar.querySelectorAll('.stf-btn').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  matlStatusFilter = status;
+  applyMatlFilters();
+}
+function filterMatlRoom(room) {
+  matlRoomFilter = room;
+  applyMatlFilters();
+}
+function applyMatlFilters() {
+  var el = document.getElementById('matl-full-list');
+  if (!el) return;
+  var filtered = FULL_MATERIALS.filter(function(m){
+    var statusOk = matlStatusFilter === 'all' || m.status === matlStatusFilter;
+    var roomOk   = matlRoomFilter   === 'all' || m.room   === matlRoomFilter;
+    return statusOk && roomOk;
+  });
+  if (filtered.length === 0) { el.innerHTML = '<div style="text-align:center;padding:32px;color:var(--mu)">No items match this filter.</div>'; return; }
+  // Reuse renderMaterials logic with filtered data
+  var rooms = [];
+  var seen = {};
+  filtered.forEach(function(m){ if(!seen[m.room]){ seen[m.room]=true; rooms.push(m.room); } });
+  el.innerHTML = rooms.map(function(room){
+    var items = filtered.filter(function(m){ return m.room===room; });
+    var installed = items.filter(function(m){ return m.status==='installed'; }).length;
+    return '<div style="margin-bottom:20px">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1.5px solid #f0f4f8">'
+      +'<div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch)">'+room+'</div>'
+      +'<span class="bdg b-blue" style="font-size:9px">'+installed+'/'+items.length+' installed</span>'
+      +'</div>'
+      +items.map(function(m){
+        var stBg = m.status==='installed'?'#e8f1fd':m.status==='procured'?'#fef3c7':'#f1f5f9';
+        var stCl = m.status==='installed'?'#1d4ed8':m.status==='procured'?'#92400e':'#64748b';
+        var stTx = m.status==='installed'?'✓ Installed':m.status==='procured'?'Procured':'Not started';
+        return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:.5px solid #f1f5f9">'
+          +'<div style="width:36px;height:36px;border-radius:9px;background:var(--off);display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+          +'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="1.8" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>'
+          +'</div>'
+          +'<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px;color:var(--ch)">'+m.name+'</div>'
+          +'<div style="font-size:11.5px;color:var(--mu);margin-top:2px">'+m.spec+'</div>'
+          +'<div style="font-size:10.5px;color:var(--mu);margin-top:2px">'+m.category+' · '+m.brand+'</div></div>'
+          +'<div style="text-align:right;flex-shrink:0">'
+          +'<div style="font-size:12px;font-weight:600;color:var(--ch);margin-bottom:4px">'+m.qty+' '+m.unit+'</div>'
+          +'<span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;font-family:var(--m);background:'+stBg+';color:'+stCl+'">'+stTx+'</span>'
+          +(m.date&&m.date!=='—'?'<div style="font-size:10px;color:var(--mu);margin-top:3px">'+m.date+'</div>':'')
+          +'</div></div>';
+      }).join('')+'</div>';
+  }).join('');
+}
+
+// ══════════ WIDTH EMULATOR ══════════
+function setW(w) {
+  var wrap = document.getElementById('device-wrap');
+  if (!wrap) {
+    var b = document.body;
+    if (w) {
+      b.style.maxWidth = w + 'px';
+      b.style.margin = '0 auto';
+      b.style.border = '2px solid var(--blue)';
+      b.style.borderTop = 'none';
+      b.style.minHeight = '100vh';
+    } else {
+      b.style.maxWidth = '';
+      b.style.margin = '';
+      b.style.border = '';
+    }
+  }
+  toast(w ? 'Emulating ' + w + 'px width' : 'Full desktop view');
+}
+
+// ══════════ TOAST ══════════
+function toast(msg) {
+  var w = document.getElementById('tw');
+  var t = document.createElement('div');
+  t.className = 'toast-item';
+  t.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>' + msg;
+  w.appendChild(t);
+  setTimeout(function(){ if (t.parentNode) t.parentNode.removeChild(t); }, 2800);
+}
+
+// ══════════ INIT ══════════
+document.addEventListener('DOMContentLoaded', function(){
+  var navEl = document.getElementById('nav-profile');
+  if (navEl && navEl.children.length === 0) {
+    var tpl = document.getElementById('nav-tpl');
+    if (tpl) navEl.appendChild(tpl.content.cloneNode(true));
+  }
+  // Pre-render dashboard data so it's ready
+  renderDashboard();
+  renderHome();
+  renderViz();
+  renderPayments();
+  renderQueries();
+  renderRoom();
+  renderDayProgress();
+  renderMaterials();
+});
+
+// ══════════ PROPERTY INFO ══════════
+function renderPropInfo() {
+  // Static render — data already in HTML
+}
+
+// ══════════ MATERIALS ══════════
+var FULL_MATERIALS = [
+  { room:'Master Bedroom', category:'Plywood & carpentry', name:'Greenply Gold Plywood', spec:'18mm BWR ISI grade', qty:'24 sheets', unit:'No.', status:'installed', date:'10 Jan', brand:'Greenply' },
+  { room:'Master Bedroom', category:'Plywood & carpentry', name:'Wooden door frame', spec:'Teak wood, 4″×3″', qty:'3', unit:'No.', status:'installed', date:'11 Jan', brand:'—' },
+  { room:'Master Bedroom', category:'Electrical', name:'Legrand Arteor Switches', spec:'6A / 16A, Matt white finish', qty:'12', unit:'No.', status:'installed', date:'9 Jan', brand:'Legrand' },
+  { room:'Master Bedroom', category:'Electrical', name:'Copper wiring', spec:'2.5 sqmm FR grade', qty:'85', unit:'Mtrs', status:'installed', date:'8 Jan', brand:'Havells' },
+  { room:'Master Bedroom', category:'Flooring', name:'Kajaria Vitrified Tiles', spec:'800×800mm, Slate Grey', qty:'168', unit:'sqft', status:'procured', date:'—', brand:'Kajaria' },
+  { room:'Master Bedroom', category:'Painting', name:'Asian Paints Royale', spec:'Interior emulsion, Base coat + 2 top coats', qty:'18', unit:'Ltrs', status:'not started', date:'—', brand:'Asian Paints' },
+  { room:"Children's Bedroom", category:'Plywood & carpentry', name:'Greenply Gold Plywood', spec:'18mm BWR ISI grade', qty:'18 sheets', unit:'No.', status:'installed', date:'12 Jan', brand:'Greenply' },
+  { room:"Children's Bedroom", category:'Flooring', name:'Somany Tiles', spec:'600×600mm, Light wood finish', qty:'120', unit:'sqft', status:'installed', date:'13 Jan', brand:'Somany' },
+  { room:'Living Room', category:'False ceiling', name:'Gypsum boards', spec:'12.5mm tapered edge, fire resistant', qty:'280', unit:'sqft', status:'procured', date:'—', brand:'Saint-Gobain' },
+  { room:'Living Room', category:'Electrical', name:'LED Downlights', spec:'6W warm white, recessed', qty:'14', unit:'No.', status:'procured', date:'—', brand:'Philips' },
+  { room:'Kitchen', category:'Tiles', name:'Johnson Wall Tiles', spec:'300×600mm, Anti-skid, White glossy', qty:'210', unit:'sqft', status:'not started', date:'—', brand:'Johnson' },
+  { room:'Kitchen', category:'Plumbing', name:'CPVC pipes', spec:'1/2″ and 3/4″ pressure pipes', qty:'42', unit:'Mtrs', status:'not started', date:'—', brand:'Astral' },
+  { room:'Kitchen', category:'Countertop', name:'Granite slab', spec:'Black galaxy, 20mm thick, polished', qty:'28', unit:'sqft', status:'not started', date:'—', brand:'—' },
+  { room:'Master Bath', category:'Tiles', name:'Nitco Tiles', spec:'300×600mm, Anti-skid floor + wall', qty:'160', unit:'sqft', status:'installed', date:'9 Jan', brand:'Nitco' },
+  { room:'Master Bath', category:'Fittings', name:'Jaquar ARIA fittings', spec:'Chrome finish, single lever', qty:'1 set', unit:'Set', status:'installed', date:'10 Jan', brand:'Jaquar' },
+  { room:'Common Bath', category:'Tiles', name:'RAK Tiles', spec:'300×300mm floor, 300×600mm wall', qty:'80', unit:'sqft', status:'installed', date:'11 Jan', brand:'RAK' },
+  { room:'Common Bath', category:'Fittings', name:'Parryware fittings', spec:'Wall mount basin + EWC', qty:'1 set', unit:'Set', status:'installed', date:'12 Jan', brand:'Parryware' },
+];
+
+function renderMaterials() {
+  var el = document.getElementById('matl-full-list');
+  if (!el) return;
+  // Group by room
+  var rooms = [];
+  var seen = {};
+  FULL_MATERIALS.forEach(function(m){ if(!seen[m.room]){ seen[m.room]=true; rooms.push(m.room); } });
+  el.innerHTML = rooms.map(function(room){
+    var items = FULL_MATERIALS.filter(function(m){ return m.room===room; });
+    var installed = items.filter(function(m){ return m.status==='installed'; }).length;
+    return '<div style="margin-bottom:20px">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1.5px solid #f0f4f8">'
+      +'<div style="font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--ch)">'+room+'</div>'
+      +'<span class="bdg b-blue" style="font-size:9px">'+installed+'/'+items.length+' installed</span>'
+      +'</div>'
+      +items.map(function(m){
+        var stBg = m.status==='installed'?'#e8f1fd':m.status==='procured'?'#fef3c7':'#f1f5f9';
+        var stCl = m.status==='installed'?'#1d4ed8':m.status==='procured'?'#92400e':'#64748b';
+        var stTx = m.status==='installed'?'✓ Installed':m.status==='procured'?'Procured':'Not started';
+        return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:.5px solid #f1f5f9">'
+          +'<div style="width:36px;height:36px;border-radius:9px;background:var(--off);display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+          +'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="1.8" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>'
+          +'</div>'
+          +'<div style="flex:1;min-width:0">'
+          +'<div style="font-weight:600;font-size:13px;color:var(--ch)">'+m.name+'</div>'
+          +'<div style="font-size:11.5px;color:var(--mu);margin-top:2px">'+m.spec+'</div>'
+          +'<div style="font-size:10.5px;color:var(--mu);margin-top:2px">Category: '+m.category+' · Brand: '+m.brand+'</div>'
+          +'</div>'
+          +'<div style="text-align:right;flex-shrink:0">'
+          +'<div style="font-size:12px;font-weight:600;color:var(--ch);margin-bottom:4px">'+m.qty+' '+m.unit+'</div>'
+          +'<span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;font-family:var(--m);background:'+stBg+';color:'+stCl+'">'+stTx+'</span>'
+          +(m.date&&m.date!=='—'?'<div style="font-size:10px;color:var(--mu);margin-top:3px">'+m.date+'</div>':'')
+          +'</div>'
+          +'</div>';
+      }).join('')
+      +'</div>';
+  }).join('');
+}
+
+// ══════════ DOCUMENTS ══════════
+var DOCS_DATA = [
+  { name:'Greenply Gold Plywood — Warranty', cat:'warranty', room:'Master Bedroom', wt:'Plywood work', date:'10 Jan 2025', expiry:'10 Jan 2030', size:'245 KB' },
+  { name:'Legrand Arteor Switches — Warranty', cat:'warranty', room:'All rooms', wt:'Electrical work', date:'9 Jan 2025', expiry:'9 Jan 2028', size:'198 KB' },
+  { name:'Jaquar ARIA Fittings — Warranty', cat:'warranty', room:'Master Bath', wt:'Fittings', date:'10 Jan 2025', expiry:'10 Jan 2030', size:'312 KB' },
+  { name:'Asian Paints Royale — Warranty', cat:'warranty', room:'All rooms', wt:'Painting', date:'12 Jan 2025', expiry:'12 Jan 2026', size:'156 KB' },
+  { name:'Project BOQ — Full specification', cat:'boq', room:'All rooms', wt:'General', date:'1 Jan 2025', expiry:'', size:'1.2 MB' },
+  { name:'Interior Design Agreement', cat:'agreement', room:'General', wt:'General', date:'28 Dec 2024', expiry:'', size:'890 KB' },
+  { name:'2BHK Floor Plan — Final', cat:'design', room:'All rooms', wt:'General', date:'2 Jan 2025', expiry:'', size:'3.4 MB' },
+  { name:'3D Renders — All rooms', cat:'design', room:'All rooms', wt:'General', date:'5 Jan 2025', expiry:'', size:'28 MB' },
+];
+
+var docsActiveFilter = 'all';
+
+
+function renderDocuments() {
+  docsActiveFilter = docsActiveFilter || 'all';
+  renderDocList(docsActiveFilter);
+}
+
+function filterDocs(btn, filter) {
+  docsActiveFilter = filter;
+  var bar = document.getElementById('doc-tab-bar');
+  if (bar) {
+    bar.querySelectorAll('button').forEach(function(b) {
+      b.style.background = 'transparent';
+      b.style.color = 'var(--mu)';
+      b.style.boxShadow = 'none';
+    });
+    if (btn) {
+      btn.style.background = '#fff';
+      btn.style.color = 'var(--blue)';
+      btn.style.boxShadow = '0 1px 4px rgba(0,0,0,.08)';
+    }
+  }
+  renderDocList(filter);
+}
+
+function renderDocList(filter) {
+  var dl = document.getElementById('doc-list');
+  if (!dl) return;
+
+  var filtered = (!filter || filter === 'all')
+    ? DOCS_DATA
+    : DOCS_DATA.filter(function(d) { return d.cat === filter; });
+
+  var catColors = { warranty:'#ca8a04', boq:'#2563eb', agreement:'#7c3aed', design:'#0d9488', other:'#475569' };
+  var catBg     = { warranty:'#fef3c7', boq:'#e8f1fd',  agreement:'#f3e8ff', design:'#ccfbf1', other:'#f1f5f9' };
+  var catLabel  = { warranty:'Warranty', boq:'BOQ', agreement:'Agreement', design:'Design', other:'Other' };
+
+  if (!filtered.length) {
+    dl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--mu);font-size:13px">No documents in this category.</div>';
+    return;
+  }
+
+  var html = '';
+  filtered.forEach(function(d, i) {
+    var cc  = catColors[d.cat] || catColors.other;
+    var cb  = catBg[d.cat]     || catBg.other;
+    var cl  = catLabel[d.cat]  || 'Other';
+    var row = document.createElement('div');
+    row.className = 'card fa';
+    row.style.cssText = 'padding:14px 16px;border-left:3px solid '+cc+';cursor:pointer;transition:box-shadow .2s,transform .18s;animation-delay:'+(i*0.05)+'s';
+    row.onmouseenter = function(){ this.style.boxShadow='0 6px 20px rgba(0,0,0,.08)'; this.style.transform='translateY(-1px)'; };
+    row.onmouseleave = function(){ this.style.boxShadow='none'; this.style.transform='none'; };
+    row.onclick = function(){ toast('Opening document\u2026'); };
+
+    var wtPart = (d.wt && d.wt !== 'General') ? ' \u00b7 ' + d.wt : '';
+    var expiryPart = d.expiry
+      ? '<div style="font-size:11px;margin-top:3px;display:flex;align-items:center;gap:4px;color:var(--am)">'
+        + '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">'
+        + '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>'
+        + '<line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+        + 'Expires: ' + d.expiry + '</div>'
+      : '';
+
+    row.innerHTML =
+      '<div style="display:flex;align-items:center;gap:12px">'
+      + '<div style="width:40px;height:40px;border-radius:10px;background:'+cb+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+      + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="'+cc+'" stroke-width="1.8" stroke-linecap="round">'
+      + '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>'
+      + '<polyline points="14 2 14 8 20 8"/>'
+      + '<line x1="16" y1="13" x2="8" y2="13"/>'
+      + '<line x1="16" y1="17" x2="8" y2="17"/>'
+      + '</svg></div>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">'
+      + '<div style="font-weight:700;font-size:13px;color:var(--ch)">'+d.name+'</div>'
+      + '<span class="bdg" style="font-size:8.5px;background:'+cb+';color:'+cc+';flex-shrink:0">'+cl+'</span>'
+      + '</div>'
+      + '<div style="font-size:11.5px;color:var(--mu)">'+d.room+wtPart+' \u00b7 '+d.date+' \u00b7 '+d.size+'</div>'
+      + expiryPart
+      + '</div>'
+      + '<button class="btn btn-ghost btn-xs" style="flex-shrink:0">'
+      + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">'
+      + '<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>'
+      + '<polyline points="7 10 12 15 17 10"/>'
+      + '<line x1="12" y1="15" x2="12" y2="3"/>'
+      + '</svg></button>'
+      + '</div>';
+
+    // Wire download button click separately (avoids inline quote issues)
+    var dlBtn = row.querySelector('button');
+    if (dlBtn) dlBtn.addEventListener('click', function(e){ e.stopPropagation(); toast('Downloading\u2026'); });
+
+    dl.appendChild(row);
+  });
+}
+
+</script>
+</body>
+</html>

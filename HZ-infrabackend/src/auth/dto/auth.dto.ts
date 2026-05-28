@@ -119,3 +119,9 @@ export class GoogleIdTokenDto {
   @IsNotEmpty()
   idToken: string;
 }
+
+export class GoogleAccessTokenDto {
+  @IsString()
+  @IsNotEmpty()
+  accessToken: string;
+}

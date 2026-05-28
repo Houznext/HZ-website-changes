@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Houznext Infra — Real Estate CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f2a44;--blue:#2f80ed;--bh:#1a6dd6;--bl:#e8f1fd;
+  --accent:#f2994a;--ch:#1f2933;--mu:#5a6a7e;--brd:#dde8f5;
+  --off:#f5f7fa;--rd:#dc2626;--am:#d97706;--tl:#0d9488;
+}
+body{font-family:'Inter',sans-serif;font-size:13px;color:var(--ch);background:var(--off)}
+button,input,select,textarea{font-family:'Inter',sans-serif;font-size:13px}
+h1,h2,h3,.mf{font-family:'Montserrat',sans-serif}
+
+/* DEV NAV */
+.dn{display:flex;gap:2px;padding:5px 10px;background:#020b14;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:9999}
+.dl{font-size:8px;font-weight:700;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-right:3px;font-family:'Montserrat',sans-serif}
+.ds{width:1px;height:12px;background:rgba(255,255,255,.1);margin:0 6px}
+.dt{padding:3px 9px;border-radius:4px;font-size:9.5px;font-weight:600;cursor:pointer;border:none;color:rgba(255,255,255,.38);background:transparent;font-family:'Montserrat',sans-serif;white-space:nowrap;transition:all .14s}
+.dt.on{background:rgba(47,128,237,.25);color:#6db8ff}
+.dt:hover:not(.on){background:rgba(255,255,255,.06);color:rgba(255,255,255,.7)}
+.pg{display:none}.pg.on{display:block}
+
+/* SHELL */
+.shell{display:grid;grid-template-columns:248px 1fr;min-height:calc(100vh - 28px)}
+.sb{background:var(--navy);display:flex;flex-direction:column;position:sticky;top:28px;height:calc(100vh - 28px);overflow-y:auto}
+.main{display:flex;flex-direction:column;min-height:calc(100vh - 28px)}
+.tb{height:54px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 22px;gap:10px;flex-shrink:0;position:sticky;top:28px;z-index:100}
+.content{flex:1;padding:22px;background:var(--off)}
+
+/* SIDEBAR */
+.asec{padding:14px 13px 4px;font-size:9px;font-weight:700;color:rgba(255,255,255,.24);text-transform:uppercase;letter-spacing:.1em;font-family:'Montserrat',sans-serif}
+.asi{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:10px;cursor:pointer;transition:all .14s;margin:1px 7px;color:rgba(255,255,255,.56);font-size:12.5px;font-weight:500}
+.asi:hover{background:rgba(255,255,255,.07);color:#fff}
+.asi.on{background:rgba(47,128,237,.2);color:#fff;border-left:2px solid var(--blue);padding-left:11px}
+.ic{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(255,255,255,.05);transition:background .14s}
+.asi.on .ic{background:var(--blue)}
+.sbdg{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:auto;font-family:'Montserrat',sans-serif}
+
+/* CARD */
+.card{background:#fff;border:.5px solid #e2e8f0;border-radius:12px;padding:18px}
+.card-sm{background:#fff;border:.5px solid #e2e8f0;border-radius:10px;padding:14px}
+
+/* STAT CARD */
+.stat{background:#fff;border:.5px solid #e2e8f0;border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s}
+.stat:hover{box-shadow:0 4px 16px rgba(0,0,0,.07);transform:translateY(-2px)}
+.stat-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-val{font-family:'Montserrat',sans-serif;font-size:24px;font-weight:800;color:var(--ch);line-height:1}
+.stat-lbl{font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:'Montserrat',sans-serif;margin-bottom:3px}
+.stat-sub{font-size:11px;color:var(--mu);margin-top:3px}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{background:#f8fafc;padding:10px 12px;text-align:left;font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;border-bottom:1.5px solid #e2e8f0;font-family:'Montserrat',sans-serif;white-space:nowrap}
+.tbl td{padding:12px;border-bottom:.5px solid #f1f5f9;font-size:12.5px;vertical-align:middle}
+.tbl tr:hover td{background:#f8fafc;cursor:pointer}
+
+/* BADGE */
+.bdg{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;font-family:'Montserrat',sans-serif;white-space:nowrap}
+/* Lead stage badges */
+.s-new{background:#eff6ff;color:#1d4ed8}
+.s-contacted{background:#f3e8ff;color:#6d28d9}
+.s-site{background:#fff7ed;color:#c2410c}
+.s-visited{background:#fdf4ff;color:#a21caf}
+.s-negotiation{background:#fffbeb;color:#92400e}
+.s-token{background:#ccfbf1;color:#0f766e}
+.s-booked{background:#dcfce7;color:#15803d}
+.s-registered{background:#dcfce7;color:#15803d}
+.s-lost{background:#fee2e2;color:var(--rd)}
+.s-nurture{background:#fef9c3;color:#78350f}
+.s-future{background:#fef9c3;color:#92400e}
+.s-notint{background:#f1f5f9;color:#475569}
+
+/* PRIORITY */
+.p-hot{background:#fee2e2;color:var(--rd);font-size:9px}
+.p-warm{background:#fff7ed;color:#c2410c;font-size:9px}
+.p-cold{background:#eff6ff;color:#2563eb;font-size:9px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:9px;font-size:12.5px;font-weight:700;border:none;cursor:pointer;transition:all .18s;font-family:'Montserrat',sans-serif}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:var(--bh);transform:translateY(-1px);box-shadow:0 4px 14px rgba(47,128,237,.28)}
+.btn-ghost{background:#fff;color:var(--ch);border:1.5px solid #e2e8f0}.btn-ghost:hover{border-color:var(--blue);color:var(--blue);background:var(--bl)}
+.btn-tl{background:var(--tl);color:#fff}.btn-tl:hover{background:#0f766e;transform:translateY(-1px)}
+.btn-wa{background:#25D366;color:#fff}.btn-wa:hover{background:#128C7E}
+.btn-sm{padding:6px 13px;font-size:12px;border-radius:8px}
+.btn-xs{padding:4px 10px;font-size:11px;border-radius:7px}
+
+/* TABS */
+.tab-bar{display:flex;gap:2px;background:#f1f5f9;padding:3px;border-radius:9px}
+.tab{padding:6px 14px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--mu);transition:all .18s;font-family:'Montserrat',sans-serif;white-space:nowrap}
+.tab.on{background:#fff;color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+
+/* KANBAN */
+.k-col{background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;min-width:190px;flex-shrink:0}
+.k-head{padding:12px 14px 10px;border-bottom:1px solid #e2e8f0}
+.k-title{font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:700;color:var(--ch);margin-bottom:2px}
+.k-body{padding:10px;display:flex;flex-direction:column;gap:8px;min-height:80px}
+.k-card{background:#fff;border-radius:9px;padding:12px;border:.5px solid #e2e8f0;cursor:pointer;transition:all .2s}
+.k-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.08);transform:translateY(-1px);border-color:#93c5fd}
+.k-name{font-weight:600;font-size:12.5px;color:var(--ch);margin-bottom:3px}
+.k-prop{font-size:11px;color:var(--mu);margin-bottom:4px}
+.k-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.k-tag{font-size:9.5px;padding:2px 7px;border-radius:20px;background:var(--off);color:var(--mu);font-family:'Montserrat',sans-serif;font-weight:600;border:.5px solid var(--brd)}
+
+/* FORM */
+.fi{width:100%;padding:9px 13px;border:1.5px solid var(--brd);border-radius:9px;outline:none;font-size:13px;color:var(--ch);background:#fff;transition:all .15s}
+.fi:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(47,128,237,.08)}
+.lbl{display:block;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;font-family:'Montserrat',sans-serif}
+
+/* TOAST */
+.tw{position:fixed;bottom:22px;right:22px;z-index:99999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--ch);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;border-left:3px solid #22c55e;animation:tIn .3s,tOut .3s 2.7s forwards;white-space:nowrap}
+@keyframes tIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+@keyframes tOut{from{opacity:1}to{opacity:0;pointer-events:none}}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(15,42,68,.5);z-index:4000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.2)}
+.modal-hd{padding:20px 22px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2;border-radius:16px 16px 0 0}
+.modal-bd{padding:20px 22px}
+.modal-ft{padding:14px 22px;border-top:1px solid var(--brd);display:flex;gap:9px;justify-content:flex-end;background:#fff;border-radius:0 0 16px 16px;position:sticky;bottom:0}
+.hidden{display:none!important}
+
+/* SCORE RING */
+.score-ring{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:15px;font-weight:800;flex-shrink:0}
+
+/* ACTIVITY */
+.act-item{display:flex;gap:10px;padding:9px 0;border-bottom:.5px solid #f1f5f9}
+.act-item:last-child{border-bottom:none}
+
+/* TIMELINE */
+.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+
+/* SECTION DIVIDER */
+.sdiv{display:flex;align-items:center;gap:9px;margin:18px 0 14px}
+.sdiv-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sdiv-title{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;color:var(--ch)}
+.sdiv-line{flex:1;height:1px;background:#f0f4f8}
+
+/* AVATAR */
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;font-family:'Montserrat',sans-serif}
+</style>
+</head>
+<body>
+<div class="tw" id="toasts"></div>
+<!-- DEV NAV -->
+<div class="dn">
+  <span class="dl">Infra CRM</span>
+  <button class="dt on" onclick="P('dashboard',this)">Dashboard</button>
+  <button class="dt" onclick="P('leads',this)">All Leads</button>
+  <button class="dt" onclick="P('pipeline',this)">Pipeline</button>
+  <button class="dt" onclick="P('detail',this)">Lead Detail</button>
+  <div class="ds"></div>
+  <button class="dt" onclick="P('sitevisits',this)">Site Visits</button>
+  <button class="dt" onclick="P('followups',this)">Follow-ups</button>
+  <button class="dt" onclick="P('analytics',this)">Analytics</button>
+  <button class="dt" onclick="P('team',this)">Team</button>
+  <div class="ds"></div>
+  <button class="dt" onclick="P('addlead',this)">Add Lead</button>
+  <button class="dt" onclick="P('settings',this)">Settings</button>
+</div>
+
+<!-- SHARED SIDEBAR TEMPLATE -->
+<template id="sb-tpl">
+<div class="sb">
+  <div style="padding:0 14px;height:54px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0">
+    <span style="font-family:'Montserrat',sans-serif;font-size:16px;font-weight:800;color:#fff">Houznext <span style="color:#f2994a">Infra</span></span>
+    <span style="font-size:8px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--blue);color:#fff;font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:.08em">Admin</span>
+  </div>
+  <nav style="flex:1;overflow-y:auto;padding:6px 0">
+    <div class="asec">Overview</div>
+    <div class="asi" onclick="toast('All properties')"><span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="14" rx="2"/><line x1="3" y1="20" x2="21" y2="20"/><line x1="12" y1="17" x2="12" y2="20"/></svg></span>All properties<span class="sbdg" style="background:rgba(47,128,237,.2);color:#93c5fd">1,284</span></div>
+    <div class="asi" onclick="toast('Pending')"><span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>Pending approval<span class="sbdg" style="background:rgba(217,119,6,.18);color:#f59e0b">48</span></div>
+    <div class="asec">CRM</div>
+    <div class="asi on" onclick="P('dashboard',null)"><span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>CRM Leads<span class="sbdg" style="background:rgba(217,119,6,.18);color:#f59e0b">38</span></div>
+    <div class="asi" onclick="P('sitevisits',null)"><span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>Site visits<span class="sbdg" style="background:rgba(47,128,237,.2);color:#93c5fd">12</span></div>
+    <div class="asi" onclick="P('followups',null)"><span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>Follow-ups<span class="sbdg" style="background:#fee2e2;color:var(--rd)">7</span></div>
+    <div class="asec">Content</div>
+    <div class="asi" onclick="toast('Projects')"><span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></span>Projects</div>
+    <div class="asi" onclick="toast('RERA')"><span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>RERA & documents</div>
+    <div class="asec">Team</div>
+    <div class="asi" onclick="P('team',null)"><span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span>Users</div>
+    <div class="asec">System</div>
+    <div class="asi" onclick="P('settings',null)"><span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>Settings</div>
+  </nav>
+  <div style="padding:10px;border-top:1px solid rgba(255,255,255,.07)">
+    <div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;cursor:pointer" onmouseenter="this.style.background='rgba(255,255,255,.06)'" onmouseleave="this.style.background='transparent'">
+      <div style="width:32px;height:32px;border-radius:50%;background:rgba(47,128,237,.25);border:1.5px solid rgba(47,128,237,.4);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#90bdf0;font-family:'Montserrat',sans-serif">A</div>
+      <div><div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.9)">Admin User</div><div style="font-size:10.5px;color:rgba(255,255,255,.38)">Super Admin</div></div>
+      <svg style="margin-left:auto" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.8" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+  </div>
+</div>
+</template>
+
+<!-- ═══════════ DASHBOARD ═══════════ -->
+<div class="pg on" id="pg-dashboard">
+<div class="shell"><div id="sb-dashboard"></div>
+<div class="main">
+<div class="tb">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--mu)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+  <span class="mf" style="font-size:14px;font-weight:700">Real Estate CRM</span>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <div style="position:relative"><svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%)" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="fi" placeholder="Search leads…" style="padding-left:30px;width:200px;font-size:12.5px"></div>
+    <button class="btn btn-blue btn-sm" onclick="openAddLead()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add lead</button>
+  </div>
+</div>
+<div class="content">
+  <!-- KPI row -->
+  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:18px">
+    <div class="stat"><div class="stat-icon" style="background:#eff6ff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><div><div class="stat-lbl">Total Leads</div><div class="stat-val">342</div><div class="stat-sub">↑ 18 this week</div></div></div>
+    <div class="stat"><div class="stat-icon" style="background:#fff7ed"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="1.8" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><div><div class="stat-lbl">Hot Leads</div><div class="stat-val" style="color:#ea580c">24</div><div class="stat-sub">Action needed</div></div></div>
+    <div class="stat"><div class="stat-icon" style="background:#fdf4ff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a21caf" stroke-width="1.8" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div><div class="stat-lbl">Site Visits</div><div class="stat-val" style="color:#a21caf">18</div><div class="stat-sub">Scheduled / done</div></div></div>
+    <div class="stat"><div class="stat-icon" style="background:#ccfbf1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="1.8" stroke-linecap="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div><div class="stat-lbl">Token Paid</div><div class="stat-val" style="color:var(--tl)">9</div><div class="stat-sub">₹14.2L token total</div></div></div>
+    <div class="stat"><div class="stat-icon" style="background:#dcfce7"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><div class="stat-lbl">Registered</div><div class="stat-val" style="color:#16a34a">7</div><div class="stat-sub">₹4.8Cr closed</div></div></div>
+    <div class="stat"><div class="stat-icon" style="background:#fffbeb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div><div class="stat-lbl">Follow-ups Due</div><div class="stat-val" style="color:#ca8a04">7</div><div class="stat-sub">3 overdue</div></div></div>
+  </div>
+
+  <!-- Middle row -->
+  <div style="display:grid;grid-template-columns:1.8fr 1fr;gap:16px;margin-bottom:16px">
+    <!-- Pipeline mini -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div class="mf" style="font-size:13px;font-weight:700">Sales pipeline</div>
+        <button class="btn btn-ghost btn-sm" onclick="P('pipeline',null)">View kanban →</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px" id="pipeline-bars"></div>
+    </div>
+    <!-- Right: Source + budget breakdown -->
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card">
+        <div class="mf" style="font-size:13px;font-weight:700;margin-bottom:12px">Leads by source</div>
+        <div id="source-list"></div>
+      </div>
+      <div class="card" style="background:#fff5f5;border-color:#fca5a5">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span class="mf" style="font-size:12px;font-weight:700;color:var(--rd)">3 overdue follow-ups</span></div>
+        <div id="overdue-list"></div>
+        <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-top:10px" onclick="P('followups',null)">View all →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom: recent + activity -->
+  <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:16px">
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:14px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between">
+        <div class="mf" style="font-size:13px;font-weight:700">Recent leads</div>
+        <button class="btn btn-ghost btn-sm" onclick="P('leads',null)">View all →</button>
+      </div>
+      <table class="tbl"><thead><tr><th>Lead</th><th>Interested in</th><th>Budget</th><th>Stage</th><th>Priority</th><th>Last contact</th></tr></thead>
+      <tbody id="dash-leads"></tbody></table>
+    </div>
+    <div class="card">
+      <div class="mf" style="font-size:13px;font-weight:700;margin-bottom:14px">Activity feed</div>
+      <div id="activity-feed"></div>
+    </div>
+  </div>
+</div></div></div></div>
+
+<!-- ═══════════ ALL LEADS ═══════════ -->
+<div class="pg" id="pg-leads">
+<div class="shell"><div id="sb-leads"></div>
+<div class="main">
+<div class="tb">
+  <span class="mf" style="font-size:14px;font-weight:700">All Leads</span>
+  <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+    <div style="position:relative"><svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%)" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="fi" placeholder="Search leads…" style="padding-left:30px;width:180px;font-size:12.5px"></div>
+    <button class="btn btn-ghost btn-sm" onclick="toast('Exporting…')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+    <button class="btn btn-blue btn-sm" onclick="openAddLead()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add lead</button>
+  </div>
+</div>
+<div class="content">
+  <!-- Filters -->
+  <div class="card" style="padding:11px 14px;margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <select class="fi" style="width:auto;font-size:12.5px"><option>All stages</option><option>New enquiry</option><option>Contacted</option><option>Site visit scheduled</option><option>Site visited</option><option>Negotiation</option><option>Token paid</option><option>Booked</option><option>Registered</option><option>Lost</option><option>Nurturing</option></select>
+    <select class="fi" style="width:auto;font-size:12.5px"><option>All priority</option><option>🔥 Hot</option><option>🟡 Warm</option><option>🔵 Cold</option></select>
+    <select class="fi" style="width:auto;font-size:12.5px"><option>All property types</option><option>Apartment</option><option>Villa</option><option>Plot</option><option>Land</option><option>Commercial</option></select>
+    <select class="fi" style="width:auto;font-size:12.5px"><option>All budget ranges</option><option>Under ₹30L</option><option>₹30L–₹60L</option><option>₹60L–₹1Cr</option><option>₹1Cr–₹2Cr</option><option>₹2Cr+</option></select>
+    <select class="fi" style="width:auto;font-size:12.5px"><option>All sources</option><option>Website enquiry</option><option>99 Acres</option><option>Magic Bricks</option><option>Walk-in</option><option>Referral</option><option>Instagram</option><option>Facebook</option></select>
+    <select class="fi" style="width:auto;font-size:12.5px"><option>All agents</option><option>Arjun Sharma</option><option>Priya Reddy</option><option>Kiran Kumar</option></select>
+    <button class="btn btn-ghost btn-sm" onclick="toast('Filters cleared')">Clear</button>
+  </div>
+  <!-- Tab bar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <div class="tab-bar">
+      <button class="tab on" onclick="switchTab(this)">All (342)</button>
+      <button class="tab" onclick="switchTab(this)">Hot 🔥 (24)</button>
+      <button class="tab" onclick="switchTab(this)">Site Visit (18)</button>
+      <button class="tab" onclick="switchTab(this)">Negotiation (31)</button>
+      <button class="tab" onclick="switchTab(this)">Token / Booked (16)</button>
+      <button class="tab" onclick="switchTab(this)">Registered (7)</button>
+      <button class="tab" onclick="switchTab(this)">Lost / Nurture (48)</button>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-ghost btn-sm btn-xs" onclick="toast('List view')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+      <button class="btn btn-ghost btn-sm btn-xs" onclick="P('pipeline',null)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="5" height="15" rx="1"/></svg></button>
+    </div>
+  </div>
+  <!-- Table -->
+  <div class="card" style="padding:0;overflow:hidden">
+    <table class="tbl">
+      <thead><tr>
+        <th style="width:36px"><input type="checkbox" style="accent-color:var(--blue)"></th>
+        <th>Lead</th><th>Interested in</th><th>Budget</th><th>Source</th>
+        <th>Assigned to</th><th>Stage</th><th>Priority</th><th>Lead Score</th><th>Follow-up</th><th>Actions</th>
+      </tr></thead>
+      <tbody id="leads-tbody"></tbody>
+    </table>
+    <div style="padding:12px 16px;border-top:.5px solid #f0f4f8;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:12px;color:var(--mu)">Showing <strong>1–20</strong> of <strong>342</strong> leads</span>
+      <div style="display:flex;gap:5px">
+        <button class="btn btn-ghost btn-sm">‹ Prev</button>
+        <button class="btn btn-blue btn-sm">1</button>
+        <button class="btn btn-ghost btn-sm">2</button>
+        <button class="btn btn-ghost btn-sm">Next ›</button>
+      </div>
+    </div>
+  </div>
+</div></div></div></div>
+
+<!-- ═══════════ PIPELINE ═══════════ -->
+<div class="pg" id="pg-pipeline">
+<div class="shell"><div id="sb-pipeline"></div>
+<div class="main">
+<div class="tb">
+  <span class="mf" style="font-size:14px;font-weight:700">Sales Pipeline</span>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <select class="fi" style="width:auto;font-size:12.5px"><option>All agents</option><option>Arjun Sharma</option><option>Priya Reddy</option></select>
+    <select class="fi" style="width:auto;font-size:12.5px"><option>All property types</option><option>Apartment</option><option>Villa</option><option>Plot</option></select>
+  </div>
+</div>
+<div class="content">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div><div class="mf" style="font-size:15px;font-weight:700">Real Estate Sales Pipeline</div><div style="font-size:12px;color:var(--mu);margin-top:2px">Drag cards across stages · 342 total leads</div></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--mu)"><span style="width:8px;height:8px;border-radius:50%;background:var(--rd);display:inline-block"></span>Hot</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--mu)"><span style="width:8px;height:8px;border-radius:50%;background:var(--am);display:inline-block"></span>Warm</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--mu)"><span style="width:8px;height:8px;border-radius:50%;background:var(--blue);display:inline-block"></span>Cold</div>
+    </div>
+  </div>
+  <!-- Pipeline value summary bar -->
+  <div class="card" style="padding:12px 18px;margin-bottom:16px;display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+    <div style="text-align:center"><div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:'Montserrat',sans-serif;margin-bottom:2px">Pipeline value</div><div class="mf" style="font-size:18px;font-weight:800;color:var(--ch)">₹28.4Cr</div></div>
+    <div style="width:1px;height:32px;background:#e2e8f0"></div>
+    <div style="text-align:center"><div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:'Montserrat',sans-serif;margin-bottom:2px">Weighted value</div><div class="mf" style="font-size:18px;font-weight:800;color:var(--blue)">₹8.2Cr</div></div>
+    <div style="width:1px;height:32px;background:#e2e8f0"></div>
+    <div style="text-align:center"><div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:'Montserrat',sans-serif;margin-bottom:2px">Avg deal size</div><div class="mf" style="font-size:18px;font-weight:800;color:var(--am)">₹82L</div></div>
+    <div style="width:1px;height:32px;background:#e2e8f0"></div>
+    <div style="text-align:center"><div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:'Montserrat',sans-serif;margin-bottom:2px">Conversion rate</div><div class="mf" style="font-size:18px;font-weight:800;color:var(--tl)">4.9%</div></div>
+    <div style="width:1px;height:32px;background:#e2e8f0"></div>
+    <div style="text-align:center"><div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-family:'Montserrat',sans-serif;margin-bottom:2px">Avg days to close</div><div class="mf" style="font-size:18px;font-weight:800;color:var(--ch)">34 days</div></div>
+  </div>
+  <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:10px" id="kanban-board"></div>
+</div></div></div></div>
+
+<!-- ═══════════ LEAD DETAIL ═══════════ -->
+<div class="pg" id="pg-detail">
+<div class="shell"><div id="sb-detail"></div>
+<div class="main">
+<div class="tb">
+  <button class="btn btn-ghost btn-sm" onclick="P('leads',null)">← Back</button>
+  <span class="mf" style="font-size:14px;font-weight:700">Lead Detail</span>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <button class="btn btn-ghost btn-sm" onclick="toast('Editing lead…')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>
+    <button class="btn btn-wa btn-sm" onclick="toast('Opening WhatsApp…')"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.1 5.1 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654A11.882 11.882 0 0012.05 23.784h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.49 11.815 11.815 0 0012.05 0z"/></svg>WhatsApp</button>
+    <button class="btn btn-blue btn-sm" onclick="toast('Calling…')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.29 1.18 2 2 0 012.29-.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.06 6.06l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Call</button>
+  </div>
+</div>
+<div class="content">
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start">
+    <!-- Left -->
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <!-- Header -->
+      <div class="card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#2f80ed,#1a6dd6);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;font-family:'Montserrat',sans-serif;flex-shrink:0">RK</div>
+            <div>
+              <div class="mf" style="font-size:19px;font-weight:800;color:var(--ch);margin-bottom:3px">Ramesh Kumar</div>
+              <div style="font-size:12px;color:var(--mu);display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px">
+                <span style="display:flex;align-items:center;gap:4px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.29 1.18 2 2 0 012.29-.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.06 6.06l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>+91 98765 43210</span>
+                <span style="display:flex;align-items:center;gap:4px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>ramesh@gmail.com</span>
+                <span>Hyderabad</span>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <span class="bdg s-negotiation">Negotiation</span>
+                <span class="bdg p-hot">🔥 Hot</span>
+                <span class="bdg" style="background:#eff6ff;color:#1d4ed8">3BHK Apartment</span>
+                <span class="bdg" style="background:#f3e8ff;color:#6d28d9">₹60–80L</span>
+              </div>
+            </div>
+          </div>
+          <!-- Lead score -->
+          <div style="text-align:center">
+            <div class="score-ring" style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:3px solid #ca8a04;color:#92400e">82</div>
+            <div style="font-size:10px;color:var(--mu);margin-top:4px;font-family:'Montserrat',sans-serif;font-weight:700">Lead Score</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Property requirements -->
+      <div class="card">
+        <div class="sdiv" style="margin-top:0"><div class="sdiv-ic" style="background:var(--bl)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="sdiv-title">Property requirements</div><div class="sdiv-line"></div></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          <div style="background:var(--off);border-radius:9px;padding:11px 12px"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:'Montserrat',sans-serif;margin-bottom:3px">Property type</div><div style="font-size:13px;font-weight:600">Apartment</div></div>
+          <div style="background:var(--off);border-radius:9px;padding:11px 12px"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:'Montserrat',sans-serif;margin-bottom:3px">BHK preference</div><div style="font-size:13px;font-weight:600">2BHK / 3BHK</div></div>
+          <div style="background:var(--off);border-radius:9px;padding:11px 12px"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:'Montserrat',sans-serif;margin-bottom:3px">Budget range</div><div style="font-size:13px;font-weight:600;color:var(--blue)">₹60L – ₹80L</div></div>
+          <div style="background:var(--off);border-radius:9px;padding:11px 12px"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:'Montserrat',sans-serif;margin-bottom:3px">Preferred city</div><div style="font-size:13px;font-weight:600">Hyderabad</div></div>
+          <div style="background:var(--off);border-radius:9px;padding:11px 12px"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:'Montserrat',sans-serif;margin-bottom:3px">Preferred locality</div><div style="font-size:13px;font-weight:600">Gachibowli / Kondapur</div></div>
+          <div style="background:var(--off);border-radius:9px;padding:11px 12px"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:'Montserrat',sans-serif;margin-bottom:3px">Purpose</div><div style="font-size:13px;font-weight:600">Self use</div></div>
+          <div style="background:var(--off);border-radius:9px;padding:11px 12px"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:'Montserrat',sans-serif;margin-bottom:3px">Loan required</div><div style="font-size:13px;font-weight:600">Yes — 80%</div></div>
+          <div style="background:var(--off);border-radius:9px;padding:11px 12px"><div style="font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:'Montserrat',sans-serif;margin-bottom:3px">Timeline</div><div style="font-size:13px;font-weight:600">3–6 months</div></div>
+        </div>
+        <div style="margin-top:12px;background:#fffbeb;border:1px solid #fef3c7;border-radius:9px;padding:11px 12px"><div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-family:'Montserrat',sans-serif;margin-bottom:4px">Notes / requirements</div><div style="font-size:13px;color:var(--ch);line-height:1.6">Looking for east-facing unit. Ground floor preferred. Needs covered parking for 2 cars. Interested in Skyline Heights project. Already visited 2 competitor properties.</div></div>
+      </div>
+
+      <!-- Properties shown to this lead -->
+      <div class="card">
+        <div class="sdiv" style="margin-top:0"><div class="sdiv-ic" style="background:#f3e8ff"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="sdiv-title">Properties shown / shared</div><div class="sdiv-line"></div><button class="btn btn-ghost btn-sm" onclick="toast('Add property to lead…')">+ Add property</button></div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="background:var(--off);border-radius:9px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#e8f1fd,#c7d9f5);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2f80ed" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div><div><div style="font-size:12.5px;font-weight:600;color:var(--ch)">Skyline Heights — 3BHK Tower A</div><div style="font-size:11px;color:var(--mu)">Gachibowli · ₹68.5L · HZI-P00042</div></div></div>
+            <div style="display:flex;align-items:center;gap:7px"><span class="bdg" style="background:#fffbeb;color:#92400e">Interested</span><button class="btn btn-ghost btn-xs btn-sm" onclick="toast('Scheduling site visit…')">Schedule visit</button></div>
+          </div>
+          <div style="background:var(--off);border-radius:9px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#fce7f3,#f0d4e8);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#db2777" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div><div><div style="font-size:12.5px;font-weight:600;color:var(--ch)">Park View — 2BHK Premium</div><div style="font-size:11px;color:var(--mu)">Madhapur · ₹55L · HZI-P00018</div></div></div>
+            <div style="display:flex;align-items:center;gap:7px"><span class="bdg s-notint">Not interested</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Log activity -->
+      <div class="card">
+        <div class="sdiv" style="margin-top:0"><div class="sdiv-ic" style="background:var(--bl)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="sdiv-title">Log activity</div><div class="sdiv-line"></div></div>
+        <div class="tab-bar" style="margin-bottom:12px">
+          <button class="tab on" onclick="switchTab(this)">Add note</button>
+          <button class="tab" onclick="switchTab(this)">Log call</button>
+          <button class="tab" onclick="switchTab(this)">Send WhatsApp</button>
+          <button class="tab" onclick="switchTab(this)">Set follow-up</button>
+          <button class="tab" onclick="switchTab(this)">Site visit</button>
+          <button class="tab" onclick="switchTab(this)">Token / booking</button>
+        </div>
+        <textarea class="fi" rows="3" placeholder="Add a note about this lead…" style="resize:none;margin-bottom:10px"></textarea>
+        <div style="display:flex;gap:8px"><button class="btn btn-blue btn-sm" onclick="toast('Note saved ✓')">Save note</button><button class="btn btn-ghost btn-sm">Cancel</button></div>
+      </div>
+    </div>
+
+    <!-- Right sticky panel -->
+    <div style="position:sticky;top:82px;display:flex;flex-direction:column;gap:14px">
+      <!-- Stage + assignment -->
+      <div class="card">
+        <div class="mf" style="font-size:12.5px;font-weight:700;color:var(--ch);margin-bottom:12px">Lead stage</div>
+        <select class="fi" style="margin-bottom:10px;font-size:12.5px" onchange="toast('Stage: '+this.value)">
+          <option>New enquiry</option><option>Contacted</option><option>Site visit scheduled</option><option>Site visited</option><option selected>Negotiation</option><option>Token paid</option><option>Booked</option><option>Registered</option><option>Lost</option><option>Nurturing</option><option>Future potential</option>
+        </select>
+        <div class="mf" style="font-size:12.5px;font-weight:700;color:var(--ch);margin-bottom:8px">Priority</div>
+        <div style="display:flex;gap:7px;margin-bottom:12px">
+          <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;background:#fee2e2;color:var(--rd);border-color:#fca5a5" onclick="toast('Set Hot')">🔥 Hot</button>
+          <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center" onclick="toast('Set Warm')">🟡 Warm</button>
+          <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center" onclick="toast('Set Cold')">🔵 Cold</button>
+        </div>
+        <div class="mf" style="font-size:12.5px;font-weight:700;color:var(--ch);margin-bottom:8px">Assigned to</div>
+        <select class="fi" style="margin-bottom:10px;font-size:12.5px"><option>Arjun Sharma</option><option>Priya Reddy</option><option>Kiran Kumar</option></select>
+        <button class="btn btn-blue btn-sm" style="width:100%;justify-content:center" onclick="toast('Saved ✓')">Save changes</button>
+      </div>
+      <!-- Follow-up -->
+      <div class="card">
+        <div class="mf" style="font-size:12.5px;font-weight:700;color:var(--ch);margin-bottom:10px">Next follow-up</div>
+        <input type="date" class="fi" style="margin-bottom:8px;font-size:12.5px">
+        <input type="time" class="fi" style="margin-bottom:10px;font-size:12.5px">
+        <select class="fi" style="margin-bottom:10px;font-size:12.5px"><option>Phone call</option><option>WhatsApp</option><option>Site visit</option><option>Email</option><option>Meeting</option></select>
+        <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center" onclick="toast('Follow-up scheduled ✓')">Schedule</button>
+      </div>
+      <!-- Loan status -->
+      <div class="card">
+        <div class="mf" style="font-size:12.5px;font-weight:700;color:var(--ch);margin-bottom:10px">Loan status</div>
+        <select class="fi" style="margin-bottom:8px;font-size:12.5px"><option>Loan required</option><option>Pre-approved</option><option>In process</option><option>Approved</option><option>Not required</option><option>Rejected</option></select>
+        <div class="fi" style="font-size:12px;color:var(--mu);background:var(--off);padding:8px 11px;border-radius:8px;border:none">Loan amount: <strong style="color:var(--ch)">₹52L (80%)</strong></div>
+      </div>
+      <!-- Activity history -->
+      <div class="card">
+        <div class="mf" style="font-size:12.5px;font-weight:700;color:var(--ch);margin-bottom:12px">Activity history</div>
+        <div id="lead-activity"></div>
+      </div>
+    </div>
+  </div>
+</div></div></div></div>
+
+<!-- ═══════════ SITE VISITS ═══════════ -->
+<div class="pg" id="pg-sitevisits">
+<div class="shell"><div id="sb-sitevisits"></div>
+<div class="main">
+<div class="tb">
+  <span class="mf" style="font-size:14px;font-weight:700">Site Visits</span>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <button class="btn btn-blue btn-sm" onclick="toast('Schedule new visit…')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Schedule visit</button>
+  </div>
+</div>
+<div class="content">
+  <!-- Stats -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px">
+    <div class="stat"><div class="stat-icon" style="background:#fdf4ff"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a21caf" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div><div class="stat-lbl">Scheduled today</div><div class="stat-val" style="color:#a21caf">4</div></div></div>
+    <div class="stat"><div class="stat-icon" style="background:#fffbeb"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="stat-lbl">This week</div><div class="stat-val" style="color:#ca8a04">18</div></div></div>
+    <div class="stat"><div class="stat-icon" style="background:#dcfce7"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg></div><div><div class="stat-lbl">Completed</div><div class="stat-val" style="color:#16a34a">142</div></div></div>
+    <div class="stat"><div class="stat-icon" style="background:var(--bl)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><div class="stat-lbl">Conversion rate</div><div class="stat-val" style="color:var(--blue)">18%</div><div class="stat-sub">Visit → Token</div></div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <!-- Today's visits -->
+    <div>
+      <div class="card" style="margin-bottom:14px;padding:0;overflow:hidden;border-color:#fdf4ff">
+        <div style="padding:12px 16px;background:#fdf4ff;border-bottom:1px solid #e9d5ff;display:flex;align-items:center;justify-content:space-between">
+          <span class="mf" style="font-size:12.5px;font-weight:700;color:#6d28d9">📅 Today's visits — 14 Jan 2025</span>
+          <span style="font-size:12px;color:#6d28d9">4 scheduled</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0" id="today-visits"></div>
+      </div>
+      <!-- Upcoming -->
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between">
+          <span class="mf" style="font-size:12.5px;font-weight:700;color:var(--ch)">Upcoming — next 7 days</span>
+          <span style="font-size:12px;color:var(--mu)">14 visits</span>
+        </div>
+        <table class="tbl">
+          <thead><tr><th>Lead</th><th>Property</th><th>Date / Time</th><th>Agent</th><th>Actions</th></tr></thead>
+          <tbody id="upcoming-visits"></tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Visit feedback & history -->
+    <div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="mf" style="font-size:13px;font-weight:700;margin-bottom:14px">Post-visit feedback needed</div>
+        <div style="display:flex;flex-direction:column;gap:10px" id="feedback-needed"></div>
+      </div>
+      <div class="card">
+        <div class="mf" style="font-size:13px;font-weight:700;margin-bottom:14px">Visit → Outcome funnel</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:var(--mu);width:130px">Total visits</span><div style="flex:1;height:8px;background:#f1f5f9;border-radius:8px;overflow:hidden"><div style="height:100%;width:100%;background:#e2e8f0;border-radius:8px"></div></div><span style="font-size:12px;font-weight:700;color:var(--ch);width:32px;text-align:right">142</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:var(--mu);width:130px">Positive feedback</span><div style="flex:1;height:8px;background:#f1f5f9;border-radius:8px;overflow:hidden"><div style="height:100%;width:68%;background:#2f80ed;border-radius:8px"></div></div><span style="font-size:12px;font-weight:700;color:var(--ch);width:32px;text-align:right">97</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:var(--mu);width:130px">Moved to negotiation</span><div style="flex:1;height:8px;background:#f1f5f9;border-radius:8px;overflow:hidden"><div style="height:100%;width:40%;background:#7c3aed;border-radius:8px"></div></div><span style="font-size:12px;font-weight:700;color:var(--ch);width:32px;text-align:right">57</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:var(--mu);width:130px">Token paid</span><div style="flex:1;height:8px;background:#f1f5f9;border-radius:8px;overflow:hidden"><div style="height:100%;width:22%;background:var(--tl);border-radius:8px"></div></div><span style="font-size:12px;font-weight:700;color:var(--ch);width:32px;text-align:right">31</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:var(--mu);width:130px">Registered</span><div style="flex:1;height:8px;background:#f1f5f9;border-radius:8px;overflow:hidden"><div style="height:100%;width:18%;background:#16a34a;border-radius:8px"></div></div><span style="font-size:12px;font-weight:700;color:var(--ch);width:32px;text-align:right">26</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div></div></div>
+
+<!-- ═══════════ FOLLOW-UPS ═══════════ -->
+<div class="pg" id="pg-followups">
+<div class="shell"><div id="sb-followups"></div>
+<div class="main">
+<div class="tb"><span class="mf" style="font-size:14px;font-weight:700">Follow-ups</span></div>
+<div class="content">
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px">
+    <div class="stat" style="border-color:#fca5a5;background:#fff5f5"><div class="stat-icon" style="background:#fee2e2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="stat-lbl" style="color:var(--rd)">Overdue</div><div class="stat-val" style="color:var(--rd)">3</div><div class="stat-sub">Act immediately</div></div></div>
+    <div class="stat" style="border-color:#fbbf24;background:#fffbeb"><div class="stat-icon" style="background:#fef3c7"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div><div class="stat-lbl" style="color:#ca8a04">Due today</div><div class="stat-val" style="color:#ca8a04">4</div></div></div>
+    <div class="stat"><div class="stat-icon" style="background:var(--bl)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div><div class="stat-lbl">Upcoming 7 days</div><div class="stat-val">22</div></div></div>
+  </div>
+  <!-- Overdue -->
+  <div class="card" style="margin-bottom:14px;padding:0;overflow:hidden;border-color:#fca5a5">
+    <div style="padding:12px 16px;background:#fff5f5;border-bottom:1px solid #fca5a5"><span class="mf" style="font-size:12.5px;font-weight:700;color:var(--rd)">🚨 Overdue — Action needed</span></div>
+    <table class="tbl"><thead><tr><th>Lead</th><th>Interested in</th><th>Stage</th><th>Due date</th><th>Overdue by</th><th>Actions</th></tr></thead>
+    <tbody id="overdue-followups"></tbody></table>
+  </div>
+  <!-- Today -->
+  <div class="card" style="margin-bottom:14px;padding:0;overflow:hidden;border-color:#fbbf24">
+    <div style="padding:12px 16px;background:#fffbeb;border-bottom:1px solid #fbbf24;display:flex;align-items:center;justify-content:space-between"><span class="mf" style="font-size:12.5px;font-weight:700;color:#ca8a04">Due today — 14 Jan 2025</span><span style="font-size:12px;color:#ca8a04">4 leads</span></div>
+    <table class="tbl"><thead><tr><th>Lead</th><th>Interested in</th><th>Stage</th><th>Time</th><th>Method</th><th>Agent</th><th>Actions</th></tr></thead>
+    <tbody id="today-followups"></tbody></table>
+  </div>
+  <!-- Upcoming -->
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between"><span class="mf" style="font-size:12.5px;font-weight:700">Upcoming 7 days</span><span style="font-size:12px;color:var(--mu)">22 leads</span></div>
+    <table class="tbl"><thead><tr><th>Lead</th><th>Interested in</th><th>Stage</th><th>Due date</th><th>Method</th><th>Agent</th><th>Actions</th></tr></thead>
+    <tbody id="upcoming-followups"></tbody></table>
+  </div>
+</div></div></div></div>
+
+<!-- ═══════════ ANALYTICS ═══════════ -->
+<div class="pg" id="pg-analytics">
+<div class="shell"><div id="sb-analytics"></div>
+<div class="main">
+<div class="tb"><span class="mf" style="font-size:14px;font-weight:700">Analytics & Reports</span>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <div class="tab-bar"><button class="tab on" onclick="switchTab(this)">All time</button><button class="tab" onclick="switchTab(this)">This month</button><button class="tab" onclick="switchTab(this)">This week</button></div>
+  </div>
+</div>
+<div class="content">
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px">
+    <div class="stat"><div class="stat-icon" style="background:#eff6ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><div class="stat-lbl">Total leads</div><div class="stat-val">342</div></div></div>
+    <div class="stat"><div class="stat-icon" style="background:#dcfce7"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg></div><div><div class="stat-lbl">Registered</div><div class="stat-val" style="color:#16a34a">7</div></div></div>
+    <div class="stat"><div class="stat-icon" style="background:#f3e8ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div><div class="stat-lbl">Conversion</div><div class="stat-val" style="color:#7c3aed">2.0%</div></div></div>
+    <div class="stat"><div class="stat-icon" style="background:#ccfbf1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tl)" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div><div class="stat-lbl">Revenue closed</div><div class="stat-val" style="color:var(--tl);font-size:18px">₹4.8Cr</div></div></div>
+    <div class="stat"><div class="stat-icon" style="background:#fff7ed"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="stat-lbl">Avg close time</div><div class="stat-val" style="color:#ea580c;font-size:18px">34d</div></div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <!-- Stage funnel -->
+    <div class="card">
+      <div class="mf" style="font-size:13px;font-weight:700;margin-bottom:14px">Stage funnel</div>
+      <div style="display:flex;flex-direction:column;gap:7px" id="stage-funnel"></div>
+    </div>
+    <!-- Source breakdown -->
+    <div class="card">
+      <div class="mf" style="font-size:13px;font-weight:700;margin-bottom:14px">Lead source breakdown</div>
+      <div style="display:flex;flex-direction:column;gap:7px" id="source-funnel"></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+    <div class="card"><div class="mf" style="font-size:13px;font-weight:700;margin-bottom:14px">By property type</div><div id="type-funnel"></div></div>
+    <div class="card"><div class="mf" style="font-size:13px;font-weight:700;margin-bottom:14px">By budget range</div><div id="budget-funnel"></div></div>
+    <div class="card"><div class="mf" style="font-size:13px;font-weight:700;margin-bottom:14px">Agent performance</div><div id="agent-perf"></div></div>
+  </div>
+</div></div></div></div>
+
+<!-- ═══════════ ADD LEAD MODAL ═══════════ -->
+<div id="add-lead-modal" class="overlay hidden" onclick="if(event.target===this)closeAddLead()">
+<div class="modal">
+  <div class="modal-hd">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--blue),var(--bh));display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+      <div><div class="mf" style="font-size:16px;font-weight:700;color:var(--ch)">Add new lead</div><div style="font-size:12px;color:var(--mu)">Real estate buyer / investor enquiry</div></div>
+    </div>
+    <button onclick="closeAddLead()" style="border:none;background:transparent;cursor:pointer;padding:6px;border-radius:8px;color:var(--mu)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="modal-bd">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div><label class="lbl">Full name *</label><input class="fi" placeholder="Enter full name" type="text"></div>
+      <div><label class="lbl">Phone *</label><input class="fi" placeholder="+91 XXXXX XXXXX" type="tel"></div>
+      <div><label class="lbl">Email</label><input class="fi" placeholder="email@example.com" type="email"></div>
+      <div><label class="lbl">Lead source</label><select class="fi"><option>Website enquiry</option><option>99 Acres</option><option>Magic Bricks</option><option>Walk-in</option><option>Referral</option><option>Instagram</option><option>Facebook</option><option>Housing.com</option><option>No Broker</option></select></div>
+      <!-- Property requirements -->
+      <div><label class="lbl">Interested in (type)</label><select class="fi"><option>Apartment</option><option>Villa</option><option>Plot</option><option>Land</option><option>Commercial</option><option>Any</option></select></div>
+      <div><label class="lbl">BHK preference</label><select class="fi"><option>1 BHK</option><option>2 BHK</option><option>3 BHK</option><option>4 BHK+</option><option>Any</option></select></div>
+      <div><label class="lbl">Budget range</label><select class="fi"><option>Under ₹30L</option><option>₹30L–₹60L</option><option>₹60L–₹1Cr</option><option>₹1Cr–₹2Cr</option><option>₹2Cr+</option></select></div>
+      <div><label class="lbl">Preferred city</label><select class="fi"><option>Hyderabad</option><option>Bengaluru</option><option>Chennai</option><option>Mumbai</option></select></div>
+      <div><label class="lbl">Preferred locality</label><input class="fi" placeholder="e.g. Gachibowli, Kondapur"></div>
+      <div><label class="lbl">Purpose</label><select class="fi"><option>Self use</option><option>Investment</option><option>Rental income</option></select></div>
+      <div><label class="lbl">Loan required</label><select class="fi"><option>Yes</option><option>No</option><option>Pre-approved</option></select></div>
+      <div><label class="lbl">Timeline</label><select class="fi"><option>Immediate (0–1 month)</option><option>1–3 months</option><option>3–6 months</option><option>6–12 months</option><option>Just exploring</option></select></div>
+      <div><label class="lbl">Priority</label><select class="fi"><option>🔥 Hot</option><option>🟡 Warm</option><option>🔵 Cold</option></select></div>
+      <div><label class="lbl">Assign to</label><select class="fi"><option>Arjun Sharma</option><option>Priya Reddy</option><option>Kiran Kumar</option><option>Unassigned</option></select></div>
+    </div>
+    <div style="margin-top:12px"><label class="lbl">Notes / requirements</label><textarea class="fi" rows="2" placeholder="Any specific notes about this lead…" style="resize:none"></textarea></div>
+    <div style="margin-top:10px;display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fffbeb;border:1px solid #fef3c7;border-radius:9px">
+      <input type="checkbox" style="accent-color:var(--am);width:14px;height:14px">
+      <span style="font-size:13px;font-weight:600;color:#92400e">Specific property interested in (link property from listings)</span>
+    </div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn btn-blue" onclick="toast('Lead created ✓');closeAddLead()">Create lead</button>
+    <button class="btn btn-ghost" onclick="closeAddLead()">Cancel</button>
+  </div>
+</div></div>
+
+<!-- ═══════════ TEAM ═══════════ -->
+<div class="pg" id="pg-team">
+<div class="shell"><div id="sb-team"></div>
+<div class="main">
+<div class="tb"><span class="mf" style="font-size:14px;font-weight:700">Team Performance</span></div>
+<div class="content">
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:18px" id="team-cards"></div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between"><div class="mf" style="font-size:13px;font-weight:700">Lead distribution</div><div style="display:flex;gap:8px"><select class="fi" style="width:auto;font-size:12.5px"><option>Assign selected to…</option><option>Arjun Sharma</option><option>Priya Reddy</option><option>Kiran Kumar</option></select><button class="btn btn-blue btn-sm" onclick="toast('Assigned ✓')">Apply</button></div></div>
+    <table class="tbl"><thead><tr><th style="width:36px"><input type="checkbox" style="accent-color:var(--blue)"></th><th>Lead</th><th>Stage</th><th>Property interest</th><th>Currently assigned</th><th>Actions</th></tr></thead>
+    <tbody id="team-leads"></tbody></table>
+  </div>
+</div></div></div></div>
+
+<!-- ═══════════ SETTINGS ═══════════ -->
+<div class="pg" id="pg-settings">
+<div class="shell"><div id="sb-settings"></div>
+<div class="main">
+<div class="tb"><span class="mf" style="font-size:14px;font-weight:700">CRM Settings</span></div>
+<div class="content">
+  <div style="display:grid;grid-template-columns:220px 1fr;gap:18px;align-items:start">
+    <div class="card" style="padding:8px">
+      <div style="padding:9px 12px;border-radius:8px;background:var(--bl);color:var(--blue);font-weight:600;font-size:12.5px;font-family:'Montserrat',sans-serif;cursor:pointer;margin-bottom:2px">Lead stages</div>
+      <div style="padding:9px 12px;border-radius:8px;color:var(--mu);font-size:12.5px;cursor:pointer;margin-bottom:2px" onclick="toast('Lead sources')">Lead sources</div>
+      <div style="padding:9px 12px;border-radius:8px;color:var(--mu);font-size:12.5px;cursor:pointer;margin-bottom:2px" onclick="toast('Score rules')">Lead scoring rules</div>
+      <div style="padding:9px 12px;border-radius:8px;color:var(--mu);font-size:12.5px;cursor:pointer;margin-bottom:2px" onclick="toast('Notifications')">Notifications</div>
+      <div style="padding:9px 12px;border-radius:8px;color:var(--mu);font-size:12.5px;cursor:pointer;margin-bottom:2px" onclick="toast('WhatsApp templates')">WhatsApp templates</div>
+      <div style="padding:9px 12px;border-radius:8px;color:var(--mu);font-size:12.5px;cursor:pointer" onclick="toast('Auto-assign rules')">Auto-assign rules</div>
+    </div>
+    <div class="card">
+      <div class="mf" style="font-size:14px;font-weight:700;color:var(--ch);margin-bottom:16px">Lead stages & pipeline</div>
+      <div style="display:flex;flex-direction:column;gap:8px" id="stages-list"></div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="toast('Adding stage…')">+ Add stage</button>
+    </div>
+  </div>
+</div></div></div></div>
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+var STAGES = [
+  { id:'new',          label:'New enquiry',            color:'#2563eb', bg:'#eff6ff',  prob:5  },
+  { id:'contacted',    label:'Contacted',              color:'#6d28d9', bg:'#f3e8ff',  prob:15 },
+  { id:'site_sched',   label:'Site visit scheduled',   color:'#c2410c', bg:'#fff7ed',  prob:25 },
+  { id:'site_done',    label:'Site visited',           color:'#a21caf', bg:'#fdf4ff',  prob:40 },
+  { id:'negotiation',  label:'Negotiation',            color:'#92400e', bg:'#fffbeb',  prob:60 },
+  { id:'token',        label:'Token paid',             color:'#0f766e', bg:'#ccfbf1',  prob:80 },
+  { id:'booked',       label:'Booked',                 color:'#15803d', bg:'#dcfce7',  prob:90 },
+  { id:'registered',   label:'Registered',             color:'#15803d', bg:'#dcfce7',  prob:100},
+];
+
+var LOST_STAGES = [
+  { id:'lost',     label:'Lost',             color:'#dc2626', bg:'#fee2e2' },
+  { id:'nurture',  label:'Nurturing',        color:'#78350f', bg:'#fef9c3' },
+  { id:'future',   label:'Future potential', color:'#92400e', bg:'#fef9c3' },
+];
+
+var LEADS = [
+  { id:'LD-001', name:'Ramesh Kumar',   phone:'+91 98765 43210', stage:'negotiation',  priority:'hot',  type:'Apartment', bhk:'3BHK', budget:'₹60–80L', source:'99 Acres',        agent:'Arjun Sharma', score:82, followup:'14 Jan', av:'RK', col:'#2563eb' },
+  { id:'LD-002', name:'Priya Mehta',    phone:'+91 87654 32109', stage:'site_sched',   priority:'hot',  type:'Villa',     bhk:'4BHK', budget:'₹1.2–1.8Cr',source:'Referral',      agent:'Priya Reddy',  score:91, followup:'15 Jan', av:'PM', col:'#6d28d9' },
+  { id:'LD-003', name:'Arun Patel',     phone:'+91 76543 21098', stage:'contacted',    priority:'warm', type:'Plot',      bhk:'—',    budget:'₹20–35L',  source:'Website',        agent:'Kiran Kumar',  score:45, followup:'16 Jan', av:'AP', col:'#0d9488' },
+  { id:'LD-004', name:'Sunita Sharma',  phone:'+91 65432 10987', stage:'site_done',    priority:'hot',  type:'Apartment', bhk:'2BHK', budget:'₹40–55L',  source:'Magic Bricks',   agent:'Arjun Sharma', score:74, followup:'14 Jan', av:'SS', col:'#a21caf' },
+  { id:'LD-005', name:'Venkat Rao',     phone:'+91 54321 09876', stage:'token',        priority:'warm', type:'Apartment', bhk:'3BHK', budget:'₹70–90L',  source:'Walk-in',        agent:'Priya Reddy',  score:88, followup:'18 Jan', av:'VR', col:'#16a34a' },
+  { id:'LD-006', name:'Kavitha Nair',   phone:'+91 43210 98765', stage:'registered',   priority:'warm', type:'Villa',     bhk:'3BHK', budget:'₹95L–1.2Cr',source:'Instagram',     agent:'Arjun Sharma', score:95, followup:'—',      av:'KN', col:'#16a34a' },
+  { id:'LD-007', name:'Mohan Das',      phone:'+91 32109 87654', stage:'new',          priority:'cold', type:'Land',      bhk:'—',    budget:'₹45–60L',  source:'Facebook',       agent:'Unassigned',   score:22, followup:'20 Jan', av:'MD', col:'#94a3b8' },
+  { id:'LD-008', name:'Deepika Reddy',  phone:'+91 21098 76543', stage:'negotiation',  priority:'hot',  type:'Apartment', bhk:'2BHK', budget:'₹38–50L',  source:'99 Acres',       agent:'Kiran Kumar',  score:79, followup:'14 Jan', av:'DR', col:'#6d28d9' },
+];
+
+var STAGE_STYLE = {
+  new:{'class':'s-new'},contacted:{'class':'s-contacted'},site_sched:{'class':'s-site'},
+  site_done:{'class':'s-visited'},negotiation:{'class':'s-negotiation'},
+  token:{'class':'s-token'},booked:{'class':'s-booked'},registered:{'class':'s-registered'},
+  lost:{'class':'s-lost'},nurture:{'class':'s-nurture'},future:{'class':'s-future'},
+};
+var STAGE_LABEL = {
+  new:'New enquiry',contacted:'Contacted',site_sched:'Site visit scheduled',
+  site_done:'Site visited',negotiation:'Negotiation',token:'Token paid',
+  booked:'Booked',registered:'Registered',lost:'Lost',nurture:'Nurturing',future:'Future potential',
+};
+
+// ── PAGE SWITCHER ──────────────────────────────────────────────────────────
+function P(id, btn) {
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.dt').forEach(b=>b.classList.remove('on'));
+  var pg = document.getElementById('pg-'+id);
+  if(pg) pg.classList.add('on');
+  if(btn) btn.classList.add('on');
+  else { var m=document.querySelector('.dt[onclick*="\''+id+'\'"]'); if(m) m.classList.add('on'); }
+  document.querySelectorAll('[id^="sb-"]').forEach(s=>{
+    if(s.children.length===0){
+      var tpl=document.getElementById('sb-tpl');
+      if(tpl) s.appendChild(tpl.content.cloneNode(true));
+    }
+  });
+  // Update active sidebar item
+  document.querySelectorAll('.asi').forEach(a=>a.classList.remove('on'));
+  if(id==='dashboard'||id==='leads'||id==='pipeline'||id==='detail'||id==='addlead') {
+    document.querySelectorAll('.asi').forEach(a=>{if(a.textContent.includes('CRM Leads'))a.classList.add('on');});
+  }
+  if(id==='sitevisits') document.querySelectorAll('.asi').forEach(a=>{if(a.textContent.includes('Site visits'))a.classList.add('on');});
+  if(id==='followups') document.querySelectorAll('.asi').forEach(a=>{if(a.textContent.includes('Follow-ups'))a.classList.add('on');});
+  if(id==='team') document.querySelectorAll('.asi').forEach(a=>{if(a.textContent.includes('Users'))a.classList.add('on');});
+  if(id==='settings') document.querySelectorAll('.asi').forEach(a=>{if(a.textContent.includes('Settings'))a.classList.add('on');});
+  window.scrollTo(0,0);
+  renderPage(id);
+}
+
+function renderPage(id){
+  if(id==='dashboard')  renderDashboard();
+  if(id==='leads')      renderLeads();
+  if(id==='pipeline')   renderPipeline();
+  if(id==='detail')     renderDetail();
+  if(id==='sitevisits') renderSiteVisits();
+  if(id==='followups')  renderFollowups();
+  if(id==='analytics')  renderAnalytics();
+  if(id==='team')       renderTeam();
+  if(id==='settings')   renderSettings();
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function av(initials, color, size) {
+  size = size || 30;
+  return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:${Math.floor(size*0.38)}px;font-weight:700;color:#fff;font-family:'Montserrat',sans-serif;flex-shrink:0">${initials}</div>`;
+}
+function stageBadge(s) {
+  var sc = STAGE_STYLE[s]||{class:'s-notint'};
+  return `<span class="bdg ${sc.class}">${STAGE_LABEL[s]||s}</span>`;
+}
+function priorityBadge(p) {
+  if(p==='hot')  return '<span class="bdg p-hot">🔥 Hot</span>';
+  if(p==='warm') return '<span class="bdg p-warm">🟡 Warm</span>';
+  return '<span class="bdg p-cold">🔵 Cold</span>';
+}
+function scoreRing(score) {
+  var col = score>=80?'#16a34a':score>=60?'#ca8a04':score>=40?'#2f80ed':'#94a3b8';
+  var bg  = score>=80?'#dcfce7':score>=60?'#fef3c7':score>=40?'#eff6ff':'#f1f5f9';
+  return `<div style="width:34px;height:34px;border-radius:50%;background:${bg};border:2px solid ${col};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:${col};font-family:'Montserrat',sans-serif">${score}</div>`;
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────
+function renderDashboard(){
+  // Pipeline bars
+  var pb = document.getElementById('pipeline-bars');
+  if(pb){
+    var total=LEADS.length;
+    pb.innerHTML = STAGES.slice(0,7).map(function(s){
+      var cnt = LEADS.filter(l=>l.stage===s.id).length;
+      var pct = Math.round(cnt/total*100) || (Math.random()*35+5)|0;
+      cnt = cnt || ((Math.random()*30+5)|0);
+      return `<div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:var(--mu);width:150px;flex-shrink:0">${s.label}</span><div style="flex:1;height:7px;background:#f1f5f9;border-radius:8px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${s.color};border-radius:8px;transition:width .8s ease"></div></div><span style="font-size:12px;font-weight:700;color:var(--ch);width:28px;text-align:right">${cnt}</span></div>`;
+    }).join('');
+  }
+  // Source list
+  var sl = document.getElementById('source-list');
+  if(sl){
+    [['99 Acres',68],['Website enquiry',54],['Referral',42],['Magic Bricks',38],['Walk-in',28],['Instagram',24]].forEach(function(s){
+      sl.innerHTML += `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0"><span style="font-size:12px;color:var(--mu);display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:50%;background:var(--blue);display:inline-block"></span>${s[0]}</span><span class="mf" style="font-size:12px;font-weight:700;color:var(--ch)">${s[1]}</span></div>`;
+    });
+  }
+  // Overdue list
+  var ol = document.getElementById('overdue-list');
+  if(ol) ol.innerHTML = LEADS.slice(0,3).map(l=>`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><div style="display:flex;align-items:center;gap:7px">${av(l.av,l.col,22)}<span style="font-size:12px;font-weight:600;color:var(--ch)">${l.name}</span></div><span style="font-size:11px;color:var(--rd);font-weight:600">2 days ago</span></div>`).join('');
+  // Recent leads
+  var dl = document.getElementById('dash-leads');
+  if(dl) dl.innerHTML = LEADS.slice(0,6).map(l=>`<tr onclick="P('detail',null)" style="cursor:pointer"><td><div style="display:flex;align-items:center;gap:9px">${av(l.av,l.col,28)}<div><div style="font-weight:600;font-size:12.5px">${l.name}</div><div style="font-size:11px;color:var(--mu)">${l.phone}</div></div></div></td><td><div style="font-size:12px;font-weight:500">${l.type}${l.bhk!=='—'?' · '+l.bhk:''}</div></td><td><span style="font-size:11.5px;font-weight:600;color:var(--blue)">${l.budget}</span></td><td>${stageBadge(l.stage)}</td><td>${priorityBadge(l.priority)}</td><td style="font-size:11.5px;color:var(--mu)">${l.followup}</td></tr>`).join('');
+  // Activity feed
+  var af = document.getElementById('activity-feed');
+  if(af) af.innerHTML = [
+    {e:'📞',t:'Called Ramesh Kumar — interested in Tower A',tm:'5m ago'},
+    {e:'📅',t:'Site visit scheduled: Priya Mehta — 15 Jan 3PM',tm:'18m ago'},
+    {e:'💰',t:'Token paid: Venkat Rao — ₹2L for HZI-P00042',tm:'1h ago'},
+    {e:'✅',t:'Kavitha Nair registered — ₹95L deal closed!',tm:'3h ago'},
+    {e:'🔔',t:'Arun Patel follow-up overdue',tm:'4h ago'},
+    {e:'📝',t:'Note added: Deepika Reddy — budget revised',tm:'Yesterday'},
+  ].map(a=>`<div style="display:flex;gap:10px;padding:8px 0;border-bottom:.5px solid #f1f5f9"><div style="font-size:16px;flex-shrink:0;width:22px;text-align:center">${a.e}</div><div><div style="font-size:12.5px;font-weight:500;color:var(--ch)">${a.t}</div><div style="font-size:11px;color:var(--mu);margin-top:1px">${a.tm}</div></div></div>`).join('');
+}
+
+// ── ALL LEADS ─────────────────────────────────────────────────────────────
+function renderLeads(){
+  var tb = document.getElementById('leads-tbody');
+  if(!tb) return;
+  tb.innerHTML = LEADS.map(function(l){
+    return `<tr onclick="P('detail',null)" style="cursor:pointer">
+      <td><input type="checkbox" style="accent-color:var(--blue)" onclick="event.stopPropagation()"></td>
+      <td><div style="display:flex;align-items:center;gap:9px">${av(l.av,l.col,28)}<div><div style="font-weight:600;font-size:12.5px">${l.name}</div><div style="font-size:11px;color:var(--mu)">${l.phone} · #${l.id}</div></div></div></td>
+      <td><div style="font-size:12px;font-weight:500">${l.type}${l.bhk!=='—'?' · '+l.bhk:''}</div></td>
+      <td><span style="font-size:11.5px;font-weight:600;color:var(--blue)">${l.budget}</span></td>
+      <td style="font-size:12px">${l.source}</td>
+      <td><div style="display:flex;align-items:center;gap:6px">${av(l.av,'#64748b',22)}<span style="font-size:12px">${l.agent}</span></div></td>
+      <td>${stageBadge(l.stage)}</td>
+      <td>${priorityBadge(l.priority)}</td>
+      <td>${scoreRing(l.score)}</td>
+      <td style="font-size:11.5px;color:${l.followup==='—'?'#cbd5e1':'var(--mu)'}">${l.followup}</td>
+      <td><div style="display:flex;gap:4px">
+        <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();toast('Calling…')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.29 1.18 2 2 0 012.29-.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.06 6.06l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></button>
+        <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();toast('WhatsApp…')" style="color:#25D366"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.1 5.1 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654A11.882 11.882 0 0012.05 23.784h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.49 11.815 11.815 0 0012.05 0z"/></svg></button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── PIPELINE KANBAN ───────────────────────────────────────────────────────
+function renderPipeline(){
+  var board = document.getElementById('kanban-board');
+  if(!board) return;
+  var allStages = STAGES.concat(LOST_STAGES);
+  board.innerHTML = allStages.map(function(s){
+    var sLeads = LEADS.filter(l=>l.stage===s.id);
+    var cards = sLeads.map(function(l){
+      return `<div class="k-card" onclick="P('detail',null)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+          <div class="k-name">${l.name}</div>${priorityBadge(l.priority)}
+        </div>
+        <div class="k-prop">${l.type}${l.bhk!=='—'?' · '+l.bhk:''} · <span style="color:var(--blue);font-weight:600">${l.budget}</span></div>
+        <div style="font-size:11px;color:var(--mu);margin-bottom:5px;display:flex;align-items:center;gap:3px">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.29 1.18 2 2 0 012.29-.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.06 6.06l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>${l.phone}
+        </div>
+        <div class="k-tags">
+          <span class="k-tag">${l.source}</span>
+          <span class="k-tag">${scoreRing(l.score).replace('<div ','<span ').replace('</div>','</span>').replace(/height:\d+px/g,'height:18px').replace(/width:\d+px/g,'width:18px').replace(/font-size:\d+px/g,'font-size:9px')}</span>
+        </div>
+      </div>`;
+    }).join('') || `<div style="text-align:center;padding:14px;font-size:11.5px;color:var(--mu)">No leads</div>`;
+    var pct = s.prob ? `<span style="font-size:10px;color:var(--mu);margin-left:4px">${s.prob}%</span>` : '';
+    return `<div class="k-col">
+      <div class="k-head" style="border-left:3px solid ${s.color}">
+        <div class="k-title">${s.label}${pct}</div>
+        <div style="font-size:10.5px;color:var(--mu)">${sLeads.length || ((Math.random()*20+5)|0)} leads</div>
+      </div>
+      <div class="k-body">${cards}</div>
+      <div style="padding:8px;border-top:1px solid #e2e8f0"><button style="width:100%;padding:6px;border:1.5px dashed #e2e8f0;border-radius:8px;background:transparent;cursor:pointer;font-size:11.5px;color:var(--mu);transition:all .18s" onclick="openAddLead()" onmouseenter="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseleave="this.style.borderColor='#e2e8f0';this.style.color='var(--mu)'">+ Add</button></div>
+    </div>`;
+  }).join('');
+}
+
+// ── DETAIL ─────────────────────────────────────────────────────────────────
+function renderDetail(){
+  var la = document.getElementById('lead-activity');
+  if(la) la.innerHTML = [
+    {e:'📞',t:'Called — discussed 3BHK unit in Tower A',d:'2h ago',a:'Arjun Sharma'},
+    {e:'📅',t:'Site visit completed — liked the property',d:'3 days ago',a:'Arjun Sharma'},
+    {e:'🏠',t:'Property shared: HZI-P00042 via WhatsApp',d:'4 days ago',a:'System'},
+    {e:'🔄',t:'Stage changed: Site visited → Negotiation',d:'3 days ago',a:'System'},
+    {e:'✨',t:'Lead created from 99 Acres enquiry',d:'8 Jan 2025',a:'System'},
+  ].map(a=>`<div class="act-item"><div style="font-size:15px;flex-shrink:0;width:22px;text-align:center">${a.e}</div><div><div style="font-size:12.5px;font-weight:500;color:var(--ch)">${a.t}</div><div style="font-size:11px;color:var(--mu);margin-top:1px">${a.d} · ${a.a}</div></div></div>`).join('');
+}
+
+// ── SITE VISITS ────────────────────────────────────────────────────────────
+function renderSiteVisits(){
+  var tv = document.getElementById('today-visits');
+  if(tv) tv.innerHTML = [
+    {name:'Priya Mehta',prop:'Skyline Heights — 3BHK',time:'10:00 AM',agent:'Arjun',status:'confirmed'},
+    {name:'Venkat Rao',prop:'Green Valley Villa',time:'12:30 PM',agent:'Priya',status:'confirmed'},
+    {name:'Suresh Babu',prop:'ORR Prime Plot',time:'3:00 PM',agent:'Kiran',status:'pending'},
+    {name:'Anita Singh',prop:'Skyline Heights — 2BHK',time:'5:00 PM',agent:'Arjun',status:'confirmed'},
+  ].map(function(v){
+    var stCol = v.status==='confirmed'?'var(--tl)':'var(--am)';
+    return `<div style="padding:12px 16px;border-bottom:.5px solid #f0f4f8;display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:42px;flex-shrink:0;text-align:center"><div style="font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:700;color:#6d28d9">${v.time.split(' ')[0]}</div><div style="font-size:10px;color:var(--mu)">${v.time.split(' ')[1]}</div></div>
+        <div style="width:1px;height:32px;background:#e2e8f0"></div>
+        <div><div style="font-weight:600;font-size:12.5px">${v.name}</div><div style="font-size:11px;color:var(--mu)">${v.prop}</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="bdg" style="font-size:9px;background:${v.status==='confirmed'?'#ccfbf1':'#fef3c7'};color:${v.status==='confirmed'?'#0f766e':'#92400e'}">${v.status==='confirmed'?'✓ Confirmed':'Pending'}</span>
+        <div style="font-size:11px;color:var(--mu)">Agent: ${v.agent}</div>
+        <button class="btn btn-ghost btn-xs" onclick="toast('Mark as done + add feedback')">Done ✓</button>
+        <button class="btn btn-wa btn-xs" onclick="toast('WhatsApp reminder…')">Remind</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  var fn = document.getElementById('feedback-needed');
+  if(fn) fn.innerHTML = [
+    {name:'Ramesh Kumar',prop:'Skyline Heights',date:'11 Jan',days:3},
+    {name:'Deepika Reddy',prop:'Park View',date:'10 Jan',days:4},
+  ].map(v=>`<div style="background:var(--off);border-radius:9px;padding:11px 13px;display:flex;align-items:center;justify-content:space-between"><div><div style="font-weight:600;font-size:12.5px">${v.name}</div><div style="font-size:11px;color:var(--mu)">${v.prop} · ${v.date}</div></div><button class="btn btn-ghost btn-sm" onclick="toast('Adding feedback for ${v.name}…')">Add feedback</button></div>`).join('');
+
+  var uv = document.getElementById('upcoming-visits');
+  if(uv) uv.innerHTML = LEADS.slice(1,5).map(l=>`<tr><td><div style="font-weight:600;font-size:12.5px">${l.name}</div><div style="font-size:11px;color:var(--mu)">${l.phone}</div></td><td style="font-size:12px">${l.type}</td><td style="font-size:11.5px;font-weight:600;color:#6d28d9">15 Jan · 11 AM</td><td style="font-size:12px">${l.agent}</td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-xs" onclick="toast('Rescheduling…')">Reschedule</button><button class="btn btn-wa btn-xs" onclick="toast('WhatsApp…')">WA</button></div></td></tr>`).join('');
+}
+
+// ── FOLLOW-UPS ─────────────────────────────────────────────────────────────
+function renderFollowups(){
+  var of = document.getElementById('overdue-followups');
+  if(of) of.innerHTML = LEADS.slice(0,3).map(l=>`<tr style="background:#fff5f5"><td><div style="font-weight:600">${l.name}</div><div style="font-size:11px;color:var(--mu)">${l.phone}</div></td><td style="font-size:12px">${l.type}</td><td>${stageBadge(l.stage)}</td><td style="color:var(--rd);font-weight:600">8 Jan</td><td style="color:var(--rd);font-weight:700">3 days</td><td><div style="display:flex;gap:5px"><button class="btn btn-blue btn-xs" onclick="toast('Rescheduling…')">Reschedule</button><button class="btn btn-wa btn-xs" onclick="toast('WA…')">WA</button></div></td></tr>`).join('');
+  var tf = document.getElementById('today-followups');
+  if(tf) tf.innerHTML = LEADS.slice(3,7).map(l=>`<tr><td><div style="font-weight:600">${l.name}</div><div style="font-size:11px;color:var(--mu)">${l.phone}</div></td><td style="font-size:12px">${l.type}</td><td>${stageBadge(l.stage)}</td><td style="font-size:12px;font-weight:600;color:var(--am)">${['10:00 AM','11:30 AM','2:00 PM','4:30 PM'][LEADS.slice(3,7).indexOf(l)]}</td><td style="font-size:12px">Phone call</td><td style="font-size:12px">${l.agent}</td><td><div style="display:flex;gap:5px"><button class="btn btn-tl btn-xs" onclick="toast('Done ✓')">Done</button><button class="btn btn-wa btn-xs" onclick="toast('WA…')">WA</button></div></td></tr>`).join('');
+  var uf = document.getElementById('upcoming-followups');
+  if(uf) uf.innerHTML = LEADS.slice(0,5).map(l=>`<tr><td><div style="font-weight:600">${l.name}</div><div style="font-size:11px;color:var(--mu)">${l.phone}</div></td><td style="font-size:12px">${l.type}</td><td>${stageBadge(l.stage)}</td><td style="font-size:11.5px">16 Jan 2025</td><td style="font-size:12px">WhatsApp</td><td style="font-size:12px">${l.agent}</td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-xs" onclick="P('detail',null)">View</button><button class="btn btn-wa btn-xs" onclick="toast('WA…')">WA</button></div></td></tr>`).join('');
+}
+
+// ── ANALYTICS ──────────────────────────────────────────────────────────────
+function renderAnalytics(){
+  var sf = document.getElementById('stage-funnel');
+  if(sf){
+    var stageCounts = [{l:'New enquiry',n:94},{l:'Contacted',n:72},{l:'Site scheduled',n:48},{l:'Site visited',n:38},{l:'Negotiation',n:31},{l:'Token paid',n:16},{l:'Booked',n:9},{l:'Registered',n:7}];
+    sf.innerHTML = stageCounts.map(function(s){
+      var pct=Math.round(s.n/94*100);
+      return `<div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:var(--mu);width:130px;flex-shrink:0">${s.l}</span><div style="flex:1;height:7px;background:#f1f5f9;border-radius:8px;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--blue);border-radius:8px"></div></div><span style="font-size:12px;font-weight:700;color:var(--ch);width:28px;text-align:right">${s.n}</span></div>`;
+    }).join('');
+  }
+  var souf = document.getElementById('source-funnel');
+  if(souf){
+    [['99 Acres',68,'#2563eb'],['Website',54,'#6d28d9'],['Referral',42,'#0d9488'],['Magic Bricks',38,'#a21caf'],['Walk-in',28,'#ca8a04'],['Instagram',24,'#ea580c']].forEach(function(s){
+      var pct=Math.round(s[1]/68*100);
+      souf.innerHTML += `<div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:var(--mu);width:110px;flex-shrink:0">${s[0]}</span><div style="flex:1;height:7px;background:#f1f5f9;border-radius:8px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${s[2]};border-radius:8px"></div></div><span style="font-size:12px;font-weight:700;color:var(--ch);width:28px;text-align:right">${s[1]}</span></div>`;
+    });
+  }
+  var tf = document.getElementById('type-funnel');
+  if(tf) tf.innerHTML = [['Apartment',168],['Villa',72],['Plot',58],['Land',32],['Commercial',12]].map(s=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:.5px solid #f1f5f9"><span style="font-size:12px;color:var(--mu)">${s[0]}</span><span class="mf" style="font-size:12px;font-weight:700;color:var(--ch)">${s[1]}</span></div>`).join('');
+  var bf = document.getElementById('budget-funnel');
+  if(bf) bf.innerHTML = [['Under ₹30L',42],['₹30L–₹60L',88],['₹60L–₹1Cr',112],['₹1Cr–₹2Cr',68],['₹2Cr+',32]].map(s=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:.5px solid #f1f5f9"><span style="font-size:12px;color:var(--mu)">${s[0]}</span><span class="mf" style="font-size:12px;font-weight:700;color:var(--ch)">${s[1]}</span></div>`).join('');
+  var ap = document.getElementById('agent-perf');
+  if(ap) ap.innerHTML = [{n:'Arjun Sharma',leads:142,closed:4,col:'#2563eb',av:'AS'},{n:'Priya Reddy',leads:118,closed:2,col:'#6d28d9',av:'PR'},{n:'Kiran Kumar',leads:82,closed:1,col:'#0d9488',av:'KK'}].map(function(a){
+    return `<div style="background:var(--off);border-radius:9px;padding:11px 12px;display:flex;align-items:center;gap:10px;margin-bottom:8px"><div class="av" style="background:${a.col};font-size:10px;width:28px;height:28px">${a.av}</div><div style="flex:1"><div style="font-size:12.5px;font-weight:600">${a.n}</div><div style="font-size:11px;color:var(--mu)">${a.leads} leads · ${a.closed} closed</div></div><span style="font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;color:var(--tl)">${Math.round(a.closed/a.leads*100)}%</span></div>`;
+  }).join('');
+}
+
+// ── TEAM ────────────────────────────────────────────────────────────────────
+function renderTeam(){
+  var tc = document.getElementById('team-cards');
+  if(tc) tc.innerHTML = [
+    {n:'Arjun Sharma',r:'Senior Sales Agent',leads:142,site:38,closed:4,rev:'₹3.2Cr',col:'#2563eb',av:'AS'},
+    {n:'Priya Reddy',r:'Sales Agent',leads:118,site:29,closed:2,rev:'₹1.2Cr',col:'#6d28d9',av:'PR'},
+    {n:'Kiran Kumar',r:'Sales Agent',leads:82,site:22,closed:1,rev:'₹0.4Cr',col:'#0d9488',av:'KK'},
+  ].map(function(t){
+    return `<div class="card"><div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f1f5f9">${av(t.av,t.col,44)}<div><div class="mf" style="font-size:14px;font-weight:700">${t.n}</div><div style="font-size:12px;color:var(--mu)">${t.r}</div></div></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"><div style="text-align:center;background:var(--off);border-radius:8px;padding:8px"><div class="mf" style="font-size:18px;font-weight:800">${t.leads}</div><div style="font-size:10px;color:var(--mu)">Leads</div></div><div style="text-align:center;background:#fdf4ff;border-radius:8px;padding:8px"><div class="mf" style="font-size:18px;font-weight:800;color:#a21caf">${t.site}</div><div style="font-size:10px;color:var(--mu)">Visits</div></div><div style="text-align:center;background:#dcfce7;border-radius:8px;padding:8px"><div class="mf" style="font-size:18px;font-weight:800;color:#16a34a">${t.closed}</div><div style="font-size:10px;color:var(--mu)">Closed</div></div><div style="text-align:center;background:#ccfbf1;border-radius:8px;padding:8px"><div class="mf" style="font-size:14px;font-weight:800;color:var(--tl)">${t.rev}</div><div style="font-size:10px;color:var(--mu)">Revenue</div></div></div></div>`;
+  }).join('');
+  var tl = document.getElementById('team-leads');
+  if(tl) tl.innerHTML = LEADS.filter(l=>l.agent==='Unassigned'||true).slice(0,5).map(l=>`<tr><td><input type="checkbox" style="accent-color:var(--blue)"></td><td><div style="font-weight:600">${l.name}</div><div style="font-size:11px;color:var(--mu)">${l.phone}</div></td><td>${stageBadge(l.stage)}</td><td style="font-size:12px">${l.type}${l.bhk!=='—'?' · '+l.bhk:''} · <span style="color:var(--blue)">${l.budget}</span></td><td style="font-size:12px">${l.agent}</td><td><select class="fi" style="font-size:12px;padding:5px 9px;width:auto" onchange="toast('Assigned to '+this.value)"><option>Assign to…</option><option>Arjun Sharma</option><option>Priya Reddy</option><option>Kiran Kumar</option></select></td></tr>`).join('');
+}
+
+// ── SETTINGS ────────────────────────────────────────────────────────────────
+function renderSettings(){
+  var sl = document.getElementById('stages-list');
+  if(sl) sl.innerHTML = STAGES.concat(LOST_STAGES).map(function(s){
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--off);border-radius:9px">
+      <span class="bdg" style="background:${s.bg};color:${s.color}">${s.label}</span>
+      ${s.prob?`<span style="font-size:11px;color:var(--mu)">Win prob: ${s.prob}%</span>`:''}
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost btn-xs" onclick="toast('Edit stage…')">Edit</button>
+    </div>`;
+  }).join('');
+}
+
+// ── MODAL ──────────────────────────────────────────────────────────────────
+function openAddLead(){ document.getElementById('add-lead-modal').classList.remove('hidden'); }
+function closeAddLead(){ document.getElementById('add-lead-modal').classList.add('hidden'); }
+
+// ── MISC ────────────────────────────────────────────────────────────────────
+function switchTab(btn){
+  var bar = btn.closest('.tab-bar');
+  bar.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────────────
+function toast(msg){
+  var w=document.getElementById('toasts');
+  var t=document.createElement('div');
+  t.className='toast';
+  t.innerHTML=`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>${msg}`;
+  w.appendChild(t);
+  setTimeout(()=>{if(t.parentNode)t.parentNode.removeChild(t);},3200);
+}
+
+// ── INIT ────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',function(){
+  // Inject sidebar into initial page
+  var sb=document.getElementById('sb-dashboard');
+  if(sb&&sb.children.length===0){
+    var tpl=document.getElementById('sb-tpl');
+    if(tpl) sb.appendChild(tpl.content.cloneNode(true));
+  }
+  renderDashboard();
+  document.querySelectorAll('.asi').forEach(a=>{if(a.textContent.includes('CRM Leads'))a.classList.add('on');});
+});
+</script>
+</body>
+</html>

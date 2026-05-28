@@ -39,9 +39,9 @@ export default function CrmAnalyticsPage() {
   return (
     <AdminLayout title="CRM — Analytics">
       <CrmLayout>
-        <div className="acard" style={{ marginBottom: 14, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+        <div className="tab-bar" style={{ marginBottom: 14 }}>
           {(['all', 'week', 'month'] as const).map((r) => (
-            <button key={r} type="button" className={`btn btn-sm ${range === r ? 'btn-tl' : 'btn-ghost'}`} onClick={() => setRange(r)}>
+            <button key={r} type="button" className={`tab ${range === r ? 'on' : ''}`} onClick={() => setRange(r)}>
               {r === 'all' ? 'All time' : r === 'week' ? 'This week' : 'This month'}
             </button>
           ))}
@@ -55,10 +55,10 @@ export default function CrmAnalyticsPage() {
             ['Revenue closed (est.)', `₹${(stats?.pipelineValue ?? 0).toLocaleString('en-IN')}`],
             ['Avg close time', `${stats?.avgDaysToClose ?? '—'}d`],
           ].map(([a, b]) => (
-            <div key={String(a)} className="acard stat-card">
-              <div style={{ fontSize: 10.5, fontWeight: 700, color: '#64748b' }}>{a}</div>
-              <div className="stat-val" style={{ marginTop: 6 }}>
-                {b}
+            <div key={String(a)} className="stat" style={{ cursor: 'default' }}>
+              <div>
+                <div className="stat-lbl">{a}</div>
+                <div className="stat-val">{b}</div>
               </div>
             </div>
           ))}

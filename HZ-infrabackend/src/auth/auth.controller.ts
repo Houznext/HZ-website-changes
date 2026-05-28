@@ -16,6 +16,7 @@ import {
   CustomerEmailLoginDto,
   CustomerEmailRegisterDto,
   DeveloperLoginDto,
+  GoogleAccessTokenDto,
   GoogleIdTokenDto,
   LoginDto,
 } from './dto/auth.dto';
@@ -85,5 +86,11 @@ export class AuthController {
   @Post('customer/google')
   customerGoogle(@Body() dto: GoogleIdTokenDto) {
     return this.auth.customerGoogle(dto);
+  }
+
+  @HttpCode(200)
+  @Post('customer/google-access-token')
+  customerGoogleAccessToken(@Body() dto: GoogleAccessTokenDto) {
+    return this.auth.customerGoogleAccessToken(dto);
   }
 }

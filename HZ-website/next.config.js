@@ -73,12 +73,15 @@ const nextConfig = {
       { source: '/services/electronics', destination: '/', permanent: false },
       { source: '/services/electronics/:path*', destination: '/', permanent: false },
       { source: '/services/vastu-consultation', destination: '/', permanent: false },
-      { source: '/livebuild', destination: '/buildlive', permanent: true },
-      { source: '/livebuild/:path*', destination: '/buildlive', permanent: true },
       // Legacy customer LiveBuild URLs only — no redirects for /painting, /gallery, /services/custom-builder, etc. (404; see robots.txt Disallow)
       {
         source: '/custom-builder/user/:path*',
-        destination: '/user/livebuild/user/:path*',
+        destination: '/livebuild/:path*',
+        permanent: true,
+      },
+      {
+        source: '/user/livebuild/:path*',
+        destination: '/livebuild/:path*',
         permanent: true,
       },
       { source: '/referandearn', destination: '/houznext-rewards', permanent: true },
