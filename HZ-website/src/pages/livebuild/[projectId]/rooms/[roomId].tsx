@@ -61,7 +61,7 @@ export default function LivebuildRoomPage() {
   const projectId = String(router.query.projectId ?? '');
   const roomId = String(router.query.roomId ?? '');
   const [project, setProject] = useState<LbProjectSummary | null>(null);
-  const [homeRooms, setHomeRooms] = useState<LbProjectHome['rooms']>([]);
+  const [homeRooms, setHomeRooms] = useState<NonNullable<LbProjectHome['rooms']>>([]);
   const [room, setRoom] = useState<LbRoomDetail | null>(null);
   const [tab, setTab] = useState<SubTab>('overview');
   const [range, setRange] = useState('14d');
@@ -117,7 +117,7 @@ export default function LivebuildRoomPage() {
           }}
         >
           <div style={{ display: 'flex', gap: 8, maxWidth: 1100, margin: '0 auto' }}>
-            {homeRooms.map((r) => (
+            {(homeRooms ?? []).map((r) => (
               <Link
                 key={r.id}
                 href={`/livebuild/${projectId}/rooms/${r.id}`}
