@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { saveSession } from '@/lib/session';
 import { useInfraPermissionStore } from '@/stores/useInfraPermissionStore';
 
-const BACKEND = process.env.NEXT_PUBLIC_INFRA_API_URL || 'http://localhost:4001';
+const BACKEND = '/api/infra-backend';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');

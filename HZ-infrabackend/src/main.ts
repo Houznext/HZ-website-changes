@@ -37,12 +37,16 @@ async function bootstrap() {
 
   const staticOrigins = ['http://localhost:3002', 'http://localhost:3003'];
   const allowedOrigins = [...staticOrigins, ...envOrigins].map((s) => s.replace(/\/$/, ''));
+  const allowVercelOrigins = process.env.ALLOW_VERCEL_ORIGINS !== 'false';
 
   app.enableCors({
     origin: (origin, cb) => {
       if (!origin) return cb(null, true);
       const normalized = origin.replace(/\/$/, '');
       if (allowedOrigins.includes(normalized)) return cb(null, true);
+      if (allowVercelOrigins && /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(normalized)) {
+        return cb(null, true);
+      }
       return cb(null, false);
     },
     credentials: true,

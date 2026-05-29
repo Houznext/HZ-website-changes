@@ -18,6 +18,7 @@
     "seed:admin": "cross-env NODE_ENV=development npx ts-node -r tsconfig-paths/register src/scripts/seed-infra-admin.ts",
     "seed:properties": "cross-env NODE_ENV=development npx ts-node -r tsconfig-paths/register src/scripts/seed-infra-properties.ts",
     "seed:prod:admin": "cross-env NODE_ENV=production npx ts-node -r tsconfig-paths/register src/scripts/seed-infra-admin.ts",
+    "migrate:infra-db": "node scripts/migrate-infra-db.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",

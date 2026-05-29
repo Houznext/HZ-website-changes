@@ -2,5 +2,6 @@
 .env.development
 .env.production
 .env.local
+.env.migration
 dist/
 node_modules/
