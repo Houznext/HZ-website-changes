@@ -25,10 +25,22 @@ export default function LoginPage() {
         body: JSON.stringify({ email: email.trim(), password }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+
+      if (res.status === 502) {
+        setError(
+          (data as { detail?: string; error?: string }).detail ||
+            (data as { error?: string }).error ||
+            'Backend unreachable. Check INFRA_BACKEND_URL on Vercel points to your Railway API URL (https://….up.railway.app).',
+        );
+        setLoading(false);
+        return;
+      }
 
       if (!res.ok || !data.access_token) {
-        setError(data.message || 'Invalid email or password');
+        setError(
+          Array.isArray(data.message) ? data.message.join(', ') : data.message || 'Invalid email or password',
+        );
         setLoading(false);
         return;
       }
