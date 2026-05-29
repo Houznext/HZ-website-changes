@@ -31,17 +31,15 @@ export function normalizePopularTags(raw: unknown): string[] {
 export function normalizeHeroMetrics(raw: unknown): HeroMetricItem[] {
   if (!Array.isArray(raw) || !raw.length) return [...DEFAULT_HERO_METRICS];
   const items = raw
-    .map((m) => {
+    .map((m): HeroMetricItem | null => {
       if (!m || typeof m !== 'object') return null;
       const o = m as Record<string, unknown>;
       const value = typeof o.value === 'string' ? o.value.trim() : '';
       const label = typeof o.label === 'string' ? o.label.trim() : '';
       if (!value || !label) return null;
-      return {
-        value,
-        label,
-        accent: o.accent === true,
-      };
+      const item: HeroMetricItem = { value, label };
+      if (o.accent === true) item.accent = true;
+      return item;
     })
     .filter((m): m is HeroMetricItem => m !== null);
   return items.length ? items.slice(0, 6) : [...DEFAULT_HERO_METRICS];
