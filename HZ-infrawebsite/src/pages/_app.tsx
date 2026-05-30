@@ -32,7 +32,9 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
   return (
     <SessionProvider session={session}>
       <InfraTokenSync />
-      <Component {...pageProps} />
+      <div className="site-root max-w-[100vw] overflow-x-hidden">
+        <Component {...pageProps} />
+      </div>
       <Toaster position="bottom-right" />
     </SessionProvider>
   );

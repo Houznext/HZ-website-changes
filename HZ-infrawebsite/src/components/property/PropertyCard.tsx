@@ -42,17 +42,19 @@ export function PropertyCard({ property, variant = 'vertical' }: Props) {
     return (
       <Link
         href={href}
-        className="group flex overflow-hidden rounded-2xl border border-[#dde8f5] bg-white transition-all duration-200 hover:-translate-y-1 hover:border-[#93c5fd] hover:shadow-[0_16px_48px_rgba(15,42,68,0.10)]"
+        className="group flex flex-col overflow-hidden rounded-2xl border border-[#dde8f5] bg-white transition-all duration-200 hover:-translate-y-1 hover:border-[#93c5fd] hover:shadow-[0_16px_48px_rgba(15,42,68,0.10)] sm:flex-row"
       >
         <div
-          className="relative w-[220px] shrink-0"
+          className="relative w-full shrink-0 sm:w-[220px]"
           style={!img ? { background: getPropertyGradient(property.propertyType) } : undefined}
         >
           {img ? (
-            <div className="relative h-full min-h-[140px] w-full">
-              <Image src={img} alt="" fill className="object-cover" sizes="220px" />
+            <div className="relative h-[180px] w-full sm:h-full sm:min-h-[140px]">
+              <Image src={img} alt="" fill className="object-cover" sizes="(max-width:640px) 100vw, 220px" />
             </div>
-          ) : null}
+          ) : (
+            <div className="h-[180px] w-full sm:h-full sm:min-h-[140px]" />
+          )}
           <div className="pointer-events-none absolute bottom-2 left-2">
             <StatusBadge status={property.constructionStatus} />
           </div>
@@ -64,8 +66,8 @@ export function PropertyCard({ property, variant = 'vertical' }: Props) {
           </div>
           <div className="font-montserrat text-base font-bold leading-snug text-charcoal line-clamp-2">{property.title}</div>
           <div className="mt-1 flex items-center gap-1 font-inter text-xs text-muted">
-            <MapPin className="h-3.5 w-3.5" strokeWidth={1.8} />
-            {property.locality || property.city || 'India'}
+            <MapPin className="h-3.5 w-3.5 shrink-0" strokeWidth={1.8} />
+            <span className="truncate">{property.locality || property.city || 'India'}</span>
           </div>
           <div className="mt-2 flex flex-wrap gap-1">
             {(property.highlights || []).slice(0, 4).map((h) => (
@@ -74,11 +76,15 @@ export function PropertyCard({ property, variant = 'vertical' }: Props) {
               </span>
             ))}
           </div>
-          <div className="mt-auto flex items-end justify-between gap-3 pt-3">
+          <div className="mt-auto flex flex-col gap-3 pt-3 sm:flex-row sm:items-end sm:justify-between">
             <div className="font-montserrat text-lg font-extrabold text-charcoal">{formatPriceInr(property.basePrice)}</div>
-            <div className="flex shrink-0 flex-col gap-2 text-right font-montserrat text-xs font-bold">
-              <span className="rounded-lg border border-[#2f80ed] bg-[#2f80ed] px-3 py-1.5 text-white">Enquire now</span>
-              <span className="rounded-lg border border-[#dde8f5] px-3 py-1.5 text-charcoal">Site visit</span>
+            <div className="flex w-full gap-2 sm:w-auto sm:shrink-0 sm:flex-col">
+              <span className="flex-1 rounded-lg border border-[#2f80ed] bg-[#2f80ed] px-3 py-2 text-center font-montserrat text-xs font-bold text-white sm:flex-none sm:py-1.5">
+                Enquire now
+              </span>
+              <span className="flex-1 rounded-lg border border-[#dde8f5] px-3 py-2 text-center font-montserrat text-xs font-bold text-charcoal sm:flex-none sm:py-1.5">
+                Site visit
+              </span>
             </div>
           </div>
         </div>

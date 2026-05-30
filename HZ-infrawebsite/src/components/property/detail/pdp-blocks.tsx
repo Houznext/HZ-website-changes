@@ -92,7 +92,7 @@ export function AmenitiesGrid({ amenities }: { amenities: string[] }) {
   return (
     <div className="mt-4 rounded-xl border border-[#dde8f5] bg-white p-5">
       <div className="font-montserrat text-sm font-bold text-charcoal">Amenities</div>
-      <ul className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4">
+      <ul className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-2 md:grid-cols-4">
         {amenities.map((a) => (
           <li key={a} className="flex items-center gap-2 font-inter text-sm text-charcoal">
             <span className="text-[#0d9488]" aria-hidden>

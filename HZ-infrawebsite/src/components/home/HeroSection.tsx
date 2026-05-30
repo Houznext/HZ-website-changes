@@ -73,7 +73,7 @@ function HeroHeadline({ text }: { text: string }) {
   const lines = text.split('\n').map((l) => l.trimEnd()).filter((l, i, arr) => l.length > 0 || arr.length === 1);
   if (!lines.length) return null;
   return (
-    <h1 className="font-montserrat text-3xl font-extrabold leading-[1.15] tracking-tight text-white md:text-5xl md:leading-[1.12]">
+    <h1 className="font-montserrat text-[clamp(26px,8vw,36px)] font-extrabold leading-[1.15] tracking-tight text-white md:text-5xl md:leading-[1.12]">
       {lines.map((line, i) => (
         <span key={`${i}-${line.slice(0, 12)}`}>
           {i > 0 ? <br /> : null}
@@ -181,16 +181,16 @@ export function HeroSection() {
       />
       <div className="pointer-events-none absolute inset-0 z-[2] bg-navy/25" aria-hidden />
 
-      <div className="relative z-10 mx-auto flex min-h-[min(92vh,820px)] max-w-infra flex-col items-center justify-center px-4 pb-16 pt-14 md:px-7 md:pb-20 md:pt-16">
-        <div className="flex w-full max-w-3xl flex-col items-center px-5 text-center sm:px-8 md:px-12">
+      <div className="relative z-10 mx-auto flex min-h-[min(92vh,820px)] max-w-infra flex-col items-center justify-center px-4 pb-12 pt-10 sm:pb-16 sm:pt-14 md:px-7 md:pb-20 md:pt-16">
+        <div className="flex w-full max-w-3xl flex-col items-center px-0 text-center sm:px-8 md:px-12">
           <HeroHeadline text={headline} />
 
-          <p className="mt-4 max-w-xl font-inter text-sm leading-relaxed text-white/85 md:text-[15px]">
+          <p className="mt-3 max-w-xl font-inter text-[13px] leading-relaxed text-white/85 sm:mt-4 md:text-[15px]">
             {subheadline}
           </p>
 
-          <div className="mt-10 w-full max-w-2xl rounded-2xl border border-white/20 bg-white/[0.12] p-3 shadow-[0_8px_40px_rgba(0,0,0,0.25)] backdrop-blur-xl md:p-4">
-            <div className="flex gap-1 rounded-xl bg-black/20 p-1 md:gap-1.5">
+          <div className="mt-6 w-full max-w-2xl rounded-2xl border border-white/20 bg-white/[0.12] p-2.5 shadow-[0_8px_40px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:mt-10 sm:p-3 md:p-4">
+            <div className="flex gap-0.5 rounded-xl bg-black/20 p-0.5 sm:gap-1 sm:p-1">
               {tabs.map(({ key, label, Icon }) => {
                 const active = activeTab === key;
                 return (
@@ -198,7 +198,7 @@ export function HeroSection() {
                     key={key}
                     type="button"
                     onClick={() => setActiveTab(key)}
-                    className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-3 font-montserrat text-xs font-bold transition md:text-[13px] ${
+                    className={`flex min-h-[40px] flex-1 items-center justify-center gap-1 rounded-lg py-2.5 font-montserrat text-[11px] font-bold transition sm:gap-2 sm:py-3 sm:text-xs md:text-[13px] ${
                       active
                         ? 'bg-hero-blue text-white shadow-md'
                         : 'text-white/85 hover:bg-white/10 hover:text-white'
@@ -215,15 +215,15 @@ export function HeroSection() {
               <HeroSearch />
             </div>
 
-            <div className="mt-5 border-t border-white/10 pt-4">
-              <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-2">
-                <span className="font-inter text-xs font-semibold text-white/90 md:text-sm">Popular:</span>
+            <div className="mt-4 border-t border-white/10 pt-3 sm:mt-5 sm:pt-4">
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:justify-center sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden">
+                <span className="shrink-0 font-inter text-xs font-semibold text-white/90 sm:text-sm">Popular:</span>
                 {popularTags.map((tag) => (
                   <button
                     key={tag}
                     type="button"
                     onClick={() => setQuery(tag)}
-                    className="rounded-full border border-white/35 bg-white/[0.06] px-3 py-1.5 font-inter text-xs text-white/95 transition hover:border-white/55 hover:bg-white/10 md:text-[13px]"
+                    className="shrink-0 rounded-full border border-white/35 bg-white/[0.06] px-3 py-1.5 font-inter text-xs text-white/95 transition hover:border-white/55 hover:bg-white/10 md:text-[13px]"
                   >
                     {tag}
                   </button>
@@ -232,20 +232,20 @@ export function HeroSection() {
             </div>
 
             <div
-              className={`mt-6 grid gap-4 rounded-xl border border-white/10 bg-black/15 px-4 py-5 md:gap-6 md:px-6 ${
-                metrics.length <= 2 ? 'grid-cols-2' : metrics.length === 3 ? 'grid-cols-3' : 'grid-cols-2 md:grid-cols-4'
+              className={`mt-4 grid gap-3 rounded-xl border border-white/10 bg-black/15 px-3 py-4 sm:mt-6 sm:gap-4 sm:px-4 sm:py-5 md:gap-6 md:px-6 ${
+                metrics.length <= 2 ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'
               }`}
             >
               {metrics.map((m) => (
-                <div key={`${m.value}-${m.label}`}>
+                <div key={`${m.value}-${m.label}`} className="min-w-0 text-center sm:text-left">
                   <p
-                    className={`font-montserrat text-2xl font-extrabold md:text-3xl ${
+                    className={`font-montserrat text-xl font-extrabold leading-tight sm:text-2xl md:text-3xl ${
                       m.accent ? 'text-hero-teal' : 'text-white'
                     }`}
                   >
                     {m.value}
                   </p>
-                  <p className="mt-0.5 font-inter text-[11px] text-white/55 md:text-xs">{m.label}</p>
+                  <p className="mt-0.5 font-inter text-[11px] leading-snug text-white/55 md:text-xs">{m.label}</p>
                 </div>
               ))}
             </div>

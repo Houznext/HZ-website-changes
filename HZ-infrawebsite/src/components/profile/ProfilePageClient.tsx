@@ -127,7 +127,7 @@ export function ProfilePageClient() {
 
   if (status === 'loading' || !mounted) {
     return (
-      <div className="min-h-screen bg-offwhite">
+      <div className="min-h-screen overflow-x-hidden bg-offwhite">
         <Navbar />
         <div className="infra-profile-wrap py-20 text-center font-inter text-sm text-muted">Loading…</div>
       </div>
@@ -136,7 +136,7 @@ export function ProfilePageClient() {
 
   if (status === 'unauthenticated') {
     return (
-      <div className="min-h-screen bg-offwhite">
+      <div className="min-h-screen overflow-x-hidden bg-offwhite">
         <Navbar />
         <div className="infra-profile-wrap py-20 text-center">
           <p className="font-inter text-muted">Please sign in to view your profile.</p>
@@ -150,7 +150,7 @@ export function ProfilePageClient() {
   }
 
   return (
-    <div className="min-h-screen bg-offwhite">
+    <div className="min-h-screen overflow-x-hidden bg-offwhite">
       <Navbar />
       <div className="infra-profile-wrap">
         <div className="infra-profile-grid">

@@ -64,7 +64,7 @@ export function PhotoGallery({ photos, propertyType, title, constructionStatus, 
       </div>
 
       <div
-        className="relative h-[360px] w-full overflow-hidden rounded-xl border border-[#dde8f5]"
+        className="relative h-[240px] w-full overflow-hidden rounded-xl border border-[#dde8f5] sm:h-[300px] md:h-[360px]"
         style={!main ? { background: getPropertyGradient(propertyType) } : undefined}
       >
         {main ? (
@@ -77,7 +77,7 @@ export function PhotoGallery({ photos, propertyType, title, constructionStatus, 
       </div>
 
       {list.length > 1 && (
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {list.slice(0, 5).map((url, i) => (
             <button
               key={`${url}-${i}`}

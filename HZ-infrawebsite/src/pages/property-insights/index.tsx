@@ -11,12 +11,12 @@ const data = [
 
 export default function PropertyInsightsPage() {
   return (
-    <div className="min-h-screen bg-offwhite">
+    <div className="min-h-screen overflow-x-hidden bg-offwhite">
       <Navbar />
-      <div className="mx-auto max-w-infra px-4 py-10 md:px-7">
-        <h1 className="font-montserrat text-3xl font-extrabold text-charcoal">Property insights</h1>
-        <p className="mt-2 font-inter text-sm text-muted">Illustrative absorption index by city (recharts).</p>
-        <div className="mt-8 h-72 rounded-2xl border border-border bg-hzwhite p-4">
+      <div className="mx-auto max-w-infra px-4 py-9 md:px-7 md:py-10">
+        <h1 className="font-montserrat text-[26px] font-extrabold leading-tight text-charcoal md:text-3xl">Property insights</h1>
+        <p className="mt-2 font-inter text-[13px] leading-relaxed text-muted md:text-sm">Illustrative absorption index by city (recharts).</p>
+        <div className="mt-6 h-64 min-w-0 rounded-2xl border border-border bg-hzwhite p-3 md:mt-8 md:h-72 md:p-4">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
               <XAxis dataKey="city" tick={{ fontSize: 11, fontFamily: 'Inter' }} />

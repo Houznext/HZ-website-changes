@@ -17,12 +17,12 @@ const InfraLoginPanel = dynamic(
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-[#f5f7fa]">
+    <div className="min-h-screen overflow-x-hidden bg-[#f5f7fa]">
       <Navbar />
-      <div className="flex min-h-[calc(100vh-64px)] items-center justify-center px-4 py-10">
-        <div className="w-full max-w-[420px]">
+      <div className="flex min-h-[calc(100vh-64px)] items-stretch justify-center px-0 py-0 sm:items-center sm:px-4 sm:py-10">
+        <div className="flex w-full max-w-[420px] flex-col sm:w-full">
           <InfraLoginPanel />
-          <p className="mt-5 text-center font-inter text-xs text-[#5a6a7e]">
+          <p className="mt-5 px-4 text-center font-inter text-[13px] text-[#5a6a7e] sm:px-0">
             <Link href="/" className="font-semibold text-[#2f80ed] hover:underline">
               Back to home
             </Link>

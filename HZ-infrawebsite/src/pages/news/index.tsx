@@ -18,11 +18,11 @@ export default function NewsIndexPage() {
     })();
   }, []);
   return (
-    <div className="min-h-screen bg-offwhite">
+    <div className="min-h-screen overflow-x-hidden bg-offwhite">
       <Navbar />
-      <div className="mx-auto max-w-infra px-4 py-10 md:px-7">
-        <h1 className="font-montserrat text-3xl font-extrabold text-charcoal">News & guides</h1>
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
+      <div className="mx-auto max-w-infra px-4 py-9 md:px-7 md:py-10">
+        <h1 className="font-montserrat text-[26px] font-extrabold leading-tight text-charcoal md:text-3xl">News & guides</h1>
+        <div className="mt-6 grid grid-cols-1 gap-3.5 md:mt-8 md:grid-cols-2 md:gap-4">
           {items.map((a) => (
             <Link key={a.articleId} href={`/news/${a.slug}`} className="rounded-2xl border border-border bg-hzwhite p-5 transition hover:border-hz-blue/40 hover:shadow-md">
               <div className="font-montserrat text-lg font-bold text-charcoal">{a.title}</div>

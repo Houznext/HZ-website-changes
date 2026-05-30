@@ -15,10 +15,10 @@ const points = [
 
 export function WhyHouznextInfra() {
   return (
-    <section className="bg-hzwhite py-14">
+    <section className="overflow-x-hidden bg-hzwhite py-9 md:py-14">
       <div className="mx-auto max-w-infra px-4 md:px-7">
-        <h2 className="font-montserrat text-2xl font-extrabold text-charcoal md:text-3xl">Why Houznext Infra</h2>
-        <p className="mt-2 max-w-2xl font-inter text-sm text-muted">
+        <h2 className="font-montserrat text-[22px] font-extrabold leading-tight text-charcoal md:text-3xl">Why Houznext Infra</h2>
+        <p className="mt-2 max-w-2xl font-inter text-[13px] leading-relaxed text-muted md:text-sm">
           Six trust pillars — teal for verification cues, amber for growth signals, blue for data-backed decisions.
         </p>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

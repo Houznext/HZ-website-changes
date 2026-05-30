@@ -83,9 +83,9 @@ export function HeroSearch() {
 
   return (
     <div ref={wrapRef} className="relative w-full">
-      <div className="flex overflow-hidden rounded-xl border border-white/15 bg-white/[0.07] shadow-inner backdrop-blur-md">
-        <div className="flex shrink-0 items-center pl-4 text-white/55" aria-hidden>
-          <Search className="h-5 w-5" strokeWidth={2} />
+      <div className="flex flex-col overflow-hidden rounded-xl border border-white/15 bg-white/[0.07] shadow-inner backdrop-blur-md sm:flex-row sm:items-stretch">
+        <div className="flex shrink-0 items-center px-4 pt-3 sm:items-center sm:pl-4 sm:pt-0" aria-hidden>
+          <Search className="h-5 w-5 text-white/55" strokeWidth={2} />
         </div>
         <input
           value={query}
@@ -101,15 +101,15 @@ export function HeroSearch() {
             if (e.key === 'Escape') setOpen(false);
           }}
           placeholder={placeholders[activeTab]}
-          className="min-w-0 flex-1 border-0 bg-transparent py-3.5 pr-2 pl-2 font-inter text-[15px] text-white outline-none ring-0 placeholder:text-white/45"
+          className="min-w-0 flex-1 border-0 bg-transparent px-2 py-3 font-inter text-base text-white outline-none ring-0 placeholder:text-white/45 sm:py-3.5 sm:text-[15px]"
           autoComplete="off"
           spellCheck={false}
         />
-        <div className="flex shrink-0 items-center p-1.5">
+        <div className="flex shrink-0 items-center p-2 sm:p-1.5">
           <button
             type="button"
             onClick={goToBuy}
-            className="rounded-lg bg-hero-blue px-5 py-2.5 font-montserrat text-sm font-bold text-white shadow-md transition hover:bg-blue-600 active:scale-[0.98]"
+            className="min-h-[44px] w-full rounded-lg bg-hero-blue px-4 py-2.5 font-montserrat text-[13px] font-bold text-white shadow-md transition hover:bg-blue-600 active:scale-[0.98] sm:w-auto sm:px-5"
           >
             Search
           </button>

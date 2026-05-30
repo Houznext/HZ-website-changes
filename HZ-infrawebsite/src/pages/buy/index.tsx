@@ -54,16 +54,16 @@ export default function BuyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-offwhite">
+    <div className="min-h-screen overflow-x-hidden bg-offwhite">
       <Navbar />
-      <div className="mx-auto max-w-infra px-4 py-8 md:px-7">
-        <h1 className="font-montserrat text-2xl font-extrabold text-charcoal">Properties for sale</h1>
+      <div className="mx-auto max-w-infra px-4 py-6 sm:py-8 md:px-7">
+        <h1 className="font-montserrat text-xl font-extrabold text-charcoal sm:text-2xl">Properties for sale</h1>
         <p className="mt-1 font-inter text-sm text-muted">
           {params.q
             ? `Results for “${params.q}” — search matches title, type, locality, details, and property ID.`
             : 'Verified inventory with filters.'}
         </p>
-        <div className="mt-8 grid gap-6 lg:grid-cols-[260px_1fr]">
+        <div className="mt-6 flex flex-col gap-4 sm:mt-8 sm:gap-6 md:grid md:grid-cols-[260px_1fr] lg:grid-cols-[260px_1fr]">
           <FilterSidebar
             filters={{
               city: params.city || '',
@@ -72,7 +72,7 @@ export default function BuyPage() {
             }}
             onChange={onFilter}
           />
-          <div>
+          <div className="min-w-0">
             {loading && <p className="font-inter text-sm text-muted">Loading…</p>}
             <div className="flex flex-col gap-4">
               {(data?.items ?? []).map((p) => (

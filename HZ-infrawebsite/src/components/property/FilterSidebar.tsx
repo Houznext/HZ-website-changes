@@ -7,7 +7,7 @@ type Props = {
 
 export function FilterSidebar({ filters, onChange }: Props) {
   return (
-    <aside className="space-y-5 rounded-2xl border border-border bg-hzwhite p-4">
+    <aside className="grid grid-cols-2 gap-3 rounded-2xl border border-border bg-hzwhite p-4 sm:grid-cols-3 lg:grid-cols-1 lg:gap-5">
       <div>
         <label className="font-montserrat text-[10px] font-bold uppercase tracking-wide text-muted">City</label>
         <select

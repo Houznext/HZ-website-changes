@@ -13,15 +13,18 @@ const quotes = [
 
 export function Testimonials() {
   return (
-    <section className="bg-offwhite py-14">
+    <section className="overflow-x-hidden bg-offwhite py-9 md:py-14">
       <div className="mx-auto max-w-infra px-4 md:px-7">
-        <h2 className="font-montserrat text-2xl font-extrabold text-charcoal">What partners say</h2>
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
+        <h2 className="font-montserrat text-[22px] font-extrabold leading-tight text-charcoal md:text-2xl">What partners say</h2>
+        <div className="-mx-4 mt-6 flex gap-3 overflow-x-auto px-4 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-2 md:gap-4 md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden">
           {quotes.map((q) => (
-            <figure key={q.name} className="rounded-2xl border border-border bg-hzwhite p-6">
-              <blockquote className="font-inter text-sm leading-relaxed text-charcoal">&ldquo;{q.text}&rdquo;</blockquote>
-              <figcaption className="mt-4 font-montserrat text-sm font-bold text-charcoal">{q.name}</figcaption>
-              <div className="font-inter text-xs text-muted">{q.role}</div>
+            <figure
+              key={q.name}
+              className="w-[80vw] max-w-[300px] shrink-0 rounded-2xl border border-border bg-hzwhite p-5 md:w-auto md:max-w-none md:shrink md:p-6"
+            >
+              <blockquote className="font-inter text-[13px] leading-relaxed text-charcoal md:text-sm">&ldquo;{q.text}&rdquo;</blockquote>
+              <figcaption className="mt-4 font-montserrat text-[13px] font-bold text-charcoal md:text-sm">{q.name}</figcaption>
+              <div className="font-inter text-[11px] text-muted md:text-xs">{q.role}</div>
             </figure>
           ))}
         </div>

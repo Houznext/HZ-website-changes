@@ -84,20 +84,20 @@ export function PropertyTypeCards() {
   }, []);
 
   return (
-    <section className="bg-offwhite py-14">
+    <section className="overflow-x-hidden bg-offwhite py-9 md:py-14">
       <div className="mx-auto max-w-infra px-4 md:px-7">
-        <h2 className="font-montserrat text-2xl font-extrabold text-charcoal md:text-3xl">Browse by type</h2>
-        <p className="mt-2 max-w-2xl font-inter text-sm text-muted">
+        <h2 className="font-montserrat text-[22px] font-extrabold leading-tight text-charcoal md:text-3xl">Browse by type</h2>
+        <p className="mt-2 max-w-2xl font-inter text-[13px] leading-relaxed text-muted md:text-sm">
           Immersive cards with verified counts — each category opens the PLP with filters applied.
         </p>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div id="type-grid" className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:mt-8">
           {cards.map((c) => {
             const src = resolveCmsAssetUrl(images[c.key] ?? null, c.fallbackImage);
             return (
               <Link
                 key={c.title}
                 href={c.href}
-                className="group relative flex h-[230px] flex-col overflow-hidden rounded-2xl bg-navy p-5 text-white shadow-lg transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl"
+                className="group relative flex h-[190px] flex-col overflow-hidden rounded-[13px] bg-navy p-4 text-white shadow-lg transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl sm:h-[210px] sm:rounded-2xl sm:p-5 lg:h-[230px]"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -117,8 +117,8 @@ export function PropertyTypeCards() {
                   {c.count} listings
                 </span>
                 <div className="relative z-[1] mt-auto">
-                  <div className="font-montserrat text-xl font-extrabold">{c.title}</div>
-                  <p className="mt-1 font-inter text-xs leading-relaxed text-white/85">{c.desc}</p>
+                  <div className="font-montserrat text-[15px] font-extrabold sm:text-lg lg:text-xl">{c.title}</div>
+                  <p className="mt-1 font-inter text-[11px] leading-relaxed text-white/85 sm:text-xs">{c.desc}</p>
                 </div>
               </Link>
             );

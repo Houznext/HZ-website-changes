@@ -65,13 +65,13 @@ type Props = {
 
 export function CuratedSection({ lands, villas, apartments, plots }: Props) {
   return (
-    <section className="bg-white py-14">
+    <section className="overflow-x-hidden bg-white py-9 md:py-14">
       <div className="mx-auto max-w-infra px-4 md:px-7">
-        <p className="font-montserrat text-[10px] font-bold uppercase tracking-[0.12em] text-[#0d9488]">
+        <p className="font-montserrat text-[11px] font-bold uppercase tracking-[0.12em] text-[#0d9488]">
           Section 2 — Curated for purpose
         </p>
         <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="font-montserrat text-2xl font-extrabold text-charcoal md:text-3xl">Properties curated for you</h2>
+          <h2 className="font-montserrat text-[22px] font-extrabold leading-tight text-charcoal md:text-3xl">Properties curated for you</h2>
           <Link
             href="/buy"
             className="inline-flex items-center justify-center rounded-lg border-[1.5px] border-[#dde8f5] px-4 py-2 font-montserrat text-sm font-bold text-[#2f80ed] transition-all duration-150 hover:border-[#2f80ed] hover:bg-[#e8f1fd]"
@@ -79,7 +79,7 @@ export function CuratedSection({ lands, villas, apartments, plots }: Props) {
             View all →
           </Link>
         </div>
-        <p className="mt-2 font-inter text-sm text-muted">Featured inventory from the Infra API — refreshed every minute.</p>
+        <p className="mt-2 font-inter text-[13px] leading-relaxed text-muted md:text-sm">Featured inventory from the Infra API — refreshed every minute.</p>
 
         <GridSection title="Featured Lands" href="/buy?propertyType=Land" items={lands} cols={3} />
         <GridSection title="Featured Villas" href="/buy?propertyType=Villa" items={villas} cols={3} />

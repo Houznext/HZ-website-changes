@@ -55,7 +55,7 @@ export default function PropertyPage({ property, pageSlug }: Props) {
           <meta name="description" content={property.description.slice(0, 160)} />
         ) : null}
       </Head>
-      <div className="min-h-screen bg-[#f5f7fa]">
+      <div className="min-h-screen overflow-x-hidden bg-[#f5f7fa]">
         <Navbar />
         <RecordPropertyView
           slug={listSlug}
@@ -64,7 +64,7 @@ export default function PropertyPage({ property, pageSlug }: Props) {
           locality={property.locality}
           propertyId={property.propertyId}
         />
-        <main className="mx-auto max-w-[1440px] px-4 pb-16 pt-6 md:px-7">
+        <main className="mx-auto max-w-[1440px] px-4 pb-36 pt-6 md:px-7 lg:pb-16">
           <nav className="mb-5 flex flex-wrap items-center gap-1 font-inter text-xs text-muted">
             <Link href="/" className="text-[#2f80ed] hover:underline">
               Home
@@ -86,7 +86,7 @@ export default function PropertyPage({ property, pageSlug }: Props) {
           </nav>
 
           <div className="grid gap-6 lg:grid-cols-[1fr_370px] lg:items-start">
-            <div>
+            <div className="min-w-0">
               <PhotoGallery
                 photos={photos}
                 propertyType={property.propertyType}

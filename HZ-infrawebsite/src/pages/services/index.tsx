@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/Button';
 
 export default function ServicesPage() {
   return (
-    <div className="min-h-screen bg-offwhite">
+    <div className="min-h-screen overflow-x-hidden bg-offwhite">
       <Navbar />
-      <div className="mx-auto max-w-infra px-4 py-12 md:px-7">
-        <h1 className="font-montserrat text-3xl font-extrabold text-charcoal">Services</h1>
-        <p className="mt-3 max-w-2xl font-inter text-sm text-muted">
+      <div className="mx-auto max-w-infra px-4 py-9 md:px-7 md:py-12">
+        <h1 className="font-montserrat text-[26px] font-extrabold leading-tight text-charcoal md:text-3xl">Services</h1>
+        <p className="mt-3 max-w-2xl font-inter text-[13px] leading-relaxed text-muted md:text-sm">
           Home loans, legal diligence bundles, and post-possession property management — coordinated through Houznext Infra.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">

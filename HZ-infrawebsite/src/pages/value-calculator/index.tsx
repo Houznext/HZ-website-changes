@@ -8,12 +8,12 @@ export default function ValueCalculatorPage() {
   const [rate, setRate] = useState(6500);
   const value = area * rate;
   return (
-    <div className="min-h-screen bg-offwhite">
+    <div className="min-h-screen overflow-x-hidden bg-offwhite">
       <Navbar />
-      <div className="mx-auto max-w-infra px-4 py-10 md:px-7">
-        <h1 className="font-montserrat text-3xl font-extrabold text-charcoal">Value calculator</h1>
-        <p className="mt-2 font-inter text-sm text-muted">Quick carpet-area × micro-market PSF estimate.</p>
-        <div className="mt-8 max-w-md space-y-4 rounded-2xl border border-border bg-hzwhite p-6">
+      <div className="mx-auto max-w-infra px-4 py-9 md:px-7 md:py-10">
+        <h1 className="font-montserrat text-[26px] font-extrabold leading-tight text-charcoal md:text-3xl">Value calculator</h1>
+        <p className="mt-2 font-inter text-[13px] leading-relaxed text-muted md:text-sm">Quick carpet-area × micro-market PSF estimate.</p>
+        <div className="mt-6 max-w-md space-y-4 rounded-2xl border border-border bg-hzwhite p-4 md:mt-8 md:p-6">
           <label className="block font-montserrat text-[10px] font-bold uppercase text-muted">Area (sqft)</label>
           <input
             type="number"

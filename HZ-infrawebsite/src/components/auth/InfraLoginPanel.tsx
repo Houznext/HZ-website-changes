@@ -428,7 +428,7 @@ export function InfraLoginPanel() {
   const ss = String(seconds % 60).padStart(2, '0');
 
   return (
-    <div className="w-full max-w-[400px] overflow-hidden rounded-[20px] bg-white shadow-xl">
+    <div className="w-full max-w-[400px] overflow-hidden rounded-none bg-white shadow-none sm:rounded-[20px] sm:shadow-xl">
       <div className="relative px-[26px] pt-[26px] pb-[22px]" style={{ background: '#0f2a44' }}>
         <div
           className="absolute bottom-0 left-0 right-0 h-[3px]"

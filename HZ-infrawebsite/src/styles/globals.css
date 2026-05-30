@@ -2,6 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .animate-drawer-in {
+    animation: drawerIn 0.22s ease both;
+  }
+}
+
+@keyframes drawerIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    max-width: 100%;
+  }
+
+  body {
+    max-width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--charcoal);
+    background: var(--offwhite);
+  }
+
+  img,
+  video,
+  iframe {
+    max-width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    input[type='text'],
+    input[type='number'],
+    input[type='email'],
+    input[type='tel'],
+    input[type='password'],
+    input[type='search'],
+    select,
+    textarea {
+      font-size: 16px;
+    }
+
+    table {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+}
+
 :root {
   --navy: #0f2a44;
   --blue: #2f80ed;
@@ -25,17 +82,6 @@
   --rd: #dc2626;
   --am: #d97706;
   --tl: #0d9488;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  color: var(--charcoal);
-  background: var(--offwhite);
 }
 
 h1,
@@ -64,7 +110,13 @@ nav a,
 .infra-profile-wrap {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 28px 28px 52px;
+  padding: 24px 16px 40px;
+}
+
+@media (min-width: 768px) {
+  .infra-profile-wrap {
+    padding: 28px 28px 52px;
+  }
 }
 
 .infra-profile-grid {
@@ -194,8 +246,36 @@ nav a,
 }
 
 @media (max-width: 768px) {
+  .infra-profile-tabs {
+    display: flex;
+    overflow-x: auto;
+    border-radius: 14px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .infra-profile-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .infra-profile-tab {
+    flex: 1 0 auto;
+    min-width: max-content;
+    border-bottom: none;
+    border-right: 1px solid var(--brd);
+    white-space: nowrap;
+  }
+
+  .infra-profile-tab:last-child {
+    border-right: none;
+  }
+
   .infra-profile-cards-grid {
     grid-template-columns: 1fr;
+  }
+
+  .infra-profile-card {
+    padding: 18px 16px;
   }
 }
 
