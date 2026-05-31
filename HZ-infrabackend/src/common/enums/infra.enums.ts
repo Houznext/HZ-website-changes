@@ -18,6 +18,14 @@ export enum ConstructionStatus {
   ReadyToMove = 'Ready to Move',
   UnderConstruction = 'Under Construction',
   NewLaunch = 'New Launch',
+  SoldOut = 'Sold Out',
+}
+
+export enum ProjectType {
+  Apartment = 'apartment',
+  Villa = 'villa',
+  Venture = 'venture',
+  VillaPlot = 'villaplot',
 }
 
 export enum CRMStage {

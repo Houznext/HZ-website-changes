@@ -146,14 +146,14 @@ export function ProfileEditModal({ open, onClose, name: initialName, email, phon
           onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
         />
 
-        <div className="mt-5 flex flex-wrap gap-2">
-          <button type="button" className="infra-btn infra-btn-blue px-4 py-2 text-xs" disabled={busy} onClick={() => void saveName()}>
+        <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <button type="button" className="infra-btn infra-btn-blue min-h-[44px] flex-1 px-4 py-2.5 text-[13px] sm:flex-none" disabled={busy} onClick={() => void saveName()}>
             Save name
           </button>
-          <button type="button" className="infra-btn infra-btn-blue px-4 py-2 text-xs" disabled={busy} onClick={() => void verifyPhone()}>
+          <button type="button" className="infra-btn infra-btn-blue min-h-[44px] flex-1 px-4 py-2.5 text-[13px] sm:flex-none" disabled={busy} onClick={() => void verifyPhone()}>
             Verify mobile
           </button>
-          <button type="button" className="infra-btn infra-btn-ghost px-4 py-2 text-xs" onClick={onClose}>
+          <button type="button" className="infra-btn infra-btn-ghost min-h-[44px] flex-1 px-4 py-2.5 text-[13px] sm:flex-none" onClick={onClose}>
             Cancel
           </button>
         </div>

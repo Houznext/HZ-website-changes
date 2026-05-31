@@ -84,7 +84,7 @@ export function PropertyTypeCards() {
   }, []);
 
   return (
-    <section className="overflow-x-hidden bg-offwhite py-9 md:py-14">
+    <section className="overflow-x-hidden bg-offwhite pt-9 pb-5 md:pt-14 md:pb-7">
       <div className="mx-auto max-w-infra px-4 md:px-7">
         <h2 className="font-montserrat text-[22px] font-extrabold leading-tight text-charcoal md:text-3xl">Browse by type</h2>
         <p className="mt-2 max-w-2xl font-inter text-[13px] leading-relaxed text-muted md:text-sm">

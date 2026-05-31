@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import {
-  Building2,
   ChevronDown,
   Eye,
   Heart,
@@ -386,9 +385,6 @@ export function Navbar() {
           </DrawerItem>
           <DrawerItem href="/news" onClick={closeDrawer} iconBg="#f3e8ff" icon={<Newspaper className="h-3.5 w-3.5 text-violet-600" strokeWidth={1.8} />}>
             News &amp; Guide
-          </DrawerItem>
-          <DrawerItem href="/developers" onClick={closeDrawer} iconBg="#dcfce7" icon={<Building2 className="h-3.5 w-3.5 text-green-600" strokeWidth={1.8} />}>
-            For Developers
           </DrawerItem>
           <DrawerItem href="/projects" onClick={closeDrawer} iconBg="#e8f1fd" icon={<Landmark className="h-3.5 w-3.5 text-hz-blue" strokeWidth={1.8} />}>
             Projects

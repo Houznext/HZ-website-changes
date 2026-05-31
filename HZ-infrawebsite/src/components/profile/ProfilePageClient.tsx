@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
@@ -29,6 +29,46 @@ const WA =
 
 function toPublicProperty(p: InfraProperty): PublicProperty {
   return p as unknown as PublicProperty;
+}
+
+type TabConfig = {
+  id: ProfileTab;
+  label: string;
+  mobileLabel: string;
+  icon: ReactNode;
+  count: number;
+};
+
+function ProfileTabButton({
+  active,
+  onClick,
+  icon,
+  label,
+  mobileLabel,
+  count,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: ReactNode;
+  label: string;
+  mobileLabel: string;
+  count: number;
+}) {
+  return (
+    <button
+      type="button"
+      className={`infra-profile-tab ${active ? 'on' : ''}`}
+      onClick={onClick}
+      aria-current={active ? 'page' : undefined}
+    >
+      {icon}
+      <span className="infra-profile-tab-label">
+        <span className="infra-profile-tab-label-mobile">{mobileLabel}</span>
+        <span className="infra-profile-tab-label-desktop">{label}</span>
+      </span>
+      <span className="infra-profile-tab-count">{count}</span>
+    </button>
+  );
 }
 
 export function ProfilePageClient() {
@@ -125,6 +165,160 @@ export function ProfilePageClient() {
   const displayEmail = me?.email || session?.user?.email || '';
   const displayPhone = me?.phone || (session?.user as { phone?: string })?.phone || '';
 
+  const tabs: TabConfig[] = [
+    {
+      id: 'saved',
+      label: 'Saved properties',
+      mobileLabel: 'Saved',
+      count: savedItems.length,
+      icon: <Heart size={15} strokeWidth={1.8} className={tab === 'saved' ? 'text-hz-blue' : 'text-muted'} />,
+    },
+    {
+      id: 'seen',
+      label: 'Seen properties',
+      mobileLabel: 'Seen',
+      count: seenItems.length,
+      icon: <Eye size={15} strokeWidth={1.8} className={tab === 'seen' ? 'text-hz-blue' : 'text-muted'} />,
+    },
+    {
+      id: 'enq',
+      label: 'My enquiries',
+      mobileLabel: 'Enquiries',
+      count: enquiries.length,
+      icon: (
+        <MessageCircle
+          size={15}
+          strokeWidth={1.8}
+          className={tab === 'enq' ? 'text-hz-blue' : 'text-muted'}
+        />
+      ),
+    },
+  ];
+
+  const panelContent = (
+    <>
+      {tab === 'saved' && (
+        <>
+          <h1 className="infra-profile-panel-title">Saved properties</h1>
+          {savedItems.length === 0 ? (
+            <p className="infra-profile-empty">
+              No saved properties yet. Tap the heart on a listing to save it here.
+            </p>
+          ) : (
+            <div className="infra-profile-cards-grid">
+              {savedItems.map((p) => (
+                <PropertyCard key={p.propertyId} property={toPublicProperty(p)} />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {tab === 'seen' && (
+        <>
+          <h1 className="infra-profile-panel-title">Recently viewed</h1>
+          {seenLoading ? (
+            <p className="infra-profile-empty">Loading properties…</p>
+          ) : seenItems.length === 0 ? (
+            <p className="infra-profile-empty">
+              No properties viewed yet. Browse listings to build your history on this device.
+            </p>
+          ) : seenProperties.length > 0 ? (
+            <div className="infra-profile-cards-grid">
+              {seenProperties.map((p) => (
+                <PropertyCard key={p.propertyId} property={p} />
+              ))}
+            </div>
+          ) : (
+            <div className="infra-profile-cards-grid">
+              {seenItems.map((p) => (
+                <Link
+                  key={p.slug}
+                  href={`/property/${encodeURIComponent(p.slug)}`}
+                  className="infra-profile-seen-card p-4"
+                >
+                  <p className="font-montserrat text-[15px] font-bold leading-snug text-charcoal">{p.title}</p>
+                  <p className="mt-1 font-inter text-xs text-muted">
+                    {[p.locality, p.city].filter(Boolean).join(' · ') || 'Property'}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {tab === 'enq' && (
+        <>
+          <h1 className="infra-profile-panel-title">My enquiries</h1>
+          {enquiries.length === 0 ? (
+            <p className="infra-profile-empty">
+              No enquiries yet. Use &quot;Enquire now&quot; on a property to reach our team.
+            </p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {enquiries.map((e) => {
+                const badge = enquiryStatusMeta(e.status);
+                const loc = [e.locality, e.city].filter(Boolean).join(', ');
+                const slug = e.propertySlug || e.propertyId;
+                const href = slug ? `/property/${encodeURIComponent(slug)}` : '/buy';
+                return (
+                  <article key={e.enquiryId} className="infra-enquiry-card">
+                    <div className="infra-enquiry-card-hd">
+                      <div>
+                        <p className="font-montserrat text-sm font-bold text-charcoal">
+                          {e.propertyTitle ?? 'Property enquiry'}
+                        </p>
+                        <p className="mt-0.5 font-inter text-xs text-muted">
+                          {loc ? `${loc} · ` : ''}
+                          Sent {formatEnquiryDate(e.createdAt)}
+                        </p>
+                      </div>
+                      <span className={badge.className}>{badge.label}</span>
+                    </div>
+                    <div className="border-t border-[#dde8f5] px-4 py-3 md:px-[18px]">
+                      {e.message ? (
+                        <p className="font-inter text-[13px] text-muted">
+                          <span className="font-semibold text-charcoal">Your message: </span>
+                          {e.message}
+                        </p>
+                      ) : null}
+                      {e.adminResponse ? (
+                        <p className="mt-2 whitespace-pre-wrap font-inter text-[13px] text-charcoal">
+                          <span className="font-semibold text-[#2f80ed]">Team: </span>
+                          {e.adminResponse}
+                        </p>
+                      ) : (
+                        <p className="mt-2 font-inter text-[13px] text-muted">
+                          Our team will respond here shortly.
+                        </p>
+                      )}
+                    </div>
+                    <div className="infra-enquiry-card-ft">
+                      <div className="infra-enquiry-card-actions flex w-full gap-2 sm:w-auto">
+                        <Link href={href} className="infra-btn infra-btn-ghost px-3 py-1.5 text-xs">
+                          View
+                        </Link>
+                        <a
+                          href={`https://wa.me/${WA}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="infra-btn infra-btn-wa px-3 py-1.5 text-xs"
+                        >
+                          WhatsApp
+                        </a>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
+    </>
+  );
+
   if (status === 'loading' || !mounted) {
     return (
       <div className="min-h-screen overflow-x-hidden bg-offwhite">
@@ -153,177 +347,39 @@ export function ProfilePageClient() {
     <div className="min-h-screen overflow-x-hidden bg-offwhite">
       <Navbar />
       <div className="infra-profile-wrap">
-        <div className="infra-profile-grid">
-          <aside className="flex flex-col gap-3.5">
+        <div className="infra-profile-layout">
+          <header className="infra-profile-header">
             <div className="infra-profile-card">
               <div className="infra-profile-avatar">{profileInitials(displayName, displayEmail)}</div>
-              <div className="infra-profile-name">{displayName}</div>
-              <div className="infra-profile-phone">{formatProfilePhone(displayPhone)}</div>
+              <div className="infra-profile-info">
+                <div className="infra-profile-name">{displayName}</div>
+                <div className="infra-profile-phone">{formatProfilePhone(displayPhone)}</div>
+              </div>
               <button
                 type="button"
-                className="infra-btn infra-btn-ghost w-full justify-center px-3 py-2 text-[12.5px]"
+                className="infra-btn infra-btn-ghost infra-profile-edit w-full justify-center px-3 py-2.5 text-[13px]"
                 onClick={() => setEditOpen(true)}
               >
                 Edit profile
               </button>
             </div>
+          </header>
 
-            <nav className="infra-profile-tabs" aria-label="Profile sections">
-              <button
-                type="button"
-                className={`infra-profile-tab ${tab === 'saved' ? 'on' : ''}`}
-                onClick={() => switchTab('saved')}
-              >
-                <Heart size={15} strokeWidth={1.8} className={tab === 'saved' ? 'text-hz-blue' : 'text-muted'} />
-                <span className="infra-profile-tab-label">Saved properties</span>
-                <span className="infra-profile-tab-count">{savedItems.length}</span>
-              </button>
-              <button
-                type="button"
-                className={`infra-profile-tab ${tab === 'seen' ? 'on' : ''}`}
-                onClick={() => switchTab('seen')}
-              >
-                <Eye size={15} strokeWidth={1.8} className={tab === 'seen' ? 'text-hz-blue' : 'text-muted'} />
-                <span className="infra-profile-tab-label">Seen properties</span>
-                <span className="infra-profile-tab-count">{seenItems.length}</span>
-              </button>
-              <button
-                type="button"
-                className={`infra-profile-tab ${tab === 'enq' ? 'on' : ''}`}
-                onClick={() => switchTab('enq')}
-              >
-                <MessageCircle
-                  size={15}
-                  strokeWidth={1.8}
-                  className={tab === 'enq' ? 'text-hz-blue' : 'text-muted'}
-                />
-                <span className="infra-profile-tab-label">My enquiries</span>
-                <span className="infra-profile-tab-count">{enquiries.length}</span>
-              </button>
-            </nav>
-          </aside>
+          <nav className="infra-profile-tabbar" aria-label="Profile sections">
+            {tabs.map((t) => (
+              <ProfileTabButton
+                key={t.id}
+                active={tab === t.id}
+                onClick={() => switchTab(t.id)}
+                icon={t.icon}
+                label={t.label}
+                mobileLabel={t.mobileLabel}
+                count={t.count}
+              />
+            ))}
+          </nav>
 
-          <div className="infra-profile-panel">
-            {tab === 'saved' && (
-              <>
-                <h1 className="infra-profile-panel-title">Saved properties</h1>
-                {savedItems.length === 0 ? (
-                  <p className="infra-profile-empty">
-                    No saved properties yet. Tap the heart on a listing to save it here.
-                  </p>
-                ) : (
-                  <div className="infra-profile-cards-grid">
-                    {savedItems.map((p) => (
-                      <PropertyCard key={p.propertyId} property={toPublicProperty(p)} />
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-
-            {tab === 'seen' && (
-              <>
-                <h1 className="infra-profile-panel-title">Recently viewed</h1>
-                {seenLoading ? (
-                  <p className="infra-profile-empty">Loading properties…</p>
-                ) : seenItems.length === 0 ? (
-                  <p className="infra-profile-empty">
-                    No properties viewed yet. Browse listings to build your history on this device.
-                  </p>
-                ) : seenProperties.length > 0 ? (
-                  <div className="infra-profile-cards-grid">
-                    {seenProperties.map((p) => (
-                      <PropertyCard key={p.propertyId} property={p} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="infra-profile-cards-grid">
-                    {seenItems.map((p) => (
-                      <Link
-                        key={p.slug}
-                        href={`/property/${encodeURIComponent(p.slug)}`}
-                        className="infra-profile-seen-card p-4"
-                      >
-                        <p className="font-montserrat text-[15px] font-bold leading-snug text-charcoal">{p.title}</p>
-                        <p className="mt-1 font-inter text-xs text-muted">
-                          {[p.locality, p.city].filter(Boolean).join(' · ') || 'Property'}
-                        </p>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-
-            {tab === 'enq' && (
-              <>
-                <h1 className="infra-profile-panel-title">My enquiries</h1>
-                {enquiries.length === 0 ? (
-                  <p className="infra-profile-empty">
-                    No enquiries yet. Use &quot;Enquire now&quot; on a property to reach our team.
-                  </p>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    {enquiries.map((e) => {
-                      const badge = enquiryStatusMeta(e.status);
-                      const loc = [e.locality, e.city].filter(Boolean).join(', ');
-                      const slug = e.propertySlug || e.propertyId;
-                      const href = slug ? `/property/${encodeURIComponent(slug)}` : '/buy';
-                      return (
-                        <article key={e.enquiryId} className="infra-enquiry-card">
-                          <div className="infra-enquiry-card-hd">
-                            <div>
-                              <p className="font-montserrat text-sm font-bold text-charcoal">
-                                {e.propertyTitle ?? 'Property enquiry'}
-                              </p>
-                              <p className="mt-0.5 font-inter text-xs text-muted">
-                                {loc ? `${loc} · ` : ''}
-                                Sent {formatEnquiryDate(e.createdAt)}
-                              </p>
-                            </div>
-                            <span className={badge.className}>{badge.label}</span>
-                          </div>
-                          <div className="border-t border-[#dde8f5] px-[18px] py-3">
-                            {e.message ? (
-                              <p className="font-inter text-[13px] text-muted">
-                                <span className="font-semibold text-charcoal">Your message: </span>
-                                {e.message}
-                              </p>
-                            ) : null}
-                            {e.adminResponse ? (
-                              <p className="mt-2 whitespace-pre-wrap font-inter text-[13px] text-charcoal">
-                                <span className="font-semibold text-[#2f80ed]">Team: </span>
-                                {e.adminResponse}
-                              </p>
-                            ) : (
-                              <p className="mt-2 font-inter text-[13px] text-muted">
-                                Our team will respond here shortly.
-                              </p>
-                            )}
-                          </div>
-                          <div className="infra-enquiry-card-ft">
-                            <div className="flex gap-2">
-                              <Link href={href} className="infra-btn infra-btn-ghost px-3 py-1.5 text-xs">
-                                View
-                              </Link>
-                              <a
-                                href={`https://wa.me/${WA}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="infra-btn infra-btn-wa px-3 py-1.5 text-xs"
-                              >
-                                WhatsApp
-                              </a>
-                            </div>
-                          </div>
-                        </article>
-                      );
-                    })}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+          <main className="infra-profile-panel min-w-0">{panelContent}</main>
         </div>
       </div>
 

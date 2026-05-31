@@ -64,7 +64,7 @@ export default function PropertyPage({ property, pageSlug }: Props) {
           locality={property.locality}
           propertyId={property.propertyId}
         />
-        <main className="mx-auto max-w-[1440px] px-4 pb-36 pt-6 md:px-7 lg:pb-16">
+        <main className="mx-auto max-w-[1440px] px-4 pb-10 pt-6 md:px-7 md:pb-16">
           <nav className="mb-5 flex flex-wrap items-center gap-1 font-inter text-xs text-muted">
             <Link href="/" className="text-[#2f80ed] hover:underline">
               Home

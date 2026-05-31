@@ -4,6 +4,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { FilterSidebar } from '@/components/property/FilterSidebar';
 import { PropertyCardH } from '@/components/property/PropertyCardH';
+import { SearchProjectsRow } from '@/components/projects/SearchProjectsRow';
 import { useProperties } from '@/hooks/useProperties';
 
 export default function BuyPage() {
@@ -74,6 +75,7 @@ export default function BuyPage() {
           />
           <div className="min-w-0">
             {loading && <p className="font-inter text-sm text-muted">Loading…</p>}
+            <SearchProjectsRow propertyType={params.propertyType} city={params.city} />
             <div className="flex flex-col gap-4">
               {(data?.items ?? []).map((p) => (
                 <PropertyCardH key={p.propertyId} property={p} />

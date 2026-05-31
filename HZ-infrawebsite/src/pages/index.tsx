@@ -52,9 +52,9 @@ export default function HomePage({ lands, villas, apartments, plots }: InferGetS
       <Navbar />
       <HeroSection />
       <PropertyTypeCards />
+      <FeaturedProjects />
       <CuratedSection lands={lands} villas={villas} apartments={apartments} plots={plots} />
       <CityGrid />
-      <FeaturedProjects />
       <Testimonials />
       <ListPropertyCTA />
       <WhyHouznextInfra />

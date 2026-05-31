@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { AdminGuard } from '../common/guards/admin.guard';
@@ -11,6 +11,16 @@ import { CreateProjectDto, MilestoneDto, UpdateProjectDto } from './dto/project.
 @ApiBearerAuth()
 export class AdminProjectController {
   constructor(private readonly projects: ProjectService) {}
+
+  @Get()
+  list(@Query('q') q?: string) {
+    return this.projects.adminList(q);
+  }
+
+  @Get(':id')
+  detail(@Param('id') id: string) {
+    return this.projects.findById(id);
+  }
 
   @Post()
   create(@Body() dto: CreateProjectDto) {

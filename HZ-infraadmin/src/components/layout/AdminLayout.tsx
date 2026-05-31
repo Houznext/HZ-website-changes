@@ -18,6 +18,7 @@ import {
   LayoutGrid,
   Inbox,
   MessageSquare,
+  Plus,
   Search,
   Settings,
   Shield,
@@ -26,7 +27,7 @@ import {
 } from 'lucide-react';
 import adminApi from '@/lib/axios';
 
-type NavCounts = { properties: number; pending: number; leads: number; enquiries: number; crmOverdue: number; crmVisits: number; dev: number };
+type NavCounts = { properties: number; pending: number; leads: number; enquiries: number; crmOverdue: number; crmVisits: number; dev: number; projects: number };
 
 const iconProps = { size: 13, strokeWidth: 1.8, fill: 'none' as const };
 
@@ -52,17 +53,18 @@ export function AdminLayout({
 }) {
   const router = useRouter();
   const { user, signOut } = useAuth();
-  const [counts, setCounts] = useState<NavCounts>({ properties: 0, pending: 0, leads: 0, enquiries: 0, crmOverdue: 0, crmVisits: 0, dev: 0 });
+  const [counts, setCounts] = useState<NavCounts>({ properties: 0, pending: 0, leads: 0, enquiries: 0, crmOverdue: 0, crmVisits: 0, dev: 0, projects: 0 });
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [listRes, pendRes, crmStats, enqRes] = await Promise.all([
+        const [listRes, pendRes, crmStats, enqRes, projRes] = await Promise.all([
           adminApi.get('/admin/properties', { params: { page: 1, limit: 1 } }).catch(() => null),
           adminApi.get('/admin/properties/pending').catch(() => null),
           adminApi.get('/admin/crm/stats').catch(() => null),
           adminApi.get('/admin/enquiries').catch(() => null),
+          adminApi.get('/admin/projects').catch(() => null),
         ]);
         if (cancelled) return;
         const total = listRes?.data?.total ?? 0;
@@ -71,7 +73,8 @@ export function AdminLayout({
         const crmOverdue = Number(crmStats?.data?.overdueCount ?? 0);
         const crmVisits = Number(crmStats?.data?.siteVisitsToday ?? 0);
         const enquiries = Array.isArray(enqRes?.data) ? enqRes.data.length : 0;
-        setCounts({ properties: total, pending, leads, enquiries, crmOverdue, crmVisits, dev: 0 });
+        const projects = Array.isArray(projRes?.data) ? projRes.data.length : 0;
+        setCounts({ properties: total, pending, leads, enquiries, crmOverdue, crmVisits, dev: 0, projects });
       } catch {
         /* ignore */
       }
@@ -182,7 +185,15 @@ export function AdminLayout({
           />
 
           <div className="asec">Content</div>
-          <NavRow href="/projects" label="Projects" icon={Home} badgeVariant="blue" active={path.startsWith('/projects')} />
+          <NavRow
+            href="/projects"
+            label="Projects"
+            icon={Home}
+            badge={counts.projects}
+            badgeVariant="blue"
+            active={path.startsWith('/projects') && !path.startsWith('/projects/new')}
+          />
+          <NavRow href="/projects/new" label="Add project" icon={Plus} badgeVariant="blue" active={path.startsWith('/projects/new')} />
           <NavRow href="/rera-docs" label="RERA & documents" icon={FileText} badgeVariant="blue" active={path.startsWith('/rera-docs')} />
           <div className="asec">Website CMS</div>
           <NavRow

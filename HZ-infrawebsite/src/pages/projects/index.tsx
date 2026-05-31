@@ -1,28 +1,150 @@
-import { useEffect, useState } from 'react';
+'use client';
+
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import api from '@/lib/axios';
 import type { InfraProject } from '@/types/infra.types';
-import { ProjectCard } from '@/components/property/ProjectCard';
+import { TYPE_FILTER_PILLS, type ProjectTypeKey } from '@/lib/projects/constants';
+import { BUDGET_OPTIONS, countByType, filterProjects, type BudgetFilter } from '@/lib/projects/utils';
+import { ProjCard } from '@/components/projects/ProjCard';
 
-export default function ProjectsPage() {
+const CITIES = ['All', 'Hyderabad', 'Bengaluru', 'Chennai', 'Mumbai'];
+const STATUSES = ['Any', 'New Launch', 'Under Construction', 'Ready to Move', 'Sold Out'];
+
+export default function ProjectsListingPage() {
+  const router = useRouter();
   const [items, setItems] = useState<InfraProject[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [typeFilter, setTypeFilter] = useState<ProjectTypeKey | 'all'>('all');
+  const [city, setCity] = useState('All');
+  const [status, setStatus] = useState('Any');
+  const [budget, setBudget] = useState<BudgetFilter>('');
+
   useEffect(() => {
-    void (async () => {
-      const res = await api.get('/projects');
-      setItems(res.data ?? []);
-    })();
+    if (!router.isReady) return;
+    const t = router.query.type as string;
+    if (t && t !== 'all') setTypeFilter(t as ProjectTypeKey);
+  }, [router.isReady, router.query.type]);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await api.get<InfraProject[]>('/projects', { params: { limit: 50 } });
+      setItems(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const counts = useMemo(() => countByType(items), [items]);
+
+  const filtered = useMemo(
+    () =>
+      filterProjects(items, {
+        type: typeFilter,
+        city: city === 'All' ? undefined : city,
+        status: status === 'Any' ? undefined : status,
+        budget,
+      }),
+    [items, typeFilter, city, status, budget],
+  );
+
+  const typePills = [
+    { id: 'all' as const, label: `All (${counts.all})` },
+    { id: 'apartment' as const, label: `🏢 Apartments (${counts.apartment})` },
+    { id: 'villa' as const, label: `🏡 Villas (${counts.villa})` },
+    { id: 'venture' as const, label: `🗺 Ventures (${counts.venture})` },
+    { id: 'villaplot' as const, label: `🌿 Villa Plots (${counts.villaplot})` },
+  ];
+
   return (
-    <div className="min-h-screen bg-offwhite">
+    <div id="pg-projects" className="min-h-screen overflow-x-hidden bg-offwhite">
       <Navbar />
-      <div className="mx-auto max-w-infra px-4 py-10 md:px-7">
-        <h1 className="font-montserrat text-3xl font-extrabold text-charcoal">Projects</h1>
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {items.map((p) => (
-            <ProjectCard key={p.projectId} project={p} />
-          ))}
+      <div className="pg-projects-header">
+        <div className="mx-auto max-w-infra px-4 md:px-7">
+          <h1 className="mb-3 font-montserrat text-[22px] font-extrabold text-charcoal">Real Estate Projects</h1>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="projects-filter-bar flex flex-wrap gap-1.5">
+              {typePills.map((pill) => (
+                <button
+                  key={pill.id}
+                  type="button"
+                  className={`proj-filter-pill ${typeFilter === pill.id ? 'on' : ''}`}
+                  onClick={() => setTypeFilter(pill.id)}
+                >
+                  {pill.label}
+                </button>
+              ))}
+            </div>
+            <div className="projects-filter-selects ml-auto flex flex-wrap items-center gap-2">
+              <select
+                className="rounded-lg border-[1.5px] border-[#dde8f5] px-3 py-2 font-inter text-[12.5px] outline-none focus:border-hz-blue"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+              >
+                {CITIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c === 'All' ? 'All cities' : c}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="rounded-lg border-[1.5px] border-[#dde8f5] px-3 py-2 font-inter text-[12.5px] outline-none focus:border-hz-blue"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+              >
+                {STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {s === 'Any' ? 'Any status' : s}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="rounded-lg border-[1.5px] border-[#dde8f5] px-3 py-2 font-inter text-[12.5px] outline-none focus:border-hz-blue"
+                value={budget}
+                onChange={(e) => setBudget(e.target.value as BudgetFilter)}
+              >
+                {BUDGET_OPTIONS.map((b) => (
+                  <option key={b.label} value={b.value}>
+                    {b.label === 'Any budget' ? 'Any budget' : b.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div className="pg-projects-grid-wrap">
+        {loading ? (
+          <div className="projects-grid">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-[340px] animate-pulse rounded-2xl border border-[#dde8f5] bg-white" />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <p className="rounded-2xl border border-dashed border-[#dde8f5] bg-white px-4 py-12 text-center font-inter text-sm text-muted">
+            No projects match your filters.{' '}
+            <Link href="/projects" className="font-semibold text-hz-blue">
+              Clear filters
+            </Link>
+          </p>
+        ) : (
+          <div className="projects-grid">
+            {filtered.map((p) => (
+              <ProjCard key={p.projectId} project={p} />
+            ))}
+          </div>
+        )}
       </div>
       <Footer />
     </div>

@@ -1,30 +1,64 @@
 const quotes = [
   {
-    name: 'Ananya Rao',
-    role: 'Investor, Hyderabad',
-    text: 'Title verification and EC clarity before site visit — Infra saved us weeks of back-and-forth.',
+    initials: 'RK',
+    avatarBg: '#2f80ed',
+    name: 'Ravi Kumar',
+    role: 'Hyderabad · Villa buyer',
+    text: 'Found my dream villa in Kokapet through Houznext Infra. RERA verified, title clear, zero brokerage. The property insights helped me understand the area growth potential.',
   },
   {
-    name: 'Rahul Verma',
-    role: 'Developer, Bengaluru',
-    text: 'Pipeline-grade CRM and visit scheduling keeps our launch inventory moving without chaos.',
+    initials: 'SM',
+    avatarBg: '#db2777',
+    name: 'Sunita Mehta',
+    role: 'Bengaluru · Apartment seller',
+    text: 'Sold my apartment in 3 weeks! The listing process was smooth and the Houznext team handled everything including the EC verification and documentation.',
+  },
+  {
+    initials: 'VR',
+    avatarBg: '#0d9488',
+    name: 'Venkat Rao',
+    role: 'Hyderabad · Plot buyer',
+    text: 'The property value calculator was spot on. Got a fair deal on a plot in ORR. Free 1-year property management support is a bonus that none of the others offer.',
   },
 ];
 
 export function Testimonials() {
   return (
-    <section className="overflow-x-hidden bg-offwhite py-9 md:py-14">
+    <section className="overflow-x-hidden bg-white py-9 md:py-14">
       <div className="mx-auto max-w-infra px-4 md:px-7">
-        <h2 className="font-montserrat text-[22px] font-extrabold leading-tight text-charcoal md:text-2xl">What partners say</h2>
-        <div className="-mx-4 mt-6 flex gap-3 overflow-x-auto px-4 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-2 md:gap-4 md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden">
+        <div className="mb-8 text-center md:mb-8">
+          <div className="font-montserrat text-[11px] font-bold uppercase tracking-[0.12em] text-hz-teal">
+            Customer stories
+          </div>
+          <h2 className="mt-1.5 font-montserrat text-[26px] font-extrabold text-charcoal">
+            What our customers say
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-[18px]">
           {quotes.map((q) => (
             <figure
               key={q.name}
-              className="w-[80vw] max-w-[300px] shrink-0 rounded-2xl border border-border bg-hzwhite p-5 md:w-auto md:max-w-none md:shrink md:p-6"
+              className="rounded-[14px] border border-[#dde8f5] bg-offwhite p-5 md:p-[22px]"
             >
-              <blockquote className="font-inter text-[13px] leading-relaxed text-charcoal md:text-sm">&ldquo;{q.text}&rdquo;</blockquote>
-              <figcaption className="mt-4 font-montserrat text-[13px] font-bold text-charcoal md:text-sm">{q.name}</figcaption>
-              <div className="font-inter text-[11px] text-muted md:text-xs">{q.role}</div>
+              <div className="mb-3 flex gap-0.5 text-sm text-hz-amber" aria-hidden>
+                {'★★★★★'}
+              </div>
+              <blockquote className="mb-3.5 font-inter text-[13px] leading-[1.7] text-muted">
+                &ldquo;{q.text}&rdquo;
+              </blockquote>
+              <figcaption className="flex items-center gap-2.5">
+                <div
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-montserrat text-xs font-extrabold text-white"
+                  style={{ backgroundColor: q.avatarBg }}
+                >
+                  {q.initials}
+                </div>
+                <div>
+                  <div className="font-montserrat text-[13px] font-bold text-charcoal">{q.name}</div>
+                  <div className="font-inter text-[11px] text-muted">{q.role}</div>
+                </div>
+              </figcaption>
             </figure>
           ))}
         </div>

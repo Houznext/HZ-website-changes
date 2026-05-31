@@ -1,21 +1,54 @@
 import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
+import { Check } from 'lucide-react';
+import { infraWhatsAppMeUrl } from '@/lib/infra-public-contact';
+
+const perks = ['Free listing', 'EC & title verified', '1 year free property management', 'Zero brokerage'];
 
 export function ListPropertyCTA() {
+  const waUrl = infraWhatsAppMeUrl('Hi, I would like to list my property with Houznext Infra.');
+
   return (
-    <section className="overflow-x-hidden bg-navy py-10 text-white md:py-16">
-      <div className="mx-auto flex max-w-infra flex-col items-start gap-5 px-4 md:flex-row md:items-center md:justify-between md:gap-4 md:px-7">
-        <div className="min-w-0">
-          <h2 className="font-montserrat text-[22px] font-extrabold leading-tight md:text-3xl">List your property with Houznext Infra</h2>
-          <p className="mt-2 max-w-xl font-inter text-[13px] leading-relaxed text-white/65 md:text-sm">
-            Reach verified buyers, track enquiries in CRM, and get title / EC / RERA checks on priority lanes.
-          </p>
+    <section
+      className="overflow-x-hidden py-9 md:py-14"
+      style={{ background: 'linear-gradient(135deg,#0f2a44,#1a4060)' }}
+    >
+      <div className="mx-auto max-w-infra px-4 text-center md:px-7">
+        <div className="font-montserrat text-[11px] font-bold uppercase tracking-[0.15em] text-hz-teal">
+          For sellers
         </div>
-        <Link href="/sell" className="w-full md:w-auto">
-          <Button variant="accent" className="min-h-[44px] w-full justify-center md:w-auto">
-            Start 3-step listing
-          </Button>
-        </Link>
+        <h2 className="mt-3 font-montserrat text-[clamp(24px,3.5vw,40px)] font-extrabold leading-tight text-white">
+          List your property with Houznext Infra
+        </h2>
+        <p className="mx-auto mt-2.5 max-w-[520px] font-inter text-sm leading-relaxed text-white/60">
+          Reach thousands of verified buyers. We handle EC &amp; title checks, RERA compliance, photography and
+          more. Zero hidden fees.
+        </p>
+
+        <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href="/sell"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-hz-blue px-7 py-3 font-montserrat text-sm font-bold text-white transition hover:bg-hz-blue-hover"
+          >
+            List your property →
+          </Link>
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-white/30 bg-transparent px-7 py-3 font-montserrat text-sm font-bold text-white transition hover:bg-white/10"
+          >
+            Talk to our team
+          </a>
+        </div>
+
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+          {perks.map((perk) => (
+            <div key={perk} className="flex items-center gap-1.5 font-inter text-xs text-white/60">
+              <Check className="h-3.5 w-3.5 shrink-0 text-[#22c55e]" strokeWidth={2} />
+              {perk}
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

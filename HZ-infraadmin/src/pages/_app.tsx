@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { getToken, getUser, clearSession } from '@/lib/session';
 import { useInfraPermissionStore } from '@/stores/useInfraPermissionStore';
 import { ListingFormProvider } from '@/context/ListingFormContext';
+import { ProjectFormProvider } from '@/context/ProjectFormContext';
 import '@/styles/globals.css';
 
 function AuthSync() {
@@ -32,8 +33,8 @@ function AuthSync() {
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const wizard =
-    router.pathname.startsWith('/new-property') || /^\/listings\/[^/]+\/edit$/.test(router.pathname);
+  const isListingWizard = router.pathname.startsWith('/new-property') || /^\/listings\/[^/]+\/edit$/.test(router.pathname);
+  const isProjectWizard = router.pathname.startsWith('/projects/new');
 
   const inner = (
     <>
@@ -42,9 +43,13 @@ export default function App({ Component, pageProps }: AppProps) {
     </>
   );
 
+  let wrapped = inner;
+  if (isListingWizard) wrapped = <ListingFormProvider>{wrapped}</ListingFormProvider>;
+  if (isProjectWizard) wrapped = <ProjectFormProvider>{wrapped}</ProjectFormProvider>;
+
   return (
     <>
-      {wizard ? <ListingFormProvider>{inner}</ListingFormProvider> : inner}
+      {wrapped}
       <Toaster
         position="bottom-right"
         toastOptions={{

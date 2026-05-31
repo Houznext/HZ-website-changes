@@ -67,10 +67,7 @@ export function CuratedSection({ lands, villas, apartments, plots }: Props) {
   return (
     <section className="overflow-x-hidden bg-white py-9 md:py-14">
       <div className="mx-auto max-w-infra px-4 md:px-7">
-        <p className="font-montserrat text-[11px] font-bold uppercase tracking-[0.12em] text-[#0d9488]">
-          Section 2 — Curated for purpose
-        </p>
-        <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="font-montserrat text-[22px] font-extrabold leading-tight text-charcoal md:text-3xl">Properties curated for you</h2>
           <Link
             href="/buy"

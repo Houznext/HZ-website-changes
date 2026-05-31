@@ -67,8 +67,7 @@ export function EnquiryPanel({ property }: { property: PublicProperty }) {
     : null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[500] max-h-[55vh] overflow-y-auto rounded-t-2xl border-t border-[#dde8f5] bg-white pb-[max(20px,env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(15,42,68,0.15)] lg:static lg:max-h-none lg:overflow-visible lg:rounded-none lg:border-0 lg:bg-transparent lg:pb-0 lg:shadow-none">
-      <div className="sticky top-0 z-[1] flex flex-col gap-4 p-4 lg:sticky lg:top-[108px] lg:p-0">
+    <aside className="mt-6 flex flex-col gap-4 lg:mt-0 lg:sticky lg:top-[108px] lg:self-start">
       <div className="rounded-xl border border-[#dde8f5] bg-white p-5 shadow-sm">
         <div className="font-montserrat text-[10px] font-bold uppercase tracking-wide text-muted">Price</div>
         <div className="mt-1 font-montserrat text-3xl font-extrabold text-charcoal">{formatPriceInr(property.basePrice)}</div>
@@ -151,7 +150,6 @@ export function EnquiryPanel({ property }: { property: PublicProperty }) {
           Share ↗
         </button>
       </div>
-      </div>
-    </div>
+    </aside>
   );
 }
