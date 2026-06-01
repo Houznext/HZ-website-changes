@@ -76,4 +76,25 @@ export class LivebuildOtpService {
 
     return { token, customerMobile: normalized };
   }
+
+  assertOtpVerifiedToken(token: string, mobile: string): void {
+    const normalized = this.normalizeMobile(mobile);
+    try {
+      const payload = this.jwtService.verify<{ sub?: string; mobile?: string }>(
+        token,
+        { secret: lbSecret() },
+      );
+      const tokenMobile = this.normalizeMobile(
+        payload.mobile ?? payload.sub ?? '',
+      );
+      if (tokenMobile !== normalized) {
+        throw new BadRequestException(
+          'OTP verification does not match this mobile number',
+        );
+      }
+    } catch (e) {
+      if (e instanceof BadRequestException) throw e;
+      throw new BadRequestException('Invalid or expired OTP verification');
+    }
+  }
 }

@@ -30,6 +30,26 @@ export class FilterPropertyDto {
   @IsString()
   bhk?: string;
 
+  /** Comma-separated BHK values (e.g. `2BHK,3BHK,5BHK+`). */
+  @IsOptional()
+  @IsString()
+  bhkTypes?: string;
+
+  /** Comma-separated property types (e.g. `Apartment,Villa`). */
+  @IsOptional()
+  @IsString()
+  types?: string;
+
+  /** Comma-separated construction statuses. */
+  @IsOptional()
+  @IsString()
+  statuses?: string;
+
+  /** Comma-separated furnishing values (`Unfurnished`, `Semi-Furnished`, `Fully-Furnished`). */
+  @IsOptional()
+  @IsString()
+  furnishing?: string;
+
   @IsOptional()
   @Type(() => Number)
   @IsNumber()

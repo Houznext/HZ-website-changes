@@ -3,7 +3,12 @@ import api from '@/lib/axios';
 import type { PublicProperty } from '@/types/property.types';
 
 export function useProperties(params: Record<string, string | number | undefined>) {
-  const [data, setData] = useState<{ items: PublicProperty[]; total: number } | null>(null);
+  const [data, setData] = useState<{
+    items: PublicProperty[];
+    total: number;
+    page: number;
+    totalPages: number;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,13 +27,17 @@ export function useProperties(params: Record<string, string | number | undefined
         data?: PublicProperty[];
         items?: PublicProperty[];
         total?: number;
+        page?: number;
+        totalPages?: number;
       };
       const items = body.data ?? body.items ?? [];
       const total = body.total ?? items.length;
-      setData({ items, total });
+      const page = body.page ?? Number(params.page) ?? 1;
+      const totalPages = body.totalPages ?? Math.max(1, Math.ceil(total / Number(params.limit || 20)));
+      setData({ items, total, page, totalPages });
     } catch {
       setError('Failed to load properties');
-      setData({ items: [], total: 0 });
+      setData({ items: [], total: 0, page: 1, totalPages: 1 });
     } finally {
       setLoading(false);
     }

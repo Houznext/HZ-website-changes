@@ -29,6 +29,17 @@ import {
 } from '../components';
 import livebuildApi from '../lib/api';
 
+function projectMobile10(p: LbProjectDetail): string {
+  const raw = p.customerMobile ?? p.customer?.phone ?? '';
+  return raw.replace(/\D/g, '').slice(-10);
+}
+
+function formatMobileDisplay(p: LbProjectDetail): string {
+  const ten = projectMobile10(p);
+  if (ten.length !== 10) return p.customerMobile ?? '—';
+  return `+91 ${ten.slice(0, 5)} ${ten.slice(5)}`;
+}
+
 type Props = {
   project: LbProjectDetail;
   onUpdated: (p: LbProjectDetail) => void;
@@ -43,15 +54,111 @@ export function ProjectOverviewTab({ project, onUpdated, onSwitchTab }: Props) {
   const [saving, setSaving] = useState(false);
   const [customers, setCustomers] = useState<LbCustomer[]>([]);
   const [team, setTeam] = useState<LbTeamMember[]>([]);
+  const [mobilePhone, setMobilePhone] = useState('');
+  const [mobileOtp, setMobileOtp] = useState('');
+  const [mobileVerified, setMobileVerified] = useState(false);
+  const [mobileOtpToken, setMobileOtpToken] = useState<string | undefined>();
+  const [mobileOtpStatus, setMobileOtpStatus] = useState(
+    'Send OTP to verify the mobile number',
+  );
+  const [mobileSaving, setMobileSaving] = useState(false);
   const stats = project.stats;
+  const hasMobile = projectMobile10(project).length === 10;
+  const mobileUnchanged =
+    hasMobile && mobilePhone.replace(/\D/g, '').slice(-10) === projectMobile10(project);
 
   useEffect(() => {
     livebuildApi.listCustomers().then(setCustomers).catch(() => setCustomers([]));
     livebuildApi.listTeam().then(setTeam).catch(() => setTeam([]));
   }, []);
 
+  useEffect(() => {
+    const ten = projectMobile10(project);
+    setMobilePhone(ten.length === 10 ? ten : '');
+    setMobileOtp('');
+    setMobileVerified(false);
+    setMobileOtpToken(undefined);
+    setMobileOtpStatus(
+      ten.length === 10
+        ? 'Change number below and verify with OTP'
+        : 'Enter mobile and verify with OTP to link LiveBuild portal login',
+    );
+  }, [project.id, project.customerMobile, project.customer?.phone]);
+
   const displayPct =
     form.progressOverridePct != null ? form.progressOverridePct : project.progressPct;
+
+  const sendMobileOtp = async () => {
+    const p = mobilePhone.replace(/\D/g, '').slice(-10);
+    if (p.length !== 10) {
+      lbToast('Enter a valid 10-digit mobile number', 'err');
+      return;
+    }
+    if (hasMobile && p === projectMobile10(project)) {
+      lbToast('Enter a different mobile number to change', 'err');
+      return;
+    }
+    try {
+      await livebuildApi.sendCustomerOtp(p);
+      setMobileVerified(false);
+      setMobileOtpToken(undefined);
+      setMobileOtpStatus('OTP sent — check SMS');
+      lbToast('OTP sent', 'ok');
+    } catch (e: any) {
+      lbToast(e?.body?.message || 'Failed to send OTP', 'err');
+    }
+  };
+
+  const verifyMobileOtp = async () => {
+    const p = mobilePhone.replace(/\D/g, '').slice(-10);
+    if (!mobileOtp.trim()) {
+      lbToast('Enter OTP', 'err');
+      return;
+    }
+    try {
+      const res = await livebuildApi.verifyCustomerOtp(p, mobileOtp.trim());
+      if (res.verified) {
+        setMobileVerified(true);
+        setMobileOtpToken(res.otpToken);
+        setMobileOtpStatus('✓ Mobile verified');
+        lbToast('Mobile verified', 'ok');
+      } else {
+        lbToast('Invalid OTP', 'err');
+      }
+    } catch (e: any) {
+      lbToast(e?.body?.message || 'Verification failed', 'err');
+    }
+  };
+
+  const saveCustomerMobile = async () => {
+    const p = mobilePhone.replace(/\D/g, '').slice(-10);
+    if (p.length !== 10) {
+      lbToast('Enter a valid 10-digit mobile number', 'err');
+      return;
+    }
+    if (hasMobile && p === projectMobile10(project)) {
+      lbToast('This is already the project mobile number', 'err');
+      return;
+    }
+    if (!mobileVerified || !mobileOtpToken) {
+      lbToast('Verify the mobile number with OTP first', 'err');
+      return;
+    }
+    setMobileSaving(true);
+    try {
+      const updated = await livebuildApi.updateProjectCustomerMobile(project.id, {
+        phone: p,
+        otpVerifiedToken: mobileOtpToken,
+      });
+      onUpdated(updated);
+      setForm((f) => ({ ...f, customerMobile: updated.customerMobile }));
+      lbToast(hasMobile ? 'Mobile number updated' : 'Mobile number linked', 'ok');
+    } catch (e: any) {
+      lbToast(e?.body?.message || 'Failed to update mobile', 'err');
+    } finally {
+      setMobileSaving(false);
+    }
+  };
 
   const save = async () => {
     setSaving(true);
@@ -150,6 +257,116 @@ export function ProjectOverviewTab({ project, onUpdated, onSwitchTab }: Props) {
                 ))}
               </FormInput>
             </div>
+          </div>
+          <div
+            style={{
+              marginBottom: 12,
+              padding: '12px 14px',
+              borderRadius: 10,
+              border: '1px solid var(--lb-bd)',
+              background: 'var(--lb-sf2)',
+            }}
+          >
+            <div style={{ marginBottom: 10 }}>
+              <Label required={!hasMobile}>
+                Customer mobile (LiveBuild portal)
+              </Label>
+              {hasMobile ? (
+                <div
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 600,
+                    fontFamily: 'var(--lb-m)',
+                    marginTop: 4,
+                  }}
+                >
+                  {formatMobileDisplay(project)}
+                </div>
+              ) : null}
+              <div style={{ fontSize: 11, color: 'var(--lb-mu)', marginTop: 4 }}>
+                {hasMobile
+                  ? 'This number is used for the customer website LiveBuild login. It cannot be removed — only changed after OTP verification on the new number.'
+                  : 'Links this project to the customer website LiveBuild portal. OTP verification is required.'}
+              </div>
+            </div>
+            <div className="lb-form-row" style={{ marginBottom: 10 }}>
+              <div>
+                <Label>{hasMobile ? 'New mobile number' : 'Mobile number'}</Label>
+                <div style={{ display: 'flex', gap: 7 }}>
+                  <FormInput
+                    type="tel"
+                    placeholder="+91 XXXXX XXXXX"
+                    value={mobilePhone}
+                    onChange={(e) => {
+                      setMobilePhone(e.target.value);
+                      setMobileVerified(false);
+                      setMobileOtpToken(undefined);
+                      setMobileOtpStatus('Send OTP after entering the number');
+                    }}
+                    style={{ flex: 1 }}
+                  />
+                  <Btn
+                    variant="ghost"
+                    size="sm"
+                    onClick={sendMobileOtp}
+                    style={{ flexShrink: 0 }}
+                    disabled={mobileUnchanged}
+                  >
+                    Send OTP
+                  </Btn>
+                </div>
+              </div>
+              <div>
+                <Label>OTP verification</Label>
+                <div style={{ display: 'flex', gap: 7 }}>
+                  <FormInput
+                    placeholder="6-digit OTP"
+                    value={mobileOtp}
+                    onChange={(e) => setMobileOtp(e.target.value)}
+                    style={{
+                      flex: 1,
+                      letterSpacing: '0.15em',
+                      fontFamily: 'var(--lb-m)',
+                    }}
+                  />
+                  <Btn
+                    variant="tl"
+                    size="sm"
+                    onClick={verifyMobileOtp}
+                    style={{ flexShrink: 0 }}
+                    disabled={mobileUnchanged}
+                  >
+                    Verify
+                  </Btn>
+                </div>
+                <div
+                  style={{
+                    fontSize: 11,
+                    marginTop: 4,
+                    color: mobileVerified ? 'var(--lb-tl)' : 'var(--lb-mu)',
+                  }}
+                >
+                  {mobileOtpStatus}
+                </div>
+              </div>
+            </div>
+            <Btn
+              variant="tl"
+              size="sm"
+              onClick={saveCustomerMobile}
+              disabled={
+                mobileSaving ||
+                mobileUnchanged ||
+                !mobileVerified ||
+                !mobileOtpToken
+              }
+            >
+              {mobileSaving
+                ? 'Saving…'
+                : hasMobile
+                  ? 'Save new mobile'
+                  : 'Link mobile to project'}
+            </Btn>
           </div>
           <div className="lb-form-row" style={{ marginBottom: 12 }}>
             <div>

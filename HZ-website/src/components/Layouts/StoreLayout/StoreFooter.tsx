@@ -71,7 +71,7 @@ export default function StoreFooter() {
                 { label: 'My account', href: '/my-account' },
                 { label: 'Wishlist', href: '/store/wishlist' },
                 { label: 'Cart', href: '/store/cart' },
-                { label: 'LiveBuild', href: '/livebuild' },
+                { label: 'LiveBuild', href: '/livebuild/dashboard' },
               ],
             },
           ].map((col) => (

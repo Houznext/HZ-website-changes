@@ -10,6 +10,7 @@ import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { useSavedProperties } from '@/hooks/useSavedProperties';
 import { getSeenProperties, type StoredPropertyRef } from '@/lib/propertyListsLocal';
+import { getSavedProjects, type StoredProjectRef } from '@/lib/projectListsLocal';
 import api from '@/lib/axios';
 import type { InfraProperty } from '@/types/infra.types';
 import type { PublicProperty } from '@/types/property.types';
@@ -87,10 +88,15 @@ export function ProfilePageClient() {
   const [seenItems, setSeenItems] = useState<StoredPropertyRef[]>([]);
   const [seenProperties, setSeenProperties] = useState<PublicProperty[]>([]);
   const [seenLoading, setSeenLoading] = useState(false);
+  const [savedProjects, setSavedProjects] = useState<StoredProjectRef[]>([]);
   const [editOpen, setEditOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (mounted && status === 'authenticated') setSavedProjects(getSavedProjects());
+  }, [mounted, status, tab]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -170,7 +176,7 @@ export function ProfilePageClient() {
       id: 'saved',
       label: 'Saved properties',
       mobileLabel: 'Saved',
-      count: savedItems.length,
+      count: savedItems.length + savedProjects.length,
       icon: <Heart size={15} strokeWidth={1.8} className={tab === 'saved' ? 'text-hz-blue' : 'text-muted'} />,
     },
     {
@@ -199,18 +205,41 @@ export function ProfilePageClient() {
     <>
       {tab === 'saved' && (
         <>
-          <h1 className="infra-profile-panel-title">Saved properties</h1>
-          {savedItems.length === 0 ? (
+          <h1 className="infra-profile-panel-title">Saved</h1>
+          {savedItems.length === 0 && savedProjects.length === 0 ? (
             <p className="infra-profile-empty">
-              No saved properties yet. Tap the heart on a listing to save it here.
+              Nothing saved yet. Tap the heart on a property or project to save it here.
             </p>
-          ) : (
-            <div className="infra-profile-cards-grid">
-              {savedItems.map((p) => (
-                <PropertyCard key={p.propertyId} property={toPublicProperty(p)} />
-              ))}
-            </div>
-          )}
+          ) : null}
+          {savedItems.length > 0 ? (
+            <>
+              <h2 className="mb-3 font-montserrat text-sm font-bold text-charcoal">Properties</h2>
+              <div className="infra-profile-cards-grid mb-8">
+                {savedItems.map((p) => (
+                  <PropertyCard key={p.propertyId} property={toPublicProperty(p)} />
+                ))}
+              </div>
+            </>
+          ) : null}
+          {savedProjects.length > 0 ? (
+            <>
+              <h2 className="mb-3 font-montserrat text-sm font-bold text-charcoal">Projects</h2>
+              <div className="flex flex-col gap-2">
+                {savedProjects.map((p) => (
+                  <Link
+                    key={p.projectId}
+                    href={`/projects/${encodeURIComponent(p.slug)}`}
+                    className="infra-profile-seen-card p-4"
+                  >
+                    <p className="font-montserrat text-[15px] font-bold leading-snug text-charcoal">{p.name}</p>
+                    <p className="mt-1 font-inter text-xs text-muted">
+                      {[p.locality, p.city].filter(Boolean).join(' · ') || 'Project'}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </>
+          ) : null}
         </>
       )}
 

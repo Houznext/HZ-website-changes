@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
 export type PropertyAlertAction = 'created' | 'updated' | 'deleted' | 'approved' | 'rejected';
+export type ProjectAlertAction = 'created' | 'updated' | 'deleted' | 'published';
 
 @Injectable()
 export class InfraMailService {
@@ -28,6 +29,10 @@ export class InfraMailService {
 
   private alertTo(): string {
     return this.config.get<string>('PROPERTY_ALERT_EMAIL') || 'business@houznext.com';
+  }
+
+  private projectAlertTo(): string {
+    return this.config.get<string>('PROJECT_ALERT_EMAIL') || this.alertTo();
   }
 
   /** Website property enquiries — defaults to business@houznext.com (override with ENQUIRY_NOTIFY_EMAIL). */
@@ -103,6 +108,63 @@ export class InfraMailService {
       this.log.log(`Property alert (${params.action}) sent to ${to}`);
     } catch (e) {
       this.log.error(`Failed to send property alert: ${(e as Error).message}`);
+    }
+  }
+
+  async sendProjectAlert(params: {
+    action: ProjectAlertAction;
+    projectId: string;
+    refCode?: string | null;
+    name?: string | null;
+    projectType?: string | null;
+    city?: string | null;
+    locality?: string | null;
+    developerName?: string | null;
+    status?: string | null;
+    published?: boolean;
+    minPrice?: string | null;
+    maxPrice?: string | null;
+    actorEmail?: string | null;
+    actorKind?: string | null;
+    actorId?: string | null;
+  }): Promise<void> {
+    const transport = this.transporter();
+    if (!transport) {
+      this.log.warn('SMTP not configured — skipping project alert email');
+      return;
+    }
+
+    const to = this.projectAlertTo();
+    const subject = `[Infra] Project ${params.action}: ${params.refCode || params.projectId} — ${params.name || '(no name)'}`;
+
+    const lines = [
+      `Action: ${params.action.toUpperCase()}`,
+      `Project ID: ${params.projectId}`,
+      `Ref code: ${params.refCode ?? '—'}`,
+      `Name: ${params.name ?? '—'}`,
+      `Type: ${params.projectType ?? '—'}`,
+      `Developer: ${params.developerName ?? '—'}`,
+      `Location: ${params.locality ?? '—'}, ${params.city ?? '—'}`,
+      `Status: ${params.status ?? '—'}`,
+      `Published: ${params.published === undefined ? '—' : params.published ? 'yes' : 'no'}`,
+      `Price range: ${params.minPrice ?? '—'} – ${params.maxPrice ?? '—'}`,
+      '',
+      'Actor:',
+      `  Kind: ${params.actorKind ?? '—'}`,
+      `  ID: ${params.actorId ?? '—'}`,
+      `  Email: ${params.actorEmail ?? '—'}`,
+    ];
+
+    try {
+      await transport.sendMail({
+        from: this.fromAddress(),
+        to,
+        subject,
+        text: lines.join('\n'),
+      });
+      this.log.log(`Project alert (${params.action}) sent to ${to}`);
+    } catch (e) {
+      this.log.error(`Failed to send project alert: ${(e as Error).message}`);
     }
   }
 

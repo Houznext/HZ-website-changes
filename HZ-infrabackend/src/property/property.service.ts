@@ -231,10 +231,15 @@ export class PropertyService {
         page: filters.page,
         limit: filters.limit,
         city: filters.city,
+        type: filters.propertyType ?? filters.type,
+        types: filters.types,
         bhk: filters.bhk,
+        bhkTypes: filters.bhkTypes,
+        status: filters.status,
+        statuses: filters.statuses,
+        furnishing: filters.furnishing,
         minPrice: filters.minPrice,
         maxPrice: filters.maxPrice,
-        status: filters.status,
         listingFor: filters.listingFor,
         isFeatured: filters.isFeatured,
         sortBy: filters.sortBy,
@@ -255,10 +260,44 @@ export class PropertyService {
 
     const type = filters.propertyType ?? filters.type;
     if (filters.city) qb.andWhere('p.city = :city', { city: filters.city });
-    if (type) qb.andWhere('p.propertyType = :ptype', { ptype: type });
-    if (filters.bhk) qb.andWhere('p.bhkType = :bhk', { bhk: filters.bhk });
+    const typesCsv = filters.types?.trim();
+    if (typesCsv) {
+      const types = typesCsv.split(',').map((t) => t.trim()).filter(Boolean);
+      if (types.length) qb.andWhere('p.propertyType IN (:...types)', { types });
+    } else if (type) {
+      qb.andWhere('p.propertyType = :ptype', { ptype: type });
+    }
+    const bhkCsv = filters.bhkTypes?.trim();
+    if (bhkCsv) {
+      const bhks = bhkCsv.split(',').map((b) => b.trim()).filter(Boolean);
+      if (bhks.length) {
+        qb.andWhere(
+          new Brackets((sub) => {
+            bhks.forEach((b, i) => {
+              const norm = b === '5+' ? '5BHK+' : b;
+              const param = `bhkMulti${i}`;
+              if (i === 0) sub.where(`p.bhkType = :${param}`, { [param]: norm });
+              else sub.orWhere(`p.bhkType = :${param}`, { [param]: norm });
+            });
+          }),
+        );
+      }
+    } else if (filters.bhk) {
+      qb.andWhere('p.bhkType = :bhk', { bhk: filters.bhk });
+    }
     if (filters.listingFor) qb.andWhere('p.listingFor = :lf', { lf: filters.listingFor });
-    if (filters.status) qb.andWhere('p.constructionStatus = :cs', { cs: filters.status });
+    const statusCsv = filters.statuses?.trim();
+    if (statusCsv) {
+      const statuses = statusCsv.split(',').map((s) => s.trim()).filter(Boolean);
+      if (statuses.length) qb.andWhere('p.constructionStatus IN (:...statuses)', { statuses });
+    } else if (filters.status) {
+      qb.andWhere('p.constructionStatus = :cs', { cs: filters.status });
+    }
+    const furnCsv = filters.furnishing?.trim();
+    if (furnCsv) {
+      const furnishing = furnCsv.split(',').map((f) => f.trim()).filter(Boolean);
+      if (furnishing.length) qb.andWhere('p.furnishingStatus IN (:...furnishing)', { furnishing });
+    }
     if (filters.isFeatured === true) {
       qb.andWhere('p.isFeatured = true');
     }
@@ -289,10 +328,14 @@ export class PropertyService {
       limit?: number;
       city?: string;
       type?: string;
+      types?: string;
       bhk?: string;
+      bhkTypes?: string;
       minPrice?: number;
       maxPrice?: number;
       status?: string;
+      statuses?: string;
+      furnishing?: string;
       listingFor?: string;
       isFeatured?: boolean;
       sortBy?: string;
@@ -408,11 +451,28 @@ export class PropertyService {
       const city = opts.city.toLowerCase();
       rows = rows.filter((p) => p.city?.toLowerCase().includes(city) || p.locality?.toLowerCase().includes(city));
     }
-    if (opts?.type) {
+    if (opts?.types) {
+      const types = opts.types.split(',').map((t) => t.trim()).filter(Boolean);
+      if (types.length) rows = rows.filter((p) => types.includes(String(p.propertyType)));
+    } else if (opts?.type) {
       rows = rows.filter((p) => String(p.propertyType) === opts.type);
     }
-    if (opts?.bhk) rows = rows.filter((p) => p.bhkType === opts.bhk);
-    if (opts?.status) rows = rows.filter((p) => String(p.constructionStatus) === opts.status);
+    if (opts?.bhkTypes) {
+      const bhks = opts.bhkTypes.split(',').map((b) => (b.trim() === '5+' ? '5BHK+' : b.trim())).filter(Boolean);
+      if (bhks.length) rows = rows.filter((p) => bhks.includes(String(p.bhkType ?? '')));
+    } else if (opts?.bhk) {
+      rows = rows.filter((p) => p.bhkType === opts.bhk);
+    }
+    if (opts?.statuses) {
+      const statuses = opts.statuses.split(',').map((s) => s.trim()).filter(Boolean);
+      if (statuses.length) rows = rows.filter((p) => statuses.includes(String(p.constructionStatus)));
+    } else if (opts?.status) {
+      rows = rows.filter((p) => String(p.constructionStatus) === opts.status);
+    }
+    if (opts?.furnishing) {
+      const furnishing = opts.furnishing.split(',').map((f) => f.trim()).filter(Boolean);
+      if (furnishing.length) rows = rows.filter((p) => furnishing.includes(String(p.furnishingStatus ?? '')));
+    }
     if (opts?.listingFor) rows = rows.filter((p) => String(p.listingFor) === opts.listingFor);
     if (opts?.isFeatured === true) rows = rows.filter((p) => p.isFeatured);
     if (opts?.minPrice !== undefined) {
@@ -774,10 +834,11 @@ export class PropertyService {
     return p;
   }
 
-  async adminDelete(id: string): Promise<void> {
+  async adminDelete(id: string, actor?: JwtPayload | null): Promise<{ message: string }> {
     const p = await this.propRepo.findOne({ where: { propertyId: id } });
     if (!p) throw new NotFoundException('Property not found');
     await this.propRepo.delete({ propertyId: id });
-    this.notifyProperty('deleted', p, null);
+    this.notifyProperty('deleted', p, actor);
+    return { message: 'Property deleted' };
   }
 }

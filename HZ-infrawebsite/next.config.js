@@ -8,6 +8,14 @@ let infraBackendUrl = String(
 
 if (!infraBackendUrl) infraBackendUrl = 'http://127.0.0.1:4001';
 
+let apiImagePattern = null;
+try {
+  const u = new URL(infraBackendUrl);
+  apiImagePattern = { protocol: u.protocol.replace(':', ''), hostname: u.hostname, pathname: '/**' };
+} catch {
+  apiImagePattern = { protocol: 'http', hostname: '127.0.0.1', pathname: '/**' };
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -43,6 +51,9 @@ const nextConfig = {
       { protocol: 'https', hostname: 'onecasa-dev-assets.s3.ap-south-1.amazonaws.com', pathname: '/**' },
       { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
       { protocol: 'https', hostname: 'placehold.co', pathname: '/**' },
+      apiImagePattern,
+      { protocol: 'http', hostname: 'localhost', pathname: '/**' },
+      { protocol: 'http', hostname: '127.0.0.1', pathname: '/**' },
     ],
   },
 };

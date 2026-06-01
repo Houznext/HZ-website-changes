@@ -63,6 +63,7 @@ export function serializeProjectSummary(
     code: p.projectCode,
     name: p.name,
     customerName: p.customer?.name ?? p.customerMobile ?? '—',
+    customerMobile: p.customerMobile ?? undefined,
     customerId: p.customerId != null ? String(p.customerId) : undefined,
     propertyType: p.propertyType ?? undefined,
     projectType: p.projectType ?? undefined,

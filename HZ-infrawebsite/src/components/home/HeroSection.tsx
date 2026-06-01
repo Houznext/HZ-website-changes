@@ -5,6 +5,7 @@ import {
   Landmark,
   MapPinned,
 } from 'lucide-react';
+import { recordTypeInterest } from '@/lib/personalization';
 import { useSearchStore, type HeroTab } from '@/store/searchStore';
 import { HeroSearch } from '@/components/search/HeroSearch';
 import api from '@/lib/axios';
@@ -197,7 +198,10 @@ export function HeroSection() {
                   <button
                     key={key}
                     type="button"
-                    onClick={() => setActiveTab(key)}
+                    onClick={() => {
+                      setActiveTab(key);
+                      recordTypeInterest(key, 4);
+                    }}
                     className={`flex min-h-[40px] flex-1 items-center justify-center gap-1 rounded-lg py-2.5 font-montserrat text-[11px] font-bold transition sm:gap-2 sm:py-3 sm:text-xs md:text-[13px] ${
                       active
                         ? 'bg-hero-blue text-white shadow-md'

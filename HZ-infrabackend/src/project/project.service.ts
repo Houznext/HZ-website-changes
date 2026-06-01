@@ -1,7 +1,9 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { JwtPayload } from '../auth/jwt.strategy';
 import { ConstructionStatus, ProjectType } from '../common/enums/infra.enums';
+import { InfraMailService, ProjectAlertAction } from '../common/mail/infra-mail.service';
 import { InfraProject } from './entities/infra-project.entity';
 import { InfraProjectMilestone } from './entities/infra-project-milestone.entity';
 import { CreateProjectDto, MilestoneDto, UpdateProjectDto } from './dto/project.dto';
@@ -88,12 +90,37 @@ function mapDtoToEntity(dto: CreateProjectDto | UpdateProjectDto, existing?: Inf
 
 @Injectable()
 export class ProjectService implements OnModuleInit {
+  private readonly log = new Logger(ProjectService.name);
+
   constructor(
     @InjectRepository(InfraProject)
     private readonly repo: Repository<InfraProject>,
     @InjectRepository(InfraProjectMilestone)
     private readonly msRepo: Repository<InfraProjectMilestone>,
+    private readonly mail: InfraMailService,
   ) {}
+
+  private notifyProject(action: ProjectAlertAction, entity: InfraProject, actor?: JwtPayload | null): void {
+    void this.mail
+      .sendProjectAlert({
+        action,
+        projectId: entity.projectId,
+        refCode: entity.refCode,
+        name: entity.name,
+        projectType: String(entity.projectType),
+        city: entity.city,
+        locality: entity.locality,
+        developerName: entity.developerName,
+        status: entity.status,
+        published: entity.published,
+        minPrice: entity.minPrice,
+        maxPrice: entity.maxPrice,
+        actorEmail: actor?.email,
+        actorKind: actor?.kind,
+        actorId: actor?.sub,
+      })
+      .catch((err) => this.log.warn(`Project alert failed: ${(err as Error).message}`));
+  }
 
   async onModuleInit() {
     await this.seedProjectsIfEmpty();
@@ -212,6 +239,14 @@ export class ProjectService implements OnModuleInit {
     );
     await this.msRepo.save(rows);
     return this.findById(projectId);
+  }
+
+  async adminDelete(id: string, actor?: JwtPayload | null): Promise<{ message: string }> {
+    const p = await this.repo.findOne({ where: { projectId: id } });
+    if (!p) throw new NotFoundException('Project not found');
+    await this.repo.delete({ projectId: id });
+    this.notifyProject('deleted', p, actor);
+    return { message: 'Project deleted' };
   }
 
   async seedProjectsIfEmpty() {

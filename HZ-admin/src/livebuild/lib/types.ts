@@ -24,6 +24,7 @@ export interface LbProjectSummary {
   code: string;
   name: string;
   customerName: string;
+  customerMobile?: string;
   customerId?: string;
   propertyType?: string;
   projectType?: string;

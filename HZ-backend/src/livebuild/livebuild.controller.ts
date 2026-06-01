@@ -46,6 +46,7 @@ import {
   UpdateMaterialDto,
   UpdatePaymentDto,
   UpdateProjectDto,
+  UpdateProjectCustomerMobileDto,
   UpdateRoomDto,
   UpdateRoomWorkTypeDto,
   UpdateWorkTypeDto,
@@ -250,6 +251,15 @@ export class LivebuildController {
     @Body() dto: UpdateProjectDto,
   ) {
     return this.livebuildService.updateProject(id, dto);
+  }
+
+  @Patch('projects/:id/customer-mobile')
+  @UseGuards(ControllerAuthGuard)
+  updateProjectCustomerMobile(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateProjectCustomerMobileDto,
+  ) {
+    return this.livebuildService.updateProjectCustomerMobile(id, dto);
   }
 
   @Delete('projects/:id')

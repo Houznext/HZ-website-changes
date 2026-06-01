@@ -52,7 +52,7 @@ export class AdminPropertiesController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.properties.adminDelete(id);
+  remove(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.properties.adminDelete(id, user);
   }
 }

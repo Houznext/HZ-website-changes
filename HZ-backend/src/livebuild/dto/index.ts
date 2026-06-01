@@ -107,6 +107,25 @@ export class CreateProjectDto {
 
 export class UpdateProjectDto extends CreateProjectDto {}
 
+/** Admin: set or change project customer mobile (OTP required). */
+export class UpdateProjectCustomerMobileDto {
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  mobile?: string;
+
+  @IsOptional()
+  @IsString()
+  customerMobile?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  otpVerifiedToken: string;
+}
+
 export class CreateRoomDto {
   @IsString()
   @IsNotEmpty()

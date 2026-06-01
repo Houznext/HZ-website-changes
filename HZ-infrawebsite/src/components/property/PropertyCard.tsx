@@ -1,42 +1,26 @@
 'use client';
 
-import type { MouseEvent } from 'react';
-import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { MapPin, Heart } from 'lucide-react';
 import { clsx } from 'clsx';
 import type { PublicProperty } from '@/types/property.types';
-import { formatPriceInr, getPropertyGradient } from '@/lib/property-utils';
+import { resolveCmsAssetUrl } from '@/lib/cmsAssetUrl';
+import { formatPriceInr, getPropertyGradient, propertyImageUrls } from '@/lib/property-utils';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { isPropertySaved, toggleSavedProperty } from '@/lib/propertyListsLocal';
+import { useSaveProperty } from '@/hooks/useSaveProperty';
 
 type Props = { property: PublicProperty; variant?: 'vertical' | 'horizontal' };
 
 export function PropertyCard({ property, variant = 'vertical' }: Props) {
   const slug = property.slug || property.propertyId;
   const href = `/property/${slug}`;
-  const img = property.coverImageUrl || property.media?.[0]?.url || property.photoUrls?.[0];
-  const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    if (slug) setSaved(isPropertySaved(String(slug)));
-  }, [slug]);
-
-  const onSave = (e: MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!slug) return;
-    setSaved(
-      toggleSavedProperty({
-        slug: String(slug),
-        title: property.title,
-        city: property.city,
-        locality: property.locality,
-        propertyId: property.propertyId,
-      }),
-    );
-  };
+  const rawImg = propertyImageUrls(property)[0];
+  const img = rawImg ? resolveCmsAssetUrl(rawImg, '') : '';
+  const { saved, toggle: onSave } = useSaveProperty({
+    propertyId: property.propertyId,
+    slug: String(slug),
+  });
 
   if (variant === 'horizontal') {
     return (
@@ -50,7 +34,14 @@ export function PropertyCard({ property, variant = 'vertical' }: Props) {
         >
           {img ? (
             <div className="relative h-[180px] w-full sm:h-full sm:min-h-[140px]">
-              <Image src={img} alt="" fill className="object-cover" sizes="(max-width:640px) 100vw, 220px" />
+              <Image
+                src={img}
+                alt=""
+                fill
+                className="object-cover"
+                sizes="(max-width:640px) 100vw, 220px"
+                unoptimized={img.includes('127.0.0.1') || img.includes('localhost')}
+              />
             </div>
           ) : (
             <div className="h-[180px] w-full sm:h-full sm:min-h-[140px]" />
@@ -100,7 +91,14 @@ export function PropertyCard({ property, variant = 'vertical' }: Props) {
       >
         <div className="relative h-[190px] w-full overflow-hidden">
           {img ? (
-            <Image src={img} alt="" fill className="object-cover transition duration-500 group-hover:scale-105" sizes="(max-width:768px) 100vw, 33vw" />
+            <Image
+              src={img}
+              alt=""
+              fill
+              className="object-cover transition duration-500 group-hover:scale-105"
+              sizes="(max-width:768px) 100vw, 33vw"
+              unoptimized={img.includes('127.0.0.1') || img.includes('localhost')}
+            />
           ) : (
             <div className="h-full w-full" style={{ background: getPropertyGradient(property.propertyType) }} />
           )}
@@ -136,9 +134,10 @@ export function PropertyCard({ property, variant = 'vertical' }: Props) {
       </Link>
       <button
         type="button"
-        onClick={onSave}
+        onClick={(e) => void onSave(e)}
         className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/80 bg-white/90 text-charcoal opacity-0 shadow-sm transition duration-150 hover:opacity-100 group-hover:opacity-100"
-        aria-label="Save property"
+        aria-label={saved ? 'Remove from saved properties' : 'Save property'}
+        aria-pressed={saved}
       >
         <Heart className={clsx('h-4 w-4', saved && 'fill-current text-[#f2994a]')} strokeWidth={1.8} />
       </button>

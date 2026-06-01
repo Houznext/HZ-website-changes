@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { recordPreferredCity } from '@/lib/personalization';
 
 const cities = {
   top: [
@@ -48,6 +51,7 @@ export function CityGrid() {
             <Link
               key={c.name}
               href={c.href}
+              onClick={() => recordPreferredCity(c.name)}
               style={{ background: c.gradient }}
               className={`group relative flex h-[180px] cursor-pointer items-end rounded-2xl p-5 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(15,42,68,0.2)] md:h-[200px] ${
                 c.name === 'Hyderabad' ? 'sm:col-span-2 md:col-span-2' : ''
@@ -70,6 +74,7 @@ export function CityGrid() {
 
         <Link
           href={cities.mumbai.href}
+          onClick={() => recordPreferredCity(cities.mumbai.name)}
           style={{ background: cities.mumbai.gradient }}
           className="group mt-3.5 flex h-[88px] cursor-pointer items-center justify-between rounded-2xl px-5 py-4 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(15,42,68,0.15)] md:mt-3.5 md:h-[100px] md:px-7"
         >

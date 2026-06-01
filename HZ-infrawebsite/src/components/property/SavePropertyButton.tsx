@@ -1,9 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
 import { clsx } from 'clsx';
-import { isPropertySaved, toggleSavedProperty } from '@/lib/propertyListsLocal';
+import { useSaveProperty } from '@/hooks/useSaveProperty';
 
 type Props = {
   slug: string;
@@ -14,21 +13,12 @@ type Props = {
 };
 
 export function SavePropertyButton({ slug, title, city, locality, propertyId }: Props) {
-  const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    setSaved(isPropertySaved(slug));
-  }, [slug]);
-
-  const onClick = useCallback(() => {
-    const next = toggleSavedProperty({ slug, title, city, locality, propertyId });
-    setSaved(next);
-  }, [slug, title, city, locality, propertyId]);
+  const { saved, toggle } = useSaveProperty({ slug, propertyId });
 
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={() => void toggle()}
       className={clsx(
         'inline-flex items-center gap-2 rounded-full border px-4 py-2 font-inter text-sm font-semibold transition',
         saved

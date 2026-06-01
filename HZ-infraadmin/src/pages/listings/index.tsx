@@ -4,24 +4,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
-import { Download, LayoutGrid, Plus } from 'lucide-react';
+import { Download, LayoutGrid, List, Plus, Trash2 } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
+import { AdminPropertyCard, type AdminPropertyRow } from '@/components/listings/AdminPropertyCard';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import adminApi from '@/lib/axios';
 import { formatDate, formatPrice } from '@/lib/utils';
 
-type PropRow = {
-  propertyId: string;
-  propertyCode?: string | null;
-  title: string;
-  propertyType: string;
-  city?: string | null;
-  locality?: string | null;
-  basePrice?: string | null;
-  isApproved: boolean;
-  isActive: boolean;
-  listedBy?: string;
-  createdAt: string;
-};
+type PropRow = AdminPropertyRow;
 
 export default function ListingsPage() {
   const router = useRouter();
@@ -30,6 +20,9 @@ export default function ListingsPage() {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<'card' | 'list'>('card');
+  const [deleteTarget, setDeleteTarget] = useState<PropRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const limit = 20;
 
   const filters = useMemo(
@@ -98,13 +91,27 @@ export default function ListingsPage() {
   };
 
   const reject = async (id: string) => {
-    if (!confirm('Reject this listing?')) return;
     try {
       await adminApi.patch(`/admin/properties/${id}/reject`);
       toast.success('Rejected');
       void load();
     } catch {
       toast.error('Reject failed');
+    }
+  };
+
+  const confirmDeleteProperty = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await adminApi.delete(`/admin/properties/${deleteTarget.propertyId}`);
+      toast.success('Property deleted. Notification email sent.');
+      setDeleteTarget(null);
+      void load();
+    } catch {
+      toast.error('Failed to delete property');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -119,6 +126,14 @@ export default function ListingsPage() {
 
   const actions = (
     <>
+      <div style={{ display: 'flex', gap: 4, border: '1.5px solid #e2e8f0', borderRadius: 8, padding: 2 }}>
+        <button type="button" className={`btn btn-sm ${view === 'card' ? 'btn-blue' : 'btn-ghost'}`} onClick={() => setView('card')} aria-label="Card view">
+          <LayoutGrid size={14} strokeWidth={1.8} />
+        </button>
+        <button type="button" className={`btn btn-sm ${view === 'list' ? 'btn-blue' : 'btn-ghost'}`} onClick={() => setView('list')} aria-label="List view">
+          <List size={14} strokeWidth={1.8} />
+        </button>
+      </div>
       <button type="button" className="btn btn-ghost btn-sm" onClick={() => toast('Export CSV — coming soon')}>
         <Download size={14} strokeWidth={1.8} />
         Export
@@ -215,105 +230,151 @@ export default function ListingsPage() {
         <button type="button" className="btn btn-ghost btn-sm" onClick={clearFilters}>
           Clear filters
         </button>
+        <span style={{ fontSize: 12, color: 'var(--mu)', marginLeft: 'auto' }}>
+          {loading ? 'Loading…' : `${filteredRows.length} on this page`}
+        </span>
       </div>
 
-      <div className="acard" style={{ padding: 0, overflow: 'hidden' }}>
-        {loading ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--mu)' }}>Loading…</div>
-        ) : (
-          <table className="atbl">
-            <thead>
-              <tr>
-                <th style={{ width: 36 }} />
-                <th>Property</th>
-                <th>Type</th>
-                <th>City/Locality</th>
-                <th>Price</th>
-                <th>Status</th>
-                <th>Enquiries</th>
-                <th>Listed by</th>
-                <th>Added</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRows.map((p) => (
-                <tr key={p.propertyId}>
-                  <td>
-                    <input type="checkbox" aria-label="select" style={{ width: 14, height: 14 }} />
-                  </td>
-                  <td>
-                    <div style={{ fontWeight: 600, fontFamily: 'Inter, sans-serif', fontSize: 12.5 }}>{p.title}</div>
-                    <div style={{ fontSize: 11, color: 'var(--mu)' }}>#{p.propertyCode ?? p.propertyId.slice(0, 8)}</div>
-                  </td>
-                  <td>
-                    <span className="bdg b-blue">{p.propertyType}</span>
-                  </td>
-                  <td>
-                    {p.city ?? '—'}
-                    <div style={{ fontSize: 11, color: '#94a3b8' }}>{p.locality}</div>
-                  </td>
-                  <td style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>{formatPrice(Number(p.basePrice))}</td>
-                  <td>
-                    {!p.isApproved ? (
-                      <span className="bdg b-amber">Pending</span>
-                    ) : p.isActive ? (
-                      <span className="bdg b-green">Active</span>
-                    ) : (
-                      <span className="bdg b-gray">Archived</span>
-                    )}
-                  </td>
-                  <td>—</td>
-                  <td>{p.listedBy ?? '—'}</td>
-                  <td>{formatDate(p.createdAt)}</td>
-                  <td>
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                      <button type="button" className="btn-view" onClick={() => toast('View — wire detail route')}>
-                        View
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => void router.push(`/listings/${p.propertyId}/edit`)}
-                      >
-                        Edit
-                      </button>
-                      {!p.isApproved ? (
-                        <>
-                          <button type="button" className="btn btn-tl btn-sm" onClick={() => void approve(p.propertyId)}>
-                            Approve
-                          </button>
-                          <button type="button" className="btn btn-danger btn-sm" onClick={() => void reject(p.propertyId)}>
-                            Reject
-                          </button>
-                        </>
-                      ) : null}
-                    </div>
-                  </td>
+      {view === 'card' ? (
+        <div className="admin-prop-card-grid">
+          {loading ? (
+            <div className="acard" style={{ gridColumn: '1 / -1', padding: 40, textAlign: 'center', color: 'var(--mu)' }}>
+              Loading…
+            </div>
+          ) : filteredRows.length === 0 ? (
+            <div className="acard" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 40, color: 'var(--mu)' }}>
+              No properties found
+            </div>
+          ) : (
+            filteredRows.map((p) => (
+              <AdminPropertyCard
+                key={p.propertyId}
+                property={p}
+                onDelete={setDeleteTarget}
+                onApprove={(id) => void approve(id)}
+                onReject={(id) => void reject(id)}
+              />
+            ))
+          )}
+        </div>
+      ) : (
+        <div className="acard" style={{ padding: 0, overflow: 'hidden' }}>
+          {loading ? (
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--mu)' }}>Loading…</div>
+          ) : (
+            <table className="atbl">
+              <thead>
+                <tr>
+                  <th style={{ width: 36 }} />
+                  <th>Property</th>
+                  <th>Type</th>
+                  <th>City/Locality</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th>Enquiries</th>
+                  <th>Listed by</th>
+                  <th>Added</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-        <div className="pg-bar">
-          <span style={{ fontSize: 12, color: 'var(--mu)' }}>
-            Showing {from}–{to} of {total.toLocaleString('en-IN')} properties
-          </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <button type="button" className="btn btn-ghost btn-sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-              Prev
+              </thead>
+              <tbody>
+                {filteredRows.map((p) => (
+                  <tr key={p.propertyId}>
+                    <td>
+                      <input type="checkbox" aria-label="select" style={{ width: 14, height: 14 }} />
+                    </td>
+                    <td>
+                      <div style={{ fontWeight: 600, fontFamily: 'Inter, sans-serif', fontSize: 12.5 }}>{p.title}</div>
+                      <div style={{ fontSize: 11, color: 'var(--mu)' }}>#{p.propertyCode ?? p.propertyId.slice(0, 8)}</div>
+                    </td>
+                    <td>
+                      <span className="bdg b-blue">{p.propertyType}</span>
+                    </td>
+                    <td>
+                      {p.city ?? '—'}
+                      <div style={{ fontSize: 11, color: '#94a3b8' }}>{p.locality}</div>
+                    </td>
+                    <td style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>{formatPrice(Number(p.basePrice))}</td>
+                    <td>
+                      {!p.isApproved ? (
+                        <span className="bdg b-amber">Pending</span>
+                      ) : p.isActive ? (
+                        <span className="bdg b-green">Active</span>
+                      ) : (
+                        <span className="bdg b-gray">Archived</span>
+                      )}
+                    </td>
+                    <td>—</td>
+                    <td>{p.listedBy ?? '—'}</td>
+                    <td>{formatDate(p.createdAt)}</td>
+                    <td>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        <button type="button" className="btn btn-ghost btn-xs" onClick={() => void router.push(`/listings/${p.propertyId}/edit`)}>
+                          Edit
+                        </button>
+                        {!p.isApproved ? (
+                          <>
+                            <button type="button" className="btn btn-tl btn-xs" onClick={() => void approve(p.propertyId)}>
+                              Approve
+                            </button>
+                            <button type="button" className="btn btn-danger btn-xs" onClick={() => void reject(p.propertyId)}>
+                              Reject
+                            </button>
+                          </>
+                        ) : null}
+                        <button type="button" className="btn btn-danger btn-xs" onClick={() => setDeleteTarget(p)}>
+                          <Trash2 size={12} strokeWidth={1.8} />
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          {!loading && filteredRows.length === 0 ? (
+            <div style={{ padding: 24, textAlign: 'center', color: 'var(--mu)' }}>No properties found</div>
+          ) : null}
+        </div>
+      )}
+
+      <div className="pg-bar" style={{ marginTop: 14 }}>
+        <span style={{ fontSize: 12, color: 'var(--mu)' }}>
+          Showing {from}–{to} of {total.toLocaleString('en-IN')} properties
+        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button type="button" className="btn btn-ghost btn-sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+            Prev
+          </button>
+          {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => i + 1).map((n) => (
+            <button key={n} type="button" className={`btn btn-sm ${n === page ? 'btn-blue' : 'btn-ghost'}`} onClick={() => setPage(n)}>
+              {n}
             </button>
-            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => i + 1).map((n) => (
-              <button key={n} type="button" className={`btn btn-sm ${n === page ? 'btn-blue' : 'btn-ghost'}`} onClick={() => setPage(n)}>
-                {n}
-              </button>
-            ))}
-            <button type="button" className="btn btn-ghost btn-sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
-              Next
-            </button>
-          </div>
+          ))}
+          <button type="button" className="btn btn-ghost btn-sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
+            Next
+          </button>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete property?"
+        message={
+          deleteTarget
+            ? `Are you sure you want to delete "${deleteTarget.title}"? This cannot be undone. A notification email will be sent to the team.`
+            : ''
+        }
+        confirmLabel="Yes, delete"
+        cancelLabel="No"
+        danger
+        loading={deleting}
+        onConfirm={() => void confirmDeleteProperty()}
+        onCancel={() => {
+          if (!deleting) setDeleteTarget(null);
+        }}
+      />
     </AdminLayout>
   );
 }

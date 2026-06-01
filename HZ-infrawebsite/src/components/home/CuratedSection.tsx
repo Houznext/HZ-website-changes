@@ -1,13 +1,14 @@
-import Link from 'next/link';
-import { PropertyCard } from '@/components/property/PropertyCard';
-import type { PublicProperty } from '@/types/property.types';
+'use client';
 
-type SectionProps = {
-  title: string;
-  href: string;
-  items: PublicProperty[];
-  cols: 3 | 5;
-};
+import { useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { PropertyCard } from '@/components/property/PropertyCard';
+import { usePersonalizedCurated, type CuratedSectionData } from '@/hooks/usePersonalizedCurated';
+import type { PublicProperty } from '@/types/property.types';
+import type { PropertyTypeKey } from '@/lib/personalization';
+
+type FallbackProps = Partial<Record<PropertyTypeKey, PublicProperty[]>>;
 
 function SkeletonGrid({ cols }: { cols: 3 | 5 }) {
   const grid = cols === 5 ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3';
@@ -31,9 +32,20 @@ function SkeletonGrid({ cols }: { cols: 3 | 5 }) {
   );
 }
 
-function GridSection({ title, href, items, cols }: SectionProps) {
+function GridSection({
+  title,
+  href,
+  items,
+  cols,
+  loading,
+}: {
+  title: string;
+  href: string;
+  items: PublicProperty[];
+  cols: 3 | 5;
+  loading: boolean;
+}) {
   const grid = cols === 5 ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4';
-  const empty = !items || items.length === 0;
 
   return (
     <div className="mt-10">
@@ -43,8 +55,16 @@ function GridSection({ title, href, items, cols }: SectionProps) {
           See all →
         </Link>
       </div>
-      {empty ? (
+      {loading ? (
         <SkeletonGrid cols={cols} />
+      ) : items.length === 0 ? (
+        <p className="rounded-2xl border border-dashed border-[#dde8f5] bg-[#f5f7fa] px-4 py-8 text-center font-inter text-[13px] text-muted">
+          No listings in this category for your area yet. Try{' '}
+          <Link href={href} className="font-semibold text-[#2f80ed] hover:underline">
+            browsing all
+          </Link>
+          .
+        </p>
       ) : (
         <div className={`grid ${grid}`}>
           {items.map((p) => (
@@ -56,32 +76,62 @@ function GridSection({ title, href, items, cols }: SectionProps) {
   );
 }
 
+function CuratedBody({ data, loading }: { data: CuratedSectionData | null; loading: boolean }) {
+  const sections = data?.sections ?? [];
+  const subtitle =
+    data?.profile.subtitle ?? 'Picks tailored to your city and browsing — updates as you explore';
+
+  return (
+    <>
+      <p className="mt-2 font-inter text-[13px] leading-relaxed text-muted md:text-sm">{subtitle}</p>
+      {sections.map((s) => (
+        <GridSection
+          key={s.type}
+          title={s.title}
+          href={s.href}
+          items={s.items}
+          cols={s.cols}
+          loading={loading}
+        />
+      ))}
+    </>
+  );
+}
+
 type Props = {
-  lands: PublicProperty[];
-  villas: PublicProperty[];
-  apartments: PublicProperty[];
-  plots: PublicProperty[];
+  fallback?: FallbackProps;
 };
 
-export function CuratedSection({ lands, villas, apartments, plots }: Props) {
+export function CuratedSection({ fallback }: Props) {
+  const router = useRouter();
+  const { data, loading, reload } = usePersonalizedCurated(fallback);
+
+  useEffect(() => {
+    if (router.pathname !== '/') return;
+    void reload();
+  }, [router.asPath, router.pathname, reload]);
+
+  useEffect(() => {
+    const onFocus = () => void reload();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [reload]);
+
   return (
     <section className="overflow-x-hidden bg-white py-9 md:py-14">
       <div className="mx-auto max-w-infra px-4 md:px-7">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="font-montserrat text-[22px] font-extrabold leading-tight text-charcoal md:text-3xl">Properties curated for you</h2>
+          <h2 className="font-montserrat text-[22px] font-extrabold leading-tight text-charcoal md:text-3xl">
+            Properties curated for you
+          </h2>
           <Link
-            href="/buy"
+            href={data ? `/buy?city=${encodeURIComponent(data.profile.city)}` : '/buy'}
             className="inline-flex items-center justify-center rounded-lg border-[1.5px] border-[#dde8f5] px-4 py-2 font-montserrat text-sm font-bold text-[#2f80ed] transition-all duration-150 hover:border-[#2f80ed] hover:bg-[#e8f1fd]"
           >
             View all →
           </Link>
         </div>
-        <p className="mt-2 font-inter text-[13px] leading-relaxed text-muted md:text-sm">Featured inventory from the Infra API — refreshed every minute.</p>
-
-        <GridSection title="Featured Lands" href="/buy?propertyType=Land" items={lands} cols={3} />
-        <GridSection title="Featured Villas" href="/buy?propertyType=Villa" items={villas} cols={3} />
-        <GridSection title="Featured Apartments" href="/buy?propertyType=Apartment" items={apartments} cols={3} />
-        <GridSection title="Plots — Five feed" href="/buy?propertyType=Plot" items={plots} cols={5} />
+        <CuratedBody data={data} loading={loading} />
       </div>
     </section>
   );

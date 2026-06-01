@@ -35,6 +35,7 @@ import {
   UpdateMaterialDto,
   UpdatePaymentDto,
   UpdateProjectDto,
+  UpdateProjectCustomerMobileDto,
   UpdateRoomDto,
   UpdateRoomWorkTypeDto,
   UpdateWorkTypeDto,
@@ -48,6 +49,7 @@ import {
 import { LivebuildRequest } from './livebuild-auth.guard';
 import { S3Service } from 'src/common/s3/s3.service';
 import { MailerService } from 'src/sendEmail.service';
+import { LivebuildOtpService } from './livebuild-otp.service';
 import {
   activityFromDpr,
   activityFromQuery,
@@ -99,6 +101,7 @@ export class LivebuildService {
     private readonly dataSource: DataSource,
     private readonly s3Service: S3Service,
     private readonly mailerService: MailerService,
+    private readonly otpService: LivebuildOtpService,
   ) {}
 
   resolveAccess(req: LivebuildRequest): LbAccessContext {
@@ -416,11 +419,105 @@ export class LivebuildService {
   async updateProject(id: number, dto: UpdateProjectDto) {
     const project = await this.projectRepo.findOne({ where: { id } });
     if (!project) throw new NotFoundException('Project not found');
-    this.applyAdminProjectPatch(project, dto as UpdateProjectDto & Record<string, unknown>);
+    const patch = dto as UpdateProjectDto & Record<string, unknown>;
+    if (
+      patch.customerMobile !== undefined ||
+      patch.customerPhone !== undefined ||
+      patch.otpVerifiedToken !== undefined
+    ) {
+      throw new BadRequestException(
+        'Use PATCH /livebuild/projects/:id/customer-mobile to update customer mobile',
+      );
+    }
+    this.applyAdminProjectPatch(project, patch);
     const saved = await this.projectRepo.save(project);
     if (saved.pctMethod === 'hybrid' && saved.pctOverride == null) {
       await this.recalcHybridPct(id);
     }
+    const full = await this.projectRepo.findOne({
+      where: { id },
+      relations: ['customer'],
+    });
+    const openQueries = await this.queryRepo.count({
+      where: { projectId: id, status: 'open' },
+    });
+    const { stats, attention } = await this.buildProjectOverviewMeta(id, full!);
+    return serializeProjectDetail(full!, openQueries, stats, attention);
+  }
+
+  async updateProjectCustomerMobile(
+    id: number,
+    dto: UpdateProjectCustomerMobileDto,
+  ) {
+    if (!dto.otpVerifiedToken?.trim()) {
+      throw new BadRequestException('OTP verification is required');
+    }
+
+    const project = await this.projectRepo.findOne({
+      where: { id },
+      relations: ['customer'],
+    });
+    if (!project) throw new NotFoundException('Project not found');
+
+    const raw =
+      dto.customerMobile ?? dto.phone ?? dto.mobile ?? '';
+    if (!String(raw).trim()) {
+      if (project.customerMobile?.trim()) {
+        throw new BadRequestException(
+          'Customer mobile cannot be removed. Verify a new number with OTP to change it.',
+        );
+      }
+      throw new BadRequestException('Mobile number is required');
+    }
+
+    const newMobile = normalizeLbMobile(String(raw));
+    this.otpService.assertOtpVerifiedToken(dto.otpVerifiedToken, newMobile);
+
+    if (
+      project.customerMobile?.trim() &&
+      mobilesMatch(project.customerMobile, newMobile)
+    ) {
+      const openQueries = await this.queryRepo.count({
+        where: { projectId: id, status: 'open' },
+      });
+      const { stats, attention } = await this.buildProjectOverviewMeta(
+        id,
+        project,
+      );
+      return serializeProjectDetail(
+        project,
+        openQueries,
+        stats,
+        attention,
+      );
+    }
+
+    const previousMobile = project.customerMobile;
+    project.customerMobile = newMobile;
+
+    const existingCustomer = await this.customerRepo.findOne({
+      where: { mobile: newMobile },
+    });
+    if (existingCustomer) {
+      existingCustomer.otpVerified = true;
+      await this.customerRepo.save(existingCustomer);
+      project.customerId = existingCustomer.id;
+    } else if (project.customerId) {
+      const linked = await this.customerRepo.findOne({
+        where: { id: project.customerId },
+      });
+      if (
+        linked &&
+        (!previousMobile || mobilesMatch(linked.mobile, previousMobile))
+      ) {
+        linked.mobile = newMobile;
+        linked.otpVerified = true;
+        await this.customerRepo.save(linked);
+      }
+    }
+
+    await this.projectRepo.save(project);
+
     const full = await this.projectRepo.findOne({
       where: { id },
       relations: ['customer'],

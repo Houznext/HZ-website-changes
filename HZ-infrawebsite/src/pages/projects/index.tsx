@@ -60,10 +60,10 @@ export default function ProjectsListingPage() {
 
   const typePills = [
     { id: 'all' as const, label: `All (${counts.all})` },
-    { id: 'apartment' as const, label: `🏢 Apartments (${counts.apartment})` },
-    { id: 'villa' as const, label: `🏡 Villas (${counts.villa})` },
-    { id: 'venture' as const, label: `🗺 Ventures (${counts.venture})` },
-    { id: 'villaplot' as const, label: `🌿 Villa Plots (${counts.villaplot})` },
+    { id: 'apartment' as const, label: `Apartments (${counts.apartment})` },
+    { id: 'villa' as const, label: `Villas (${counts.villa})` },
+    { id: 'venture' as const, label: `Ventures (${counts.venture})` },
+    { id: 'villaplot' as const, label: `Villa Plots (${counts.villaplot})` },
   ];
 
   return (
@@ -72,8 +72,8 @@ export default function ProjectsListingPage() {
       <div className="pg-projects-header">
         <div className="mx-auto max-w-infra px-4 md:px-7">
           <h1 className="mb-3 font-montserrat text-[22px] font-extrabold text-charcoal">Real Estate Projects</h1>
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="projects-filter-bar flex flex-wrap gap-1.5">
+          <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between lg:gap-3">
+            <div className="projects-filter-bar flex gap-1.5">
               {typePills.map((pill) => (
                 <button
                   key={pill.id}
@@ -85,11 +85,12 @@ export default function ProjectsListingPage() {
                 </button>
               ))}
             </div>
-            <div className="projects-filter-selects ml-auto flex flex-wrap items-center gap-2">
+            <div className="projects-filter-selects flex w-full flex-row items-stretch gap-2 lg:w-auto lg:shrink-0">
               <select
-                className="rounded-lg border-[1.5px] border-[#dde8f5] px-3 py-2 font-inter text-[12.5px] outline-none focus:border-hz-blue"
+                className="min-w-0 flex-1 rounded-lg border-[1.5px] border-[#dde8f5] px-2 py-2 font-inter text-[11px] outline-none focus:border-hz-blue sm:px-3 sm:text-[12.5px] lg:flex-none"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
+                aria-label="Filter by city"
               >
                 {CITIES.map((c) => (
                   <option key={c} value={c}>
@@ -98,9 +99,10 @@ export default function ProjectsListingPage() {
                 ))}
               </select>
               <select
-                className="rounded-lg border-[1.5px] border-[#dde8f5] px-3 py-2 font-inter text-[12.5px] outline-none focus:border-hz-blue"
+                className="min-w-0 flex-1 rounded-lg border-[1.5px] border-[#dde8f5] px-2 py-2 font-inter text-[11px] outline-none focus:border-hz-blue sm:px-3 sm:text-[12.5px] lg:flex-none"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
+                aria-label="Filter by status"
               >
                 {STATUSES.map((s) => (
                   <option key={s} value={s}>
@@ -109,9 +111,10 @@ export default function ProjectsListingPage() {
                 ))}
               </select>
               <select
-                className="rounded-lg border-[1.5px] border-[#dde8f5] px-3 py-2 font-inter text-[12.5px] outline-none focus:border-hz-blue"
+                className="min-w-0 flex-1 rounded-lg border-[1.5px] border-[#dde8f5] px-2 py-2 font-inter text-[11px] outline-none focus:border-hz-blue sm:px-3 sm:text-[12.5px] lg:flex-none"
                 value={budget}
                 onChange={(e) => setBudget(e.target.value as BudgetFilter)}
+                aria-label="Filter by budget"
               >
                 {BUDGET_OPTIONS.map((b) => (
                   <option key={b.label} value={b.value}>

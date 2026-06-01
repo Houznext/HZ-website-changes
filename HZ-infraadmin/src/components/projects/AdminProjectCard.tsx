@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Building2, MapPin, Shield } from 'lucide-react';
+import { Building2, MapPin, Shield, Trash2 } from 'lucide-react';
 import type { ProjectRecord } from '@/lib/projects/types';
 import { TYPE_ICONS, TYPE_LABELS, type ProjectTypeKey } from '@/lib/projects/constants';
 import { formatDate, formatPrice } from '@/lib/utils';
@@ -12,14 +12,16 @@ const ic = { size: 12, strokeWidth: 1.8, fill: 'none' as const };
 
 type Props = {
   project: ProjectRecord;
+  onDelete?: (project: ProjectRecord) => void;
 };
 
-export function AdminProjectCard({ project }: Props) {
+export function AdminProjectCard({ project, onDelete }: Props) {
   const type = (project.projectType || 'apartment') as ProjectTypeKey;
   const gradient = project.gradientBg || 'linear-gradient(135deg, #1a3d5c, #0f2a44)';
 
   return (
-    <Link href={`/projects/${project.projectId}`} className="admin-proj-card">
+    <div className="admin-proj-card">
+      <Link href={`/projects/${project.projectId}`} className="admin-proj-card-link">
       <div className="admin-proj-card-hd" style={{ background: gradient }}>
         <span className="admin-proj-type-pill">
           {TYPE_ICONS[type]} {TYPE_LABELS[type]}
@@ -68,6 +70,18 @@ export function AdminProjectCard({ project }: Props) {
         </div>
         <div className="admin-proj-added">Added {formatDate(project.createdAt)}</div>
       </div>
-    </Link>
+      </Link>
+      {onDelete ? (
+        <div className="admin-proj-card-ft">
+          <Link href={`/projects/${project.projectId}`} className="btn btn-ghost btn-xs">
+            View
+          </Link>
+          <button type="button" className="btn btn-danger btn-xs" onClick={() => onDelete(project)}>
+            <Trash2 size={12} strokeWidth={1.8} />
+            Delete
+          </button>
+        </div>
+      ) : null}
+    </div>
   );
 }

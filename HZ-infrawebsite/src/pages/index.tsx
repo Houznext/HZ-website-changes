@@ -53,7 +53,7 @@ export default function HomePage({ lands, villas, apartments, plots }: InferGetS
       <HeroSection />
       <PropertyTypeCards />
       <FeaturedProjects />
-      <CuratedSection lands={lands} villas={villas} apartments={apartments} plots={plots} />
+      <CuratedSection fallback={{ Land: lands, Villa: villas, Apartment: apartments, Plot: plots }} />
       <CityGrid />
       <Testimonials />
       <ListPropertyCTA />

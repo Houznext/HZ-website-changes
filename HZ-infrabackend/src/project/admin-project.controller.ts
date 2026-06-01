@@ -1,7 +1,9 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { AdminGuard } from '../common/guards/admin.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtPayload } from '../auth/jwt.strategy';
 import { ProjectService } from './project.service';
 import { CreateProjectDto, MilestoneDto, UpdateProjectDto } from './dto/project.dto';
 
@@ -35,5 +37,10 @@ export class AdminProjectController {
   @Post(':id/milestones')
   milestones(@Param('id') id: string, @Body() body: { milestones: MilestoneDto[] }) {
     return this.projects.addMilestones(id, body.milestones ?? []);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.projects.adminDelete(id, user);
   }
 }

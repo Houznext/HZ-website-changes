@@ -63,6 +63,22 @@ export const livebuildApi = {
       apiClient.patch(`${LB}/projects/${id}`, payload as Record<string, unknown>, true),
     ),
 
+  updateProjectCustomerMobile: (
+    id: string,
+    payload: { phone: string; otpVerifiedToken: string },
+  ) =>
+    unwrap<LbProjectDetail>(
+      apiClient.patch(
+        `${LB}/projects/${id}/customer-mobile`,
+        {
+          phone: payload.phone,
+          customerMobile: `+91${payload.phone.replace(/\D/g, '').slice(-10)}`,
+          otpVerifiedToken: payload.otpVerifiedToken,
+        },
+        true,
+      ),
+    ),
+
   deleteProject: (id: string) =>
     apiClient.delete(`${LB}/projects/${id}`, {}, true),
 

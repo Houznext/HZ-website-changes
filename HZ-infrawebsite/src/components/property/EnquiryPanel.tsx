@@ -67,7 +67,7 @@ export function EnquiryPanel({ property }: { property: PublicProperty }) {
     : null;
 
   return (
-    <aside className="mt-6 flex flex-col gap-4 lg:mt-0 lg:sticky lg:top-[108px] lg:self-start">
+    <aside id="enquire" className="mt-6 flex flex-col gap-4 lg:mt-0 lg:sticky lg:top-[108px] lg:self-start">
       <div className="rounded-xl border border-[#dde8f5] bg-white p-5 shadow-sm">
         <div className="font-montserrat text-[10px] font-bold uppercase tracking-wide text-muted">Price</div>
         <div className="mt-1 font-montserrat text-3xl font-extrabold text-charcoal">{formatPriceInr(property.basePrice)}</div>

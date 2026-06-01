@@ -2,8 +2,11 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+import { clsx } from 'clsx';
 import { Heart, MapPin, MessageCircle } from 'lucide-react';
 import type { InfraProject } from '@/types/infra.types';
+import { resolveCmsAssetUrl } from '@/lib/cmsAssetUrl';
+import { useSaveProject } from '@/hooks/useSaveProject';
 import {
   projectLocation,
   projectPriceRange,
@@ -13,7 +16,6 @@ import {
   projectStatusLabel,
   projectTypeBg,
   projectTypeColor,
-  projectTypeIcon,
   projectTypeKey,
   projectTypeLabel,
 } from '@/lib/projects/utils';
@@ -29,16 +31,23 @@ export function ProjCard({ project, mini = false, onEnquire }: Props) {
   const slug = projectSlug(project);
   const typeKey = projectTypeKey(project);
   const typeColor = projectTypeColor(project);
-  const typeIcon = projectTypeIcon(project);
   const typeLabel = projectTypeLabel(project);
   const loc = projectLocation(project);
   const statusCls = projectStatusClass(project.status);
   const statusLabel = projectStatusLabel(project.status);
   const bg = projectTypeBg(project);
-  const img = project.heroImageUrl;
+  const img = project.heroImageUrl ? resolveCmsAssetUrl(project.heroImageUrl, '') : '';
   const units = project.unitsLabel || (project.totalUnits ? `${project.totalUnits} units` : '');
   const config = project.configLabel || '';
   const banks = project.bankCount ?? project.approvedBanks?.length ?? 0;
+
+  const { saved, toggle: toggleSave } = useSaveProject({
+    projectId: project.projectId,
+    slug,
+    name: project.name,
+    city: project.city,
+    locality: project.locality,
+  });
 
   const handleEnquire = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -46,14 +55,22 @@ export function ProjCard({ project, mini = false, onEnquire }: Props) {
     if (onEnquire) onEnquire(project);
   };
 
-  const handleSave = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
   const goToProject = () => {
     void router.push(`/projects/${slug}`);
   };
+
+  const imageBlock = img ? (
+    <>
+      <Image src={img} alt="" fill className="object-cover" sizes="(max-width:768px) 100vw, 25vw" unoptimized={img.includes('127.0.0.1') || img.includes('localhost')} />
+      {!mini ? <div className="absolute inset-0 bg-gradient-to-t from-[#0f2a44]/50 to-transparent" /> : null}
+    </>
+  ) : (
+    <div className="proj-img-ph flex h-full w-full items-center justify-center" style={{ background: bg }}>
+      {units ? (
+        <div className="font-montserrat text-[11px] font-semibold text-black/35">{units}</div>
+      ) : null}
+    </div>
+  );
 
   if (mini) {
     return (
@@ -66,20 +83,8 @@ export function ProjCard({ project, mini = false, onEnquire }: Props) {
           if (e.key === 'Enter') goToProject();
         }}
       >
-        <div className="proj-img" style={{ height: 130 }}>
-          {img ? (
-            <Image src={img} alt="" fill className="object-cover" sizes="(max-width:768px) 100vw, 33vw" />
-          ) : (
-            <div className="proj-img-ph" style={{ background: bg }}>
-              <span className="text-2xl">{typeIcon}</span>
-            </div>
-          )}
-          <span
-            className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 font-montserrat text-[9px] font-bold"
-            style={{ color: typeColor }}
-          >
-            {typeLabel}
-          </span>
+        <div className="proj-img relative" style={{ height: 130 }}>
+          {imageBlock}
         </div>
         <div className="proj-body" style={{ padding: '10px 12px' }}>
           <div className="proj-name truncate text-[13px]">{project.name}</div>
@@ -109,27 +114,20 @@ export function ProjCard({ project, mini = false, onEnquire }: Props) {
         if (e.key === 'Enter') goToProject();
       }}
     >
-      <div className="proj-img">
-        {img ? (
-          <>
-            <Image src={img} alt="" fill className="object-cover" sizes="(max-width:768px) 100vw, 25vw" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0f2a44]/50 to-transparent" />
-          </>
-        ) : (
-          <div className="proj-img-ph" style={{ background: bg }}>
-            <div className="text-center">
-              <div className="text-4xl">{typeIcon}</div>
-              {units ? (
-                <div className="mt-1 font-montserrat text-[11px] font-semibold text-black/35">{units}</div>
-              ) : null}
-            </div>
-          </div>
-        )}
-        <span className="proj-type-pill text-white" style={{ background: typeColor }}>
-          {typeIcon} {typeLabel}
-        </span>
-        <button type="button" className="proj-save" onClick={handleSave} aria-label="Save project">
-          <Heart size={13} strokeWidth={1.8} className="text-muted" />
+      <div className="proj-img relative">
+        {imageBlock}
+        <button
+          type="button"
+          className="proj-save"
+          onClick={toggleSave}
+          aria-label={saved ? 'Remove from saved projects' : 'Save project'}
+          aria-pressed={saved}
+        >
+          <Heart
+            size={13}
+            strokeWidth={1.8}
+            className={clsx(saved ? 'fill-[#f2994a] text-[#f2994a]' : 'text-muted')}
+          />
         </button>
         <div className="proj-badge-row">
           <span className={`infra-proj-badge ${statusCls}`}>{statusLabel}</span>

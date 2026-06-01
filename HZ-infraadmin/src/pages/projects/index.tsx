@@ -4,9 +4,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
-import { Home, LayoutGrid, List, Plus, Search } from 'lucide-react';
+import { Home, LayoutGrid, List, Plus, Search, Trash2 } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { AdminProjectCard } from '@/components/projects/AdminProjectCard';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { ProjectStatusBadge, ProjectTypeBadge } from '@/components/projects/ProjectBadges';
 import adminApi from '@/lib/axios';
 import { CITIES, TYPE_FILTER_PILLS, type ProjectTypeKey } from '@/lib/projects/constants';
@@ -20,6 +21,8 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<'card' | 'list'>('card');
   const [search, setSearch] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<ProjectRecord | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const filters = useMemo(
     () => ({
@@ -77,6 +80,21 @@ export default function ProjectsPage() {
   };
 
   const clearFilters = () => void router.push('/projects', undefined, { shallow: true });
+
+  const confirmDeleteProject = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await adminApi.delete(`/admin/projects/${deleteTarget.projectId}`);
+      toast.success('Project deleted. Notification email sent.');
+      setDeleteTarget(null);
+      void load();
+    } catch {
+      toast.error('Failed to delete project');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const titleLeft = (
     <>
@@ -180,7 +198,7 @@ export default function ProjectsPage() {
       {view === 'card' ? (
         <div className="admin-proj-card-grid">
           {filtered.map((p) => (
-            <AdminProjectCard key={p.projectId} project={p} />
+            <AdminProjectCard key={p.projectId} project={p} onDelete={setDeleteTarget} />
           ))}
           {!loading && filtered.length === 0 ? (
             <div className="acard" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 40, color: 'var(--mu)' }}>
@@ -233,6 +251,10 @@ export default function ProjectsPage() {
                       <Link href={`/projects/${p.projectId}`} className="btn btn-ghost btn-xs">
                         View
                       </Link>
+                      <button type="button" className="btn btn-danger btn-xs" onClick={() => setDeleteTarget(p)}>
+                        <Trash2 size={12} strokeWidth={1.8} />
+                        Delete
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -244,6 +266,24 @@ export default function ProjectsPage() {
           ) : null}
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete project?"
+        message={
+          deleteTarget
+            ? `Are you sure you want to delete "${deleteTarget.name}"? This cannot be undone. A notification email will be sent to the team.`
+            : ''
+        }
+        confirmLabel="Yes, delete"
+        cancelLabel="No"
+        danger
+        loading={deleting}
+        onConfirm={() => void confirmDeleteProject()}
+        onCancel={() => {
+          if (!deleting) setDeleteTarget(null);
+        }}
+      />
     </AdminLayout>
   );
 }

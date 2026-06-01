@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import {
   LayoutGrid,
@@ -55,6 +56,12 @@ export default function LivebuildProjectLayout({
   const router = useRouter();
   const projectId = String(router.query.projectId ?? '');
   const { ready, canAccess } = useLivebuildSession(true);
+
+  useEffect(() => {
+    if (projectId === 'dashboard') {
+      void router.replace('/livebuild/dashboard');
+    }
+  }, [projectId, router]);
 
   if (!ready) {
     return (

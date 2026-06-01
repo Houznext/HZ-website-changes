@@ -30,10 +30,10 @@ export const TYPE_ICONS: Record<ProjectTypeKey, string> = {
 
 export const TYPE_FILTER_PILLS: { id: ProjectTypeKey | 'all'; label: string }[] = [
   { id: 'all', label: 'All types' },
-  { id: 'apartment', label: '🏢 Apartment' },
-  { id: 'villa', label: '🏡 Villa' },
-  { id: 'venture', label: '🗺 Venture / Plotted' },
-  { id: 'villaplot', label: '🌿 Villa Plots' },
+  { id: 'apartment', label: 'Apartment' },
+  { id: 'villa', label: 'Villa' },
+  { id: 'venture', label: 'Venture / Plotted' },
+  { id: 'villaplot', label: 'Villa Plots' },
 ];
 
 export const STATUS_LABELS: Record<string, string> = {

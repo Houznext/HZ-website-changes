@@ -83,13 +83,13 @@ function UserLayout({
     },
     {
       name: "Interior Projects",
-      link: "/livebuild",
+      link: "/livebuild/dashboard",
       icon: <FiTool className="text-[18px]" />,
       isActive: router.asPath.startsWith("/livebuild"),
     },
     {
       name: "Interior Tracking",
-      link: "/livebuild",
+      link: "/livebuild/dashboard",
       icon: <FaHome className="text-[18px]" />,
       isActive: router.asPath.startsWith("/livebuild"),
     },

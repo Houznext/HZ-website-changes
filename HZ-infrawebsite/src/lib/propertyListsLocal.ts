@@ -4,6 +4,7 @@ export type StoredPropertyRef = {
   city?: string | null;
   locality?: string | null;
   propertyId?: string;
+  propertyType?: string | null;
   viewedAt?: string;
   savedAt?: string;
 };
@@ -46,6 +47,7 @@ export function recordSeenProperty(ref: {
   city?: string | null;
   locality?: string | null;
   propertyId?: string;
+  propertyType?: string | null;
 }) {
   if (typeof window === 'undefined') return;
   const list = readList(SEEN_KEY);
@@ -57,6 +59,7 @@ export function recordSeenProperty(ref: {
     city: ref.city,
     locality: ref.locality,
     propertyId: ref.propertyId,
+    propertyType: ref.propertyType,
     viewedAt: now,
   });
   writeList(SEEN_KEY, next.slice(0, 100));

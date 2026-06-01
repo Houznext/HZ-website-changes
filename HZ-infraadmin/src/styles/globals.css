@@ -824,14 +824,70 @@ input:checked + .tgl-track .tgl-thumb { transform: translateX(18px); }
   border-radius: 14px;
   overflow: hidden;
   transition: all 200ms;
-  text-decoration: none;
   color: inherit;
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 .admin-proj-card:hover {
   box-shadow: 0 12px 40px rgba(15, 42, 68, 0.1);
   transform: translateY(-2px);
   border-color: #93c5fd;
+}
+.admin-proj-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  flex: 1;
+}
+.admin-proj-card-ft {
+  display: flex;
+  gap: 6px;
+  padding: 10px 14px 12px;
+  border-top: 0.5px solid #f0f4f8;
+  background: #fafbfc;
+}
+.admin-prop-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.confirm-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  background: rgba(15, 42, 68, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(2px);
+}
+.confirm-dialog {
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px;
+  max-width: 400px;
+  width: 100%;
+  border: 0.5px solid #e2e8f0;
+  box-shadow: 0 24px 64px rgba(15, 42, 68, 0.18);
+}
+.confirm-dialog-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ch);
+  margin-bottom: 8px;
+}
+.confirm-dialog-message {
+  font-size: 13px;
+  color: var(--mu);
+  line-height: 1.55;
+  margin-bottom: 18px;
+}
+.confirm-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 .admin-proj-card-hd {
   height: 120px;
@@ -984,7 +1040,8 @@ input:checked + .tgl-track .tgl-thumb { transform: translateX(18px); }
 .project-step-flow[data-accent='rose'] .step.active .step-lbl { color: #be185d; }
 
 @media (max-width: 1100px) {
-  .admin-proj-card-grid { grid-template-columns: repeat(2, 1fr); }
+  .admin-proj-card-grid,
+  .admin-prop-card-grid { grid-template-columns: repeat(2, 1fr); }
   .admin-proj-stats { grid-template-columns: repeat(3, 1fr); }
   .project-wizard-grid,
   .project-detail-grid { grid-template-columns: 1fr; }
@@ -993,7 +1050,8 @@ input:checked + .tgl-track .tgl-thumb { transform: translateX(18px); }
 }
 
 @media (max-width: 720px) {
-  .admin-proj-card-grid { grid-template-columns: 1fr; }
+  .admin-proj-card-grid,
+  .admin-prop-card-grid { grid-template-columns: 1fr; }
   .admin-proj-stats { grid-template-columns: repeat(2, 1fr); }
   .g2, .g3 { grid-template-columns: 1fr; }
   .config-row, .config-row.villa, .plot-row, .ms-edit-row { grid-template-columns: 1fr; }

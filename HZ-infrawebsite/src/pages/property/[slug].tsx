@@ -63,6 +63,7 @@ export default function PropertyPage({ property, pageSlug }: Props) {
           city={property.city}
           locality={property.locality}
           propertyId={property.propertyId}
+          propertyType={property.propertyType}
         />
         <main className="mx-auto max-w-[1440px] px-4 pb-10 pt-6 md:px-7 md:pb-16">
           <nav className="mb-5 flex flex-wrap items-center gap-1 font-inter text-xs text-muted">

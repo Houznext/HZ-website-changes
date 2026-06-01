@@ -1,0 +1,11 @@
+# Railway cron service — PostgreSQL → S3 backup
+# Schedule is UTC. See README for linking env vars from your existing services.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "/usr/local/bin/backup.sh"
+cronSchedule = "0 2 */7 * *"
+restartPolicyType = "never"

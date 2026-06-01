@@ -100,7 +100,7 @@ const Avatar: React.FC<AvatarProps> = ({ showAbove = true }) => {
     {
       icon: <FiTool size={14} />,
       label: "LiveBuild",
-      href: "/livebuild",
+      href: "/livebuild/dashboard",
     },
     {
       icon: <MdReviews size={14} />,

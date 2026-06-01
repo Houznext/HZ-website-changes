@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { MapPin, ChevronRight } from 'lucide-react';
 import SeoHead from '@/components/SeoHead';
 import Badge from '@/livebuild/components/Badge';
@@ -24,17 +23,9 @@ function matchFilter(p: LbProjectSummary, f: Filter): boolean {
 }
 
 export default function LivebuildDashboardPage() {
-  const router = useRouter();
   const { ready, projects, canAccess } = useLivebuildSession(true);
   const loading = !ready;
   const [filter, setFilter] = useState<Filter>('all');
-
-  useEffect(() => {
-    if (!ready || !canAccess) return;
-    if (projects.length === 1) {
-      void router.replace(`/livebuild/${projects[0].id}`);
-    }
-  }, [ready, canAccess, projects, router]);
 
   const filtered = useMemo(
     () => projects.filter((p) => matchFilter(p, filter)),
