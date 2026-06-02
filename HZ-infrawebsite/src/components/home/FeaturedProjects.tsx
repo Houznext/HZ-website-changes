@@ -8,6 +8,13 @@ import { TYPE_FILTER_PILLS, type ProjectTypeKey } from '@/lib/projects/constants
 import { filterProjects } from '@/lib/projects/utils';
 import { ProjCard } from '@/components/projects/ProjCard';
 
+const DEFAULT_COPY = {
+  eyebrow: 'RERA Registered Projects',
+  title: 'Featured Projects',
+  subtitle: 'Curated apartment, villa, venture & plotted projects from verified developers',
+  viewAllLabel: 'View all projects →',
+};
+
 async function loadFeatured(): Promise<InfraProject[]> {
   try {
     const res = await api.get<InfraProject[]>('/projects', { params: { featured: true, limit: 20 } });
@@ -24,6 +31,22 @@ export function FeaturedProjects() {
   const [items, setItems] = useState<InfraProject[]>([]);
   const [typeFilter, setTypeFilter] = useState<ProjectTypeKey | 'all'>('all');
   const [loading, setLoading] = useState(true);
+  const [copy, setCopy] = useState(DEFAULT_COPY);
+
+  useEffect(() => {
+    const ac = new AbortController();
+    void (async () => {
+      try {
+        const res = await api.get<Partial<typeof DEFAULT_COPY>>('/site-config/featured-projects', {
+          signal: ac.signal,
+        });
+        setCopy((prev) => ({ ...prev, ...res.data }));
+      } catch {
+        /* defaults */
+      }
+    })();
+    return () => ac.abort();
+  }, []);
 
   useEffect(() => {
     void (async () => {
@@ -44,20 +67,18 @@ export function FeaturedProjects() {
         <div className="mb-2 flex flex-wrap items-end justify-between gap-3 sm:mb-3">
           <div>
             <div className="font-montserrat text-[11px] font-bold uppercase tracking-[0.12em] text-hz-teal">
-              RERA Registered Projects
+              {copy.eyebrow}
             </div>
             <h2 className="mt-1.5 font-montserrat text-[22px] font-extrabold leading-tight text-charcoal md:text-[28px]">
-              Featured Projects
+              {copy.title}
             </h2>
-            <p className="mt-1 font-inter text-[13px] text-muted">
-              Curated apartment, villa, venture &amp; plotted projects from verified developers
-            </p>
+            <p className="mt-1 font-inter text-[13px] text-muted">{copy.subtitle}</p>
           </div>
           <Link
             href="/projects"
             className="inline-flex min-h-[44px] items-center justify-center rounded-lg border-[1.5px] border-[#dde8f5] bg-white px-4 py-2 font-montserrat text-[13px] font-bold text-charcoal transition hover:border-hz-blue hover:bg-hz-blue-light hover:text-hz-blue"
           >
-            View all projects →
+            {copy.viewAllLabel}
           </Link>
         </div>
 

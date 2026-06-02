@@ -1,12 +1,19 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import api from '@/lib/axios';
 import { PropertyCard } from '@/components/property/PropertyCard';
-import { usePersonalizedCurated, type CuratedSectionData } from '@/hooks/usePersonalizedCurated';
+import { usePersonalizedCurated, type CuratedCmsConfig, type CuratedSectionData } from '@/hooks/usePersonalizedCurated';
 import type { PublicProperty } from '@/types/property.types';
 import type { PropertyTypeKey } from '@/lib/personalization';
+
+const DEFAULT_CMS = {
+  title: 'Properties curated for you',
+  defaultSubtitle: 'Picks tailored to your city and browsing — updates as you explore',
+  viewAllLabel: 'View all →',
+};
 
 type FallbackProps = Partial<Record<PropertyTypeKey, PublicProperty[]>>;
 
@@ -104,7 +111,24 @@ type Props = {
 
 export function CuratedSection({ fallback }: Props) {
   const router = useRouter();
-  const { data, loading, reload } = usePersonalizedCurated(fallback);
+  const [cms, setCms] = useState<{ title: string; viewAllLabel: string } & CuratedCmsConfig>(DEFAULT_CMS);
+
+  useEffect(() => {
+    const ac = new AbortController();
+    void (async () => {
+      try {
+        const res = await api.get<Partial<typeof DEFAULT_CMS & CuratedCmsConfig>>('/site-config/curated-properties', {
+          signal: ac.signal,
+        });
+        setCms((prev) => ({ ...prev, ...res.data }));
+      } catch {
+        /* defaults */
+      }
+    })();
+    return () => ac.abort();
+  }, []);
+
+  const { data, loading, reload } = usePersonalizedCurated(fallback, cms);
 
   useEffect(() => {
     if (router.pathname !== '/') return;
@@ -122,13 +146,13 @@ export function CuratedSection({ fallback }: Props) {
       <div className="mx-auto max-w-infra px-4 md:px-7">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="font-montserrat text-[22px] font-extrabold leading-tight text-charcoal md:text-3xl">
-            Properties curated for you
+            {cms.title}
           </h2>
           <Link
             href={data ? `/buy?city=${encodeURIComponent(data.profile.city)}` : '/buy'}
             className="inline-flex items-center justify-center rounded-lg border-[1.5px] border-[#dde8f5] px-4 py-2 font-montserrat text-sm font-bold text-[#2f80ed] transition-all duration-150 hover:border-[#2f80ed] hover:bg-[#e8f1fd]"
           >
-            View all →
+            {cms.viewAllLabel}
           </Link>
         </div>
         <CuratedBody data={data} loading={loading} />

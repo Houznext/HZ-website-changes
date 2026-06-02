@@ -23,6 +23,13 @@ const SECTION_LABELS: Record<PropertyTypeKey, { title: string; href: (city: stri
   Plot: { title: 'Plots — Five feed', href: (city) => `/buy?propertyType=Plot&city=${encodeURIComponent(city)}`, cols: 5 },
 };
 
+export type CuratedCmsRow = { type: string; title: string; cols: 3 | 5 };
+
+export type CuratedCmsConfig = {
+  defaultSubtitle?: string;
+  rows?: CuratedCmsRow[];
+};
+
 async function fetchList(params: Record<string, string | number | boolean | undefined>): Promise<PublicProperty[]> {
   try {
     const qs = new URLSearchParams();
@@ -64,12 +71,24 @@ export type CuratedSectionData = {
 
 type Fallback = Partial<CuratedBuckets>;
 
-export function usePersonalizedCurated(fallback?: Fallback) {
+function rowConfigForType(cms: CuratedCmsConfig | undefined, type: PropertyTypeKey) {
+  const row = cms?.rows?.find((r) => r.type === type);
+  const base = SECTION_LABELS[type];
+  return {
+    title: row?.title ?? base.title,
+    cols: row?.cols ?? base.cols,
+    href: base.href,
+  };
+}
+
+export function usePersonalizedCurated(fallback?: Fallback, cms?: CuratedCmsConfig) {
   const { status } = useSession();
   const [data, setData] = useState<CuratedSectionData | null>(null);
   const [loading, setLoading] = useState(true);
   const fallbackRef = useRef(fallback);
   fallbackRef.current = fallback;
+  const cmsRef = useRef(cms);
+  cmsRef.current = cms;
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -91,6 +110,10 @@ export function usePersonalizedCurated(fallback?: Fallback) {
       savedApi: savedApi.map((p) => ({ city: p.city, propertyType: p.propertyType })),
     });
 
+    if (cmsRef.current?.defaultSubtitle) {
+      profile.subtitle = cmsRef.current.defaultSubtitle;
+    }
+
     const limits = getTypeLimits();
     const buckets = {} as CuratedBuckets;
 
@@ -103,17 +126,20 @@ export function usePersonalizedCurated(fallback?: Fallback) {
       }),
     );
 
-    const sections = profile.typeOrder.map((type) => ({
-      type,
-      title: SECTION_LABELS[type].title,
-      href: SECTION_LABELS[type].href(profile.city),
-      items: buckets[type],
-      cols: SECTION_LABELS[type].cols,
-    }));
+    const sections = profile.typeOrder.map((type) => {
+      const cfg = rowConfigForType(cmsRef.current, type);
+      return {
+        type,
+        title: cfg.title,
+        href: cfg.href(profile.city),
+        items: buckets[type],
+        cols: cfg.cols,
+      };
+    });
 
     setData({ profile, buckets, sections });
     setLoading(false);
-  }, [status]);
+  }, [status, cms?.defaultSubtitle, cms?.rows]);
 
   useEffect(() => {
     void load();

@@ -34,6 +34,10 @@ export class InfraSiteConfig {
   @Column({ type: 'simple-json', nullable: true })
   browseTypeImages: Record<string, string> | null;
 
+  /** Generic JSON payload for homepage section CMS rows (featured_projects, browse_by_city, etc.). */
+  @Column({ type: 'simple-json', nullable: true })
+  sectionPayload: Record<string, unknown> | null;
+
   @UpdateDateColumn()
   updatedAt: Date;
 }

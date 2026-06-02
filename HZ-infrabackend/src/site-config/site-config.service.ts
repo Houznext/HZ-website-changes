@@ -5,8 +5,28 @@ import { InfraSiteConfig } from './entities/infra-site-config.entity';
 import {
   BROWSE_TYPE_KEYS,
   BrowseTypeImagesDto,
+  BrowseTypeKey,
   DEFAULT_BROWSE_TYPE_IMAGES,
 } from './browse-type.constants';
+import {
+  BrowseByTypeContentDto,
+  BrowseCityContentDto,
+  CuratedContentDto,
+  DEFAULT_BROWSE_BY_TYPE_CONTENT,
+  DEFAULT_BROWSE_CITY,
+  DEFAULT_CURATED,
+  DEFAULT_FEATURED_PROJECTS,
+  DEFAULT_FOR_SELLERS,
+  DEFAULT_TESTIMONIALS,
+  DEFAULT_WHY_HOUZNEXT,
+  FeaturedProjectsContentDto,
+  ForSellersContentDto,
+  mergeBrowseTypeContent,
+  mergePayload,
+  SECTION_KEYS,
+  TestimonialsContentDto,
+  WhyHouznextContentDto,
+} from './homepage-sections.constants';
 import {
   HeroMetricItem,
   normalizeHeroMetrics,
@@ -34,6 +54,10 @@ export type HeroConfigDto = {
   heroOpacity: number;
   heroPopularTags: string[];
   heroMetrics: HeroMetricItem[];
+};
+
+export type BrowseByTypeSectionDto = BrowseByTypeContentDto & {
+  images: BrowseTypeImagesDto;
 };
 
 @Injectable()
@@ -129,38 +153,128 @@ export class SiteConfigService {
     return out;
   }
 
-  async getBrowseByType(): Promise<BrowseTypeImagesDto> {
+  async getBrowseByType(): Promise<BrowseByTypeSectionDto> {
     let row = await this.repo.findOne({ where: { configKey: BROWSE_BY_TYPE_KEY } });
     if (!row) {
       row = this.repo.create({
         configKey: BROWSE_BY_TYPE_KEY,
         browseTypeImages: { ...DEFAULT_BROWSE_TYPE_IMAGES } as Record<string, string>,
+        sectionPayload: DEFAULT_BROWSE_BY_TYPE_CONTENT as unknown as Record<string, unknown>,
       });
       await this.repo.save(row);
     }
-    return this.normalizeBrowseImages(row.browseTypeImages);
+    const content = mergeBrowseTypeContent(row.sectionPayload as Partial<BrowseByTypeContentDto>);
+    return {
+      ...content,
+      images: this.normalizeBrowseImages(row.browseTypeImages),
+    };
   }
 
-  async patchBrowseByType(patch: Partial<BrowseTypeImagesDto>): Promise<BrowseTypeImagesDto> {
+  async patchBrowseByType(patch: {
+    images?: Partial<BrowseTypeImagesDto>;
+    sectionTitle?: string;
+    sectionSubtitle?: string;
+    cards?: Partial<Record<BrowseTypeKey, Partial<BrowseByTypeContentDto['cards'][BrowseTypeKey]>>>;
+  }): Promise<BrowseByTypeSectionDto> {
     let row = await this.repo.findOne({ where: { configKey: BROWSE_BY_TYPE_KEY } });
     if (!row) {
       row = this.repo.create({
         configKey: BROWSE_BY_TYPE_KEY,
         browseTypeImages: { ...DEFAULT_BROWSE_TYPE_IMAGES } as Record<string, string>,
+        sectionPayload: DEFAULT_BROWSE_BY_TYPE_CONTENT as unknown as Record<string, unknown>,
       });
     }
-    const current = this.normalizeBrowseImages(row.browseTypeImages);
-    const next: BrowseTypeImagesDto = { ...current };
-    for (const key of BROWSE_TYPE_KEYS) {
-      if (patch[key] !== undefined) {
-        const v = patch[key];
-        next[key] = v && v.trim() ? v.trim() : null;
+    if (patch.images) {
+      const current = this.normalizeBrowseImages(row.browseTypeImages);
+      const next: BrowseTypeImagesDto = { ...current };
+      for (const key of BROWSE_TYPE_KEYS) {
+        if (patch.images[key] !== undefined) {
+          const v = patch.images[key];
+          next[key] = v && v.trim() ? v.trim() : null;
+        }
+      }
+      row.browseTypeImages = Object.fromEntries(
+        BROWSE_TYPE_KEYS.map((k) => [k, next[k]]).filter((entry): entry is [string, string] => !!entry[1]),
+      ) as Record<string, string>;
+    }
+    const content = mergeBrowseTypeContent(row.sectionPayload as Partial<BrowseByTypeContentDto>);
+    if (patch.sectionTitle !== undefined) content.sectionTitle = patch.sectionTitle;
+    if (patch.sectionSubtitle !== undefined) content.sectionSubtitle = patch.sectionSubtitle;
+    if (patch.cards) {
+      for (const key of BROWSE_TYPE_KEYS) {
+        if (patch.cards[key]) content.cards[key] = { ...content.cards[key], ...patch.cards[key]! };
       }
     }
-    row.browseTypeImages = Object.fromEntries(
-      BROWSE_TYPE_KEYS.map((k) => [k, next[k]]).filter((entry): entry is [string, string] => !!entry[1]),
-    ) as Record<string, string>;
+    row.sectionPayload = content as unknown as Record<string, unknown>;
     await this.repo.save(row);
     return this.getBrowseByType();
+  }
+
+  private async getSection<T extends object>(key: string, defaults: T): Promise<T> {
+    let row = await this.repo.findOne({ where: { configKey: key } });
+    if (!row) {
+      row = this.repo.create({ configKey: key, sectionPayload: defaults as unknown as Record<string, unknown> });
+      await this.repo.save(row);
+    }
+    return mergePayload(defaults, row.sectionPayload as Partial<T>);
+  }
+
+  private async patchSection<T extends object>(key: string, defaults: T, patch: Partial<T>): Promise<T> {
+    let row = await this.repo.findOne({ where: { configKey: key } });
+    if (!row) {
+      row = this.repo.create({ configKey: key, sectionPayload: defaults as unknown as Record<string, unknown> });
+    }
+    const merged = mergePayload(defaults, { ...(row.sectionPayload as Partial<T>), ...patch });
+    row.sectionPayload = merged as unknown as Record<string, unknown>;
+    await this.repo.save(row);
+    return merged;
+  }
+
+  getFeaturedProjects() {
+    return this.getSection(SECTION_KEYS.FEATURED_PROJECTS, DEFAULT_FEATURED_PROJECTS);
+  }
+
+  patchFeaturedProjects(patch: Partial<FeaturedProjectsContentDto>) {
+    return this.patchSection(SECTION_KEYS.FEATURED_PROJECTS, DEFAULT_FEATURED_PROJECTS, patch);
+  }
+
+  getCuratedSection() {
+    return this.getSection(SECTION_KEYS.CURATED, DEFAULT_CURATED);
+  }
+
+  patchCuratedSection(patch: Partial<CuratedContentDto>) {
+    return this.patchSection(SECTION_KEYS.CURATED, DEFAULT_CURATED, patch);
+  }
+
+  getBrowseByCity() {
+    return this.getSection(SECTION_KEYS.BROWSE_CITY, DEFAULT_BROWSE_CITY);
+  }
+
+  patchBrowseByCity(patch: Partial<BrowseCityContentDto>) {
+    return this.patchSection(SECTION_KEYS.BROWSE_CITY, DEFAULT_BROWSE_CITY, patch);
+  }
+
+  getTestimonials() {
+    return this.getSection(SECTION_KEYS.TESTIMONIALS, DEFAULT_TESTIMONIALS);
+  }
+
+  patchTestimonials(patch: Partial<TestimonialsContentDto>) {
+    return this.patchSection(SECTION_KEYS.TESTIMONIALS, DEFAULT_TESTIMONIALS, patch);
+  }
+
+  getForSellers() {
+    return this.getSection(SECTION_KEYS.FOR_SELLERS, DEFAULT_FOR_SELLERS);
+  }
+
+  patchForSellers(patch: Partial<ForSellersContentDto>) {
+    return this.patchSection(SECTION_KEYS.FOR_SELLERS, DEFAULT_FOR_SELLERS, patch);
+  }
+
+  getWhyHouznext() {
+    return this.getSection(SECTION_KEYS.WHY_HOUZNEXT, DEFAULT_WHY_HOUZNEXT);
+  }
+
+  patchWhyHouznext(patch: Partial<WhyHouznextContentDto>) {
+    return this.patchSection(SECTION_KEYS.WHY_HOUZNEXT, DEFAULT_WHY_HOUZNEXT, patch);
   }
 }

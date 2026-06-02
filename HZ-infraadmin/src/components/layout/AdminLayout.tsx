@@ -210,6 +210,48 @@ export function AdminLayout({
             badgeVariant="blue"
             active={path.startsWith('/website-cms/browse-by-type')}
           />
+          <NavRow
+            href="/website-cms/featured-projects"
+            label="Featured projects"
+            icon={Home}
+            badgeVariant="blue"
+            active={path.startsWith('/website-cms/featured-projects')}
+          />
+          <NavRow
+            href="/website-cms/curated-properties"
+            label="Curated for you"
+            icon={LayoutGrid}
+            badgeVariant="blue"
+            active={path.startsWith('/website-cms/curated-properties')}
+          />
+          <NavRow
+            href="/website-cms/browse-by-city"
+            label="Browse by city"
+            icon={LayoutGrid}
+            badgeVariant="blue"
+            active={path.startsWith('/website-cms/browse-by-city')}
+          />
+          <NavRow
+            href="/website-cms/testimonials"
+            label="Customer stories"
+            icon={MessageSquare}
+            badgeVariant="blue"
+            active={path.startsWith('/website-cms/testimonials')}
+          />
+          <NavRow
+            href="/website-cms/for-sellers"
+            label="For sellers"
+            icon={FileText}
+            badgeVariant="blue"
+            active={path.startsWith('/website-cms/for-sellers')}
+          />
+          <NavRow
+            href="/website-cms/why-houznext"
+            label="Why Houznext"
+            icon={LayoutGrid}
+            badgeVariant="blue"
+            active={path.startsWith('/website-cms/why-houznext')}
+          />
 
           <div className="asec">CRM</div>
           <NavRow

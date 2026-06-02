@@ -16,4 +16,34 @@ export class SiteConfigController {
   browseByType() {
     return this.cfg.getBrowseByType();
   }
+
+  @Get('featured-projects')
+  featuredProjects() {
+    return this.cfg.getFeaturedProjects();
+  }
+
+  @Get('curated-properties')
+  curatedProperties() {
+    return this.cfg.getCuratedSection();
+  }
+
+  @Get('browse-by-city')
+  browseByCity() {
+    return this.cfg.getBrowseByCity();
+  }
+
+  @Get('testimonials')
+  testimonials() {
+    return this.cfg.getTestimonials();
+  }
+
+  @Get('for-sellers')
+  forSellers() {
+    return this.cfg.getForSellers();
+  }
+
+  @Get('why-houznext')
+  whyHouznext() {
+    return this.cfg.getWhyHouznext();
+  }
 }
