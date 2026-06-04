@@ -110,9 +110,9 @@ export default function PropertiesAds() {
   };
   const handlePostProperty = () => {
     if (session.status !== "authenticated") {
-      router.push("/post-property");
+      router.push("/contact-us");
     } else {
-      router.push("/post-property/details");
+      router.push("/contact-us");
     }
   };
 

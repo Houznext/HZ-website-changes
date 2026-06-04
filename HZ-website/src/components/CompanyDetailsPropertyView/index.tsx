@@ -316,14 +316,14 @@ const CompanyDetailsPropertyView = ({ data }: any) => {
       heading: "Property Legal Opinion",
       description:
         "Get expert property legal guidance to avoid disputes and ensure your investment is secure.",
-      link: "/legalservices",
+      link: "/contact-us",
     },
     {
       imageUrl: "/home/insight-2.png",
       heading: "Vaastu Consultation",
       description:
         "Enhance peace and prosperity with personalized Vaastu advice tailored to your property.",
-      link: "/services/vaastu-consultation",
+      link: "/contact-us",
     },
     {
       imageUrl: "/home/insight-3.png",
@@ -337,7 +337,7 @@ const CompanyDetailsPropertyView = ({ data }: any) => {
       heading: "Solar Panel Calculator",
       description:
         "Estimate savings, ROI, and energy output from solar panels for your property in minutes.",
-      link: "/solar",
+      link: "/contact-us",
     },
   ];
 
@@ -547,7 +547,7 @@ const CompanyDetailsPropertyView = ({ data }: any) => {
               className="font-medium ml-1 text-[#3586FF] underline cursor-pointer"
               onClick={() => {
                 const name = generateSlug(data?.company?.companyName);
-                router.push(`/company/${name}?id=${data?.company?.id}`);
+                router.push("/contact-us");
               }}
             >
               {data?.company?.companyName}

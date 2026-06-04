@@ -1,10 +1,12 @@
 import React, { useMemo } from "react";
 import Link from "next/link";
 import BlogRemoteImage from "@/components/BlogRemoteImage";
+import { blogPostPath } from "@/lib/blogPaths";
 import { HiOutlineCalendar, HiArrowRight, HiOutlineTrendingUp } from "react-icons/hi";
 
 interface TrendingBlogData {
   id: number;
+  slug?: string | null;
   title: string;
   previewDescription?: string;
   thumbnailImageUrl?: string;
@@ -32,7 +34,7 @@ const TrendingBlogCard = ({ data }: { data: TrendingBlogData }) => {
   const imageUrl = CoverImageUrl || thumbnailImageUrl || "/images/TopProperties/property3.png";
 
   return (
-    <Link href={`/blogs/${id}`} className="block">
+    <Link href={blogPostPath({ id, slug: data.slug })} className="block">
       <div className="group w-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
         <div className="flex flex-col md:flex-row">
           {/* Image Container */}

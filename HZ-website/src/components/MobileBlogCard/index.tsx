@@ -1,10 +1,12 @@
 import React, { useMemo } from "react";
 import Link from "next/link";
 import BlogRemoteImage from "@/components/BlogRemoteImage";
+import { blogPostPath } from "@/lib/blogPaths";
 import { HiOutlineCalendar, HiArrowRight } from "react-icons/hi";
 
 interface BlogCardData {
   id: number;
+  slug?: string | null;
   title: string;
   previewDescription: string;
   thumbnailImageUrl: string;
@@ -41,7 +43,7 @@ export default function MobileBlogCard({ data }: { data: BlogCardData }) {
   };
 
   return (
-    <Link href={`/blogs/${id}`} className="block w-full">
+    <Link href={blogPostPath({ id, slug: data.slug })} className="block w-full">
       <div className="w-full bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group">
         <div className="flex gap-3 p-3 w-full">
           {/* Image Container */}

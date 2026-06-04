@@ -483,7 +483,7 @@ const PropertyView = () => {
 
             <Button
               className="px-5 py-2 text-sm font-medium rounded-lg text-white bg-[#3586FF] hover:bg-[#2d75e6] transition-colors shadow-sm"
-              onClick={() => router.push("/post-property/details")}
+              onClick={() => router.push("/contact-us")}
             >
               + Add Property
             </Button>
@@ -794,7 +794,7 @@ const PropertyView = () => {
             {!query && Object.keys(selectedFilters).length === 0 && (
               <Button
                 className="px-6 py-2.5 rounded-lg text-sm text-white bg-[#3586FF] hover:bg-[#2d75e6] font-medium shadow-sm transition-colors"
-                onClick={() => router.push("/post-property/details")}
+                onClick={() => router.push("/contact-us")}
               >
                 + Add Your First Property
               </Button>

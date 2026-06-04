@@ -21,6 +21,4 @@
   - `npm run sitemap:generate`
   - `npm run sitemap:verify`
 - Build pipeline runs both automatically via `postbuild`.
-- Legacy URLs are blocked in generation and verification:
-  - `/careers/apply`
-  - `/interiors/privacy-policy` (case-insensitive)
+- Legacy URLs are blocked in generation and verification (see `LEGACY_URLS_REMOVED.md`).

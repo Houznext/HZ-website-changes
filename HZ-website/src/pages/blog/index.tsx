@@ -8,9 +8,11 @@ import SeoHead from '@/components/SeoHead'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import apiClient from '@/utils/apiClient'
 import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
+import { blogPostPath } from '@/lib/blogPaths'
 
 export interface ApiBlogRow {
   id: number | string
+  slug?: string | null
   title?: string
   previewDescription?: string
   blogType?: string
@@ -81,8 +83,8 @@ export default function BlogIndex({ initialBlogs, pageSeo }: BlogIndexProps) {
   const sidebarPosts = rest.slice(0, 3)
   const gridPosts = rest.slice(3)
 
-  const goToPost = (id: number | string) => {
-    void router.push(`/blogs/${id}`)
+  const goToPost = (post: ApiBlogRow) => {
+    void router.push(blogPostPath(post))
   }
 
   const cover = (b: ApiBlogRow) => b.CoverImageUrl || b.thumbnailImageUrl || ''
@@ -176,8 +178,8 @@ export default function BlogIndex({ initialBlogs, pageSeo }: BlogIndexProps) {
               <div
                 className="md:col-span-2 rounded-2xl overflow-hidden bg-white border cursor-pointer transition-shadow hover:shadow-lg"
                 style={{ borderColor: '#dde8f5' }}
-                onClick={() => goToPost(featured.id)}
-                onKeyDown={(e) => e.key === 'Enter' && goToPost(featured.id)}
+                onClick={() => goToPost(featured)}
+                onKeyDown={(e) => e.key === 'Enter' && goToPost(featured)}
                 role="link"
                 tabIndex={0}
               >
@@ -219,8 +221,8 @@ export default function BlogIndex({ initialBlogs, pageSeo }: BlogIndexProps) {
                     key={post.id}
                     className="bg-white rounded-xl border p-4 cursor-pointer transition-shadow hover:shadow-md"
                     style={{ borderColor: '#dde8f5' }}
-                    onClick={() => goToPost(post.id)}
-                    onKeyDown={(e) => e.key === 'Enter' && goToPost(post.id)}
+                    onClick={() => goToPost(post)}
+                    onKeyDown={(e) => e.key === 'Enter' && goToPost(post)}
                     role="link"
                     tabIndex={0}
                   >
@@ -244,8 +246,8 @@ export default function BlogIndex({ initialBlogs, pageSeo }: BlogIndexProps) {
                   key={post.id}
                   className="bg-white rounded-2xl border overflow-hidden cursor-pointer transition-shadow hover:shadow-lg"
                   style={{ borderColor: '#dde8f5' }}
-                  onClick={() => goToPost(post.id)}
-                  onKeyDown={(e) => e.key === 'Enter' && goToPost(post.id)}
+                  onClick={() => goToPost(post)}
+                  onKeyDown={(e) => e.key === 'Enter' && goToPost(post)}
                   role="link"
                   tabIndex={0}
                 >

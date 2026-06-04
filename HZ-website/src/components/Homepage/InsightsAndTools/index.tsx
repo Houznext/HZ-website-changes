@@ -31,7 +31,7 @@ const insights = [
     heading: "Solar Panel Cost Calculator",
     description:
       "Calculate potential savings, energy output & ROI from solar panel installation at your property.",
-    link: "/solar",
+    link: "/contact-us",
   },
 ];
 

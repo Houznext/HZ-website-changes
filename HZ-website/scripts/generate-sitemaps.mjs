@@ -117,7 +117,6 @@ function discoverInteriorsPaths() {
   }
   const base = path.join(PAGES, 'interiors')
   walkIndexRoutes(base, ['interiors'], set)
-  set.delete('/interiors/Privacy-policy')
   return Array.from(set).sort()
 }
 
@@ -157,9 +156,7 @@ function shouldSkipPath(pathStr) {
     normalized.startsWith('/post-property') ||
     normalized.startsWith('/company/') ||
     normalized.startsWith('/properties') ||
-    normalized.startsWith('/real-estate') ||
-    normalized === '/careers/apply' ||
-    normalized === '/interiors/privacy-policy'
+    normalized.startsWith('/real-estate')
   )
 }
 

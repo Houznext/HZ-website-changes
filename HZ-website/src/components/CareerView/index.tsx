@@ -13,7 +13,6 @@ import {
 import Button from "@/common/Button";
 import Modal from "@/common/Modal";
 import Image from "next/image";
-import { useRouter } from "next/router";
 import apiClient from "@/utils/apiClient";
 import toast from "react-hot-toast";
 
@@ -21,8 +20,6 @@ const JobCard = ({ data }: any) => {
   const [modal, setModal] = useState<boolean>(false);
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [careers, setCareers] = useState<any[]>([]);
-  const router = useRouter();
-
   const fetchCareers = async () => {
     try {
       const response = await apiClient.get(apiClient.URLS.apply);
@@ -43,10 +40,6 @@ const JobCard = ({ data }: any) => {
     console.log("sdasda", job);
     setSelectedJob(job);
     setModal(true);
-  };
-
-  const handleRoute = (id: number) => {
-    router.push(`/careers/apply?id=${id}`);
   };
 
   return (
@@ -130,12 +123,6 @@ const JobCard = ({ data }: any) => {
                 Houznextrealestates@gmail.com
               </Link>
             </p>
-            <Button
-              className="bg-[#3586FF] rounded-[8px] px-4 py-2 mt-4 text-white font-medium"
-              onClick={() => handleRoute(selectedJob?.id)} // Pass the job ID to handleRoute
-            >
-              Apply
-            </Button>
           </div>
         </Modal>
       )}

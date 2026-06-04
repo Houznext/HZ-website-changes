@@ -124,7 +124,7 @@ const RecentTab = () => {
             {/* Stat Header Card */}
             <div
               className={`${stat.bgColor} rounded-xl p-3 cursor-pointer hover:shadow-md transition-all duration-300 group border border-gray-100`}
-              onClick={() => router.push("/recentproperties")}
+              onClick={() => router.push("https://infra.houznext.com/buy")}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -151,7 +151,7 @@ const RecentTab = () => {
                   <div
                     key={item.id}
                     className="flex items-center gap-2.5 p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-100 transition-all duration-200 cursor-pointer group"
-                    onClick={() => router.push("/recentproperties")}
+                    onClick={() => router.push("https://infra.houznext.com/buy")}
                   >
                     <div className={`p-1.5 rounded-md ${stat.bgColor} ${stat.iconColor} flex-shrink-0 group-hover:scale-110 transition-transform`}>
                       {stat.itemIcon}
@@ -168,7 +168,7 @@ const RecentTab = () => {
                 {/* Show more indicator */}
                 {stat.count > 3 && (
                   <button
-                    onClick={() => router.push("/recentproperties")}
+                    onClick={() => router.push("https://infra.houznext.com/buy")}
                     className="w-full text-xs text-[#3586FF] hover:text-[#4287ef] font-medium py-2 text-center hover:bg-blue-50 rounded-lg transition-colors"
                   >
                     +{stat.count - 3} more {stat.label.toLowerCase()}
@@ -211,7 +211,7 @@ const RecentTab = () => {
       {/* View Full Activity Button */}
       <Button
         className="w-full py-2.5 bg-gradient-to-r from-[#3586FF] to-[#4287ef] rounded-xl text-white text-sm font-semibold hover:from-[#4287ef] hover:to-[#3277df] transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg group"
-        onClick={() => router.push("/recentproperties")}
+        onClick={() => router.push("https://infra.houznext.com/buy")}
       >
         View Full Activity
         <FiArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

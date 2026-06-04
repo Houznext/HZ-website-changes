@@ -8,7 +8,17 @@ const ROOT = path.join(__dirname, '..')
 const PUBLIC = path.join(ROOT, 'public')
 
 const SITEMAPS = ['sitemap-main.xml', 'sitemap-interiors.xml', 'sitemap-blogs.xml']
-const FORBIDDEN_SUBSTRINGS = ['/careers/apply', '/interiors/privacy-policy']
+const FORBIDDEN_SUBSTRINGS = [
+  '/careers/apply',
+  '/interiors/privacy-policy',
+  '/blogs/',
+  'infra.houznext.com',
+  '/solar',
+  '/legalservices',
+  '/recentproperties',
+  '/post-property',
+  '/propshome',
+]
 
 function extractLocs(xml) {
   const matches = xml.match(/<loc>(.*?)<\/loc>/g) || []

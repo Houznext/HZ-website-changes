@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import Link from "next/link";
 import BlogRemoteImage from "@/components/BlogRemoteImage";
+import { blogPostPath } from "@/lib/blogPaths";
 
 function estimateReadMin(content: string, preview: string): string {
   const len = (content?.length || 0) + (preview?.length || 0);
@@ -141,7 +142,7 @@ const BlogsDetails = ({ blog, similarBlogs = [] }: { blog: any; similarBlogs?: a
                 return (
                   <Link
                     key={b.id}
-                    href={`/blogs/${b.id}`}
+                    href={blogPostPath(b)}
                     className="group bg-white rounded-2xl border overflow-hidden transition-shadow hover:shadow-lg no-underline"
                     style={{ borderColor: "#dde8f5" }}
                   >

@@ -1,10 +1,12 @@
 import React, { useMemo } from "react";
 import Link from "next/link";
+import { blogPostPath } from "@/lib/blogPaths";
 import BlogRemoteImage from "@/components/BlogRemoteImage";
 import { HiOutlineCalendar, HiArrowRight } from "react-icons/hi";
 
 interface BlogCardData {
   id: number;
+  slug?: string | null;
   title: string;
   previewDescription: string;
   thumbnailImageUrl: string;
@@ -43,7 +45,7 @@ const BlogCard = ({ data }: { data: BlogCardData }) => {
   if (!title || !previewDescription) return null;
 
   return (
-   <Link href={`/blogs/${id}`} className="flex h-full w-full">
+   <Link href={blogPostPath({ id, slug: data.slug })} className="flex h-full w-full">
       <div
         className="group h-full bg-white rounded-2xl border overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg w-full"
         style={{ borderColor: "#dde8f5" }}

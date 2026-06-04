@@ -389,7 +389,7 @@ const NavDropDown = ({ item, subLink }: any) => {
                                     </h1>
                                     <h1>
                                       <Link
-                                        href="/solar"
+                                        href="/contact-us"
                                         className="font-medium md:text-[12px] text-[10px] flex items-center gap-1"
                                       >
                                         <CheckCircle2 className="w-4 h-4 text-[#3586FF] mt-0.5" />
@@ -679,8 +679,7 @@ const Navbar = ({ isVisibleItems }: ShowItems) => {
       link: "/blog",
       isActive:
         router.pathname === "/blog" ||
-        router.pathname.startsWith("/blog/") ||
-        router.pathname.startsWith("/blogs/"),
+        router.pathname.startsWith("/blog/"),
     },
     {
       name: "Design ideas",

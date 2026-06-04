@@ -449,7 +449,7 @@ export const CompanyProjectCard = ({
               className="flex items-center md:gap-2 gap-1 cursor-pointer"
               onClick={() => {
                 const name = generateSlug(data?.company?.name);
-                router.push(`/company/${name}?id=${data?.company?.id}`);
+                router.push("/contact-us");
               }}
             >
               <div className="relative md:w-[50px] md:h-[50px] w-[25px] h-[25px] ">
@@ -504,7 +504,7 @@ export const CompanyProjectCard = ({
           className="flex items-center md:gap-2 gap-1 cursor-pointer"
           onClick={() => {
             const name = generateSlug(data?.company?.name);
-            router.push(`/company/${name}?id=${data?.company?.id}`);
+            router.push("/contact-us");
           }}
         >
           <div className="relative md:w-[50px] md:h-[50px] w-[25px] h-[25px] ">

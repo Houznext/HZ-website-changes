@@ -8,7 +8,7 @@ const PopularBuilders = (props: any) => {
   return (
     <div
       className="flex cursor-pointer bg-white gap-6 items-center rounded-[8px] shadow-custom max-w-[460px] min-h-[180px] px-[24px] py-[48px]"
-      onClick={() => router.push(`/company/${slug}?id=${id}`)}
+      onClick={() => router.push("/contact-us")}
     >
       <div className="h-[86px] w-[86px] relative ">
         <Image
