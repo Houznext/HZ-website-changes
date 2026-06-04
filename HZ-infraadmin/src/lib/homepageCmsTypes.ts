@@ -84,3 +84,30 @@ export type WhyHouznextContent = {
   title: string;
   cards: WhyCard[];
 };
+
+export type SeoFaqItem = { question: string; answer: string };
+
+export type InfraSeoGeo = {
+  siteName: string;
+  siteUrl: string;
+  defaultOgImage: string;
+  organizationName: string;
+  organizationDescription: string;
+  telephone: string;
+  geoRegion: string;
+  geoPlacename: string;
+  geoPosition: string;
+  icbm: string;
+  latitude: number;
+  longitude: number;
+  areaServed: string[];
+  twitterSite: string;
+  defaultKeywords: string;
+  openingHours: string;
+  streetAddress: string;
+  addressLocality: string;
+  addressRegion: string;
+  postalCode: string;
+  aiSummary: string;
+  faqItems: SeoFaqItem[];
+};

@@ -252,6 +252,13 @@ export function AdminLayout({
             badgeVariant="blue"
             active={path.startsWith('/website-cms/why-houznext')}
           />
+          <NavRow
+            href="/website-cms/seo"
+            label="SEO & GEO"
+            icon={Search}
+            badgeVariant="blue"
+            active={path.startsWith('/website-cms/seo')}
+          />
 
           <div className="asec">CRM</div>
           <NavRow

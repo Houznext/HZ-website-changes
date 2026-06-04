@@ -6,6 +6,7 @@ import {
   IsBoolean,
   IsIn,
   IsInt,
+  IsNumber,
   IsObject,
   IsOptional,
   IsString,
@@ -23,6 +24,7 @@ import type {
   TestimonialsContentDto,
   WhyHouznextContentDto,
 } from './homepage-sections.constants';
+import type { InfraSeoGeoDto } from './seo-geo.constants';
 
 class HeroMetricDto {
   @IsString()
@@ -326,6 +328,111 @@ class PatchWhyHouznextDto {
   cards?: WhyCardPatchDto[];
 }
 
+class SeoFaqPatchDto {
+  @IsOptional()
+  @IsString()
+  question?: string;
+
+  @IsOptional()
+  @IsString()
+  answer?: string;
+}
+
+class PatchSeoGeoDto {
+  @IsOptional()
+  @IsString()
+  siteName?: string;
+
+  @IsOptional()
+  @IsString()
+  siteUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  defaultOgImage?: string;
+
+  @IsOptional()
+  @IsString()
+  organizationName?: string;
+
+  @IsOptional()
+  @IsString()
+  organizationDescription?: string;
+
+  @IsOptional()
+  @IsString()
+  telephone?: string;
+
+  @IsOptional()
+  @IsString()
+  geoRegion?: string;
+
+  @IsOptional()
+  @IsString()
+  geoPlacename?: string;
+
+  @IsOptional()
+  @IsString()
+  geoPosition?: string;
+
+  @IsOptional()
+  @IsString()
+  icbm?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  latitude?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  longitude?: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  areaServed?: string[];
+
+  @IsOptional()
+  @IsString()
+  twitterSite?: string;
+
+  @IsOptional()
+  @IsString()
+  defaultKeywords?: string;
+
+  @IsOptional()
+  @IsString()
+  openingHours?: string;
+
+  @IsOptional()
+  @IsString()
+  streetAddress?: string;
+
+  @IsOptional()
+  @IsString()
+  addressLocality?: string;
+
+  @IsOptional()
+  @IsString()
+  addressRegion?: string;
+
+  @IsOptional()
+  @IsString()
+  postalCode?: string;
+
+  @IsOptional()
+  @IsString()
+  aiSummary?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SeoFaqPatchDto)
+  faqItems?: SeoFaqPatchDto[];
+}
+
 @ApiTags('admin-site-config')
 @Controller('admin/site-config')
 @UseGuards(JwtAuthGuard, AdminGuard)
@@ -411,5 +518,15 @@ export class AdminSiteConfigController {
   @Patch('why-houznext')
   patchWhyHouznext(@Body() body: PatchWhyHouznextDto) {
     return this.cfg.patchWhyHouznext(body as Partial<WhyHouznextContentDto>);
+  }
+
+  @Get('seo-geo')
+  getSeoGeo() {
+    return this.cfg.getSeoGeo();
+  }
+
+  @Patch('seo-geo')
+  patchSeoGeo(@Body() body: PatchSeoGeoDto) {
+    return this.cfg.patchSeoGeo(body as Partial<InfraSeoGeoDto>);
   }
 }

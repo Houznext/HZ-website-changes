@@ -21,6 +21,7 @@ import { NewsModule } from './news/news.module';
 import { SiteConfigModule } from './site-config/site-config.module';
 import { SiteVisitModule } from './site-visit/site-visit.module';
 import { S3Module } from './s3/s3.module';
+import { InfraPageSeoModule } from './page-seo/infra-page-seo.module';
 
 @Module({
   controllers: [HealthController],
@@ -50,6 +51,7 @@ import { S3Module } from './s3/s3.module';
     SiteConfigModule,
     SiteVisitModule,
     S3Module,
+    InfraPageSeoModule,
   ],
 })
 export class AppModule {}

@@ -46,4 +46,9 @@ export class SiteConfigController {
   whyHouznext() {
     return this.cfg.getWhyHouznext();
   }
+
+  @Get('seo-geo')
+  seoGeo() {
+    return this.cfg.getSeoGeo();
+  }
 }

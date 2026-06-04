@@ -10,6 +10,8 @@ import { Testimonials } from '@/components/home/Testimonials';
 import { ListPropertyCTA } from '@/components/home/ListPropertyCTA';
 import { WhyHouznextInfra } from '@/components/home/WhyHouznextInfra';
 import type { PublicProperty } from '@/types/property.types';
+import { fetchPageSeo } from '@/lib/fetchPageSeo';
+import { fetchSeoGeo } from '@/lib/fetchSeoGeo';
 
 async function fetchFeatured(
   base: string,
@@ -32,21 +34,30 @@ export const getStaticProps: GetStaticProps<{
   villas: PublicProperty[];
   apartments: PublicProperty[];
   plots: PublicProperty[];
+  initialPageSeo: Awaited<ReturnType<typeof fetchPageSeo>>;
+  initialSeoGeo: Awaited<ReturnType<typeof fetchSeoGeo>>;
 }> = async () => {
   const base = process.env.INFRA_BACKEND_URL || process.env.NEXT_PUBLIC_INFRA_API_URL || 'http://127.0.0.1:4001';
-  const [lands, villas, apartments, plots] = await Promise.all([
+  const [lands, villas, apartments, plots, initialPageSeo, initialSeoGeo] = await Promise.all([
     fetchFeatured(base, 'Land', 3),
     fetchFeatured(base, 'Villa', 3),
     fetchFeatured(base, 'Apartment', 3),
     fetchFeatured(base, 'Plot', 5),
+    fetchPageSeo('/'),
+    fetchSeoGeo(),
   ]);
   return {
-    props: { lands, villas, apartments, plots },
+    props: { lands, villas, apartments, plots, initialPageSeo, initialSeoGeo },
     revalidate: 60,
   };
 };
 
-export default function HomePage({ lands, villas, apartments, plots }: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function HomePage({
+  lands,
+  villas,
+  apartments,
+  plots,
+}: InferGetStaticPropsType<typeof getStaticProps>) {
   return (
     <div className="min-h-screen bg-offwhite">
       <Navbar />

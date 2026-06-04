@@ -4,6 +4,7 @@ import { SessionProvider, useSession } from 'next-auth/react';
 import type { AppProps } from 'next/app';
 import { Toaster } from 'react-hot-toast';
 import { initGA, trackPageView } from '@/lib/analytics';
+import { InfraSeoRouter } from '@/components/seo/InfraSeoRouter';
 import '@/styles/globals.css';
 
 function InfraTokenSync() {
@@ -18,7 +19,7 @@ function InfraTokenSync() {
   return null;
 }
 
-export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
+export default function App({ Component, pageProps: { session, initialPageSeo, initialSeoGeo, ...pageProps } }: AppProps) {
   const router = useRouter();
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
   return (
     <SessionProvider session={session}>
       <InfraTokenSync />
+      <InfraSeoRouter initialPage={initialPageSeo ?? undefined} initialGeo={initialSeoGeo ?? undefined} />
       <div className="site-root max-w-[100vw] overflow-x-hidden">
         <Component {...pageProps} />
       </div>

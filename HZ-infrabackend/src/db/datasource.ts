@@ -16,6 +16,7 @@ import { InfraDeveloper } from '../developer/entities/infra-developer.entity';
 import { InfraNews } from '../news/entities/infra-news.entity';
 import { InfraSiteConfig } from '../site-config/entities/infra-site-config.entity';
 import { InfraSiteVisit } from '../site-visit/entities/infra-site-visit.entity';
+import { InfraPageSeo } from '../page-seo/infra-page-seo.entity';
 import { InfraUser } from '../infra-user/entities/infra-user.entity';
 import { InfraUserBranchMembership } from '../infra-branch/entities/infra-user-branch-membership.entity';
 import { InfraBranch } from '../infra-branch/entities/infra-branch.entity';
@@ -40,6 +41,7 @@ export const infraEntities = [
   InfraNews,
   InfraSiteConfig,
   InfraSiteVisit,
+  InfraPageSeo,
   InfraUser,
   InfraUserBranchMembership,
   InfraBranch,

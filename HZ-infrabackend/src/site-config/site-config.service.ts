@@ -28,6 +28,12 @@ import {
   WhyHouznextContentDto,
 } from './homepage-sections.constants';
 import {
+  DEFAULT_SEO_GEO,
+  InfraSeoGeoDto,
+  mergeSeoGeo,
+  SEO_GEO_CONFIG_KEY,
+} from './seo-geo.constants';
+import {
   HeroMetricItem,
   normalizeHeroMetrics,
   normalizePopularTags,
@@ -276,5 +282,31 @@ export class SiteConfigService {
 
   patchWhyHouznext(patch: Partial<WhyHouznextContentDto>) {
     return this.patchSection(SECTION_KEYS.WHY_HOUZNEXT, DEFAULT_WHY_HOUZNEXT, patch);
+  }
+
+  async getSeoGeo(): Promise<InfraSeoGeoDto> {
+    let row = await this.repo.findOne({ where: { configKey: SEO_GEO_CONFIG_KEY } });
+    if (!row) {
+      row = this.repo.create({
+        configKey: SEO_GEO_CONFIG_KEY,
+        sectionPayload: DEFAULT_SEO_GEO as unknown as Record<string, unknown>,
+      });
+      await this.repo.save(row);
+    }
+    return mergeSeoGeo(row.sectionPayload as Partial<InfraSeoGeoDto>);
+  }
+
+  async patchSeoGeo(patch: Partial<InfraSeoGeoDto>): Promise<InfraSeoGeoDto> {
+    let row = await this.repo.findOne({ where: { configKey: SEO_GEO_CONFIG_KEY } });
+    if (!row) {
+      row = this.repo.create({
+        configKey: SEO_GEO_CONFIG_KEY,
+        sectionPayload: DEFAULT_SEO_GEO as unknown as Record<string, unknown>,
+      });
+    }
+    const merged = mergeSeoGeo({ ...(row.sectionPayload as Partial<InfraSeoGeoDto>), ...patch });
+    row.sectionPayload = merged as unknown as Record<string, unknown>;
+    await this.repo.save(row);
+    return merged;
   }
 }
