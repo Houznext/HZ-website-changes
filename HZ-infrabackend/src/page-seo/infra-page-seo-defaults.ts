@@ -1,3 +1,5 @@
+import { buildSeoLandingDefaultRows } from './seo-landing.constants';
+
 export type InfraPageSeoDefaultRow = {
   path: string;
   label: string;
@@ -151,5 +153,6 @@ export const INFRA_PAGE_SEO_DEFAULT_ROWS: InfraPageSeoDefaultRow[] = [
 ];
 
 export function getInfraDefaultRowForPath(path: string): InfraPageSeoDefaultRow | undefined {
-  return INFRA_PAGE_SEO_DEFAULT_ROWS.find((r) => r.path === path);
+  const all = [...INFRA_PAGE_SEO_DEFAULT_ROWS, ...buildSeoLandingDefaultRows()];
+  return all.find((r) => r.path === path);
 }

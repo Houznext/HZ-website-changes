@@ -10,7 +10,14 @@ module.exports = {
   sitemapSize: 5000,
   changefreq: 'daily',
   priority: 0.7,
-  exclude: ['/api/*', '/login', '/profile', '/saved-properties', '/seen-properties'],
+  exclude: [
+    '/api/*',
+    '/login',
+    '/profile',
+    '/saved-properties',
+    '/seen-properties',
+    '/server-sitemap.xml',
+  ],
   transform: async (config, path) => {
     if (path === '/' || path === '') {
       return {

@@ -186,6 +186,21 @@ export class ProjectService implements OnModuleInit {
     return p;
   }
 
+  async sitemapSlugs(): Promise<{ slug: string; updatedAt: string }[]> {
+    const rows = await this.repo.find({
+      where: { published: true, showInSearch: true },
+      select: ['slug', 'updatedAt'],
+      order: { updatedAt: 'DESC' },
+      take: 2000,
+    });
+    return rows
+      .filter((r) => r.slug?.trim())
+      .map((r) => ({
+        slug: r.slug!.trim(),
+        updatedAt: r.updatedAt instanceof Date ? r.updatedAt.toISOString() : String(r.updatedAt),
+      }));
+  }
+
   async bySlug(slug: string): Promise<InfraProject> {
     const p = await this.repo.findOne({
       where: { slug, published: true },

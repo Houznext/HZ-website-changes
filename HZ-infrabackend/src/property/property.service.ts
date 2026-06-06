@@ -500,6 +500,21 @@ export class PropertyService {
     return { data, items: data, total, page, limit, totalPages };
   }
 
+  async sitemapSlugs(): Promise<{ slug: string; updatedAt: string }[]> {
+    const rows = await this.propRepo.find({
+      where: { isApproved: true, isActive: true },
+      select: ['slug', 'updatedAt'],
+      order: { updatedAt: 'DESC' },
+      take: 5000,
+    });
+    return rows
+      .filter((r) => r.slug?.trim())
+      .map((r) => ({
+        slug: r.slug!.trim(),
+        updatedAt: r.updatedAt instanceof Date ? r.updatedAt.toISOString() : String(r.updatedAt),
+      }));
+  }
+
   async findBySlug(slug: string): Promise<Record<string, unknown>> {
     const p = await this.propRepo.findOne({
       where: { slug },

@@ -1,0 +1,710 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f2a44;--blue:#2f80ed;--bh:#1a6dd6;--bl:#e8f1fd;
+  --accent:#f2994a;--ch:var(--color-text-primary);--mu:var(--color-text-secondary);
+  --brd:var(--color-border-tertiary);--off:var(--color-background-secondary);
+  --rd:#dc2626;--am:#d97706;--tl:#0d9488;--gr:#16a34a;
+  --m:'Montserrat',sans-serif;--i:'Inter',sans-serif
+}
+body{font-family:var(--i);font-size:13px;background:var(--color-background-tertiary)}
+.m7{font-family:var(--m)}
+.badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;font-family:var(--m)}
+.b-teal{background:#ccfbf1;color:#0f766e}
+.b-blue{background:#e8f1fd;color:#1e40af}
+.b-amber{background:#fef3c7;color:#92400e}
+.b-green{background:#dcfce7;color:#15803d}
+.b-gray{background:#f1f5f9;color:#475569}
+.b-purple{background:#f3e8ff;color:#6b21a8}
+.b-red{background:#fee2e2;color:#b91c1c}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:14px;padding:18px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;font-size:12.5px;font-weight:700;border:none;cursor:pointer;font-family:var(--m)}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-ghost{background:var(--color-background-primary);color:var(--color-text-primary);border:1px solid var(--color-border-secondary)}
+.sdiv{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.sdiv-ic{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sdiv-t{font-family:var(--m);font-size:13.5px;font-weight:700;color:var(--color-text-primary)}
+.sdiv-line{flex:1;height:1px;background:var(--color-border-tertiary)}
+
+/* TYPE TABS */
+.type-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.type-tab{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;font-family:var(--m);cursor:pointer;border:1.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);transition:all .15s}
+.type-tab.on{background:#2f80ed;color:#fff;border-color:#2f80ed}
+
+/* INSIGHT METRIC CARD */
+.ins-metric{background:var(--color-background-secondary);border-radius:10px;padding:14px;text-align:center}
+.ins-metric-label{font-size:10px;font-weight:700;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.07em;font-family:var(--m);margin-bottom:5px}
+.ins-metric-val{font-family:var(--m);font-size:20px;font-weight:800;color:var(--color-text-primary);line-height:1.1}
+.ins-metric-sub{font-size:11px;color:var(--color-text-secondary);margin-top:3px}
+
+/* INSIGHT ROW */
+.ins-row{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;border-radius:9px;background:var(--color-background-secondary);margin-bottom:5px}
+.ins-row-label{font-size:12.5px;font-weight:600;color:var(--color-text-primary)}
+.ins-row-val{font-family:var(--m);font-size:12.5px;font-weight:700}
+
+/* PROJ BAND */
+.proj-band{display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:9px;margin-bottom:5px}
+
+/* TREND TAG */
+.trend-up{color:#0d9488;font-size:11px;font-weight:700;font-family:var(--m);display:inline-flex;align-items:center;gap:3px}
+.trend-dn{color:#dc2626;font-size:11px;font-weight:700;font-family:var(--m);display:inline-flex;align-items:center;gap:3px}
+
+/* RESPONSIVE GRID */
+.pdp-wrap{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start;padding:16px}
+.insights-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.insights-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.insights-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:900px){
+  .pdp-wrap{grid-template-columns:1fr}
+  .insights-grid-4{grid-template-columns:1fr 1fr}
+  .insights-grid-3{grid-template-columns:1fr 1fr}
+}
+@media(max-width:540px){
+  .pdp-wrap{padding:10px;gap:14px}
+  .insights-grid-4{grid-template-columns:1fr 1fr}
+  .insights-grid-2{grid-template-columns:1fr}
+  .insights-grid-3{grid-template-columns:1fr}
+  .type-tabs{gap:4px}
+  .type-tab{font-size:11px;padding:5px 10px}
+}
+
+/* NAV */
+.nb{background:var(--navy);padding:0 20px;height:56px;display:flex;align-items:center;gap:12px;border-radius:12px 12px 0 0}
+.breadcrumb{font-size:11px;color:var(--color-text-secondary);display:flex;align-items:center;gap:5px;padding:10px 16px}
+.bc-link{color:#2f80ed;cursor:pointer}
+
+/* CHART CONTAINER */
+.chart-wrap{position:relative;width:100%}
+</style>
+
+<h2 class="sr-only">Houznext Infra — Property Detail Page with Property Insights section mockup</h2>
+
+<!-- NAV BAR -->
+<div class="nb">
+  <span style="font-family:var(--m);font-size:17px;font-weight:800;color:#fff">Houznext <span style="color:#f2994a">Infra</span></span>
+  <span style="font-family:var(--m);font-size:8px;font-weight:700;padding:2px 7px;border-radius:4px;background:#2f80ed;color:#fff;text-transform:uppercase">Properties</span>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <span style="font-size:12px;color:rgba(255,255,255,.5)">Buy</span>
+    <span style="font-size:12px;color:rgba(255,255,255,.5)">Rent</span>
+    <span style="font-size:12px;color:rgba(255,255,255,.5)">Projects</span>
+    <span style="font-size:12px;font-weight:700;color:#fff;background:#2f80ed;padding:4px 10px;border-radius:6px">Sign in</span>
+  </div>
+</div>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <span class="bc-link">Home</span>›<span class="bc-link">Hyderabad</span>›<span class="bc-link">Gachibowli</span>›<span style="color:var(--color-text-primary)">Skyline Heights</span>
+</div>
+
+<!-- TYPE SELECTOR (switches insight context) -->
+<div style="padding:0 16px 4px">
+  <div style="font-size:10px;font-weight:700;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.08em;font-family:var(--m);margin-bottom:8px">Viewing insights for</div>
+  <div class="type-tabs">
+    <button class="type-tab on" onclick="switchType('apartment',this)">🏢 Apartment</button>
+    <button class="type-tab" onclick="switchType('villa',this)">🏡 Villa</button>
+    <button class="type-tab" onclick="switchType('land',this)">🌿 Land</button>
+    <button class="type-tab" onclick="switchType('plot',this)">🗺 Plot</button>
+    <button class="type-tab" onclick="switchType('commercial',this)">🏬 Commercial</button>
+  </div>
+</div>
+
+<div class="pdp-wrap">
+<!-- LEFT COLUMN -->
+<div style="display:flex;flex-direction:column;gap:14px">
+
+  <!-- GALLERY -->
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="height:260px;background:linear-gradient(135deg,#e8f1fd,#c7d9f5);display:flex;align-items:center;justify-content:center;position:relative">
+      <i class="ti ti-building" style="font-size:64px;color:rgba(47,128,237,.18)" aria-hidden="true"></i>
+      <div style="position:absolute;top:12px;left:12px;display:flex;gap:5px">
+        <span class="badge b-green">Ready to Move</span>
+        <span class="badge b-teal">RERA ✓</span>
+        <span class="badge" style="background:rgba(255,255,255,.9);color:#78350f">Title ✓</span>
+      </div>
+      <div style="position:absolute;top:12px;right:12px;display:flex;gap:6px">
+        <button class="btn" style="background:rgba(255,255,255,.9);color:#1f2933;padding:5px 10px;font-size:11.5px;border:none"><i class="ti ti-video" style="font-size:13px" aria-hidden="true"></i>Tour</button>
+        <button class="btn" style="background:rgba(255,255,255,.9);color:#1f2933;padding:5px 10px;font-size:11.5px;border:none"><i class="ti ti-layout" style="font-size:13px" aria-hidden="true"></i>Plan</button>
+      </div>
+      <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(15,42,68,.4));padding:16px 14px 12px;display:flex;gap:6px;overflow-x:auto">
+        <div style="flex-shrink:0;width:72px;height:46px;border-radius:6px;background:linear-gradient(135deg,#e8f1fd,#bfdbfe);border:2px solid #2f80ed"></div>
+        <div style="flex-shrink:0;width:72px;height:46px;border-radius:6px;background:linear-gradient(135deg,#fef3c7,#fde68a)"></div>
+        <div style="flex-shrink:0;width:72px;height:46px;border-radius:6px;background:linear-gradient(135deg,#dcfce7,#a7f3d0)"></div>
+        <div style="flex-shrink:0;width:72px;height:46px;border-radius:6px;background:linear-gradient(135deg,#f3e8ff,#e9d5ff)"></div>
+        <div style="flex-shrink:0;width:72px;height:46px;border-radius:6px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;font-family:var(--m)">+18</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROPERTY HEADER -->
+  <div class="card">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <div style="flex:1">
+        <div style="font-size:10px;font-weight:700;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;font-family:var(--m)">3BHK Apartment · 1,450 sqft</div>
+        <h1 style="font-family:var(--m);font-size:22px;font-weight:800;color:var(--color-text-primary);line-height:1.15;margin-bottom:5px">Skyline Heights — Tower A</h1>
+        <div style="font-size:12.5px;color:var(--color-text-secondary);display:flex;align-items:center;gap:4px">
+          <i class="ti ti-map-pin" style="font-size:13px;color:#2f80ed" aria-hidden="true"></i>
+          Gachibowli, Hyderabad · 1.2km from Metro
+        </div>
+      </div>
+      <button style="width:34px;height:34px;border-radius:50%;border:1px solid var(--color-border-secondary);background:var(--color-background-primary);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" aria-label="Save property">
+        <i class="ti ti-heart" style="font-size:16px;color:#dc2626" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);border:0.5px solid var(--color-border-tertiary);border-radius:10px;overflow:hidden;margin-top:14px">
+      <div style="padding:11px 12px;background:var(--color-background-secondary);text-align:center"><div style="font-size:9px;font-weight:700;color:var(--color-text-secondary);text-transform:uppercase;font-family:var(--m);margin-bottom:2px">Price</div><div style="font-family:var(--m);font-size:16px;font-weight:800;color:var(--color-text-primary)">₹68.5L</div><div style="font-size:10px;color:var(--color-text-secondary)">₹4,724/sqft</div></div>
+      <div style="padding:11px 12px;border-left:0.5px solid var(--color-border-tertiary);text-align:center"><div style="font-size:9px;font-weight:700;color:var(--color-text-secondary);text-transform:uppercase;font-family:var(--m);margin-bottom:2px">Carpet</div><div style="font-family:var(--m);font-size:16px;font-weight:800;color:var(--color-text-primary)">1,450</div><div style="font-size:10px;color:var(--color-text-secondary)">sqft</div></div>
+      <div style="padding:11px 12px;border-left:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);text-align:center"><div style="font-size:9px;font-weight:700;color:var(--color-text-secondary);text-transform:uppercase;font-family:var(--m);margin-bottom:2px">Status</div><div style="font-family:var(--m);font-size:16px;font-weight:800;color:#0d9488">Ready</div><div style="font-size:10px;color:#0d9488">to move</div></div>
+      <div style="padding:11px 12px;border-left:0.5px solid var(--color-border-tertiary);text-align:center"><div style="font-size:9px;font-weight:700;color:var(--color-text-secondary);text-transform:uppercase;font-family:var(--m);margin-bottom:2px">Floor</div><div style="font-family:var(--m);font-size:16px;font-weight:800;color:var(--color-text-primary)">12/22</div><div style="font-size:10px;color:var(--color-text-secondary)">East facing</div></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       PROPERTY INSIGHTS SECTION — THE NEW SECTION
+  ════════════════════════════════════════════════════ -->
+  <div class="card" style="border:1.5px solid #bfdbfe;background:linear-gradient(180deg,var(--color-background-primary) 0%,var(--color-background-secondary) 100%);padding:0;overflow:hidden">
+
+    <!-- Section header -->
+    <div style="padding:16px 18px 0">
+      <div class="sdiv" style="margin-bottom:10px">
+        <div class="sdiv-ic" style="background:#f3e8ff">
+          <i class="ti ti-chart-line" style="font-size:15px;color:#7c3aed" aria-hidden="true"></i>
+        </div>
+        <div class="sdiv-t">Property Insights</div>
+        <div class="sdiv-line"></div>
+        <span class="badge b-purple" id="ins-type-badge">Apartment · Gachibowli</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--color-text-secondary);margin-bottom:14px;line-height:1.6" id="ins-description">Historical price appreciation since 2015 and AI-powered projection for the next 5 years based on Houznext portfolio data, SRO registrations, and demand index.</p>
+    </div>
+
+    <!-- Top KPI strip -->
+    <div style="padding:0 18px 14px">
+      <div class="insights-grid-4" id="ins-kpi-grid">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- CHART 1: Historical price trend -->
+    <div style="padding:0 18px 14px">
+      <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="font-family:var(--m);font-size:13px;font-weight:700;color:var(--color-text-primary)" id="chart1-title">Price per sqft — 10 Year History</div>
+            <div style="font-size:11.5px;color:var(--color-text-secondary);margin-top:2px" id="chart1-subtitle">Gachibowli, Hyderabad · Apartment segment</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;flex-shrink:0">
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary)"><span style="width:24px;height:3px;background:#2f80ed;border-radius:2px;display:inline-block"></span>Actual</span>
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary)"><span style="width:24px;height:3px;background:#f2994a;border-radius:2px;display:inline-block;border-top:1px dashed #f2994a"></span>Projected</span>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:200px">
+          <canvas id="priceChart" role="img" aria-label="Line chart showing property price per sqft in Gachibowli from 2015 to 2029, actual values from 2015 to 2024, and projected values from 2025 to 2029">Price per sqft rose from ₹3,200 in 2015 to ₹4,700 in 2024. Projected to reach ₹6,800 by 2029.</canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHART 2: Demand index + rental yield -->
+    <div style="padding:0 18px 14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" id="ins-chart2-grid">
+        <!-- Demand index chart -->
+        <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:14px">
+          <div style="font-family:var(--m);font-size:12.5px;font-weight:700;color:var(--color-text-primary);margin-bottom:2px" id="chart2-title">Demand Index</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:10px" id="chart2-sub">Buyer enquiry score · Last 12 months</div>
+          <div class="chart-wrap" style="height:130px">
+            <canvas id="demandChart" role="img" aria-label="Bar chart showing monthly demand index scores for the last 12 months, ranging from 62 to 94">Monthly demand scores ranging from 62 to 94 out of 100.</canvas>
+          </div>
+        </div>
+        <!-- Yield / ROI chart -->
+        <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:14px">
+          <div style="font-family:var(--m);font-size:12.5px;font-weight:700;color:var(--color-text-primary);margin-bottom:2px" id="chart3-title">Rental Yield</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:10px" id="chart3-sub">Annual yield % · Gachibowli apartments</div>
+          <div class="chart-wrap" style="height:130px">
+            <canvas id="yieldChart" role="img" aria-label="Line chart showing rental yield percentage from 2019 to 2024, ranging from 2.8% to 4.1%">Rental yield trend from 2019 to 2024.</canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Insights rows — property type specific -->
+    <div style="padding:0 18px 16px">
+      <div style="font-family:var(--m);font-size:12px;font-weight:700;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px" id="ins-rows-title">Key Indicators</div>
+      <div id="ins-rows-container">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- 5-Year projection band -->
+    <div style="margin:0 18px 16px;background:linear-gradient(135deg,#0f2a44,#1a4060);border-radius:12px;padding:16px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <i class="ti ti-trending-up" style="font-size:16px;color:#f2994a" aria-hidden="true"></i>
+        <span style="font-family:var(--m);font-size:13px;font-weight:700;color:#fff" id="proj-title">5-Year Price Projection</span>
+        <span class="badge" style="background:rgba(242,153,74,.2);color:#f2994a;margin-left:auto">AI Powered</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px" id="proj-bands">
+        <!-- populated by JS -->
+      </div>
+      <div style="margin-top:12px;font-size:11px;color:rgba(255,255,255,.45);line-height:1.6">Based on SRO registration data, Houznext transaction history, infrastructure pipeline (Metro Phase III, ORR extension), and macro demand index. Not financial advice.</div>
+    </div>
+
+    <!-- Comparable sales -->
+    <div style="padding:0 18px 18px">
+      <div style="font-family:var(--m);font-size:12px;font-weight:700;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px" id="comps-title">Recent Comparable Sales</div>
+      <div id="comps-container">
+        <!-- populated by JS -->
+      </div>
+      <div style="text-align:center;margin-top:10px">
+        <button class="btn btn-ghost" style="font-size:12px;padding:7px 16px">View all 24 comparable sales →</button>
+      </div>
+    </div>
+
+  </div>
+  <!-- END INSIGHTS SECTION -->
+
+  <!-- PRICE BREAKDOWN -->
+  <div class="card">
+    <div class="sdiv">
+      <div class="sdiv-ic" style="background:#e8f1fd"><i class="ti ti-receipt" style="font-size:14px;color:#2f80ed" aria-hidden="true"></i></div>
+      <div class="sdiv-t">Price breakdown</div><div class="sdiv-line"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:var(--color-text-secondary)">Base price (₹4,500/sqft × 1,450)</span><span style="font-weight:600">₹65,25,000</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:var(--color-text-secondary)">GST (5%)</span><span style="font-weight:600">₹3,26,250</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:var(--color-text-secondary)">Registration (1%)</span><span style="font-weight:600">₹65,250</span></div>
+      <div style="height:0.5px;background:var(--color-border-tertiary);margin:3px 0"></div>
+      <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700"><span>Total cost</span><span style="font-family:var(--m);font-size:17px">₹69,16,500</span></div>
+    </div>
+    <div style="background:var(--color-background-secondary);border-radius:9px;padding:11px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="font-size:12px;color:var(--color-text-secondary)">EMI estimate · 80% loan · 8.5% · 20 yrs: <strong style="font-family:var(--m);font-size:15px;color:var(--color-text-primary)">₹47,800/mo</strong></div>
+      <button class="btn btn-blue" style="font-size:12px;padding:6px 13px">Full calculator</button>
+    </div>
+  </div>
+
+  <!-- AMENITIES -->
+  <div class="card">
+    <div class="sdiv">
+      <div class="sdiv-ic" style="background:#dcfce7"><i class="ti ti-star" style="font-size:14px;color:#16a34a" aria-hidden="true"></i></div>
+      <div class="sdiv-t">Amenities</div><div class="sdiv-line"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px">
+      <div style="display:flex;align-items:center;gap:6px;font-size:12.5px"><i class="ti ti-check" style="font-size:13px;color:#16a34a" aria-hidden="true"></i>Swimming pool</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12.5px"><i class="ti ti-check" style="font-size:13px;color:#16a34a" aria-hidden="true"></i>Gymnasium</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12.5px"><i class="ti ti-check" style="font-size:13px;color:#16a34a" aria-hidden="true"></i>Power backup</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12.5px"><i class="ti ti-check" style="font-size:13px;color:#16a34a" aria-hidden="true"></i>Covered parking</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12.5px"><i class="ti ti-check" style="font-size:13px;color:#16a34a" aria-hidden="true"></i>24hr security</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12.5px"><i class="ti ti-check" style="font-size:13px;color:#16a34a" aria-hidden="true"></i>Clubhouse</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- RIGHT STICKY PANEL -->
+<div style="display:flex;flex-direction:column;gap:12px">
+  <div class="card" style="border:1.5px solid #93c5fd;position:sticky;top:10px">
+    <div style="font-size:10.5px;font-weight:700;color:var(--color-text-secondary);text-transform:uppercase;font-family:var(--m);margin-bottom:3px">Asking price</div>
+    <div style="font-family:var(--m);font-size:30px;font-weight:800;color:var(--color-text-primary);margin-bottom:2px">₹68.5L</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:3px">₹4,724 per sqft</div>
+    <div style="font-size:12px;color:#0d9488;font-weight:600;margin-bottom:14px">
+      <i class="ti ti-trending-up" style="font-size:13px" aria-hidden="true"></i>
+      +38% in 5 years · Strong buy signal
+    </div>
+    <button class="btn btn-blue" style="width:100%;justify-content:center;padding:12px;margin-bottom:8px;font-size:13px">
+      <i class="ti ti-phone" style="font-size:14px" aria-hidden="true"></i>
+      Schedule site visit
+    </button>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;padding:10px;margin-bottom:8px;font-size:12.5px">
+      <i class="ti ti-message" style="font-size:14px" aria-hidden="true"></i>
+      Send enquiry
+    </button>
+    <button class="btn" style="width:100%;justify-content:center;padding:10px;background:#25D366;color:#fff;font-size:12.5px">
+      <i class="ti ti-brand-whatsapp" style="font-size:14px" aria-hidden="true"></i>
+      WhatsApp
+    </button>
+    <div style="border-top:0.5px solid var(--color-border-tertiary);margin-top:14px;padding-top:12px;display:flex;flex-direction:column;gap:7px">
+      <div style="display:flex;align-items:center;gap:7px;font-size:12px"><i class="ti ti-shield-check" style="font-size:14px;color:#0d9488" aria-hidden="true"></i><span style="color:var(--color-text-secondary)">RERA verified · EC clear</span></div>
+      <div style="display:flex;align-items:center;gap:7px;font-size:12px"><i class="ti ti-certificate" style="font-size:14px;color:#0d9488" aria-hidden="true"></i><span style="color:var(--color-text-secondary)">Title clear · Zero brokerage</span></div>
+      <div style="display:flex;align-items:center;gap:7px;font-size:12px"><i class="ti ti-users" style="font-size:14px;color:#2f80ed" aria-hidden="true"></i><span style="color:var(--color-text-secondary)">14 people viewed this week</span></div>
+    </div>
+  </div>
+
+  <!-- Mini insights snapshot on sidebar -->
+  <div class="card" style="background:linear-gradient(135deg,#f3e8ff,#ede9fe)">
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
+      <i class="ti ti-chart-line" style="font-size:16px;color:#7c3aed" aria-hidden="true"></i>
+      <span style="font-family:var(--m);font-size:12.5px;font-weight:700;color:#4c1d95">Quick Insight</span>
+    </div>
+    <div style="font-family:var(--m);font-size:22px;font-weight:800;color:#4c1d95;margin-bottom:2px">+68%</div>
+    <div style="font-size:12px;color:#6b21a8;margin-bottom:10px">appreciation in 10 years</div>
+    <div style="font-family:var(--m);font-size:13px;font-weight:700;color:#4c1d95;margin-bottom:2px">₹6,800/sqft</div>
+    <div style="font-size:11.5px;color:#6b21a8;margin-bottom:12px">projected by 2029</div>
+    <div style="height:0.5px;background:rgba(109,28,169,.15);margin-bottom:10px"></div>
+    <div style="font-size:11.5px;color:#6b21a8;font-weight:500">Gachibowli ranks <strong style="color:#4c1d95">#2</strong> in Hyderabad for capital appreciation</div>
+  </div>
+
+  <!-- Top bank offers -->
+  <div class="card">
+    <div style="font-family:var(--m);font-size:12.5px;font-weight:700;color:var(--color-text-primary);margin-bottom:10px">Top bank offers</div>
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:8px;background:var(--color-background-secondary)"><span style="font-size:12px;font-weight:600">SBI Home Loan</span><span style="font-family:var(--m);font-size:12.5px;font-weight:700;color:#2f80ed">8.40%</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:8px;background:#e8f1fd;border:1px solid #93c5fd"><span style="font-size:12px;font-weight:600">HDFC Bank</span><div style="text-align:right"><div style="font-family:var(--m);font-size:12.5px;font-weight:700;color:#2f80ed">8.50%</div><div style="font-size:9.5px;color:#2f80ed">Best rate</div></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:8px;background:var(--color-background-secondary)"><span style="font-size:12px;font-weight:600">ICICI Bank</span><span style="font-family:var(--m);font-size:12.5px;font-weight:700;color:#2f80ed">8.75%</span></div>
+    </div>
+    <button class="btn btn-blue" style="width:100%;justify-content:center;padding:9px;margin-top:10px;font-size:12.5px">Get loan assistance</button>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+var TYPES = {
+  apartment:{
+    badge:'Apartment · Gachibowli',
+    desc:'Historical price appreciation since 2015 and AI-powered projection for next 5 years based on Houznext portfolio data, SRO registrations and demand index.',
+    kpis:[
+      {label:'10Y Appreciation',val:'+68%',sub:'₹3,200 → ₹5,400/sqft',color:'#0d9488'},
+      {label:'Rental Yield',val:'3.8%',sub:'Annual gross yield',color:'#2f80ed'},
+      {label:'Demand Index',val:'87/100',sub:'High demand zone',color:'#7c3aed'},
+      {label:'5Y Projection',val:'+44%',sub:'by 2029 · AI model',color:'#d97706'}
+    ],
+    history:{labels:['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024'],data:[3200,3450,3700,3850,4000,3950,4100,4400,4650,4724]},
+    proj:{labels:['2025','2026','2027','2028','2029'],data:[5100,5400,5800,6200,6800]},
+    demand:[62,70,74,68,80,85,90,88,94,82,87,91],
+    yield:{labels:['2019','2020','2021','2022','2023','2024'],data:[3.2,2.8,3.0,3.4,3.7,3.8]},
+    chart1title:'Price per sqft — 10 Year History',chart1sub:'Gachibowli, Hyderabad · Apartment segment',
+    chart2title:'Demand Index',chart2sub:'Buyer enquiry score · Last 12 months',
+    chart3title:'Rental Yield',chart3sub:'Annual yield % · Gachibowli apartments',
+    rows:[
+      {label:'Price appreciation (10Y)',val:'+68%',color:'#0d9488'},
+      {label:'Avg transaction price (2024)',val:'₹4,724/sqft',color:'#2f80ed'},
+      {label:'Peak price locality',val:'Gachibowli (₹5,200)',color:'#7c3aed'},
+      {label:'SRO registrations (2024)',val:'1,284 units',color:'#2f80ed'},
+      {label:'Vacancy rate',val:'4.2% (Very low)',color:'#0d9488'},
+      {label:'New supply pipeline',val:'3,200 units by 2026',color:'#d97706'},
+      {label:'Infrastructure boost',val:'Metro Ph.III · 2025',color:'#0d9488'},
+    ],
+    projBands:[
+      {year:'2025',val:'₹5,100',pct:'+8%'},
+      {year:'2026',val:'₹5,400',pct:'+6%'},
+      {year:'2027',val:'₹5,800',pct:'+7%'},
+      {year:'2028',val:'₹6,200',pct:'+7%'},
+      {year:'2029',val:'₹6,800',pct:'+10%'}
+    ],
+    comps:[
+      {name:'Prestige Towers 3BHK',area:'1,380 sqft',date:'Nov 2024',price:'₹65L',psf:'₹4,710'},
+      {name:'Skyview Residency 3BHK',area:'1,420 sqft',date:'Oct 2024',price:'₹67L',psf:'₹4,718'},
+      {name:'Green Heights 3BHK',area:'1,500 sqft',date:'Sep 2024',price:'₹71L',psf:'₹4,733'}
+    ],
+    projTitle:'5-Year Price Projection · Apartment',
+    compsTitle:'Recent Comparable Sales · 3BHK Apartment'
+  },
+  villa:{
+    badge:'Villa · Kokapet',
+    desc:'Villa appreciation trends in Kokapet and Financial District corridor. Gated community villas have outperformed apartment segment by 22% over last 5 years.',
+    kpis:[
+      {label:'5Y Appreciation',val:'+82%',sub:'₹7,500 → ₹13,650/sqft',color:'#be185d'},
+      {label:'Rental Yield',val:'2.4%',sub:'Annual gross yield',color:'#2f80ed'},
+      {label:'Demand Index',val:'91/100',sub:'Very high demand',color:'#7c3aed'},
+      {label:'5Y Projection',val:'+52%',sub:'by 2029 · AI model',color:'#d97706'}
+    ],
+    history:{labels:['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024'],data:[5200,5800,6400,7000,7500,7200,8200,9800,11400,13650]},
+    proj:{labels:['2025','2026','2027','2028','2029'],data:[14800,16200,17800,19200,20800]},
+    demand:[78,82,85,80,88,92,95,90,96,88,91,94],
+    yield:{labels:['2019','2020','2021','2022','2023','2024'],data:[2.8,2.2,2.4,2.3,2.5,2.4]},
+    chart1title:'Price per sqft — 10 Year History',chart1sub:'Kokapet, Hyderabad · Gated villa segment',
+    chart2title:'Demand Index',chart2sub:'Villa enquiry score · Last 12 months',
+    chart3title:'Rental Yield',chart3sub:'Annual yield % · Kokapet villas',
+    rows:[
+      {label:'Price appreciation (5Y)',val:'+82%',color:'#be185d'},
+      {label:'Avg plot area',val:'200–400 sqyds',color:'#2f80ed'},
+      {label:'Villa premium over apt',val:'+22% returns',color:'#0d9488'},
+      {label:'Gated community premium',val:'+15% over open villas',color:'#7c3aed'},
+      {label:'G+2 construction cost',val:'₹1,800–₹2,200/sqft',color:'#d97706'},
+      {label:'Schools within 3km',val:'6 CBSE/IGCSE schools',color:'#2f80ed'},
+      {label:'Possession timeline',val:'Ready · No wait',color:'#0d9488'},
+    ],
+    projBands:[
+      {year:'2025',val:'₹14,800',pct:'+8%'},
+      {year:'2026',val:'₹16,200',pct:'+9%'},
+      {year:'2027',val:'₹17,800',pct:'+10%'},
+      {year:'2028',val:'₹19,200',pct:'+8%'},
+      {year:'2029',val:'₹20,800',pct:'+8%'}
+    ],
+    comps:[
+      {name:'Prestige Villas 4BHK',area:'280 sqyd',date:'Nov 2024',price:'₹2.4Cr',psf:'₹12,800/sqft'},
+      {name:'Heritage Gardens Villa',area:'240 sqyd',date:'Oct 2024',price:'₹2.1Cr',psf:'₹13,100/sqft'},
+      {name:'Emerald Villas 3BHK',area:'200 sqyd',date:'Sep 2024',price:'₹1.8Cr',psf:'₹13,400/sqft'}
+    ],
+    projTitle:'5-Year Price Projection · Villa',
+    compsTitle:'Recent Comparable Sales · Gated Villa'
+  },
+  land:{
+    badge:'Agricultural Land · Shamshabad',
+    desc:'Land (agricultural and NA converted) price trends near ORR and Pharma City. Land is the highest-returning asset class in Hyderabad over 10 years.',
+    kpis:[
+      {label:'10Y Appreciation',val:'+240%',sub:'₹8L → ₹27L per acre',color:'#ca8a04'},
+      {label:'Holding Period',val:'3–5 yrs',sub:'Ideal for flip gains',color:'#2f80ed'},
+      {label:'Demand Index',val:'74/100',sub:'Moderate demand',color:'#7c3aed'},
+      {label:'5Y Projection',val:'+90%',sub:'by 2029 · AI model',color:'#d97706'}
+    ],
+    history:{labels:['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024'],data:[8,9,10,12,13,12,14,18,22,27]},
+    proj:{labels:['2025','2026','2027','2028','2029'],data:[31,36,42,48,51]},
+    demand:[50,54,60,58,65,70,74,72,78,68,74,76],
+    yield:{labels:['2019','2020','2021','2022','2023','2024'],data:[0,0,0,0,0,0]},
+    chart1title:'Price per acre — 10 Year History (₹ Lakh)',chart1sub:'Shamshabad / ORR corridor · Agricultural / NA land',
+    chart2title:'Demand Index',chart2sub:'Land inquiry score · Last 12 months',
+    chart3title:'Capital Gain Trend',chart3sub:'CAGR % · Agricultural land',
+    rows:[
+      {label:'Price appreciation (10Y)',val:'+240%',color:'#ca8a04'},
+      {label:'NA conversion status',val:'Converted · Buildable',color:'#0d9488'},
+      {label:'EC clear status',val:'Clear title',color:'#0d9488'},
+      {label:'Survey number',val:'Available with seller',color:'#2f80ed'},
+      {label:'Patta status',val:'Patta available',color:'#0d9488'},
+      {label:'Road access',val:'60ft BT road · 100m',color:'#2f80ed'},
+      {label:'Pharma City distance',val:'4.2km from gate',color:'#7c3aed'},
+    ],
+    projBands:[
+      {year:'2025',val:'₹31L/ac',pct:'+15%'},
+      {year:'2026',val:'₹36L/ac',pct:'+16%'},
+      {year:'2027',val:'₹42L/ac',pct:'+17%'},
+      {year:'2028',val:'₹48L/ac',pct:'+14%'},
+      {year:'2029',val:'₹51L/ac',pct:'+6%'}
+    ],
+    comps:[
+      {name:'Survey No. 142 · 2 acres',area:'2 acres',date:'Nov 2024',price:'₹56L',psf:'₹28L/acre'},
+      {name:'Survey No. 98 · 1.5 acres',area:'1.5 acres',date:'Sep 2024',price:'₹40L',psf:'₹26.6L/acre'},
+      {name:'Survey No. 207 · 3 acres',area:'3 acres',date:'Aug 2024',price:'₹78L',psf:'₹26L/acre'}
+    ],
+    projTitle:'5-Year Price Projection · Agricultural Land',
+    compsTitle:'Recent Comparable Transactions · Land'
+  },
+  plot:{
+    badge:'HMDA Plot · Bachupally',
+    desc:'HMDA/DTCP approved plot price trends in North Hyderabad. Plotted layouts have delivered consistent 15–20% CAGR over the last decade.',
+    kpis:[
+      {label:'10Y Appreciation',val:'+185%',sub:'₹1,100 → ₹3,135/sqyd',color:'#7c3aed'},
+      {label:'Rental Yield',val:'N/A',sub:'Capital appreciation play',color:'#2f80ed'},
+      {label:'Demand Index',val:'82/100',sub:'High demand',color:'#7c3aed'},
+      {label:'5Y Projection',val:'+65%',sub:'by 2029 · AI model',color:'#d97706'}
+    ],
+    history:{labels:['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024'],data:[1100,1250,1400,1550,1700,1650,1900,2300,2750,3135]},
+    proj:{labels:['2025','2026','2027','2028','2029'],data:[3500,3900,4300,4700,5175]},
+    demand:[70,72,76,74,80,84,88,86,90,82,86,88],
+    yield:{labels:['2019','2020','2021','2022','2023','2024'],data:[18,14,16,20,22,18]},
+    chart1title:'Price per sqyd — 10 Year History',chart1sub:'Bachupally / Miyapur · HMDA approved plots',
+    chart2title:'Demand Index',chart2sub:'Plot inquiry score · Last 12 months',
+    chart3title:'Annual Capital Gain %',chart3sub:'CAGR · HMDA plots North Hyderabad',
+    rows:[
+      {label:'Plot size available',val:'133–400 sqyds',color:'#7c3aed'},
+      {label:'LP Number',val:'HMDA LP: 142/2023',color:'#2f80ed'},
+      {label:'DTCP/HMDA authority',val:'HMDA Approved',color:'#0d9488'},
+      {label:'Road width (main)',val:'60ft BT road',color:'#2f80ed'},
+      {label:'Infrastructure status',val:'Roads, drainage done',color:'#0d9488'},
+      {label:'Construction allowed',val:'G+2 · Residential',color:'#2f80ed'},
+      {label:'Registration trend (2024)',val:'286 plots registered',color:'#d97706'},
+    ],
+    projBands:[
+      {year:'2025',val:'₹3,500',pct:'+12%'},
+      {year:'2026',val:'₹3,900',pct:'+11%'},
+      {year:'2027',val:'₹4,300',pct:'+10%'},
+      {year:'2028',val:'₹4,700',pct:'+9%'},
+      {year:'2029',val:'₹5,175',pct:'+10%'}
+    ],
+    comps:[
+      {name:'Sai Homes Phase 2 · 150sqyd',area:'150 sqyd',date:'Nov 2024',price:'₹4.6L',psf:'₹3,067/sqyd'},
+      {name:'Green Meadows · 200sqyd',area:'200 sqyd',date:'Oct 2024',price:'₹6.3L',psf:'₹3,150/sqyd'},
+      {name:'Apex Layouts · 133sqyd',area:'133 sqyd',date:'Sep 2024',price:'₹4.1L',psf:'₹3,083/sqyd'}
+    ],
+    projTitle:'5-Year Price Projection · HMDA Plot',
+    compsTitle:'Recent Comparable Sales · Approved Plot'
+  },
+  commercial:{
+    badge:'Commercial · HITEC City',
+    desc:'Commercial property (office and retail) price and rental trends in Hyderabad\'s IT corridor. HITEC City commands the highest commercial yields in South India.',
+    kpis:[
+      {label:'10Y Appreciation',val:'+92%',sub:'₹5,800 → ₹11,100/sqft',color:'#0891b2'},
+      {label:'Rental Yield',val:'7.2%',sub:'Annual gross yield',color:'#0d9488'},
+      {label:'Demand Index',val:'95/100',sub:'Very high demand',color:'#7c3aed'},
+      {label:'5Y Projection',val:'+48%',sub:'by 2029 · AI model',color:'#d97706'}
+    ],
+    history:{labels:['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024'],data:[5800,6200,6800,7400,8000,7600,8400,9200,10200,11100]},
+    proj:{labels:['2025','2026','2027','2028','2029'],data:[12000,13200,14400,15400,16400]},
+    demand:[88,90,92,88,94,96,98,94,98,92,95,97],
+    yield:{labels:['2019','2020','2021','2022','2023','2024'],data:[6.8,5.4,5.8,6.4,6.9,7.2]},
+    chart1title:'Price per sqft — 10 Year History',chart1sub:'HITEC City, Hyderabad · Commercial office segment',
+    chart2title:'Demand Index',chart2sub:'Commercial enquiry score · Last 12 months',
+    chart3title:'Rental Yield',chart3sub:'Annual yield % · HITEC City commercial',
+    rows:[
+      {label:'Price appreciation (10Y)',val:'+92%',color:'#0891b2'},
+      {label:'Current rental rate',val:'₹65–₹85/sqft/month',color:'#0d9488'},
+      {label:'Vacancy rate',val:'1.8% (Near-zero)',color:'#0d9488'},
+      {label:'Major tenants nearby',val:'Microsoft, Google, TCS',color:'#2f80ed'},
+      {label:'New SEZ pipeline',val:'2 SEZs by 2026',color:'#d97706'},
+      {label:'Floor plate available',val:'5,000–25,000 sqft',color:'#2f80ed'},
+      {label:'Pre-leased inventory',val:'94% occupancy',color:'#0d9488'},
+    ],
+    projBands:[
+      {year:'2025',val:'₹12,000',pct:'+8%'},
+      {year:'2026',val:'₹13,200',pct:'+10%'},
+      {year:'2027',val:'₹14,400',pct:'+9%'},
+      {year:'2028',val:'₹15,400',pct:'+7%'},
+      {year:'2029',val:'₹16,400',pct:'+6%'}
+    ],
+    comps:[
+      {name:'Mindspace Offices 2,000sqft',area:'2,000 sqft',date:'Nov 2024',price:'₹2.2Cr',psf:'₹11,000/sqft'},
+      {name:'Raheja IT Park Suite',area:'1,800 sqft',date:'Oct 2024',price:'₹1.9Cr',psf:'₹10,556/sqft'},
+      {name:'DLF Cyber City Unit',area:'3,500 sqft',date:'Sep 2024',price:'₹3.9Cr',psf:'₹11,143/sqft'}
+    ],
+    projTitle:'5-Year Price Projection · Commercial',
+    compsTitle:'Recent Comparable Sales · Commercial Office'
+  }
+};
+
+var charts = {};
+var currentType = 'apartment';
+
+function isDark(){return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;}
+var axisColor = isDark() ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
+var gridColor = isDark() ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+
+function renderKPIs(t){
+  var d = TYPES[t];
+  var g = document.getElementById('ins-kpi-grid');
+  g.innerHTML = d.kpis.map(function(k){
+    return '<div class="ins-metric">'
+      +'<div class="ins-metric-label">'+k.label+'</div>'
+      +'<div class="ins-metric-val" style="color:'+k.color+'">'+k.val+'</div>'
+      +'<div class="ins-metric-sub">'+k.sub+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function renderRows(t){
+  var d = TYPES[t];
+  var c = document.getElementById('ins-rows-container');
+  c.innerHTML = d.rows.map(function(r){
+    return '<div class="ins-row">'
+      +'<span class="ins-row-label">'+r.label+'</span>'
+      +'<span class="ins-row-val" style="color:'+r.color+'">'+r.val+'</span>'
+      +'</div>';
+  }).join('');
+}
+
+function renderProjBands(t){
+  var d = TYPES[t];
+  document.getElementById('proj-title').textContent = d.projTitle;
+  var g = document.getElementById('proj-bands');
+  g.innerHTML = d.projBands.map(function(b,i){
+    var opacity = 0.55 + i*0.09;
+    return '<div style="text-align:center;background:rgba(255,255,255,'+opacity+');border-radius:9px;padding:10px 6px">'
+      +'<div style="font-family:var(--m);font-size:10px;font-weight:700;color:rgba(15,42,68,.6);margin-bottom:4px">'+b.year+'</div>'
+      +'<div style="font-family:var(--m);font-size:12px;font-weight:800;color:#0f2a44">'+b.val+'</div>'
+      +'<div style="font-size:10px;font-weight:700;color:#0d9488;margin-top:2px">'+b.pct+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function renderComps(t){
+  var d = TYPES[t];
+  document.getElementById('comps-title').textContent = d.compsTitle;
+  var c = document.getElementById('comps-container');
+  c.innerHTML = d.comps.map(function(s){
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;border-radius:9px;background:var(--color-background-secondary);margin-bottom:5px;flex-wrap:wrap;gap:6px">'
+      +'<div>'
+        +'<div style="font-size:12.5px;font-weight:600;color:var(--color-text-primary)">'+s.name+'</div>'
+        +'<div style="font-size:11px;color:var(--color-text-secondary)">'+s.area+' · '+s.date+'</div>'
+      +'</div>'
+      +'<div style="text-align:right">'
+        +'<div style="font-family:var(--m);font-size:13.5px;font-weight:800;color:var(--color-text-primary)">'+s.price+'</div>'
+        +'<div style="font-size:11px;color:var(--color-text-secondary)">'+s.psf+'</div>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function renderCharts(t){
+  var d = TYPES[t];
+  document.getElementById('chart1-title').textContent = d.chart1title;
+  document.getElementById('chart1-subtitle').textContent = d.chart1sub;
+  document.getElementById('chart2-title').textContent = d.chart2title;
+  document.getElementById('chart2-sub').textContent = d.chart2sub;
+  document.getElementById('chart3-title').textContent = d.chart3title;
+  document.getElementById('chart3-sub').textContent = d.chart3sub;
+
+  destroyChart('priceChart');
+  var allLabels = d.history.labels.concat(d.proj.labels);
+  var actualData = d.history.data.concat(d.proj.labels.map(function(){return null;}));
+  var projData = d.history.data.map(function(){return null;});
+  projData[projData.length-1] = d.history.data[d.history.data.length-1];
+  projData = projData.concat(d.proj.data);
+
+  charts['priceChart'] = new Chart(document.getElementById('priceChart'),{
+    type:'line',
+    data:{
+      labels:allLabels,
+      datasets:[
+        {label:'Actual',data:actualData,borderColor:'#2f80ed',backgroundColor:'rgba(47,128,237,0.08)',fill:true,tension:0.35,pointBackgroundColor:'#2f80ed',pointRadius:3,pointHoverRadius:5,borderWidth:2.5},
+        {label:'Projected',data:projData,borderColor:'#f2994a',backgroundColor:'rgba(242,153,74,0.06)',fill:true,tension:0.35,borderDash:[6,4],pointBackgroundColor:'#f2994a',pointRadius:3,pointHoverRadius:5,borderWidth:2,pointStyle:'triangle'}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:function(c){return ' '+c.dataset.label+': '+(c.raw!==null?'₹'+c.raw.toLocaleString('en-IN'):'—');}}}},
+      scales:{
+        x:{grid:{color:gridColor},ticks:{color:axisColor,font:{size:10}}},
+        y:{grid:{color:gridColor},ticks:{color:axisColor,font:{size:10},callback:function(v){return t==='land'?'₹'+v+'L':'₹'+v.toLocaleString('en-IN');}}}
+      }
+    }
+  });
+
+  destroyChart('demandChart');
+  charts['demandChart'] = new Chart(document.getElementById('demandChart'),{
+    type:'bar',
+    data:{
+      labels:['J','F','M','A','M','J','J','A','S','O','N','D'],
+      datasets:[{label:'Demand',data:d.demand,backgroundColor:d.demand.map(function(v){return v>=85?'rgba(13,148,136,0.8)':v>=70?'rgba(47,128,237,0.7)':'rgba(107,114,128,0.5)';}),borderRadius:4}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' Score: '+c.raw+'/100';}}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:axisColor,font:{size:10}}},
+        y:{grid:{color:gridColor},ticks:{color:axisColor,font:{size:10}},min:0,max:100}
+      }
+    }
+  });
+
+  destroyChart('yieldChart');
+  charts['yieldChart'] = new Chart(document.getElementById('yieldChart'),{
+    type:'line',
+    data:{
+      labels:d.yield.labels,
+      datasets:[{label:(t==='land'?'CAGR':'Yield'),data:d.yield.data,borderColor:'#0d9488',backgroundColor:'rgba(13,148,136,0.08)',fill:true,tension:0.4,pointBackgroundColor:'#0d9488',pointRadius:4,borderWidth:2.5}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' '+(t==='land'?'CAGR':'Yield')+': '+c.raw+'%';}}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:axisColor,font:{size:10}}},
+        y:{grid:{color:gridColor},ticks:{color:axisColor,font:{size:10},callback:function(v){return v+'%';}}}
+      }
+    }
+  });
+}
+
+function switchType(t, btn){
+  currentType = t;
+  document.querySelectorAll('.type-tab').forEach(function(b){b.classList.remove('on');});
+  if(btn) btn.classList.add('on');
+  var d = TYPES[t];
+  document.getElementById('ins-type-badge').textContent = d.badge;
+  document.getElementById('ins-description').textContent = d.desc;
+  renderKPIs(t);
+  renderRows(t);
+  renderProjBands(t);
+  renderComps(t);
+  renderCharts(t);
+}
+
+switchType('apartment', document.querySelector('.type-tab.on'));
+</script>

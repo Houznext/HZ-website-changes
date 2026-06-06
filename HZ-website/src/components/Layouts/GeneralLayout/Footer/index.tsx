@@ -12,6 +12,18 @@ const GeneralFooter = () => {
       heading: "EXPLORE",
       links: [
         {
+          label: "Houznext Infra",
+          url: "https://infra.houznext.com",
+        },
+        {
+          label: "Buy Properties",
+          url: "https://infra.houznext.com/buy",
+        },
+        {
+          label: "Apartments in Hyderabad",
+          url: "https://infra.houznext.com/buy/hyderabad/apartments",
+        },
+        {
           label: "Design Ideas",
           url: "/design-ideas",
         },

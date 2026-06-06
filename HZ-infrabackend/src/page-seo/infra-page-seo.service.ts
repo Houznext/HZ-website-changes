@@ -8,6 +8,12 @@ import {
   INFRA_PAGE_SEO_DEFAULT_ROWS,
   type InfraPageSeoDefaultRow,
 } from './infra-page-seo-defaults';
+import { buildSeoLandingDefaultRows } from './seo-landing.constants';
+
+const ALL_DEFAULT_ROWS: InfraPageSeoDefaultRow[] = [
+  ...INFRA_PAGE_SEO_DEFAULT_ROWS,
+  ...buildSeoLandingDefaultRows(),
+];
 
 export type InfraPageSeoPublicDto = {
   path: string;
@@ -43,7 +49,7 @@ export class InfraPageSeoService implements OnModuleInit {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    for (const row of INFRA_PAGE_SEO_DEFAULT_ROWS) {
+    for (const row of ALL_DEFAULT_ROWS) {
       const existing = await this.repo.findOne({ where: { path: row.path } });
       if (!existing) {
         await this.repo.save(
@@ -109,7 +115,7 @@ export class InfraPageSeoService implements OnModuleInit {
     }
     const byPath = new Map(dbRows.map((r) => [r.path, r]));
     const out: InfraPageSeoAdminRow[] = [];
-    for (const def of INFRA_PAGE_SEO_DEFAULT_ROWS) {
+    for (const def of ALL_DEFAULT_ROWS) {
       const entity = byPath.get(def.path);
       if (entity) {
         out.push(this.entityToAdminRow(entity));

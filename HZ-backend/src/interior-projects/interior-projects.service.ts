@@ -2,14 +2,18 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
 import { InteriorProject } from './entities/interior-project.entity';
+import { InteriorProjectsSettings } from './entities/interior-projects-settings.entity';
 import { CreateInteriorProjectDto } from './dto/create-interior-project.dto';
 import { UpdateInteriorProjectDto } from './dto/update-interior-project.dto';
+import { UpdateDisplayTotalDto } from './dto/update-display-total.dto';
 
 @Injectable()
 export class InteriorProjectsService {
   constructor(
     @InjectRepository(InteriorProject)
     private repo: Repository<InteriorProject>,
+    @InjectRepository(InteriorProjectsSettings)
+    private settingsRepo: Repository<InteriorProjectsSettings>,
   ) {}
 
   async create(dto: CreateInteriorProjectDto) {
@@ -97,11 +101,45 @@ export class InteriorProjectsService {
     return { success: true };
   }
 
+  async getOrCreateSettings(): Promise<InteriorProjectsSettings> {
+    let settings = await this.settingsRepo.findOne({ where: { id: 1 } });
+    if (!settings) {
+      settings = this.settingsRepo.create({ id: 1, displayTotalProjects: null });
+      settings = await this.settingsRepo.save(settings);
+    }
+    return settings;
+  }
+
   async stats() {
     const total = await this.repo.count();
     const live = await this.repo.count({ where: { status: 'Live' } });
     const draft = await this.repo.count({ where: { status: 'Draft' } });
     const featured = await this.repo.count({ where: { featured: true } });
-    return { total, live, draft, featured };
+    const settings = await this.getOrCreateSettings();
+    const displayTotal =
+      settings.displayTotalProjects != null
+        ? settings.displayTotalProjects
+        : total;
+    return {
+      total,
+      displayTotal,
+      displayTotalOverride: settings.displayTotalProjects,
+      live,
+      draft,
+      featured,
+    };
+  }
+
+  async updateDisplayTotal(dto: UpdateDisplayTotalDto) {
+    await this.getOrCreateSettings();
+    await this.settingsRepo.update(1, {
+      displayTotalProjects: dto.displayTotalProjects ?? null,
+    });
+    return this.stats();
+  }
+
+  async publicStats() {
+    const { displayTotal } = await this.stats();
+    return { displayTotal };
   }
 }

@@ -73,9 +73,31 @@ type Props = { project: InteriorProject }
 
 export default function ProjectDetailPage({ project }: Props) {
   const router = useRouter()
-  const images = project.images || []
+  const images = useMemo(
+    () => (project.images || []).filter((u): u is string => typeof u === 'string' && u.trim().length > 0),
+    [project.images],
+  )
   const [galleryOpen, setGalleryOpen] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
+  const hasMultipleImages = images.length > 1
+
+  const goToProjectsList = () => {
+    void router.push('/projects')
+  }
+
+  const showPrevImage = () => {
+    setSelectedImageIndex((prev) => {
+      if (prev === null || images.length === 0) return prev
+      return (prev - 1 + images.length) % images.length
+    })
+  }
+
+  const showNextImage = () => {
+    setSelectedImageIndex((prev) => {
+      if (prev === null || images.length === 0) return prev
+      return (prev + 1) % images.length
+    })
+  }
 
   const packageStyle = useMemo(() => {
     if (project.package === 'Luxury') return { background: '#fef3c7', color: '#92400e' }
@@ -84,7 +106,13 @@ export default function ProjectDetailPage({ project }: Props) {
   }, [project.package])
 
   const openGalleryAt = (index: number) => {
+    if (!images[index]) return
     setGalleryOpen(true)
+    setSelectedImageIndex(index)
+  }
+
+  const openFullscreenAt = (index: number) => {
+    if (!images[index]) return
     setSelectedImageIndex(index)
   }
 
@@ -108,7 +136,8 @@ export default function ProjectDetailPage({ project }: Props) {
         <section style={{ background: '#0f2a44' }}>
           <div className="max-w-5xl mx-auto px-6 py-[14px] flex items-center gap-3 flex-wrap">
             <button
-              onClick={() => router.back()}
+              type="button"
+              onClick={goToProjectsList}
               className="flex items-center gap-1.5 text-[13px] font-[600]"
               style={{ color: 'rgba(255,255,255,.7)', background: 'transparent', border: 'none', transition: 'color .18s ease' }}
             >
@@ -294,9 +323,15 @@ export default function ProjectDetailPage({ project }: Props) {
                 {images.map((img, idx) => (
                   <button
                     key={`${img}-${idx}`}
+                    type="button"
                     className="overflow-hidden w-full text-left"
-                    style={{ borderRadius: 12, aspectRatio: '4/3', transition: 'all .2s ease' }}
-                    onClick={() => setSelectedImageIndex(idx)}
+                    style={{
+                      borderRadius: 12,
+                      aspectRatio: '4/3',
+                      transition: 'all .2s ease',
+                      outline: selectedImageIndex === idx ? '3px solid #2f80ed' : 'none',
+                    }}
+                    onClick={() => openFullscreenAt(idx)}
                   >
                     <img src={img} alt={`${project.title} ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </button>
@@ -310,28 +345,43 @@ export default function ProjectDetailPage({ project }: Props) {
       {selectedImageIndex !== null && currentImage && typeof window !== 'undefined' &&
         createPortal(
           <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4" style={{ background: 'rgba(8,15,28,.95)' }}>
+            {hasMultipleImages && (
+              <button
+                type="button"
+                onClick={showPrevImage}
+                className="absolute left-3 sm:left-6 w-10 h-10 flex items-center justify-center rounded-full z-20"
+                style={{ border: '1.5px solid rgba(255,255,255,.35)', background: 'rgba(255,255,255,.1)' }}
+                aria-label="Previous image"
+              >
+                <StrokeIcon path="M15 18l-6-6 6-6" stroke="#fff" size={18} />
+              </button>
+            )}
+            <img src={currentImage} alt={`${project.title} fullscreen`} style={{ maxWidth: '92vw', maxHeight: '86vh', objectFit: 'contain', borderRadius: 12, position: 'relative', zIndex: 10 }} />
+            {hasMultipleImages && (
+              <button
+                type="button"
+                onClick={showNextImage}
+                className="absolute right-3 sm:right-6 w-10 h-10 flex items-center justify-center rounded-full z-20"
+                style={{ border: '1.5px solid rgba(255,255,255,.35)', background: 'rgba(255,255,255,.1)' }}
+                aria-label="Next image"
+              >
+                <StrokeIcon path="M9 6l6 6-6 6" stroke="#fff" size={18} />
+              </button>
+            )}
             <button
-              onClick={() => setSelectedImageIndex((prev) => (prev === null ? null : (prev - 1 + images.length) % images.length))}
-              className="absolute left-3 sm:left-6 w-10 h-10 flex items-center justify-center rounded-full"
-              style={{ border: '1.5px solid rgba(255,255,255,.35)', background: 'rgba(255,255,255,.1)' }}
-            >
-              <StrokeIcon path="M15 18l-6-6 6-6" stroke="#fff" size={18} />
-            </button>
-            <img src={currentImage} alt={`${project.title} fullscreen`} style={{ maxWidth: '92vw', maxHeight: '86vh', objectFit: 'contain', borderRadius: 12 }} />
-            <button
-              onClick={() => setSelectedImageIndex((prev) => (prev === null ? null : (prev + 1) % images.length))}
-              className="absolute right-3 sm:right-6 w-10 h-10 flex items-center justify-center rounded-full"
-              style={{ border: '1.5px solid rgba(255,255,255,.35)', background: 'rgba(255,255,255,.1)' }}
-            >
-              <StrokeIcon path="M9 6l6 6-6 6" stroke="#fff" size={18} />
-            </button>
-            <button
+              type="button"
               onClick={() => setSelectedImageIndex(null)}
-              className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full"
+              className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full z-20"
               style={{ border: '1.5px solid rgba(255,255,255,.35)', background: 'rgba(255,255,255,.1)' }}
+              aria-label="Close image viewer"
             >
               <StrokeIcon path="M6 6l12 12M18 6L6 18" stroke="#fff" size={18} />
             </button>
+            {hasMultipleImages && (
+              <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-[12px] font-[600] z-20" style={{ background: 'rgba(15,42,68,.75)', padding: '4px 12px', borderRadius: 20 }}>
+                {selectedImageIndex + 1} / {images.length}
+              </p>
+            )}
           </div>,
           document.body,
         )}

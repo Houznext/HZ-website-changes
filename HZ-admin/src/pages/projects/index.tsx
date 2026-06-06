@@ -91,15 +91,21 @@ const Projects = () => {
   const [pkgFilter, setPkgFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [sort, setSort] = useState("newest");
-  const [stats, setStats] = useState({ total: 0, live: 0, draft: 0, featured: 0 });
+  const [stats, setStats] = useState({ total: 0, displayTotal: 0, displayTotalOverride: null as number | null, live: 0, draft: 0, featured: 0 });
+  const [editTotalOpen, setEditTotalOpen] = useState(false);
+  const [editTotalValue, setEditTotalValue] = useState("");
+  const [savingTotal, setSavingTotal] = useState(false);
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<ProjectForm>(INITIAL_FORM);
   const [toast, setToast] = useState({ open: false, message: "" });
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [listView, setListView] = useState<"list" | "card">("list");
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [isDragOverImages, setIsDragOverImages] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [draggedImageIdx, setDraggedImageIdx] = useState<number | null>(null);
+  const [dragOverImageIdx, setDragOverImageIdx] = useState<number | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -137,8 +143,78 @@ const Projects = () => {
 
   const fetchStats = useCallback(async () => {
     const res = await apiClient.get(apiClient.URLS.interior_projects_stats, {}, true);
-    setStats(res.body || { total: 0, live: 0, draft: 0, featured: 0 });
+    const body = res.body || {};
+    setStats({
+      total: Number(body.total || 0),
+      displayTotal: Number(body.displayTotal ?? body.total ?? 0),
+      displayTotalOverride:
+        body.displayTotalOverride != null ? Number(body.displayTotalOverride) : null,
+      live: Number(body.live || 0),
+      draft: Number(body.draft || 0),
+      featured: Number(body.featured || 0),
+    });
   }, []);
+
+  const openEditTotal = () => {
+    const current =
+      stats.displayTotalOverride != null ? stats.displayTotalOverride : stats.total;
+    setEditTotalValue(String(current));
+    setEditTotalOpen(true);
+  };
+
+  const saveDisplayTotal = async () => {
+    const parsed = Number(editTotalValue);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      showToast("Enter a valid number (0 or greater)");
+      return;
+    }
+    setSavingTotal(true);
+    try {
+      const res = await apiClient.patch(
+        apiClient.URLS.interior_projects_display_total,
+        { displayTotalProjects: Math.round(parsed) },
+        true,
+      );
+      const body = res.body || {};
+      setStats({
+        total: Number(body.total || 0),
+        displayTotal: Number(body.displayTotal ?? body.total ?? 0),
+        displayTotalOverride:
+          body.displayTotalOverride != null ? Number(body.displayTotalOverride) : null,
+        live: Number(body.live || 0),
+        draft: Number(body.draft || 0),
+        featured: Number(body.featured || 0),
+      });
+      setEditTotalOpen(false);
+      showToast("Total projects updated");
+    } finally {
+      setSavingTotal(false);
+    }
+  };
+
+  const resetDisplayTotal = async () => {
+    setSavingTotal(true);
+    try {
+      const res = await apiClient.patch(
+        apiClient.URLS.interior_projects_display_total,
+        { displayTotalProjects: null },
+        true,
+      );
+      const body = res.body || {};
+      setStats({
+        total: Number(body.total || 0),
+        displayTotal: Number(body.displayTotal ?? body.total ?? 0),
+        displayTotalOverride: null,
+        live: Number(body.live || 0),
+        draft: Number(body.draft || 0),
+        featured: Number(body.featured || 0),
+      });
+      setEditTotalOpen(false);
+      showToast("Reset to actual project count");
+    } finally {
+      setSavingTotal(false);
+    }
+  };
 
   useEffect(() => {
     if (searchTimer.current) clearTimeout(searchTimer.current);
@@ -248,19 +324,31 @@ const Projects = () => {
   };
 
   const removeImageAt = (idx: number) => {
-    setForm((prev) => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== idx),
-    }));
-  };
-
-  const setAsMainImage = (idx: number) => {
     setForm((prev) => {
-      const list = [...prev.images];
-      const [picked] = list.splice(idx, 1);
-      return { ...prev, images: [picked, ...list] };
+      const list = prev.images.filter((u) => u.trim());
+      list.splice(idx, 1);
+      return { ...prev, images: list };
     });
   };
+
+  const reorderImages = (from: number, to: number) => {
+    if (from === to) return;
+    setForm((prev) => {
+      const list = prev.images.filter((u) => u.trim());
+      const [moved] = list.splice(from, 1);
+      list.splice(to, 0, moved);
+      return { ...prev, images: list };
+    });
+  };
+
+  const renderRowActions = (r: InteriorProject) => (
+    <Box sx={{ display: "flex", gap: .7 }}>
+      <button title="Edit" onClick={() => openForm(r)} style={{ width: 28, height: 28, borderRadius: 7, border: "1.5px solid #e2e8f0", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><StrokeIcon path="M4 20h4l10-10-4-4L4 16v4zM13 7l4 4" stroke="#2f80ed" size={14} /></button>
+      <button title="Toggle live" onClick={() => void toggleStatus(r)} style={{ width: 28, height: 28, borderRadius: 7, border: "1.5px solid #e2e8f0", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><StrokeIcon path="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12zM12 9a3 3 0 100 6 3 3 0 000-6z" stroke="#2f80ed" size={14} /></button>
+      <button title="Preview" onClick={() => window.open(`/projects/${r.id}`, "_blank")} style={{ width: 28, height: 28, borderRadius: 7, border: "1.5px solid #e2e8f0", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><StrokeIcon path="M15 3h6v6M10 14L21 3" stroke="#16a34a" size={14} /></button>
+      <button title="Delete" onClick={() => setDeleteId(r.id)} style={{ width: 28, height: 28, borderRadius: 7, border: "1.5px solid #e2e8f0", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><StrokeIcon path="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="#dc2626" size={14} /></button>
+    </Box>
+  );
 
   const submit = async (publish = false) => {
     if (!form.title.trim() || !form.location.trim()) return;
@@ -342,8 +430,35 @@ const Projects = () => {
       </Box>
 
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr 1fr", md: "repeat(4,1fr)" }, gap: 1.5, mt: 2.5, mb: 2.5 }}>
+        <Box sx={{ p: "14px 16px", border: "1.5px solid #e2e8f0", borderRadius: "12px", background: "#fff", position: "relative" }}>
+          <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 1 }}>
+            <Typography sx={{ fontSize: 22, fontWeight: 900, color: "#0f2a44" }}>{stats.displayTotal}</Typography>
+            <button
+              type="button"
+              title="Edit total projects"
+              onClick={openEditTotal}
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 7,
+                border: "1.5px solid #e2e8f0",
+                background: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                flexShrink: 0,
+              }}
+            >
+              <StrokeIcon path="M4 20h4l10-10-4-4L4 16v4zM13 7l4 4" stroke="#2f80ed" size={14} />
+            </button>
+          </Box>
+          <Typography sx={{ fontSize: 11, fontWeight: 600, color: "#64748b" }}>Total projects</Typography>
+          <Typography sx={{ fontSize: 11, fontWeight: 700, color: stats.displayTotalOverride != null ? "#2f80ed" : "#16a34a" }}>
+            {stats.displayTotalOverride != null ? `custom · ${stats.total} in CMS` : "+ synced"}
+          </Typography>
+        </Box>
         {[
-          ["Total projects", stats.total, "+ synced"],
           ["Live on website", stats.live, "+ live"],
           ["Avg. delivery", `${avgDays}d`, "+ avg"],
           ["Avg. cost", `₹${avgCost}L`, "+ avg"],
@@ -383,54 +498,128 @@ const Projects = () => {
           <MenuItem value="cost-low">Cost low→high</MenuItem>
           <MenuItem value="days">Fastest delivery</MenuItem>
         </Select>
+        <Box sx={{ display: "inline-flex", border: "1.5px solid #e2e8f0", borderRadius: "8px", overflow: "hidden", background: "#fff" }}>
+          <button
+            type="button"
+            onClick={() => setListView("card")}
+            title="Card view"
+            style={{
+              width: 36,
+              height: 36,
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: listView === "card" ? "#2f80ed" : "#fff",
+            }}
+          >
+            <StrokeIcon path="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" stroke={listView === "card" ? "#fff" : "#64748b"} size={14} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setListView("list")}
+            title="List view"
+            style={{
+              width: 36,
+              height: 36,
+              border: "none",
+              borderLeft: "1.5px solid #e2e8f0",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: listView === "list" ? "#2f80ed" : "#fff",
+            }}
+          >
+            <StrokeIcon path="M4 6h16M4 12h16M4 18h16" stroke={listView === "list" ? "#fff" : "#64748b"} size={14} />
+          </button>
+        </Box>
       </Box>
 
-      <TableContainer component={Box} sx={{ border: "1.5px solid #e2e8f0", borderRadius: "12px", background: "#fff" }}>
-        <Table size="small">
-          <TableHead>
-            <TableRow sx={{ background: "#0f2a44" }}>
-              {["Title", "Location", "Type", "Package", "Cost", "Days", "Status", "Featured", "Actions"].map((h) => (
-                <TableCell key={h} sx={{ color: "rgba(255,255,255,.7)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em", borderBottom: "none" }}>{h}</TableCell>
+      {listView === "list" ? (
+        <TableContainer component={Box} sx={{ border: "1.5px solid #e2e8f0", borderRadius: "12px", background: "#fff" }}>
+          <Table size="small">
+            <TableHead>
+              <TableRow sx={{ background: "#0f2a44" }}>
+                {["Title", "Location", "Type", "Package", "Cost", "Days", "Status", "Featured", "Actions"].map((h) => (
+                  <TableCell key={h} sx={{ color: "rgba(255,255,255,.7)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em", borderBottom: "none" }}>{h}</TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {loading ? Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}>{Array.from({ length: 9 }).map((__, j) => <TableCell key={j}><Skeleton height={24} /></TableCell>)}</TableRow>
+              )) : rows.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
+                    <StrokeIcon path="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10" stroke="#64748b" size={40} />
+                    <Typography sx={{ mt: 1.5, fontWeight: 700, color: "#0f2a44" }}>No projects yet</Typography>
+                    <Typography sx={{ fontSize: 13, color: "#64748b", mb: 1.5 }}>Add your first project</Typography>
+                    <Button onClick={() => openForm()} sx={{ textTransform: "none", background: "#2f80ed", color: "#fff" }}>Add project</Button>
+                  </TableCell>
+                </TableRow>
+              ) : rows.map((r) => (
+                <TableRow key={r.id} hover>
+                  <TableCell sx={{ maxWidth: 180, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontSize: 13, fontWeight: 700, color: "#0f2a44" }}>{r.title}</TableCell>
+                  <TableCell sx={{ fontSize: 12, color: "#64748b" }}>{r.location}</TableCell>
+                  <TableCell sx={{ fontSize: 12 }}>{r.propertyType}<br /><span style={{ color: "#64748b", fontSize: 11 }}>{r.sqft} sqft</span></TableCell>
+                  <TableCell><Chip label={r.package} size="small" sx={{ fontWeight: 700, ...(r.package === "Luxury" ? { bgcolor: "#fef3c7", color: "#92400e" } : r.package === "Premium" ? { bgcolor: "#dbeafe", color: "#1e40af" } : { bgcolor: "#f8fafc", color: "#0f2a44" }) }} /></TableCell>
+                  <TableCell sx={{ fontSize: 13, fontWeight: 800, color: "#2f80ed" }}>₹{r.costInLakhs}L</TableCell>
+                  <TableCell sx={{ fontSize: 12, color: "#64748b" }}>{r.deliveryDays}d</TableCell>
+                  <TableCell>
+                    <Chip label={r.status} size="small" sx={{ fontWeight: 700, ...(r.status === "Live" ? { bgcolor: "#dcfce7", color: "#166534" } : r.status === "Draft" ? { bgcolor: "#fef3c7", color: "#92400e" } : { bgcolor: "#fee2e2", color: "#991b1b" }) }} />
+                  </TableCell>
+                  <TableCell>{r.featured ? <svg width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b"><path d="M12 2l2.9 6.3 6.9.9-5 4.8 1.2 6.8L12 17.9 6 20.8l1.2-6.8-5-4.8 6.9-.9z"/></svg> : "—"}</TableCell>
+                  <TableCell>{renderRowActions(r)}</TableCell>
+                </TableRow>
               ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading ? Array.from({ length: 5 }).map((_, i) => (
-              <TableRow key={i}>{Array.from({ length: 9 }).map((__, j) => <TableCell key={j}><Skeleton height={24} /></TableCell>)}</TableRow>
-            )) : rows.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
-                  <StrokeIcon path="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10" stroke="#64748b" size={40} />
-                  <Typography sx={{ mt: 1.5, fontWeight: 700, color: "#0f2a44" }}>No projects yet</Typography>
-                  <Typography sx={{ fontSize: 13, color: "#64748b", mb: 1.5 }}>Add your first project</Typography>
-                  <Button onClick={() => openForm()} sx={{ textTransform: "none", background: "#2f80ed", color: "#fff" }}>Add project</Button>
-                </TableCell>
-              </TableRow>
-            ) : rows.map((r) => (
-              <TableRow key={r.id} hover>
-                <TableCell sx={{ maxWidth: 180, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontSize: 13, fontWeight: 700, color: "#0f2a44" }}>{r.title}</TableCell>
-                <TableCell sx={{ fontSize: 12, color: "#64748b" }}>{r.location}</TableCell>
-                <TableCell sx={{ fontSize: 12 }}>{r.propertyType}<br /><span style={{ color: "#64748b", fontSize: 11 }}>{r.sqft} sqft</span></TableCell>
-                <TableCell><Chip label={r.package} size="small" sx={{ fontWeight: 700, ...(r.package === "Luxury" ? { bgcolor: "#fef3c7", color: "#92400e" } : r.package === "Premium" ? { bgcolor: "#dbeafe", color: "#1e40af" } : { bgcolor: "#f8fafc", color: "#0f2a44" }) }} /></TableCell>
-                <TableCell sx={{ fontSize: 13, fontWeight: 800, color: "#2f80ed" }}>₹{r.costInLakhs}L</TableCell>
-                <TableCell sx={{ fontSize: 12, color: "#64748b" }}>{r.deliveryDays}d</TableCell>
-                <TableCell>
-                  <Chip label={r.status} size="small" sx={{ fontWeight: 700, ...(r.status === "Live" ? { bgcolor: "#dcfce7", color: "#166534" } : r.status === "Draft" ? { bgcolor: "#fef3c7", color: "#92400e" } : { bgcolor: "#fee2e2", color: "#991b1b" }) }} />
-                </TableCell>
-                <TableCell>{r.featured ? <svg width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b"><path d="M12 2l2.9 6.3 6.9.9-5 4.8 1.2 6.8L12 17.9 6 20.8l1.2-6.8-5-4.8 6.9-.9z"/></svg> : "—"}</TableCell>
-                <TableCell>
-                  <Box sx={{ display: "flex", gap: .7 }}>
-                    <button title="Edit" onClick={() => openForm(r)} style={{ width: 28, height: 28, borderRadius: 7, border: "1.5px solid #e2e8f0", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><StrokeIcon path="M4 20h4l10-10-4-4L4 16v4zM13 7l4 4" stroke="#2f80ed" size={14} /></button>
-                    <button title="Toggle live" onClick={() => void toggleStatus(r)} style={{ width: 28, height: 28, borderRadius: 7, border: "1.5px solid #e2e8f0", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><StrokeIcon path="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12zM12 9a3 3 0 100 6 3 3 0 000-6z" stroke="#2f80ed" size={14} /></button>
-                    <button title="Preview" onClick={() => window.open(`/projects/${r.id}`, "_blank")} style={{ width: 28, height: 28, borderRadius: 7, border: "1.5px solid #e2e8f0", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><StrokeIcon path="M15 3h6v6M10 14L21 3" stroke="#16a34a" size={14} /></button>
-                    <button title="Delete" onClick={() => setDeleteId(r.id)} style={{ width: 28, height: 28, borderRadius: 7, border: "1.5px solid #e2e8f0", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><StrokeIcon path="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="#dc2626" size={14} /></button>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      ) : (
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "repeat(3,1fr)" }, gap: 1.5 }}>
+          {loading ? Array.from({ length: 6 }).map((_, i) => (
+            <Box key={i} sx={{ border: "1.5px solid #e2e8f0", borderRadius: "12px", background: "#fff", overflow: "hidden" }}>
+              <Skeleton variant="rectangular" height={160} />
+              <Box sx={{ p: 1.5 }}><Skeleton height={20} /><Skeleton height={16} sx={{ mt: 1 }} /></Box>
+            </Box>
+          )) : rows.length === 0 ? (
+            <Box sx={{ gridColumn: "1 / -1", textAlign: "center", py: 6, border: "1.5px solid #e2e8f0", borderRadius: "12px", background: "#fff" }}>
+              <StrokeIcon path="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10" stroke="#64748b" size={40} />
+              <Typography sx={{ mt: 1.5, fontWeight: 700, color: "#0f2a44" }}>No projects yet</Typography>
+              <Button onClick={() => openForm()} sx={{ textTransform: "none", background: "#2f80ed", color: "#fff", mt: 1.5 }}>Add project</Button>
+            </Box>
+          ) : rows.map((r) => {
+            const thumb = (r.images || []).find((u) => u?.trim()) || "";
+            return (
+              <Box key={r.id} sx={{ border: "1.5px solid #e2e8f0", borderRadius: "12px", background: "#fff", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                <Box sx={{ height: 160, background: thumb ? `url('${thumb}') center/cover no-repeat` : "#e2e8f0", position: "relative" }}>
+                  {!thumb && (
+                    <Box sx={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <StrokeIcon path="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10" stroke="#94a3b8" size={32} />
+                    </Box>
+                  )}
+                  <Box sx={{ position: "absolute", top: 8, right: 8 }}>
+                    <Chip label={r.status} size="small" sx={{ fontWeight: 700, ...(r.status === "Live" ? { bgcolor: "#dcfce7", color: "#166534" } : r.status === "Draft" ? { bgcolor: "#fef3c7", color: "#92400e" } : { bgcolor: "#fee2e2", color: "#991b1b" }) }} />
                   </Box>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                </Box>
+                <Box sx={{ p: 1.5, flex: 1, display: "flex", flexDirection: "column", gap: 0.8 }}>
+                  <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#0f2a44", lineHeight: 1.3 }}>{r.title}</Typography>
+                  <Typography sx={{ fontSize: 12, color: "#64748b" }}>{r.location} · {r.propertyType} · {r.sqft} sqft</Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.8, flexWrap: "wrap" }}>
+                    <Chip label={r.package} size="small" sx={{ fontWeight: 700, ...(r.package === "Luxury" ? { bgcolor: "#fef3c7", color: "#92400e" } : r.package === "Premium" ? { bgcolor: "#dbeafe", color: "#1e40af" } : { bgcolor: "#f8fafc", color: "#0f2a44" }) }} />
+                    <Typography sx={{ fontSize: 13, fontWeight: 800, color: "#2f80ed" }}>₹{r.costInLakhs}L</Typography>
+                    <Typography sx={{ fontSize: 11, color: "#64748b" }}>{r.deliveryDays}d</Typography>
+                    {r.featured && <svg width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b"><path d="M12 2l2.9 6.3 6.9.9-5 4.8 1.2 6.8L12 17.9 6 20.8l1.2-6.8-5-4.8 6.9-.9z"/></svg>}
+                  </Box>
+                  <Box sx={{ mt: "auto", pt: 1 }}>{renderRowActions(r)}</Box>
+                </Box>
+              </Box>
+            );
+          })}
+        </Box>
+      )}
 
       <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
         <Pagination page={page} count={Math.max(totalPages, 1)} onChange={(_, v) => setPage(v)} color="primary" />
@@ -517,7 +706,7 @@ const Projects = () => {
               Drag & drop images here
             </Typography>
             <Typography sx={{ fontSize: 12, color: "#64748b", mb: 1.2 }}>
-              No image URLs needed. Upload files directly. First image will be used as main image.
+              Upload files directly. Drag thumbnails below to reorder — the first image is the project thumbnail.
             </Typography>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
               <Button
@@ -545,30 +734,49 @@ const Projects = () => {
           {!!form.images.filter((u) => u.trim()).length && (
             <Box sx={{ mt: 1.2, display: "grid", gridTemplateColumns: { xs: "repeat(2,1fr)", md: "repeat(5,1fr)" }, gap: 1 }}>
               {form.images.filter((u) => u.trim()).map((url, idx) => (
-                <Box key={`${url}-${idx}`} sx={{ border: "1.5px solid #e2e8f0", borderRadius: "8px", overflow: "hidden", background: "#fff" }}>
-                  <img src={url} alt={`Project ${idx + 1}`} style={{ width: "100%", height: 78, objectFit: "cover" }} />
-                  <Box sx={{ p: 0.7 }}>
+                <Box
+                  key={`${url}-${idx}`}
+                  draggable
+                  onDragStart={() => setDraggedImageIdx(idx)}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragOverImageIdx(idx);
+                  }}
+                  onDragLeave={() => setDragOverImageIdx(null)}
+                  onDrop={() => {
+                    if (draggedImageIdx !== null) reorderImages(draggedImageIdx, idx);
+                    setDraggedImageIdx(null);
+                    setDragOverImageIdx(null);
+                  }}
+                  onDragEnd={() => {
+                    setDraggedImageIdx(null);
+                    setDragOverImageIdx(null);
+                  }}
+                  sx={{
+                    border: dragOverImageIdx === idx ? "2px dashed #2f80ed" : "1.5px solid #e2e8f0",
+                    borderRadius: "8px",
+                    overflow: "hidden",
+                    background: idx === 0 ? "#f0fdf4" : "#fff",
+                    cursor: "grab",
+                    opacity: draggedImageIdx === idx ? 0.55 : 1,
+                    transition: "border-color .15s ease, opacity .15s ease",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, px: 0.7, pt: 0.5 }}>
+                    <StrokeIcon path="M4 8h16M4 16h16" stroke="#94a3b8" size={12} />
                     <Typography sx={{ fontSize: 10, color: idx === 0 ? "#16a34a" : "#64748b", fontWeight: idx === 0 ? 700 : 500 }}>
-                      {idx === 0 ? "Main image" : `Image ${idx + 1}`}
+                      {idx === 0 ? "Thumbnail" : `#${idx + 1}`}
                     </Typography>
-                    <Box sx={{ display: "flex", gap: 0.5, mt: 0.6 }}>
-                      {idx !== 0 && (
-                        <button
-                          type="button"
-                          onClick={() => setAsMainImage(idx)}
-                          style={{ border: "1px solid #cbd5e1", borderRadius: 6, padding: "2px 6px", fontSize: 10, color: "#0f2a44", background: "#fff", cursor: "pointer" }}
-                        >
-                          Set main
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => removeImageAt(idx)}
-                        style={{ border: "1px solid #fecaca", borderRadius: 6, padding: "2px 6px", fontSize: 10, color: "#dc2626", background: "#fff", cursor: "pointer" }}
-                      >
-                        Remove
-                      </button>
-                    </Box>
+                  </Box>
+                  <img src={url} alt={`Project ${idx + 1}`} style={{ width: "100%", height: 78, objectFit: "cover", pointerEvents: "none" }} draggable={false} />
+                  <Box sx={{ p: 0.7 }}>
+                    <button
+                      type="button"
+                      onClick={() => removeImageAt(idx)}
+                      style={{ border: "1px solid #fecaca", borderRadius: 6, padding: "2px 6px", fontSize: 10, color: "#dc2626", background: "#fff", cursor: "pointer", width: "100%" }}
+                    >
+                      Remove
+                    </button>
                   </Box>
                 </Box>
               ))}
@@ -591,6 +799,40 @@ const Projects = () => {
             <StrokeIcon path="M20 6L9 17l-5-5" stroke="#fff" size={14} />&nbsp;Publish live
           </Button>
         </Box>
+      </Dialog>
+
+      <Dialog open={editTotalOpen} onClose={() => setEditTotalOpen(false)} maxWidth="xs" fullWidth>
+        <DialogContent sx={{ p: 2.2 }}>
+          <Typography sx={{ fontWeight: 800, color: "#0f2a44", mb: 0.5, fontSize: 15 }}>Edit total projects</Typography>
+          <Typography sx={{ fontSize: 13, color: "#64748b", mb: 2 }}>
+            This value is shown in the Total projects stat. Actual CMS count: {stats.total}.
+          </Typography>
+          <TextField
+            label="Display total"
+            type="number"
+            value={editTotalValue}
+            onChange={(e) => setEditTotalValue(e.target.value)}
+            fullWidth
+            inputProps={{ min: 0, step: 1 }}
+          />
+          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 2.5, flexWrap: "wrap" }}>
+            <Button onClick={() => setEditTotalOpen(false)} sx={{ textTransform: "none" }} disabled={savingTotal}>
+              Cancel
+            </Button>
+            {stats.displayTotalOverride != null && (
+              <Button onClick={() => void resetDisplayTotal()} sx={{ textTransform: "none", color: "#64748b" }} disabled={savingTotal}>
+                Reset to {stats.total}
+              </Button>
+            )}
+            <Button
+              onClick={() => void saveDisplayTotal()}
+              disabled={savingTotal}
+              sx={{ textTransform: "none", background: "#2f80ed", color: "#fff" }}
+            >
+              {savingTotal ? <CircularProgress size={14} sx={{ color: "#fff" }} /> : "Save"}
+            </Button>
+          </Box>
+        </DialogContent>
       </Dialog>
 
       <Dialog open={deleteId !== null} onClose={() => setDeleteId(null)}>

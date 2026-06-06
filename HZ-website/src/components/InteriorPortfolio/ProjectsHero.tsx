@@ -3,15 +3,25 @@ import React from 'react'
 import Reveal from '@/components/ui/Reveal'
 
 interface ProjectsHeroProps {
-  totalCount: number
+  /** Number of live projects currently listed on the page (fallback). */
+  listedCount: number
+  /** Admin-configured total from Projects CMS (takes precedence). */
+  displayTotal?: number | null
 }
 
-export default function ProjectsHero({ totalCount }: ProjectsHeroProps) {
-  const projectsStat = totalCount > 0 ? `${totalCount}+` : '15+'
+export default function ProjectsHero({ listedCount, displayTotal }: ProjectsHeroProps) {
+  const metricCount =
+    displayTotal != null && displayTotal >= 0
+      ? displayTotal
+      : listedCount > 0
+        ? listedCount
+        : 0
+
+  const projectsStat = metricCount > 0 ? `${metricCount}+` : '15+'
 
   const subtitle =
-    totalCount > 0
-      ? `${totalCount} completed interior project${totalCount === 1 ? '' : 's'} across Telangana. Every space designed, built, and delivered on time — fixed price, no surprises.`
+    metricCount > 0
+      ? `${metricCount} completed interior project${metricCount === 1 ? '' : 's'} across Telangana. Every space designed, built, and delivered on time — fixed price, no surprises.`
       : '15+ completed interior projects across Telangana. Every space designed, built, and delivered on time — fixed price, no surprises.'
 
   const STATS = [

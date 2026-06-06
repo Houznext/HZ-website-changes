@@ -210,9 +210,25 @@ async function fetchCmsLiveProjects(apiBase: string): Promise<InteriorProject[]>
   return []
 }
 
+async function fetchProjectsDisplayTotal(apiBase: string): Promise<number | null> {
+  try {
+    const res = await fetch(`${apiBase}/interior-projects/public/stats`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    })
+    if (!res.ok) return null
+    const json = (await res.json()) as { displayTotal?: unknown }
+    const n = Number(json.displayTotal)
+    return Number.isFinite(n) && n >= 0 ? Math.round(n) : null
+  } catch {
+    return null
+  }
+}
+
 interface ProjectsPageProps {
   projects: InteriorProject[]
   pageSeo: PageSeoPublic | null
+  displayTotal: number | null
 }
 
 const PAGE_SIZE = 12
@@ -234,19 +250,24 @@ type ViewMode = 'grid' | 'list'
 export default function ProjectsPage({
   projects: rawProjects,
   pageSeo,
+  displayTotal: initialDisplayTotal,
 }: ProjectsPageProps) {
   const [projects, setProjects] = useState<InteriorProject[]>(() =>
     Array.isArray(rawProjects) ? rawProjects : [],
+  )
+  const [displayTotal, setDisplayTotal] = useState<number | null>(
+    initialDisplayTotal ?? null,
   )
 
   useEffect(() => {
     const base = getBrowserApiBase()
     if (!base) return
     let cancelled = false
-    void fetchCmsLiveProjects(base)
-      .then((data) => {
+    void Promise.all([fetchCmsLiveProjects(base), fetchProjectsDisplayTotal(base)])
+      .then(([data, total]) => {
         if (cancelled) return
         setProjects(data)
+        if (total != null) setDisplayTotal(total)
       })
       .catch(() => undefined)
     return () => {
@@ -306,7 +327,7 @@ export default function ProjectsPage({
       />
       <Navbar />
       <main style={{ background: '#f8fafc' }}>
-        <ProjectsHero totalCount={allDerived.length} />
+        <ProjectsHero listedCount={allDerived.length} displayTotal={displayTotal} />
 
         <ProjectsLegacyToolbar
           filter={legacyFilter}
@@ -498,9 +519,12 @@ export async function getStaticProps() {
     pageSeo = null
   }
   try {
-    const projects = await fetchCmsLiveProjects(API)
+    const [projects, displayTotal] = await Promise.all([
+      fetchCmsLiveProjects(API),
+      fetchProjectsDisplayTotal(API),
+    ])
     return {
-      props: { projects, pageSeo },
+      props: { projects, pageSeo, displayTotal },
       revalidate: 60,
     }
   } catch (err) {
@@ -509,7 +533,7 @@ export async function getStaticProps() {
       err,
     )
     return {
-      props: { projects: [] as InteriorProject[], pageSeo },
+      props: { projects: [] as InteriorProject[], pageSeo, displayTotal: null },
       revalidate: 60,
     }
   }

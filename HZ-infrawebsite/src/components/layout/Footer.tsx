@@ -20,6 +20,15 @@ export function Footer() {
             <Link href="/buy" className="hover:text-white">
               Buy
             </Link>
+            <Link href="/buy/hyderabad/apartments" className="hover:text-white">
+              Apartments in Hyderabad
+            </Link>
+            <Link href="/buy/hyderabad/land" className="hover:text-white">
+              Land in Hyderabad
+            </Link>
+            <Link href="/buy/vikarabad/land" className="hover:text-white">
+              Land in Vikarabad
+            </Link>
             <Link href="/sell" className="hover:text-white">
               Sell
             </Link>

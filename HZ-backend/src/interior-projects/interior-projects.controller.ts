@@ -13,6 +13,7 @@ import {
 import { InteriorProjectsService } from './interior-projects.service';
 import { CreateInteriorProjectDto } from './dto/create-interior-project.dto';
 import { UpdateInteriorProjectDto } from './dto/update-interior-project.dto';
+import { UpdateDisplayTotalDto } from './dto/update-display-total.dto';
 import { ControllerAuthGuard } from '../guard';
 
 @Controller('interior-projects')
@@ -34,6 +35,11 @@ export class InteriorProjectsController {
       propertyType,
       sort,
     });
+  }
+
+  @Get('public/stats')
+  publicStats() {
+    return this.service.publicStats();
   }
 
   @Get('public/:id')
@@ -67,6 +73,12 @@ export class InteriorProjectsController {
   @UseGuards(ControllerAuthGuard)
   stats() {
     return this.service.stats();
+  }
+
+  @Patch('stats/display-total')
+  @UseGuards(ControllerAuthGuard)
+  updateDisplayTotal(@Body() dto: UpdateDisplayTotalDto) {
+    return this.service.updateDisplayTotal(dto);
   }
 
   @Get(':id')

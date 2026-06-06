@@ -18,6 +18,19 @@ export class NewsService {
     });
   }
 
+  async sitemapSlugs(): Promise<{ slug: string; updatedAt: string }[]> {
+    const rows = await this.repo.find({
+      where: { published: true },
+      select: ['slug', 'updatedAt'],
+      order: { updatedAt: 'DESC' },
+      take: 500,
+    });
+    return rows.map((r) => ({
+      slug: r.slug.trim(),
+      updatedAt: r.updatedAt instanceof Date ? r.updatedAt.toISOString() : String(r.updatedAt),
+    }));
+  }
+
   async bySlug(slug: string): Promise<InfraNews> {
     const a = await this.repo.findOne({ where: { slug, published: true } });
     if (!a) throw new NotFoundException('Article not found');

@@ -267,8 +267,9 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
   const modalRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
 
-  const photos = project?.photoUrls ?? []
-  const totalPhotos = Math.max(photos.length, 1)
+  const photos = (project?.photoUrls ?? []).filter((u) => typeof u === 'string' && u.trim())
+  const totalPhotos = photos.length > 0 ? photos.length : 1
+  const hasMultiplePhotos = photos.length > 1
 
   useEffect(() => {
     if (project) {
@@ -301,13 +302,31 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
         return
       }
       if (e.key === 'ArrowLeft') {
-        setCurrentImg((i) => (i - 1 + totalPhotos) % totalPhotos)
+        if (fullscreenImg !== null) {
+          setFullscreenImg((i) => {
+            if (i === null) return null
+            const next = (i - 1 + totalPhotos) % totalPhotos
+            setCurrentImg(next)
+            return next
+          })
+        } else if (hasMultiplePhotos) {
+          setCurrentImg((i) => (i - 1 + totalPhotos) % totalPhotos)
+        }
       }
       if (e.key === 'ArrowRight') {
-        setCurrentImg((i) => (i + 1) % totalPhotos)
+        if (fullscreenImg !== null) {
+          setFullscreenImg((i) => {
+            if (i === null) return null
+            const next = (i + 1) % totalPhotos
+            setCurrentImg(next)
+            return next
+          })
+        } else if (hasMultiplePhotos) {
+          setCurrentImg((i) => (i + 1) % totalPhotos)
+        }
       }
     },
-    [project, onClose, totalPhotos, fullscreenImg],
+    [project, onClose, totalPhotos, fullscreenImg, hasMultiplePhotos],
   )
 
   useEffect(() => {
@@ -558,13 +577,15 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
               {currentImg + 1} / {totalPhotos}
             </div>
 
-            {totalPhotos > 1 && (
+            {hasMultiplePhotos && (
               <button
                 type="button"
-                onClick={prevImg}
-                aria-label="Previous photo"
                 onMouseDown={(e) => e.stopPropagation()}
-                onClickCapture={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  prevImg()
+                }}
+                aria-label="Previous photo"
                 style={{
                   position: 'absolute',
                   left: 14,
@@ -595,13 +616,15 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
               </button>
             )}
 
-            {totalPhotos > 1 && (
+            {hasMultiplePhotos && (
               <button
                 type="button"
-                onClick={nextImg}
-                aria-label="Next photo"
                 onMouseDown={(e) => e.stopPropagation()}
-                onClickCapture={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  nextImg()
+                }}
+                aria-label="Next photo"
                 style={{
                   position: 'absolute',
                   right: 14,
@@ -633,7 +656,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
             )}
           </div>
 
-          {totalPhotos > 1 && (
+          {hasMultiplePhotos && (
             <div
               style={{
                 display: 'flex',
@@ -644,17 +667,16 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                 scrollbarWidth: 'none',
               }}
             >
-              {Array.from({ length: totalPhotos }).map((_, i) => (
+              {photos.map((photoUrl, i) => (
                 <button
-                  key={i}
+                  key={`${photoUrl}-${i}`}
                   type="button"
-                  onClick={() => {
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation()
                     goImg(i)
-                    if (photos[i]) openFullscreen(i)
                   }}
                   aria-label={`Photo ${i + 1}`}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onClickCapture={(e) => e.stopPropagation()}
                   style={{
                     width: 56,
                     height: 42,
@@ -664,8 +686,8 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                     border: `2px solid ${i === currentImg ? '#2f80ed' : 'transparent'}`,
                     transition: 'border-color 0.18s',
                     overflow: 'hidden',
-                    background: photos[i]
-                      ? `url('${photos[i]}') center/cover no-repeat`
+                    background: photoUrl
+                      ? `url('${photoUrl}') center/cover no-repeat`
                       : 'linear-gradient(135deg,#1a3a5c,#0d2337)',
                     padding: 0,
                     display: 'flex',
@@ -673,22 +695,6 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                     justifyContent: 'center',
                   }}
                 >
-                  {!photos[i] && (
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="rgba(255,255,255,0.3)"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect x="3" y="3" width="18" height="18" rx="2" />
-                      <circle cx="8.5" cy="8.5" r="1.5" />
-                      <polyline points="21 15 16 10 5 21" />
-                    </svg>
-                  )}
                 </button>
               ))}
             </div>
@@ -1269,7 +1275,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
               <IconX />
             </button>
 
-            {totalPhotos > 1 && (
+            {hasMultiplePhotos && (
               <button
                 type="button"
                 onClick={prevFullscreenImg}
@@ -1306,7 +1312,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
               }}
             />
 
-            {totalPhotos > 1 && (
+            {hasMultiplePhotos && (
               <button
                 type="button"
                 onClick={nextFullscreenImg}

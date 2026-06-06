@@ -16,6 +16,9 @@ export default function Document() {
         <link rel="apple-touch-icon" href="/web-app-manifest-192x192.png" />
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#0f2a44" />
+        {process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ? (
+          <meta name="google-site-verification" content={process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION} />
+        ) : null}
       </Head>
       <body>
         <Main />

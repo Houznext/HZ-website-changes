@@ -22,6 +22,7 @@ import { SiteConfigModule } from './site-config/site-config.module';
 import { SiteVisitModule } from './site-visit/site-visit.module';
 import { S3Module } from './s3/s3.module';
 import { InfraPageSeoModule } from './page-seo/infra-page-seo.module';
+import { SitemapModule } from './sitemap/sitemap.module';
 
 @Module({
   controllers: [HealthController],
@@ -52,6 +53,7 @@ import { InfraPageSeoModule } from './page-seo/infra-page-seo.module';
     SiteVisitModule,
     S3Module,
     InfraPageSeoModule,
+    SitemapModule,
   ],
 })
 export class AppModule {}
