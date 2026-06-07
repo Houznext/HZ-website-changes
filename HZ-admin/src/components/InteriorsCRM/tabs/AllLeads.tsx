@@ -7,6 +7,7 @@ import { useInteriorsCRM } from "../CRMContext";
 import LeadRow from "../components/LeadRow";
 import { LEAD_STATUSES, PLATFORMS, PROPERTY_TYPES } from "../constants";
 import { headers } from "../../NewCrmView/types";
+import type { Lead } from "../../NewCrmView/types";
 import { useCrmLeadStatusDefinitions } from "@/src/hooks/useCrmLeadStatusDefinitions";
 import { useCrmFieldOptions } from "@/src/hooks/useCrmFieldOptions";
 
@@ -20,7 +21,7 @@ const SORT_OPTIONS: { value: LeadSortOption; label: string }[] = [
   { value: "date-asc", label: "Date added (oldest)" },
 ];
 
-function sortLeads(rows: { Fullname?: string; createdAt?: string }[], sortBy: LeadSortOption) {
+function sortLeads(rows: Lead[], sortBy: LeadSortOption): Lead[] {
   const copy = [...rows];
   if (sortBy === "name-asc") {
     copy.sort((a, b) =>
@@ -128,9 +129,7 @@ export default function AllLeads() {
   const [sortBy, setSortBy] = useState<LeadSortOption>("date-desc");
   const [selected, setSelected] = useState<string[]>([]);
   const [bulkAgent, setBulkAgent] = useState("");
-  const [leadPendingDelete, setLeadPendingDelete] = useState<
-    (typeof allLeads)[0] | null
-  >(null);
+  const [leadPendingDelete, setLeadPendingDelete] = useState<Lead | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
 
   const sortedLeads = useMemo(
@@ -315,7 +314,7 @@ export default function AllLeads() {
             ))}
           </select>
           <CSVLink
-            data={sortedLeads as unknown as Record<string, unknown>[]}
+            data={sortedLeads}
             headers={headers}
             filename="crm-leads.csv"
             className="inline-flex items-center gap-1.5 rounded-lg border border-[#e2e8f0] px-3 py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-150"
