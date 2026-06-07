@@ -44,7 +44,6 @@ export const defaultLeadFormData = {
   serviceType: "Interiors",
   platform: "Walkin",
   leadstatus: "New",
-  state: "",
   review: "",
   houseNo: "",
   apartmentName: "",
