@@ -15,6 +15,15 @@ import {
   statesOptions,
   PlatForm,
 } from "./types";
+import {
+  useAllCrmFieldOptions,
+  mapToCategoryData,
+  mapToPlatformData,
+  mapToStateOptions,
+  mapToLeadStatusData,
+  pickDefaultValue,
+} from "@/src/hooks/useCrmFieldOptions";
+import { useCrmLeadStatusDefinitions } from "@/src/hooks/useCrmLeadStatusDefinitions";
 import SearchComponent from "@/src/common/SearchSelect";
 import { FiUser, FiHome, FiFileText, FiX, FiUserPlus, FiEdit3 } from "react-icons/fi";
 
@@ -68,6 +77,38 @@ export default function LeadFormDrawer({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [assignAfterCreateUserId, setAssignAfterCreateUserId] = useState("");
+  const { byType, refresh: refreshFieldOptions } = useAllCrmFieldOptions();
+  const { items: statusDefItems, refresh: refreshStatusDefs } =
+    useCrmLeadStatusDefinitions();
+
+  const categoryOptions =
+    byType.service_category.length > 0
+      ? mapToCategoryData(byType.service_category)
+      : categoryData;
+  const platformOptions =
+    byType.platform.length > 0
+      ? mapToPlatformData(byType.platform)
+      : platformData;
+  const stateOptions =
+    byType.state.length > 0 ? mapToStateOptions(byType.state) : statesOptions;
+  const leadStatusOptions =
+    statusDefItems.length > 0
+      ? mapToLeadStatusData(statusDefItems)
+      : leaddata;
+
+  const defaultServiceType = pickDefaultValue(
+    byType.service_category.length > 0 ? byType.service_category : [{ value: "Interiors" }],
+    "Interiors",
+  );
+  const defaultPlatform = pickDefaultValue(
+    byType.platform.length > 0 ? byType.platform : platformData.map((p) => ({ value: p.platform })),
+    PlatForm.WALKIN,
+  );
+  const defaultState = pickDefaultValue(
+    byType.state.length > 0 ? byType.state : statesOptions.map((s) => ({ value: s })),
+    stateOptions[0] ?? "",
+  );
+  const defaultLeadStatus = pickDefaultValue(statusDefItems, "New");
   const membership =
   (session?.data?.user as any)?.branchMemberships?.find((m: any) => m.isPrimary) ||
   (session?.data?.user as any)?.branchMemberships?.[0];
@@ -83,6 +124,10 @@ const canShowBranchFilter =
       fetchLead(leadId);
     } else if (!leadId && open) {
       resetForm();
+    }
+    if (open) {
+      void refreshFieldOptions();
+      void refreshStatusDefs();
     }
   }, [leadId, open]);
   const onBranchChange = (option: any) => {
@@ -105,9 +150,9 @@ const canShowBranchFilter =
           bhk: res.body.bhk || "",
           city: res.body.city || "",
           state: res.body.state || "",
-          serviceType: res.body.serviceType || "RealEstate",
-          platform: res.body.platform || "Walkin",
-          leadstatus: res.body.leadstatus || "New",
+          serviceType: res.body.serviceType || defaultServiceType,
+          platform: res.body.platform || defaultPlatform,
+          leadstatus: res.body.leadstatus || defaultLeadStatus,
           review: res.body.review || "",
           houseNo: res.body.houseNo || "",
           apartmentName: res.body.apartmentName || "",
@@ -135,10 +180,10 @@ const canShowBranchFilter =
       propertytype: "Flat",
       bhk: "",
       city: "",
-      state: "",
-      serviceType: "RealEstate",
-      platform: "Walkin",
-      leadstatus: "New",
+      state: defaultState,
+      serviceType: defaultServiceType,
+      platform: defaultPlatform,
+      leadstatus: defaultLeadStatus,
       review: "",
       houseNo: "",
       apartmentName: "",
@@ -274,9 +319,9 @@ const canShowBranchFilter =
     }
   };
   const selectedPlatform =
-  platformData.find((item) => item.platform === formData.platform) ??
-  platformData.find((item) => item.platform === PlatForm.WALKIN) ??
-  platformData[0];
+    platformOptions.find((item) => item.platform === formData.platform) ??
+    platformOptions.find((item) => item.platform === defaultPlatform) ??
+    platformOptions[0];
 
   const handleClose = () => {
     resetForm();
@@ -379,13 +424,13 @@ const canShowBranchFilter =
                     type="single-select"
                     label="Service Category"
                     name="serviceType"
-                    options={categoryData}
+                    options={categoryOptions}
                      labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
                    
                     selectedOption={
-                      categoryData.find(
+                      categoryOptions.find(
                         (item) => item.role === formData.serviceType
-                      ) || categoryData[0]
+                      ) || categoryOptions[0]
                     }
                     optionsInterface={{
                       isObj: true,
@@ -471,10 +516,10 @@ const canShowBranchFilter =
                       placeholder="Select State"
                        labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
                       name="state"
-                      options={statesOptions}
+                      options={stateOptions}
                       selectedOption={
-                        statesOptions.find((item) => item === formData.state) ||
-                        statesOptions[0]
+                        stateOptions.find((item) => item === formData.state) ||
+                        stateOptions[0]
                       }
                       required
                       optionsInterface={{
@@ -548,13 +593,13 @@ const canShowBranchFilter =
                   <SingleSelect
                     type="single-select"
                     name="leadstatus"
-                    options={leaddata}
+                    options={leadStatusOptions}
                      labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
                     label="Lead Status"
                     selectedOption={
-                      leaddata.find(
+                      leadStatusOptions.find(
                         (item) => item.leadstatus === formData.leadstatus
-                      ) || leaddata[0]
+                      ) || leadStatusOptions[0]
                     }
                     optionsInterface={{
                       isObj: true,
@@ -575,7 +620,7 @@ const canShowBranchFilter =
                     name="platform"
                      labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
                     required
-                    options={platformData}
+                    options={platformOptions}
                     selectedOption={selectedPlatform}
                     optionsInterface={{
                       isObj: true,

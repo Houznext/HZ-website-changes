@@ -59,7 +59,6 @@ export function useCRMLeads() {
   const [barPlatform, setBarPlatform] = useState("all");
   const [barPropertyType, setBarPropertyType] = useState("all");
   const [barCity, setBarCity] = useState("all");
-  const [barAgent, setBarAgent] = useState("all");
   const [datePreset, setDatePreset] = useState<
     "all" | "today" | "yesterday" | "last7" | "last30" | "custom"
   >("all");
@@ -180,7 +179,6 @@ export function useCRMLeads() {
         return false;
       if (barCity !== "all" && String(lead.city || "").toLowerCase() !== barCity.toLowerCase())
         return false;
-      if (barAgent !== "all" && String(lead.assignedTo || "") !== barAgent) return false;
 
       if (datePreset !== "all" && lead.createdAt) {
         const d = new Date(lead.createdAt);
@@ -222,7 +220,6 @@ export function useCRMLeads() {
     barPlatform,
     barPropertyType,
     barCity,
-    barAgent,
     datePreset,
     customDateRange,
   ]);
@@ -356,8 +353,6 @@ export function useCRMLeads() {
     setBarPropertyType,
     barCity,
     setBarCity,
-    barAgent,
-    setBarAgent,
     datePreset,
     setDatePreset,
     customDateRange,

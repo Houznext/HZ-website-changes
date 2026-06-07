@@ -2,6 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CRMLead } from './entities/crm.entity';
 import { CrmLeadStatusDefinition } from './entities/crm-lead-status-definition.entity';
+import { CrmFieldOption } from './entities/crm-field-option.entity';
 import { LeadStatusLog } from './entities/leadStatus.entity';
 import { CrmLeadController } from './crm.controller';
 import { CrmLeadService } from './crm.service';
@@ -19,6 +20,7 @@ import { User } from 'src/user/entities/user.entity';
     TypeOrmModule.forFeature([
       CRMLead,
       CrmLeadStatusDefinition,
+      CrmFieldOption,
       LeadStatusLog,
       User,
       Notification,

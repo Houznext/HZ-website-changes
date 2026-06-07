@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import apiClient from "@/src/utils/apiClient";
+import { sortOptions } from "@/src/hooks/useCrmFieldOptions";
 
 export type CrmLeadStatusDefinition = {
   id: string;
@@ -9,6 +10,7 @@ export type CrmLeadStatusDefinition = {
   label: string;
   sortOrder: number;
   isBuiltin: boolean;
+  isDefault: boolean;
 };
 
 function errMessage(e: unknown): string {
@@ -48,7 +50,12 @@ export function useCrmLeadStatusDefinitions() {
   }, [refresh]);
 
   const create = useCallback(
-    async (dto: { value: string; label?: string; sortOrder?: number }) => {
+    async (dto: {
+      value: string;
+      label?: string;
+      sortOrder?: number;
+      isDefault?: boolean;
+    }) => {
       const res = await apiClient.post(baseUrl, dto, true);
       await refresh();
       return res.body as CrmLeadStatusDefinition;
@@ -57,7 +64,15 @@ export function useCrmLeadStatusDefinitions() {
   );
 
   const update = useCallback(
-    async (id: string, dto: { value?: string; label?: string; sortOrder?: number }) => {
+    async (
+      id: string,
+      dto: {
+        value?: string;
+        label?: string;
+        sortOrder?: number;
+        isDefault?: boolean;
+      },
+    ) => {
       const res = await apiClient.patch(`${baseUrl}/${id}`, dto, true);
       await refresh();
       return res.body as CrmLeadStatusDefinition;
@@ -73,5 +88,36 @@ export function useCrmLeadStatusDefinitions() {
     [baseUrl, refresh],
   );
 
-  return { items, loading, error, refresh, create, update, delete: remove };
+  const reorder = useCallback(
+    async (orderedIds: string[]) => {
+      const res = await apiClient.post(
+        `${baseUrl}/reorder`,
+        { orderedIds },
+        true,
+      );
+      setItems(Array.isArray(res.body) ? res.body : []);
+    },
+    [baseUrl],
+  );
+
+  const setDefault = useCallback(
+    async (id: string) => {
+      await update(id, { isDefault: true });
+    },
+    [update],
+  );
+
+  const sorted = useMemo(() => sortOptions(items), [items]);
+
+  return {
+    items: sorted,
+    loading,
+    error,
+    refresh,
+    create,
+    update,
+    delete: remove,
+    reorder,
+    setDefault,
+  };
 }

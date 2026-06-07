@@ -288,13 +288,11 @@ export const statusColors: Record<string, string> = {
 // DATA ARRAYS
 // ============================================================================
 
-/** CRM UI: service category dropdowns only offer these two (backend may still store other legacy values). */
-export const categoryData = [ServiceCategory.RealEstate, ServiceCategory.Interiors].map(
-  (role, index) => ({
-    id: index + 1,
-    role,
-  }),
-);
+/** CRM UI: service category dropdown (fallback; prefer API field options). */
+export const categoryData = [ServiceCategory.Interiors].map((role, index) => ({
+  id: index + 1,
+  role,
+}));
 
 export const propertytypedata = Object.values(PropertyTypeEnum).map((propertytype, index) => ({
   id: index + 1,

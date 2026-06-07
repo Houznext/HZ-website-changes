@@ -18,6 +18,7 @@ import {
 
 import { CRMLead } from './entities/crm.entity';
 import { CrmLeadStatusDefinition } from './entities/crm-lead-status-definition.entity';
+import { CrmFieldOption } from './entities/crm-field-option.entity';
 import { LeadStatusLog } from './entities/leadStatus.entity';
 import { User } from 'src/user/entities/user.entity';
 
@@ -30,8 +31,13 @@ import {
   FindLeadsDto,
   CreateCrmLeadStatusDefinitionDto,
   UpdateCrmLeadStatusDefinitionDto,
+  CreateCrmFieldOptionDto,
+  UpdateCrmFieldOptionDto,
+  ReorderCrmFieldOptionsDto,
+  ReorderCrmStatusDefinitionsDto,
 } from './dto/crm.dto';
-import { LeadStatus } from './enums/crm.enum';
+import { LeadStatus, PlatForm } from './enums/crm.enum';
+import { CrmFieldOptionType } from './enums/crm-field-option-type.enum';
 
 import { MailerService } from 'src/sendEmail.service';
 import { NotificationService } from 'src/notifications/notification.service';
@@ -50,6 +56,8 @@ export class CrmLeadService implements OnModuleInit {
     private readonly logRepo: Repository<LeadStatusLog>,
     @InjectRepository(CrmLeadStatusDefinition)
     private readonly statusDefRepo: Repository<CrmLeadStatusDefinition>,
+    @InjectRepository(CrmFieldOption)
+    private readonly fieldOptionRepo: Repository<CrmFieldOption>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     private readonly notificationService: NotificationService,
@@ -60,18 +68,326 @@ export class CrmLeadService implements OnModuleInit {
 
   async onModuleInit() {
     const count = await this.statusDefRepo.count();
-    if (count > 0) return;
-    const values = Object.values(LeadStatus);
-    let order = 0;
-    for (const value of values) {
-      await this.statusDefRepo.save(
-        this.statusDefRepo.create({
-          value,
-          label: value,
-          sortOrder: order++,
-          isBuiltin: true,
-        }),
+    if (count === 0) {
+      const values = Object.values(LeadStatus);
+      let order = 0;
+      for (const value of values) {
+        await this.statusDefRepo.save(
+          this.statusDefRepo.create({
+            value,
+            label: value,
+            sortOrder: order++,
+            isBuiltin: true,
+            isDefault: value === LeadStatus.New,
+          }),
+        );
+      }
+    }
+
+    await this.seedFieldOptionsIfEmpty();
+    await this.ensureFieldOptionDefaults();
+    await this.ensureStatusDefault();
+  }
+
+  private async ensureFieldOptionDefaults(): Promise<void> {
+    for (const fieldType of Object.values(CrmFieldOptionType)) {
+      const hasDefault = await this.fieldOptionRepo.count({
+        where: { fieldType, isDefault: true },
+      });
+      if (hasDefault > 0) continue;
+      const first = await this.fieldOptionRepo.findOne({
+        where: { fieldType },
+        order: { sortOrder: 'ASC', value: 'ASC' },
+      });
+      if (first) {
+        first.isDefault = true;
+        await this.fieldOptionRepo.save(first);
+      }
+    }
+  }
+
+  private async ensureStatusDefault(): Promise<void> {
+    const hasDefault = await this.statusDefRepo.count({ where: { isDefault: true } });
+    if (hasDefault > 0) return;
+    const preferred = await this.statusDefRepo.findOne({ where: { value: LeadStatus.New } });
+    const row =
+      preferred ??
+      (await this.statusDefRepo.findOne({
+        order: { sortOrder: 'ASC', value: 'ASC' },
+      }));
+    if (row) {
+      row.isDefault = true;
+      await this.statusDefRepo.save(row);
+    }
+  }
+
+  private readonly defaultStates = [
+    'Andhra Pradesh',
+    'Telangana',
+    'Maharashtra',
+    'Karnataka',
+    'Tamil Nadu',
+    'Kerala',
+    'Gujarat',
+    'Rajasthan',
+    'Uttar Pradesh',
+    'Delhi',
+  ];
+
+  private async seedFieldOptionsIfEmpty(): Promise<void> {
+    const seeds: Array<{ fieldType: CrmFieldOptionType; values: string[] }> = [
+      {
+        fieldType: CrmFieldOptionType.SERVICE_CATEGORY,
+        values: ['Interiors'],
+      },
+      {
+        fieldType: CrmFieldOptionType.PLATFORM,
+        values: Object.values(PlatForm),
+      },
+      {
+        fieldType: CrmFieldOptionType.STATE,
+        values: this.defaultStates,
+      },
+    ];
+
+    for (const { fieldType, values } of seeds) {
+      const existing = await this.fieldOptionRepo.count({ where: { fieldType } });
+      if (existing > 0) continue;
+      let order = 0;
+      for (const value of values) {
+        const isDefault =
+          (fieldType === CrmFieldOptionType.SERVICE_CATEGORY && value === 'Interiors') ||
+          (fieldType === CrmFieldOptionType.PLATFORM && value === PlatForm.WALKIN) ||
+          (fieldType === CrmFieldOptionType.STATE && order === 0);
+        await this.fieldOptionRepo.save(
+          this.fieldOptionRepo.create({
+            fieldType,
+            value,
+            label: value,
+            sortOrder: order++,
+            isBuiltin: true,
+            isDefault,
+          }),
+        );
+      }
+    }
+  }
+
+  private async clearFieldOptionDefaults(
+    fieldType: CrmFieldOptionType,
+    exceptId?: string,
+  ): Promise<void> {
+    const rows = await this.fieldOptionRepo.find({ where: { fieldType } });
+    for (const row of rows) {
+      if (exceptId && row.id === exceptId) continue;
+      if (row.isDefault) {
+        row.isDefault = false;
+        await this.fieldOptionRepo.save(row);
+      }
+    }
+  }
+
+  private async clearStatusDefaults(exceptId?: string): Promise<void> {
+    const rows = await this.statusDefRepo.find();
+    for (const row of rows) {
+      if (exceptId && row.id === exceptId) continue;
+      if (row.isDefault) {
+        row.isDefault = false;
+        await this.statusDefRepo.save(row);
+      }
+    }
+  }
+
+  private async promoteNextFieldOptionDefault(
+    fieldType: CrmFieldOptionType,
+  ): Promise<void> {
+    const next = await this.fieldOptionRepo.findOne({
+      where: { fieldType },
+      order: { sortOrder: 'ASC', value: 'ASC' },
+    });
+    if (!next) return;
+    await this.clearFieldOptionDefaults(fieldType);
+    next.isDefault = true;
+    await this.fieldOptionRepo.save(next);
+  }
+
+  private async promoteNextStatusDefault(): Promise<void> {
+    const next = await this.statusDefRepo.findOne({
+      order: { sortOrder: 'ASC', value: 'ASC' },
+    });
+    if (!next) return;
+    await this.clearStatusDefaults();
+    next.isDefault = true;
+    await this.statusDefRepo.save(next);
+  }
+
+  async listFieldOptions(
+    fieldType?: string,
+  ): Promise<CrmFieldOption[]> {
+    if (fieldType?.trim()) {
+      const parsed = this.parseFieldType(fieldType);
+      return this.fieldOptionRepo.find({
+        where: { fieldType: parsed },
+        order: { sortOrder: 'ASC', value: 'ASC' },
+      });
+    }
+    return this.fieldOptionRepo.find({
+      order: { fieldType: 'ASC', sortOrder: 'ASC', value: 'ASC' },
+    });
+  }
+
+  private parseFieldType(raw: string): CrmFieldOptionType {
+    const normalized = raw?.trim();
+    if (
+      normalized === CrmFieldOptionType.SERVICE_CATEGORY ||
+      normalized === CrmFieldOptionType.PLATFORM ||
+      normalized === CrmFieldOptionType.STATE
+    ) {
+      return normalized as CrmFieldOptionType;
+    }
+    throw new BadRequestException(
+      'fieldType must be service_category, platform, or state.',
+    );
+  }
+
+  private async countFieldOptionUsage(
+    fieldType: CrmFieldOptionType,
+    value: string,
+  ): Promise<number> {
+    switch (fieldType) {
+      case CrmFieldOptionType.SERVICE_CATEGORY:
+        return this.crmRepo.count({ where: { serviceType: value } });
+      case CrmFieldOptionType.PLATFORM:
+        return this.crmRepo.count({ where: { platform: value } });
+      case CrmFieldOptionType.STATE:
+        return this.crmRepo.count({ where: { state: value } });
+      default:
+        return 0;
+    }
+  }
+
+  async createFieldOption(dto: CreateCrmFieldOptionDto): Promise<CrmFieldOption> {
+    const fieldType = this.parseFieldType(dto.fieldType);
+    const value = dto.value.trim();
+    const dup = await this.fieldOptionRepo.findOne({
+      where: { fieldType, value },
+    });
+    if (dup) {
+      throw new ConflictException(
+        `"${value}" already exists for ${fieldType.replace('_', ' ')}.`,
       );
+    }
+    const typeCount = await this.fieldOptionRepo.count({ where: { fieldType } });
+    const markDefault = dto.isDefault === true || typeCount === 0;
+    if (markDefault) {
+      await this.clearFieldOptionDefaults(fieldType);
+    }
+    const row = this.fieldOptionRepo.create({
+      fieldType,
+      value,
+      label: (dto.label?.trim() || value).slice(0, 200),
+      sortOrder: dto.sortOrder ?? typeCount,
+      isBuiltin: false,
+      isDefault: markDefault,
+    });
+    return this.fieldOptionRepo.save(row);
+  }
+
+  async reorderFieldOptions(
+    dto: ReorderCrmFieldOptionsDto,
+  ): Promise<CrmFieldOption[]> {
+    const fieldType = this.parseFieldType(dto.fieldType);
+    const existing = await this.fieldOptionRepo.find({ where: { fieldType } });
+    if (dto.orderedIds.length !== existing.length) {
+      throw new BadRequestException(
+        'orderedIds must include every option for this type.',
+      );
+    }
+    const idSet = new Set(existing.map((r) => r.id));
+    for (const id of dto.orderedIds) {
+      if (!idSet.has(id)) {
+        throw new BadRequestException(`Unknown option id: ${id}`);
+      }
+    }
+    for (let i = 0; i < dto.orderedIds.length; i++) {
+      await this.fieldOptionRepo.update(
+        { id: dto.orderedIds[i], fieldType },
+        { sortOrder: i },
+      );
+    }
+    return this.listFieldOptions(fieldType);
+  }
+
+  async updateFieldOption(
+    id: string,
+    dto: UpdateCrmFieldOptionDto,
+  ): Promise<CrmFieldOption> {
+    const row = await this.fieldOptionRepo.findOne({ where: { id } });
+    if (!row) throw new NotFoundException('Field option not found');
+    if (dto.value !== undefined && dto.value.trim() !== row.value) {
+      if (row.isBuiltin) {
+        throw new BadRequestException('Cannot change value of a built-in option.');
+      }
+      const next = dto.value.trim();
+      const dup = await this.fieldOptionRepo.findOne({
+        where: { fieldType: row.fieldType, value: next },
+      });
+      if (dup && dup.id !== id) {
+        throw new ConflictException(`"${next}" already exists.`);
+      }
+      const used = await this.countFieldOptionUsage(row.fieldType, row.value);
+      if (used > 0) {
+        throw new BadRequestException(
+          'Cannot rename value while leads still use it.',
+        );
+      }
+      row.value = next;
+    }
+    if (dto.label !== undefined) {
+      row.label = dto.label.trim().slice(0, 200) || row.value;
+    }
+    if (dto.sortOrder !== undefined) {
+      row.sortOrder = dto.sortOrder;
+    }
+    if (dto.isDefault === true) {
+      await this.clearFieldOptionDefaults(row.fieldType, row.id);
+      row.isDefault = true;
+    } else if (dto.isDefault === false && row.isDefault) {
+      row.isDefault = false;
+    }
+    const saved = await this.fieldOptionRepo.save(row);
+    if (!saved.isDefault) {
+      const stillDefault = await this.fieldOptionRepo.count({
+        where: { fieldType: row.fieldType, isDefault: true },
+      });
+      if (stillDefault === 0) {
+        await this.promoteNextFieldOptionDefault(row.fieldType);
+      }
+    }
+    return this.fieldOptionRepo.findOne({ where: { id: saved.id } }) as Promise<CrmFieldOption>;
+  }
+
+  async deleteFieldOption(id: string): Promise<void> {
+    const row = await this.fieldOptionRepo.findOne({ where: { id } });
+    if (!row) throw new NotFoundException('Field option not found');
+    const typeCount = await this.fieldOptionRepo.count({
+      where: { fieldType: row.fieldType },
+    });
+    if (typeCount <= 1) {
+      throw new BadRequestException(
+        'Cannot delete the last option for this type.',
+      );
+    }
+    const used = await this.countFieldOptionUsage(row.fieldType, row.value);
+    if (used > 0) {
+      throw new BadRequestException(
+        'Cannot delete an option that is still assigned to leads.',
+      );
+    }
+    const wasDefault = row.isDefault;
+    await this.fieldOptionRepo.remove(row);
+    if (wasDefault) {
+      await this.promoteNextFieldOptionDefault(row.fieldType);
     }
   }
 
@@ -87,13 +403,40 @@ export class CrmLeadService implements OnModuleInit {
     if (dup) {
       throw new ConflictException(`Status "${value}" already exists.`);
     }
+    const count = await this.statusDefRepo.count();
+    const markDefault = dto.isDefault === true || count === 0;
+    if (markDefault) {
+      await this.clearStatusDefaults();
+    }
     const row = this.statusDefRepo.create({
       value,
       label: (dto.label?.trim() || value).slice(0, 200),
-      sortOrder: dto.sortOrder ?? (await this.statusDefRepo.count()),
+      sortOrder: dto.sortOrder ?? count,
       isBuiltin: false,
+      isDefault: markDefault,
     });
     return this.statusDefRepo.save(row);
+  }
+
+  async reorderStatusDefinitions(
+    dto: ReorderCrmStatusDefinitionsDto,
+  ): Promise<CrmLeadStatusDefinition[]> {
+    const existing = await this.statusDefRepo.find();
+    if (dto.orderedIds.length !== existing.length) {
+      throw new BadRequestException(
+        'orderedIds must include every status definition.',
+      );
+    }
+    const idSet = new Set(existing.map((r) => r.id));
+    for (const id of dto.orderedIds) {
+      if (!idSet.has(id)) {
+        throw new BadRequestException(`Unknown status id: ${id}`);
+      }
+    }
+    for (let i = 0; i < dto.orderedIds.length; i++) {
+      await this.statusDefRepo.update({ id: dto.orderedIds[i] }, { sortOrder: i });
+    }
+    return this.listStatusDefinitions();
   }
 
   async updateStatusDefinition(
@@ -125,14 +468,30 @@ export class CrmLeadService implements OnModuleInit {
     if (dto.sortOrder !== undefined) {
       row.sortOrder = dto.sortOrder;
     }
-    return this.statusDefRepo.save(row);
+    if (dto.isDefault === true) {
+      await this.clearStatusDefaults(row.id);
+      row.isDefault = true;
+    } else if (dto.isDefault === false && row.isDefault) {
+      row.isDefault = false;
+    }
+    const saved = await this.statusDefRepo.save(row);
+    if (!saved.isDefault) {
+      const stillDefault = await this.statusDefRepo.count({
+        where: { isDefault: true },
+      });
+      if (stillDefault === 0) {
+        await this.promoteNextStatusDefault();
+      }
+    }
+    return this.statusDefRepo.findOne({ where: { id: saved.id } }) as Promise<CrmLeadStatusDefinition>;
   }
 
   async deleteStatusDefinition(id: string): Promise<void> {
     const row = await this.statusDefRepo.findOne({ where: { id } });
     if (!row) throw new NotFoundException('Status definition not found');
-    if (row.isBuiltin) {
-      throw new BadRequestException('Cannot delete a built-in status.');
+    const total = await this.statusDefRepo.count();
+    if (total <= 1) {
+      throw new BadRequestException('Cannot delete the last lead status.');
     }
     const used = await this.crmRepo.count({ where: { leadstatus: row.value } });
     if (used > 0) {
@@ -140,7 +499,11 @@ export class CrmLeadService implements OnModuleInit {
         'Cannot delete a status that is still assigned to leads.',
       );
     }
+    const wasDefault = row.isDefault;
     await this.statusDefRepo.remove(row);
+    if (wasDefault) {
+      await this.promoteNextStatusDefault();
+    }
   }
 
   

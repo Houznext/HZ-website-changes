@@ -22,12 +22,16 @@ import {
   BulkSendLeadsDto,
   CreateCrmLeadDto,
   CreateCrmLeadStatusDefinitionDto,
+  CreateCrmFieldOptionDto,
   FindLeadsDto,
   QueryCrmLeadDto,
   ReturnCrmLeadDto,
   UpdateCrmLeadDto,
   UpdateCrmLeadstatusDto,
   UpdateCrmLeadStatusDefinitionDto,
+  UpdateCrmFieldOptionDto,
+  ReorderCrmFieldOptionsDto,
+  ReorderCrmStatusDefinitionsDto,
 } from './dto/crm.dto';
 import { CRMLead } from './entities/crm.entity';
 
@@ -112,6 +116,12 @@ export class CrmLeadController {
     return this.crmleadservice.createStatusDefinition(dto);
   }
 
+  @Post('status-definitions/reorder')
+  @ApiOperation({ summary: 'Reorder lead status definitions' })
+  async reorderStatusDefinitions(@Body() dto: ReorderCrmStatusDefinitionsDto) {
+    return this.crmleadservice.reorderStatusDefinitions(dto);
+  }
+
   @Patch('status-definitions/:defId')
   @ApiOperation({ summary: 'Update label/sort (or value for custom statuses)' })
   async updateStatusDefinition(
@@ -122,9 +132,48 @@ export class CrmLeadController {
   }
 
   @Delete('status-definitions/:defId')
-  @ApiOperation({ summary: 'Delete a custom lead status (must not be in use)' })
+  @ApiOperation({ summary: 'Delete a lead status (must not be in use)' })
   async deleteStatusDefinition(@Param('defId') defId: string) {
     await this.crmleadservice.deleteStatusDefinition(defId);
+    return { ok: true };
+  }
+
+  @Get('field-options')
+  @ApiOperation({ summary: 'List CRM field options (service category, platform, state)' })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+    enum: ['service_category', 'platform', 'state'],
+  })
+  async listFieldOptions(@Query('type') type?: string) {
+    return this.crmleadservice.listFieldOptions(type);
+  }
+
+  @Post('field-options')
+  @ApiOperation({ summary: 'Add a CRM field option' })
+  async createFieldOption(@Body() dto: CreateCrmFieldOptionDto) {
+    return this.crmleadservice.createFieldOption(dto);
+  }
+
+  @Post('field-options/reorder')
+  @ApiOperation({ summary: 'Reorder field options for a type' })
+  async reorderFieldOptions(@Body() dto: ReorderCrmFieldOptionsDto) {
+    return this.crmleadservice.reorderFieldOptions(dto);
+  }
+
+  @Patch('field-options/:optionId')
+  @ApiOperation({ summary: 'Update label/sort (or value for custom options)' })
+  async updateFieldOption(
+    @Param('optionId') optionId: string,
+    @Body() dto: UpdateCrmFieldOptionDto,
+  ) {
+    return this.crmleadservice.updateFieldOption(optionId, dto);
+  }
+
+  @Delete('field-options/:optionId')
+  @ApiOperation({ summary: 'Delete a field option (must not be in use)' })
+  async deleteFieldOption(@Param('optionId') optionId: string) {
+    await this.crmleadservice.deleteFieldOption(optionId);
     return { ok: true };
   }
 

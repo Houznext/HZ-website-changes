@@ -8,8 +8,39 @@ import LeadRow from "../components/LeadRow";
 import { LEAD_STATUSES, PLATFORMS, PROPERTY_TYPES } from "../constants";
 import { headers } from "../../NewCrmView/types";
 import { useCrmLeadStatusDefinitions } from "@/src/hooks/useCrmLeadStatusDefinitions";
+import { useCrmFieldOptions } from "@/src/hooks/useCrmFieldOptions";
 
 const CITIES = ["Hyderabad", "Bengaluru", "Chennai", "Mumbai"] as const;
+
+type LeadSortOption = "name-asc" | "date-asc" | "date-desc";
+
+const SORT_OPTIONS: { value: LeadSortOption; label: string }[] = [
+  { value: "name-asc", label: "Name (A–Z)" },
+  { value: "date-desc", label: "Date added (newest)" },
+  { value: "date-asc", label: "Date added (oldest)" },
+];
+
+function sortLeads(rows: { Fullname?: string; createdAt?: string }[], sortBy: LeadSortOption) {
+  const copy = [...rows];
+  if (sortBy === "name-asc") {
+    copy.sort((a, b) =>
+      String(a.Fullname || "").localeCompare(String(b.Fullname || ""), undefined, {
+        sensitivity: "base",
+      }),
+    );
+  } else if (sortBy === "date-asc") {
+    copy.sort(
+      (a, b) =>
+        new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime(),
+    );
+  } else {
+    copy.sort(
+      (a, b) =>
+        new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(),
+    );
+  }
+  return copy;
+}
 
 const WON = new Set(["Won", "completed"]);
 const LOST = new Set([
@@ -54,8 +85,6 @@ export default function AllLeads() {
     setBarPropertyType,
     barCity,
     setBarCity,
-    barAgent,
-    setBarAgent,
     datePreset,
     setDatePreset,
     customDateRange,
@@ -72,6 +101,13 @@ export default function AllLeads() {
   } = useInteriorsCRM();
 
   const { items: statusDefItems } = useCrmLeadStatusDefinitions();
+  const { items: platformDefItems } = useCrmFieldOptions("platform");
+  const platformFilterOptions = useMemo(() => {
+    if (platformDefItems.length > 0) {
+      return platformDefItems.map((p) => p.value);
+    }
+    return [...PLATFORMS];
+  }, [platformDefItems]);
   const statusFilterOptions = useMemo(() => {
     if (statusDefItems.length > 0) {
       return [...statusDefItems]
@@ -89,6 +125,7 @@ export default function AllLeads() {
 
   const [page, setPage] = useState(1);
   const pageSize = 20;
+  const [sortBy, setSortBy] = useState<LeadSortOption>("date-desc");
   const [selected, setSelected] = useState<string[]>([]);
   const [bulkAgent, setBulkAgent] = useState("");
   const [leadPendingDelete, setLeadPendingDelete] = useState<
@@ -96,16 +133,13 @@ export default function AllLeads() {
   >(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
 
-  const agents = useMemo(() => {
-    const s = new Set<string>();
-    for (const l of allLeads) {
-      if (l.assignedTo) s.add(String(l.assignedTo));
-    }
-    return [...s].sort();
-  }, [allLeads]);
+  const sortedLeads = useMemo(
+    () => sortLeads(filteredLeads, sortBy),
+    [filteredLeads, sortBy],
+  );
 
-  const totalPages = Math.max(1, Math.ceil(filteredLeads.length / pageSize));
-  const pageRows = filteredLeads.slice((page - 1) * pageSize, page * pageSize);
+  const totalPages = Math.max(1, Math.ceil(sortedLeads.length / pageSize));
+  const pageRows = sortedLeads.slice((page - 1) * pageSize, page * pageSize);
 
   const toggle = (id: string) => {
     setSelected((prev) =>
@@ -194,7 +228,7 @@ export default function AllLeads() {
             }}
           >
             <option value="all">All platforms</option>
-            {PLATFORMS.map((p) => (
+            {platformFilterOptions.map((p) => (
               <option key={p} value={p}>
                 {p}
               </option>
@@ -267,21 +301,21 @@ export default function AllLeads() {
           ) : null}
           <select
             className="rounded-lg border border-[#e2e8f0] px-2 py-2 text-[12.5px] text-slate-700"
-            value={barAgent}
+            value={sortBy}
             onChange={(e) => {
-              setBarAgent(e.target.value);
+              setSortBy(e.target.value as LeadSortOption);
               setPage(1);
             }}
+            aria-label="Sort leads"
           >
-            <option value="all">All agents</option>
-            {agents.map((a) => (
-              <option key={a} value={a}>
-                {a}
+            {SORT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
               </option>
             ))}
           </select>
           <CSVLink
-            data={filteredLeads as unknown as Record<string, unknown>[]}
+            data={sortedLeads as unknown as Record<string, unknown>[]}
             headers={headers}
             filename="crm-leads.csv"
             className="inline-flex items-center gap-1.5 rounded-lg border border-[#e2e8f0] px-3 py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-150"
@@ -390,8 +424,8 @@ export default function AllLeads() {
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-t border-[#e2e8f0] text-[12px] text-slate-600">
           <span>
-            Showing {filteredLeads.length === 0 ? 0 : (page - 1) * pageSize + 1}–
-            {Math.min(page * pageSize, filteredLeads.length)} of {filteredLeads.length}{" "}
+            Showing {sortedLeads.length === 0 ? 0 : (page - 1) * pageSize + 1}–
+            {Math.min(page * pageSize, sortedLeads.length)} of {sortedLeads.length}{" "}
             leads
           </span>
           <div className="flex items-center gap-2">

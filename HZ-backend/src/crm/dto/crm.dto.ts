@@ -12,6 +12,7 @@ import {
   ValidateIf,
   IsInt,
   IsBoolean,
+  IsArray,
   Min,
   Max,
   MaxLength,
@@ -97,15 +98,16 @@ export class CreateCrmLeadDto {
   @IsOptional()
   paintArea?: string;
 
-  @ApiPropertyOptional({ enum: PlatForm })
+  @ApiPropertyOptional({
+    description: 'Lead source platform (from CRM field options or legacy value)',
+  })
   @Transform(({ value }) =>
-  value === '' || value === null || value === undefined
-    ? undefined
-    : value
-)
-@IsEnum(PlatForm)
-@IsOptional()
-  platform?: PlatForm;
+    value === '' || value === null || value === undefined ? undefined : value,
+  )
+  @IsString()
+  @MaxLength(120)
+  @IsOptional()
+  platform?: string;
 
   @ApiPropertyOptional()
   @IsString()
@@ -113,12 +115,12 @@ export class CreateCrmLeadDto {
   bhk?: string;
 
   @ApiPropertyOptional({
-    enum: ServiceCategory,
-    description: `One of: ${Object.values(ServiceCategory).join(', ')}`,
+    description: 'Service category (from CRM field options or legacy value)',
   })
-  @IsEnum(ServiceCategory)
+  @IsString()
+  @MaxLength(120)
   @IsOptional()
-  serviceType?: ServiceCategory;
+  serviceType?: string;
 
   @ApiProperty()
   @IsString()
@@ -240,10 +242,13 @@ export class UpdateCrmLeadDto {
   @IsOptional()
   propertytype?: PropertyTypeEnum;
 
-  @ApiPropertyOptional({ enum: PlatForm })
-  @IsEnum(PlatForm)
+  @ApiPropertyOptional({
+    description: 'Lead source platform (from CRM field options or legacy value)',
+  })
+  @IsString()
+  @MaxLength(120)
   @IsOptional()
-  platform?: PlatForm;
+  platform?: string;
 
   @ApiPropertyOptional()
   @IsString()
@@ -251,13 +256,13 @@ export class UpdateCrmLeadDto {
   bhk?: string;
 
   @ApiPropertyOptional({
-    enum: ServiceCategory,
-    description: `One of: ${Object.values(ServiceCategory).join(', ')}`,
+    description: 'Service category (from CRM field options or legacy value)',
   })
-  @IsEnum(ServiceCategory)
+  @IsString()
+  @MaxLength(120)
   @IsOptional()
   @Transform(({ value }) => (value === '' ? undefined : value))
-  serviceType?: ServiceCategory;
+  serviceType?: string;
 
   @ApiPropertyOptional()
   @IsString()
@@ -378,8 +383,8 @@ export class ReturnCrmLeadDto {
   Fullname: string;
   Phonenumber: string;
   email: string;
-  platform?: PlatForm;
-  serviceType?: ServiceCategory;
+  platform?: string;
+  serviceType?: string;
   propertytype: PropertyTypeEnum;
   paintingPackage?: PaintingPackageEnum;
   paintingType?: PaintingTypeEnum;
@@ -648,6 +653,11 @@ export class CreateCrmLeadStatusDefinitionDto {
   @Min(0)
   @IsOptional()
   sortOrder?: number;
+
+  @ApiPropertyOptional({ description: 'Mark as default for new leads' })
+  @IsBoolean()
+  @IsOptional()
+  isDefault?: boolean;
 }
 
 export class UpdateCrmLeadStatusDefinitionDto {
@@ -670,4 +680,87 @@ export class UpdateCrmLeadStatusDefinitionDto {
   @Min(0)
   @IsOptional()
   sortOrder?: number;
+
+  @ApiPropertyOptional({ description: 'Mark as default for new leads' })
+  @IsBoolean()
+  @IsOptional()
+  isDefault?: boolean;
+}
+
+export class CreateCrmFieldOptionDto {
+  @ApiProperty({ enum: ['service_category', 'platform', 'state'] })
+  @IsString()
+  @IsNotEmpty()
+  fieldType: string;
+
+  @ApiProperty({ description: 'Unique value stored on leads' })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @MaxLength(120)
+  value: string;
+
+  @ApiPropertyOptional({ description: 'Display label (defaults to value)' })
+  @IsString()
+  @MaxLength(200)
+  @IsOptional()
+  label?: string;
+
+  @ApiPropertyOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  sortOrder?: number;
+
+  @ApiPropertyOptional({ description: 'Mark as default in add-lead form' })
+  @IsBoolean()
+  @IsOptional()
+  isDefault?: boolean;
+}
+
+export class UpdateCrmFieldOptionDto {
+  @ApiPropertyOptional({ description: 'Only allowed for non-builtin rows' })
+  @IsString()
+  @MinLength(1)
+  @MaxLength(120)
+  @IsOptional()
+  value?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @MaxLength(200)
+  @IsOptional()
+  label?: string;
+
+  @ApiPropertyOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  sortOrder?: number;
+
+  @ApiPropertyOptional({ description: 'Mark as default in add-lead form' })
+  @IsBoolean()
+  @IsOptional()
+  isDefault?: boolean;
+}
+
+export class ReorderCrmFieldOptionsDto {
+  @ApiProperty({ enum: ['service_category', 'platform', 'state'] })
+  @IsString()
+  @IsNotEmpty()
+  fieldType: string;
+
+  @ApiProperty({ type: [String], description: 'Option ids in display order' })
+  @IsArray()
+  @IsString({ each: true })
+  orderedIds: string[];
+}
+
+export class ReorderCrmStatusDefinitionsDto {
+  @ApiProperty({ type: [String], description: 'Status ids in display order' })
+  @IsArray()
+  @IsString({ each: true })
+  orderedIds: string[];
 }

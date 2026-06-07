@@ -76,7 +76,7 @@ export const STATUS_BADGE_STYLES: Record<string, { bg: string; text: string }> =
   DND: { bg: "#fee2e2", text: "#dc2626" },
 };
 
-export const SERVICE_CATEGORIES = ["RealEstate", "Interiors"] as const;
+export const SERVICE_CATEGORIES = ["Interiors"] as const;
 
 export const PROPERTY_TYPES = [
   "Flat",

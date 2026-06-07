@@ -19,4 +19,8 @@ export class CrmLeadStatusDefinition {
   /** Seeded from legacy enum — cannot be deleted; value cannot change */
   @Column({ type: 'boolean', default: false })
   isBuiltin: boolean;
+
+  /** Pre-selected lead status when adding a new lead */
+  @Column({ type: 'boolean', default: false })
+  isDefault: boolean;
 }
