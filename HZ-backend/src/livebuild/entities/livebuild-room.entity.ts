@@ -31,6 +31,21 @@ export class LivebuildRoom {
   @Column({ type: 'varchar', length: 100, nullable: true })
   dimensions: string | null;
 
+  @Column({ name: 'length_ft', type: 'numeric', precision: 6, scale: 2, nullable: true })
+  lengthFt: number | null;
+
+  @Column({ name: 'width_ft', type: 'numeric', precision: 6, scale: 2, nullable: true })
+  widthFt: number | null;
+
+  @Column({ name: 'area_sqft', type: 'int', nullable: true })
+  areaSqft: number | null;
+
+  @Column({ name: 'ceiling_height', type: 'varchar', length: 50, nullable: true })
+  ceilingHeight: string | null;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  flooring: string | null;
+
   @Column({ type: 'int', default: 0 })
   pct: number;
 

@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -103,6 +104,14 @@ export class CreateProjectDto {
   @IsOptional()
   @IsString()
   holdReason?: string;
+
+  @IsOptional()
+  @IsString()
+  coverImageUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  panoramaUrl?: string;
 }
 
 export class UpdateProjectDto extends CreateProjectDto {}
@@ -161,6 +170,17 @@ export class CreateRoomDto {
 
   @IsOptional()
   displayOrder?: number;
+
+  @IsOptional()
+  areaSqft?: number;
+
+  @IsOptional()
+  @IsString()
+  ceilingHeight?: string;
+
+  @IsOptional()
+  @IsString()
+  flooring?: string;
 }
 
 export class UpdateRoomDto extends CreateRoomDto {}
@@ -388,6 +408,15 @@ export class UpsertPropertyInfoDto {
   designScope?: string;
 
   @IsOptional()
+  superBuiltUpSqft?: number;
+
+  @IsOptional()
+  scopeIncluded?: string[];
+
+  @IsOptional()
+  specifications?: { label: string; value: string }[];
+
+  @IsOptional()
   @IsString()
   notes?: string;
 }
@@ -400,7 +429,10 @@ export class CreateDocumentMetaDto {
   category: string;
 
   @IsOptional()
-  roomId?: number;
+  roomId?: number | string;
+
+  @IsOptional()
+  workTypeId?: number | string;
 
   @IsOptional()
   @IsString()
@@ -413,4 +445,144 @@ export class CreateDocumentMetaDto {
   @IsOptional()
   @IsString()
   uploadedBy?: string;
+}
+
+export class Create3dModelMetaDto {
+  @IsString()
+  @IsNotEmpty()
+  label: string;
+
+  @IsOptional()
+  @IsString()
+  modelType?: string;
+
+  @IsOptional()
+  floorNumber?: number | string;
+
+  @IsOptional()
+  roomId?: number | string;
+
+  @IsOptional()
+  isPrimary?: boolean | string;
+
+  @IsOptional()
+  cameraPosX?: number | string;
+
+  @IsOptional()
+  cameraPosY?: number | string;
+
+  @IsOptional()
+  cameraPosZ?: number | string;
+
+  @IsOptional()
+  cameraTargetX?: number | string;
+
+  @IsOptional()
+  cameraTargetY?: number | string;
+
+  @IsOptional()
+  cameraTargetZ?: number | string;
+}
+
+export class Update3dModelDto {
+  @IsOptional()
+  @IsString()
+  label?: string;
+
+  @IsOptional()
+  @IsString()
+  modelType?: string;
+
+  @IsOptional()
+  floorNumber?: number | null;
+
+  @IsOptional()
+  roomId?: number | null;
+
+  @IsOptional()
+  isPrimary?: boolean;
+
+  @IsOptional()
+  cameraPosX?: number | null;
+
+  @IsOptional()
+  cameraPosY?: number | null;
+
+  @IsOptional()
+  cameraPosZ?: number | null;
+
+  @IsOptional()
+  cameraTargetX?: number | null;
+
+  @IsOptional()
+  cameraTargetY?: number | null;
+
+  @IsOptional()
+  cameraTargetZ?: number | null;
+
+  @IsOptional()
+  displayOrder?: number;
+}
+
+export class Create3dHotspotDto {
+  @IsString()
+  @IsNotEmpty()
+  label: string;
+
+  @IsOptional()
+  roomId?: number | null;
+
+  @IsOptional()
+  positionX?: number;
+
+  @IsOptional()
+  positionY?: number;
+
+  @IsOptional()
+  positionZ?: number;
+
+  @IsOptional()
+  cameraPosX?: number | null;
+
+  @IsOptional()
+  cameraPosY?: number | null;
+
+  @IsOptional()
+  cameraPosZ?: number | null;
+
+  @IsOptional()
+  cameraTargetX?: number | null;
+
+  @IsOptional()
+  cameraTargetY?: number | null;
+
+  @IsOptional()
+  cameraTargetZ?: number | null;
+
+  @IsOptional()
+  displayOrder?: number;
+}
+
+export class Update3dHotspotDto extends Create3dHotspotDto {}
+
+export class UpdateNotificationSettingsDto {
+  @IsOptional()
+  @IsBoolean()
+  dpr?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  query?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  payment?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  hold?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  doc?: boolean;
 }

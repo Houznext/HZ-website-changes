@@ -1,8 +1,8 @@
 import type {
   LbAccountStats,
   LbDayProgress,
-  LbDocument,
-  LbMaterialItem,
+  LbDocumentsResponse,
+  LbMaterialsResponse,
   LbPayments,
   LbProjectHome,
   LbProjectSummary,
@@ -87,7 +87,7 @@ export const livebuildApi = {
   ) => {
     const q = new URLSearchParams();
     if (params?.roomId) q.set('roomId', params.roomId);
-    if (params?.range) q.set('range', params.range ?? '7d');
+    if (params?.range) q.set('range', params.range);
     if (params?.date) q.set('date', params.date);
     const qs = q.toString();
     return lbFetch<LbDayProgress>(
@@ -118,16 +118,16 @@ export const livebuildApi = {
 
   materials: (projectId: string, params?: { status?: string; room?: string }) => {
     const q = new URLSearchParams();
-    if (params?.status) q.set('status', params.status);
-    if (params?.room) q.set('room', params.room);
+    if (params?.status && params.status !== 'all') q.set('status', params.status);
+    if (params?.room && params.room !== 'all') q.set('room', params.room);
     const qs = q.toString();
-    return lbFetch<LbMaterialItem[]>(
+    return lbFetch<LbMaterialsResponse>(
       `/livebuild/my/projects/${projectId}/materials${qs ? `?${qs}` : ''}`,
     );
   },
 
   documents: (projectId: string) =>
-    lbFetch<LbDocument[]>(`/livebuild/my/projects/${projectId}/documents`),
+    lbFetch<LbDocumentsResponse>(`/livebuild/my/projects/${projectId}/documents`),
 
   viz: (projectId: string) =>
     lbFetch<LbViz>(`/livebuild/my/projects/${projectId}/viz`),

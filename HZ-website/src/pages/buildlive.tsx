@@ -77,7 +77,7 @@ function BuildLiveHero() {
                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#1a6dd6' }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#2f80ed' }}
               >
-                Login to My Home →
+                Login to LiveBuild →
               </button>
             </div>
           </Reveal>
@@ -139,7 +139,7 @@ function WaBar() {
           Already a Houznext customer?
         </h2>
         <p className="text-[15px] mb-8" style={{ color: 'rgba(255,255,255,0.65)' }}>
-          Log in to My Home portal to track your project live
+          Log in to LiveBuild to track your project live
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
           <button
@@ -147,7 +147,7 @@ function WaBar() {
             className="px-8 py-4 rounded-xl font-head font-bold text-white text-[15px] transition-all hover:-translate-y-0.5"
             style={{ background: '#2f80ed' }}
           >
-            Login to My Home →
+            Login to LiveBuild →
           </button>
           <a
             href="https://wa.me/919759750770?text=Hi%20Houznext%2C%20I%20want%20to%20know%20more%20about%20LiveBuild"

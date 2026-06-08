@@ -762,9 +762,9 @@ const Navbar = ({ isVisibleItems }: ShowItems) => {
                   <span className="text-nowrap lg:text-[12px] xl:text-[14px]">Get Estimate</span>
                 </span>
               </Button>
-              <Link href="/portal/login">
+              <Link href="/login?callbackUrl=/livebuild/dashboard">
                 <button className="text-sm font-medium px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-                  Login / My project
+                  Login / LiveBuild
                 </button>
               </Link>
               {!user || !token ? (

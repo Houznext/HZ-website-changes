@@ -125,9 +125,9 @@ export const PAGE_SEO_DEFAULT_ROWS: PageSeoDefaultRow[] = [
   {
     path: '/login',
     label: 'Login',
-    metaTitle: 'Login | My Home Portal | Houznext',
+    metaTitle: 'Login | LiveBuild | Houznext',
     metaDescription:
-      'Login to your Houznext portal. Track your interior project live, approve designs, view payments, and manage snags from your phone.',
+      'Login to Houznext LiveBuild. Track your project live, view progress, payments, documents, and 3D walkthrough from your phone.',
     ogImageUrl: PAGE_SEO_OG_DEFAULT,
     hasStructuredData: false,
   },
@@ -203,8 +203,8 @@ export const PAGE_SEO_DEFAULT_ROWS: PageSeoDefaultRow[] = [
   {
     path: '/my-account/livebuild',
     label: 'My account — LiveBuild',
-    metaTitle: 'My Home — LiveBuild | Houznext',
-    metaDescription: 'Track your interior projects.',
+    metaTitle: 'LiveBuild Dashboard | Houznext',
+    metaDescription: 'Track your construction and interior projects with Houznext LiveBuild.',
     ogImageUrl: PAGE_SEO_OG_DEFAULT,
     hasStructuredData: false,
   },

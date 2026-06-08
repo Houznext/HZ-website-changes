@@ -269,7 +269,7 @@ function ProjectDetailPage() {
             onClick={() => {
               const origin =
                 process.env.NEXT_PUBLIC_HZ_WEBSITE_ORIGIN || 'http://localhost:3000';
-              window.open(`${origin}/portal/${project.id}`, '_blank', 'noopener,noreferrer');
+              window.open(`${origin}/livebuild/${project.id}`, '_blank', 'noopener,noreferrer');
             }}
             sx={{
               borderRadius: '8px',

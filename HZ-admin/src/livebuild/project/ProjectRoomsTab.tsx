@@ -2,8 +2,13 @@ import { useState } from 'react';
 import { Trash2, X } from 'lucide-react';
 import livebuildApi from '../lib/api';
 import { LB_ROOM_ICONS } from '../lib/constants';
+import {
+  getPropertyCategory,
+  PROPERTY_CATEGORY_FEATURES,
+} from '../lib/propertyInfoConfig';
 import type { LbRoom } from '../lib/types';
 import { AddRoomModal } from '../components/AddRoomModal';
+import { EditRoomModal } from '../components/EditRoomModal';
 import { AddRoomWorkTypeModal } from '../components/AddRoomWorkTypeModal';
 import { WorkTypeModal } from '../components/WorkTypeModal';
 import { Badge, Btn, FormInput, Label, Modal, ProgressRing, lbToast } from '../components';
@@ -11,6 +16,7 @@ import { Badge, Btn, FormInput, Label, Modal, ProgressRing, lbToast } from '../c
 type Props = {
   projectId: string;
   projectName: string;
+  propertyType: string;
   rooms: LbRoom[];
   onReload: () => void;
 };
@@ -30,6 +36,7 @@ function RoomCard({
   onDelete,
   onAddWorkType,
   onRemoveWorkType,
+  onEditDetails,
 }: {
   room: LbRoom;
   index: number;
@@ -37,13 +44,20 @@ function RoomCard({
   onDelete: (r: LbRoom) => void;
   onAddWorkType: (r: LbRoom) => void;
   onRemoveWorkType: (r: LbRoom, wt: RoomWt) => void;
+  onEditDetails: (r: LbRoom) => void;
 }) {
   const [pct, setPct] = useState(String(room.progressPct));
   const [status, setStatus] = useState(room.status);
   const [holdReason, setHoldReason] = useState(room.holdReason ?? '');
   const icon = LB_ROOM_ICONS[room.name] ?? '🏠';
   const dim =
-    room.lengthFt && room.widthFt ? `${room.lengthFt}×${room.widthFt} ft` : '';
+    room.lengthFt && room.widthFt ? `${room.lengthFt}×${room.widthFt} ft` : room.dimensions ?? '';
+  const detailParts = [
+    dim,
+    room.ceilingHeight ? `Ceiling ${room.ceilingHeight}` : '',
+    room.flooring ? room.flooring : '',
+    `${room.workTypes.length} work types`,
+  ].filter(Boolean);
 
   return (
     <div className="lb-card lb-fa" style={{ animationDelay: `${index * 0.05}s` }}>
@@ -66,11 +80,13 @@ function RoomCard({
             </Badge>
           </div>
           <div style={{ fontSize: 12, color: 'var(--lb-mu)' }}>
-            {dim ? `${dim} · ` : ''}
-            {room.workTypes.length} work types
+            {detailParts.join(' · ')}
           </div>
         </div>
         <ProgressRing pct={room.progressPct} size={64} strokeWidth={5} color={statusColor(room.status)} />
+        <Btn variant="ghost" size="sm" onClick={() => onEditDetails(room)}>
+          Edit
+        </Btn>
         <Btn
           variant="icon"
           size="sm"
@@ -172,7 +188,9 @@ function RoomCard({
   );
 }
 
-export function ProjectRoomsTab({ projectId, projectName, rooms, onReload }: Props) {
+export function ProjectRoomsTab({ projectId, projectName, propertyType, rooms, onReload }: Props) {
+  const category = getPropertyCategory(propertyType);
+  const features = PROPERTY_CATEGORY_FEATURES[category];
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<LbRoom | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -180,6 +198,7 @@ export function ProjectRoomsTab({ projectId, projectName, rooms, onReload }: Pro
   const [removeWtTarget, setRemoveWtTarget] = useState<{ room: LbRoom; wt: RoomWt } | null>(null);
   const [removingWt, setRemovingWt] = useState(false);
   const [workTypeModalOpen, setWorkTypeModalOpen] = useState(false);
+  const [editRoom, setEditRoom] = useState<LbRoom | null>(null);
 
   const saveRoom = async (
     r: LbRoom,
@@ -253,15 +272,18 @@ export function ProjectRoomsTab({ projectId, projectName, rooms, onReload }: Pro
           marginBottom: 16,
         }}
       >
-        <div style={{ fontFamily: 'var(--lb-m)', fontSize: 14, fontWeight: 700 }}>
-          Rooms &amp; Progress — {projectName}
+        <div>
+          <div style={{ fontFamily: 'var(--lb-m)', fontSize: 14, fontWeight: 700 }}>
+            {features.adminRoomsHeading} — {projectName}
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--lb-mu)', marginTop: 4 }}>{features.adminRoomsSub}</div>
         </div>
         <Btn variant="ghost" size="sm" onClick={() => setModalOpen(true)}>
-          + Add room
+          + {features.addRoomLabel}
         </Btn>
       </div>
       {rooms.length === 0 ? (
-        <div className="lb-empty">No rooms configured</div>
+        <div className="lb-empty">{features.adminRoomsSub}</div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {rooms.map((r, i) => (
@@ -273,6 +295,7 @@ export function ProjectRoomsTab({ projectId, projectName, rooms, onReload }: Pro
               onDelete={setDeleteTarget}
               onAddWorkType={setAddWtRoom}
               onRemoveWorkType={(room, wt) => setRemoveWtTarget({ room, wt })}
+              onEditDetails={setEditRoom}
             />
           ))}
         </div>
@@ -282,6 +305,13 @@ export function ProjectRoomsTab({ projectId, projectName, rooms, onReload }: Pro
         projectId={projectId}
         onClose={() => setModalOpen(false)}
         onCreated={onReload}
+      />
+
+      <EditRoomModal
+        open={!!editRoom}
+        room={editRoom}
+        onClose={() => setEditRoom(null)}
+        onSaved={onReload}
       />
 
       <AddRoomWorkTypeModal

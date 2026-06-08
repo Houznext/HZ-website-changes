@@ -10,9 +10,13 @@ import type {
   LbPayment,
   LbProjectDetail,
   LbProjectSummary,
+  LbPropertyInfo,
+  Lb3dModel,
+  Lb3dHotspot,
   LbQuery,
   LbRoom,
   LbTeamMember,
+  LbNotificationSettings,
   LbWorkType,
 } from './types';
 
@@ -57,7 +61,11 @@ export const livebuildApi = {
 
   updateProject: (
     id: string,
-    payload: Partial<LbProjectDetail> & { siteManager?: string },
+    payload: Omit<Partial<LbProjectDetail>, 'customerId'> & {
+      siteManager?: string;
+      customerId?: number | null;
+      panoramaUrl?: string | null;
+    },
   ) =>
     unwrap<LbProjectDetail>(
       apiClient.patch(`${LB}/projects/${id}`, payload as Record<string, unknown>, true),
@@ -119,6 +127,14 @@ export const livebuildApi = {
   listTeam: () =>
     unwrap<LbTeamMember[]>(apiClient.get(`${LB}/settings/team`, {}, true)),
 
+  getNotificationSettings: () =>
+    unwrap<LbNotificationSettings>(apiClient.get(`${LB}/settings/notifications`, {}, true)),
+
+  updateNotificationSettings: (payload: Partial<LbNotificationSettings>) =>
+    unwrap<LbNotificationSettings>(
+      apiClient.patch(`${LB}/settings/notifications`, payload, true),
+    ),
+
   listRooms: (projectId: string) =>
     unwrap<LbRoom[]>(apiClient.get(`${LB}/projects/${projectId}/rooms`, {}, true)),
 
@@ -138,12 +154,16 @@ export const livebuildApi = {
     roomId: string,
     payload: Partial<{
       name: string;
+      roomType: string;
       progressPct: number;
       pct: number;
       status: string;
       holdReason: string | null;
       lengthFt: number;
       widthFt: number;
+      areaSqft: number;
+      ceilingHeight: string;
+      flooring: string;
     }>,
   ) => unwrap<LbRoom>(apiClient.patch(`${LB}/rooms/${roomId}`, payload, true)),
 
@@ -261,16 +281,40 @@ export const livebuildApi = {
   uploadDocument: async (
     projectId: string,
     file: File,
-    meta: { name: string; category: string; roomId?: string },
+    meta: {
+      name: string;
+      category: string;
+      roomId?: string;
+      workTypeId?: string;
+      relatedWorkType?: string;
+      expiryDate?: string;
+    },
   ) => {
     const form = new FormData();
     form.append('file', file);
     form.append('name', meta.name);
     form.append('category', meta.category);
     if (meta.roomId) form.append('roomId', meta.roomId);
+    if (meta.workTypeId) form.append('workTypeId', meta.workTypeId);
+    if (meta.relatedWorkType) form.append('relatedWorkType', meta.relatedWorkType);
+    if (meta.expiryDate) form.append('expiryDate', meta.expiryDate);
     return unwrap<LbDocument>(
       apiClient.raw({
         url: `${LB}/projects/${projectId}/documents`,
+        method: 'POST',
+        params: form,
+        auth: true,
+        type: 'file',
+      }),
+    );
+  },
+
+  uploadProjectCover: async (projectId: string, file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return unwrap<{ coverImageUrl: string }>(
+      apiClient.raw({
+        url: `${LB}/projects/${projectId}/cover`,
         method: 'POST',
         params: form,
         auth: true,
@@ -299,6 +343,7 @@ export const livebuildApi = {
       quantity?: number;
       unit?: string;
       status?: string;
+      installDate?: string;
     },
   ) =>
     unwrap<LbMaterial>(
@@ -307,12 +352,110 @@ export const livebuildApi = {
 
   updateMaterial: (
     materialId: string,
-    payload: Partial<{ name: string; qty: string; status: string; notes: string }>,
+    payload: Partial<{
+      name: string;
+      category: string;
+      specification: string;
+      quantity: number;
+      unit: string;
+      brand: string;
+      status: string;
+      installDate: string | null;
+      roomId: number;
+    }>,
   ) =>
     unwrap<LbMaterial>(apiClient.patch(`${LB}/materials/${materialId}`, payload, true)),
 
   deleteMaterial: (materialId: string) =>
     apiClient.delete(`${LB}/materials/${materialId}`, {}, true),
+
+  getPropertyInfo: (projectId: string) =>
+    unwrap<LbPropertyInfo | null>(
+      apiClient.get(`${LB}/projects/${projectId}/property-info`, {}, true),
+    ),
+
+  upsertPropertyInfo: (projectId: string, payload: Partial<LbPropertyInfo>) =>
+    unwrap<LbPropertyInfo>(
+      apiClient.put(`${LB}/projects/${projectId}/property-info`, payload, true),
+    ),
+
+  list3dModels: (projectId: string) =>
+    unwrap<Lb3dModel[]>(apiClient.get(`${LB}/projects/${projectId}/3d-models`, {}, true)),
+
+  upload3dModel: async (
+    projectId: string,
+    file: File,
+    meta: {
+      label: string;
+      modelType?: string;
+      floorNumber?: number;
+      roomId?: string;
+      isPrimary?: boolean;
+    },
+  ) => {
+    const form = new FormData();
+    form.append('file', file);
+    form.append('label', meta.label);
+    if (meta.modelType) form.append('modelType', meta.modelType);
+    if (meta.floorNumber != null) form.append('floorNumber', String(meta.floorNumber));
+    if (meta.roomId) form.append('roomId', meta.roomId);
+    if (meta.isPrimary != null) form.append('isPrimary', String(meta.isPrimary));
+    return unwrap<Lb3dModel>(
+      apiClient.raw({
+        url: `${LB}/projects/${projectId}/3d-models`,
+        method: 'POST',
+        params: form,
+        auth: true,
+        type: 'file',
+      }),
+    );
+  },
+
+  update3dModel: (modelId: string, payload: Partial<Lb3dModel>) =>
+    unwrap<Lb3dModel>(apiClient.patch(`${LB}/3d-models/${modelId}`, payload, true)),
+
+  delete3dModel: (modelId: string) =>
+    apiClient.delete(`${LB}/3d-models/${modelId}`, {}, true),
+
+  create3dHotspot: (
+    modelId: string,
+    payload: {
+      label: string;
+      roomId?: string | null;
+      positionX?: number;
+      positionY?: number;
+      positionZ?: number;
+      cameraPosX?: number | null;
+      cameraPosY?: number | null;
+      cameraPosZ?: number | null;
+      cameraTargetX?: number | null;
+      cameraTargetY?: number | null;
+      cameraTargetZ?: number | null;
+    },
+  ) => unwrap<Lb3dHotspot>(apiClient.post(`${LB}/3d-models/${modelId}/hotspots`, payload, true)),
+
+  update3dHotspot: (
+    hotspotId: string,
+    payload: Partial<{
+      label: string;
+      roomId: string | null;
+      positionX: number;
+      positionY: number;
+      positionZ: number;
+      cameraPosX: number | null;
+      cameraPosY: number | null;
+      cameraPosZ: number | null;
+      cameraTargetX: number | null;
+      cameraTargetY: number | null;
+      cameraTargetZ: number | null;
+    }>,
+  ) => unwrap<Lb3dHotspot>(apiClient.patch(`${LB}/3d-hotspots/${hotspotId}`, payload, true)),
+
+  delete3dHotspot: (hotspotId: string) =>
+    apiClient.delete(`${LB}/3d-hotspots/${hotspotId}`, {}, true),
+
+  seed3dHotspots: (modelId: string) =>
+    unwrap<Lb3dModel>(apiClient.post(`${LB}/3d-models/${modelId}/seed-hotspots`, {}, true)),
 };
 
 export default livebuildApi;

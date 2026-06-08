@@ -9,6 +9,8 @@ import {
   LayoutGrid,
   MessageSquare,
   Package,
+  Building2,
+  Box,
 } from 'lucide-react';
 import withLivebuildLayout from '@/src/common/LivebuildAdminLayout';
 import livebuildApi from '@/src/livebuild/lib/api';
@@ -22,11 +24,15 @@ import { ProjectPaymentsTab } from '@/src/livebuild/project/ProjectPaymentsTab';
 import { ProjectQueriesTab } from '@/src/livebuild/project/ProjectQueriesTab';
 import { ProjectDocumentsTab } from '@/src/livebuild/project/ProjectDocumentsTab';
 import { ProjectMaterialsTab } from '@/src/livebuild/project/ProjectMaterialsTab';
+import { ProjectPropertyInfoTab } from '@/src/livebuild/project/ProjectPropertyInfoTab';
+import { Project3dTab } from '@/src/livebuild/project/Project3dTab';
 import Loader from '@/src/common/Loader';
 
 const TABS = [
   { id: 'overview', label: 'Overview', icon: LayoutGrid },
   { id: 'rooms', label: 'Rooms & Progress', icon: Home },
+  { id: 'property-info', label: 'Property Info', icon: Building2 },
+  { id: '3d', label: '3D', icon: Box },
   { id: 'dpr', label: 'DPR Upload', icon: CalendarCheck, pulse: true },
   { id: 'payments', label: 'Payments', icon: CreditCard },
   { id: 'queries', label: 'Queries', icon: MessageSquare },
@@ -197,9 +203,20 @@ function LiveBuildProjectDetailPage() {
               <ProjectRoomsTab
                 projectId={id}
                 projectName={project.name}
+                propertyType={project.propertyType ?? '2BHK Apartment'}
                 rooms={rooms}
                 onReload={load}
               />
+            )}
+            {tab === 'property-info' && (
+              <ProjectPropertyInfoTab
+                projectId={id}
+                projectName={project.name}
+                propertyType={project.propertyType ?? '2BHK Apartment'}
+              />
+            )}
+            {tab === '3d' && (
+              <Project3dTab projectId={id} projectName={project.name} rooms={rooms} />
             )}
             {tab === 'dpr' && (
               <ProjectDprTab projectId={id} projectName={project.name} rooms={rooms} />

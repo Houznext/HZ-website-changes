@@ -19,6 +19,11 @@ import {
   LivebuildDocument,
   LivebuildMaterial,
   LivebuildPropertyInfo,
+  Livebuild3dModel,
+  Livebuild3dHotspot,
+  LivebuildAdminSettings,
+  DEFAULT_LIVEBUILD_NOTIFICATION_PREFS,
+  LivebuildNotificationPrefs,
 } from './entities';
 import {
   CreateCustomerDto,
@@ -30,6 +35,8 @@ import {
   CreateQueryDto,
   CreateRoomDto,
   CreateWorkTypeDto,
+  Create3dHotspotDto,
+  Create3dModelMetaDto,
   ReplyQueryDto,
   UpdateCustomerDto,
   UpdateMaterialDto,
@@ -39,7 +46,10 @@ import {
   UpdateRoomDto,
   UpdateRoomWorkTypeDto,
   UpdateWorkTypeDto,
+  Update3dHotspotDto,
+  Update3dModelDto,
   UpsertPropertyInfoDto,
+  UpdateNotificationSettingsDto,
 } from './dto';
 import {
   mobilesMatch,
@@ -64,6 +74,9 @@ import {
   serializeQuery,
   serializeRoom,
   serializeWorkType,
+  serializePropertyInfo,
+  serialize3dModel,
+  serialize3dHotspot,
 } from './livebuild-admin.serializer';
 
 export type LbAccessContext = {
@@ -98,6 +111,12 @@ export class LivebuildService {
     private readonly materialRepo: Repository<LivebuildMaterial>,
     @InjectRepository(LivebuildPropertyInfo)
     private readonly propertyRepo: Repository<LivebuildPropertyInfo>,
+    @InjectRepository(Livebuild3dModel)
+    private readonly model3dRepo: Repository<Livebuild3dModel>,
+    @InjectRepository(Livebuild3dHotspot)
+    private readonly hotspot3dRepo: Repository<Livebuild3dHotspot>,
+    @InjectRepository(LivebuildAdminSettings)
+    private readonly adminSettingsRepo: Repository<LivebuildAdminSettings>,
     private readonly dataSource: DataSource,
     private readonly s3Service: S3Service,
     private readonly mailerService: MailerService,
@@ -345,6 +364,12 @@ export class LivebuildService {
     if ('onHoldReason' in dto) {
       project.holdReason = (dto.onHoldReason as string) || null;
     }
+    if (dto.coverImageUrl !== undefined) {
+      project.coverImageUrl = dto.coverImageUrl ?? null;
+    }
+    if (dto.panoramaUrl !== undefined) {
+      project.panoramaUrl = dto.panoramaUrl ?? null;
+    }
   }
 
   async createProject(dto: CreateProjectDto) {
@@ -430,6 +455,21 @@ export class LivebuildService {
       );
     }
     this.applyAdminProjectPatch(project, patch);
+    if (patch.customerId !== undefined) {
+      const raw = patch.customerId;
+      if (raw === null || raw === undefined) {
+        project.customerId = null;
+      } else {
+        const cid = Number(raw);
+        if (!Number.isFinite(cid)) {
+          throw new BadRequestException('Invalid customerId');
+        }
+        const customer = await this.customerRepo.findOne({ where: { id: cid } });
+        if (!customer) throw new NotFoundException('Customer not found');
+        project.customerId = cid;
+        project.customerMobile = customer.mobile;
+      }
+    }
     const saved = await this.projectRepo.save(project);
     if (saved.pctMethod === 'hybrid' && saved.pctOverride == null) {
       await this.recalcHybridPct(id);
@@ -688,14 +728,17 @@ export class LivebuildService {
   }
 
   async createRoom(projectId: number, dto: CreateRoomDto) {
-    const dimensions =
-      dto.dimensions ??
-      (dto.lengthFt && dto.widthFt ? `${dto.lengthFt}×${dto.widthFt} ft` : null);
-    const { workTypeIds, lengthFt, widthFt, ...rest } = dto;
+    const { workTypeIds, ...patch } = dto;
+    if (patch.lengthFt != null && patch.widthFt != null) {
+      patch.dimensions =
+        patch.dimensions ?? `${patch.lengthFt}×${patch.widthFt} ft`;
+      if (patch.areaSqft == null) {
+        patch.areaSqft = Math.round(Number(patch.lengthFt) * Number(patch.widthFt));
+      }
+    }
     const room = await this.roomRepo.save(
       this.roomRepo.create({
-        ...rest,
-        dimensions,
+        ...patch,
         projectId,
       }),
     );
@@ -715,10 +758,15 @@ export class LivebuildService {
   async updateRoom(id: number, dto: UpdateRoomDto) {
     const room = await this.roomRepo.findOne({ where: { id } });
     if (!room) throw new NotFoundException('Room not found');
-    if (dto.lengthFt && dto.widthFt) {
-      dto.dimensions = `${dto.lengthFt}×${dto.widthFt} ft`;
+    const { workTypeIds, ...patch } = dto;
+    if (patch.lengthFt != null && patch.widthFt != null) {
+      patch.dimensions = `${patch.lengthFt}×${patch.widthFt} ft`;
+      if (patch.areaSqft == null) {
+        patch.areaSqft = Math.round(Number(patch.lengthFt) * Number(patch.widthFt));
+      }
     }
-    Object.assign(room, dto);
+    if (patch.pct != null) room.pct = Number(patch.pct);
+    Object.assign(room, patch);
     const saved = await this.roomRepo.save(room);
     await this.recalcHybridPct(saved.projectId);
     const full = await this.roomRepo.findOne({
@@ -1271,20 +1319,61 @@ export class LivebuildService {
       file.buffer,
       file.mimetype,
     );
+    let relatedWorkType = meta.relatedWorkType ?? null;
+    if (!relatedWorkType && meta.workTypeId != null && meta.workTypeId !== '') {
+      const wt = await this.workTypeRepo.findOne({
+        where: { id: Number(meta.workTypeId) },
+      });
+      relatedWorkType = wt?.name ?? null;
+    }
+    const roomId =
+      meta.roomId != null && meta.roomId !== ''
+        ? Number(meta.roomId)
+        : undefined;
     return this.documentRepo.save(
       this.documentRepo.create({
         projectId,
         name: meta.name,
         category: meta.category,
-        roomId: meta.roomId,
-        relatedWorkType: meta.relatedWorkType,
-        expiryDate: meta.expiryDate,
+        roomId: Number.isFinite(roomId) ? roomId : undefined,
+        relatedWorkType,
+        expiryDate: meta.expiryDate || null,
         uploadedBy: meta.uploadedBy,
         fileUrl: publicUrl,
         fileName: file.originalname,
         fileSize: file.size,
       }),
     );
+  }
+
+  async uploadProjectCover(
+    projectId: number,
+    file: { buffer: Buffer; mimetype: string; size: number; originalname: string },
+  ) {
+    const project = await this.projectRepo.findOne({ where: { id: projectId } });
+    if (!project) throw new NotFoundException('Project not found');
+    const allowed = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    if (!allowed.includes(file.mimetype)) {
+      throw new BadRequestException('Cover must be JPEG, PNG, or WebP');
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      throw new BadRequestException('Cover image must be under 10MB');
+    }
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const key = this.s3Service.normalizeObjectKey(
+      `livebuild/${projectId}/cover/${Date.now()}-${safeName}`,
+    );
+    const { publicUrl } = await this.s3Service.uploadObject(
+      key,
+      file.buffer,
+      file.mimetype,
+    );
+    if (project.coverImageUrl) {
+      await this.s3Service.deleteFileByUrl(project.coverImageUrl).catch(() => undefined);
+    }
+    project.coverImageUrl = publicUrl;
+    await this.projectRepo.save(project);
+    return { coverImageUrl: publicUrl };
   }
 
   async deleteDocument(id: number) {
@@ -1338,7 +1427,8 @@ export class LivebuildService {
   // —— Property info ——
   async getPropertyInfo(projectId: number, ctx: LbAccessContext) {
     await this.assertProjectAccess(projectId, ctx);
-    return this.propertyRepo.findOne({ where: { projectId } });
+    const info = await this.propertyRepo.findOne({ where: { projectId } });
+    return info ? serializePropertyInfo(info) : null;
   }
 
   async upsertPropertyInfo(projectId: number, dto: UpsertPropertyInfoDto) {
@@ -1348,7 +1438,218 @@ export class LivebuildService {
     } else {
       Object.assign(info, dto);
     }
-    return this.propertyRepo.save(info);
+    const saved = await this.propertyRepo.save(info);
+    return serializePropertyInfo(saved);
+  }
+
+  private parseOptionalNum(v: unknown): number | null {
+    if (v === null || v === undefined || v === '') return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  private parseBool(v: unknown): boolean {
+    if (typeof v === 'boolean') return v;
+    if (v === 'true' || v === '1' || v === 1) return true;
+    return false;
+  }
+
+  async list3dModels(projectId: number, ctx: LbAccessContext) {
+    await this.assertProjectAccess(projectId, ctx);
+    const rows = await this.model3dRepo.find({
+      where: { projectId },
+      relations: ['room', 'hotspots', 'hotspots.room'],
+      order: { displayOrder: 'ASC', id: 'ASC' },
+    });
+    return rows.map((m) => serialize3dModel(m, true));
+  }
+
+  async upload3dModel(
+    projectId: number,
+    file: { buffer: Buffer; mimetype: string; size: number; originalname: string },
+    meta: Create3dModelMetaDto,
+  ) {
+    await this.assertProjectAccess(projectId, { isAdmin: true });
+    const ext = file.originalname.split('.').pop()?.toLowerCase() ?? '';
+    if (!['glb', 'gltf'].includes(ext)) {
+      throw new BadRequestException('3D models must be GLB or GLTF format');
+    }
+    if (file.size > 150 * 1024 * 1024) {
+      throw new BadRequestException('3D model must be under 150MB');
+    }
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const key = this.s3Service.normalizeObjectKey(
+      `livebuild/${projectId}/3d/${Date.now()}-${safeName}`,
+    );
+    const mime =
+      ext === 'gltf' ? 'model/gltf+json' : 'model/gltf-binary';
+    const { publicUrl } = await this.s3Service.uploadObject(
+      key,
+      file.buffer,
+      mime,
+    );
+
+    const existingCount = await this.model3dRepo.count({ where: { projectId } });
+    const isPrimary = this.parseBool(meta.isPrimary) || existingCount === 0;
+    if (isPrimary) {
+      await this.model3dRepo.update({ projectId }, { isPrimary: false });
+    }
+
+    const roomId = this.parseOptionalNum(meta.roomId);
+    const saved = await this.model3dRepo.save(
+      this.model3dRepo.create({
+        projectId,
+        label: meta.label.trim(),
+        modelType: meta.modelType ?? 'full_home',
+        floorNumber: this.parseOptionalNum(meta.floorNumber),
+        roomId: roomId ?? undefined,
+        fileUrl: publicUrl,
+        fileName: file.originalname,
+        fileSizeBytes: file.size,
+        fileFormat: ext,
+        isPrimary,
+        cameraPosX: this.parseOptionalNum(meta.cameraPosX),
+        cameraPosY: this.parseOptionalNum(meta.cameraPosY),
+        cameraPosZ: this.parseOptionalNum(meta.cameraPosZ),
+        cameraTargetX: this.parseOptionalNum(meta.cameraTargetX),
+        cameraTargetY: this.parseOptionalNum(meta.cameraTargetY),
+        cameraTargetZ: this.parseOptionalNum(meta.cameraTargetZ),
+      }),
+    );
+
+    const full = await this.model3dRepo.findOne({
+      where: { id: saved.id },
+      relations: ['room', 'hotspots', 'hotspots.room'],
+    });
+    return serialize3dModel(full!, true);
+  }
+
+  async update3dModel(id: number, dto: Update3dModelDto) {
+    const model = await this.model3dRepo.findOne({ where: { id } });
+    if (!model) throw new NotFoundException('3D model not found');
+    if (dto.isPrimary === true) {
+      await this.model3dRepo.update(
+        { projectId: model.projectId },
+        { isPrimary: false },
+      );
+    }
+    Object.assign(model, dto);
+    const saved = await this.model3dRepo.save(model);
+    const full = await this.model3dRepo.findOne({
+      where: { id: saved.id },
+      relations: ['room', 'hotspots', 'hotspots.room'],
+    });
+    return serialize3dModel(full!, true);
+  }
+
+  async delete3dModel(id: number) {
+    const model = await this.model3dRepo.findOne({ where: { id } });
+    if (!model) throw new NotFoundException('3D model not found');
+    await this.s3Service.deleteFileByUrl(model.fileUrl).catch(() => undefined);
+    await this.model3dRepo.delete(id);
+    return { deleted: true };
+  }
+
+  async create3dHotspot(modelId: number, dto: Create3dHotspotDto) {
+    const model = await this.model3dRepo.findOne({ where: { id: modelId } });
+    if (!model) throw new NotFoundException('3D model not found');
+    const saved = await this.hotspot3dRepo.save(
+      this.hotspot3dRepo.create({
+        modelId,
+        label: dto.label,
+        roomId: dto.roomId ?? null,
+        positionX: dto.positionX ?? 0,
+        positionY: dto.positionY ?? 0,
+        positionZ: dto.positionZ ?? 0,
+        cameraPosX: dto.cameraPosX ?? null,
+        cameraPosY: dto.cameraPosY ?? null,
+        cameraPosZ: dto.cameraPosZ ?? null,
+        cameraTargetX: dto.cameraTargetX ?? null,
+        cameraTargetY: dto.cameraTargetY ?? null,
+        cameraTargetZ: dto.cameraTargetZ ?? null,
+        displayOrder: dto.displayOrder ?? 0,
+      }),
+    );
+    const full = await this.hotspot3dRepo.findOne({
+      where: { id: saved.id },
+      relations: ['room'],
+    });
+    return serialize3dHotspot(full!);
+  }
+
+  async update3dHotspot(id: number, dto: Update3dHotspotDto) {
+    const hotspot = await this.hotspot3dRepo.findOne({ where: { id } });
+    if (!hotspot) throw new NotFoundException('Hotspot not found');
+    Object.assign(hotspot, dto);
+    const saved = await this.hotspot3dRepo.save(hotspot);
+    const full = await this.hotspot3dRepo.findOne({
+      where: { id: saved.id },
+      relations: ['room'],
+    });
+    return serialize3dHotspot(full!);
+  }
+
+  async delete3dHotspot(id: number) {
+    const result = await this.hotspot3dRepo.delete(id);
+    if (!result.affected) throw new NotFoundException('Hotspot not found');
+    return { deleted: true };
+  }
+
+  async seed3dHotspotsFromRooms(modelId: number) {
+    const model = await this.model3dRepo.findOne({ where: { id: modelId } });
+    if (!model) throw new NotFoundException('3D model not found');
+    const rooms = await this.roomRepo.find({
+      where: { projectId: model.projectId },
+      order: { displayOrder: 'ASC', id: 'ASC' },
+    });
+    const existing = await this.hotspot3dRepo.find({ where: { modelId } });
+    const existingRoomIds = new Set(
+      existing.map((h) => h.roomId).filter(Boolean) as number[],
+    );
+    const cols = Math.ceil(Math.sqrt(Math.max(rooms.length, 1)));
+    let idx = existing.length;
+    for (let i = 0; i < rooms.length; i++) {
+      const room = rooms[i];
+      if (existingRoomIds.has(room.id)) continue;
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const x = (col - (cols - 1) / 2) * 2.5;
+      const z = (row - (Math.ceil(rooms.length / cols) - 1) / 2) * 2.5;
+      await this.hotspot3dRepo.save(
+        this.hotspot3dRepo.create({
+          modelId,
+          roomId: room.id,
+          label: room.name,
+          positionX: x,
+          positionY: 1.2,
+          positionZ: z,
+          cameraPosX: x,
+          cameraPosY: 2.5,
+          cameraPosZ: z + 3,
+          cameraTargetX: x,
+          cameraTargetY: 1,
+          cameraTargetZ: z,
+          displayOrder: idx++,
+        }),
+      );
+    }
+    const full = await this.model3dRepo.findOne({
+      where: { id: modelId },
+      relations: ['room', 'hotspots', 'hotspots.room'],
+    });
+    return serialize3dModel(full!, true);
+  }
+
+  async get3dVizPayload(projectId: number) {
+    const models = await this.model3dRepo.find({
+      where: { projectId },
+      relations: ['room', 'hotspots', 'hotspots.room'],
+      order: { displayOrder: 'ASC', id: 'ASC' },
+    });
+    const serialized = models.map((m) => serialize3dModel(m, true));
+    const primary =
+      serialized.find((m) => m.isPrimary) ?? serialized[0] ?? null;
+    return { models: serialized, primaryModel: primary };
   }
 
   // —— Dashboard ——
@@ -1415,5 +1716,32 @@ export class LivebuildService {
       recentActivity,
       openQueriesList,
     });
+  }
+
+  async getNotificationSettings(): Promise<LivebuildNotificationPrefs> {
+    let row = await this.adminSettingsRepo.findOne({ where: { id: 1 } });
+    if (!row) {
+      row = this.adminSettingsRepo.create({
+        id: 1,
+        notifications: { ...DEFAULT_LIVEBUILD_NOTIFICATION_PREFS },
+      });
+      row = await this.adminSettingsRepo.save(row);
+    }
+    return { ...DEFAULT_LIVEBUILD_NOTIFICATION_PREFS, ...row.notifications };
+  }
+
+  async updateNotificationSettings(
+    dto: UpdateNotificationSettingsDto,
+  ): Promise<LivebuildNotificationPrefs> {
+    const current = await this.getNotificationSettings();
+    const next: LivebuildNotificationPrefs = {
+      dpr: dto.dpr ?? current.dpr,
+      query: dto.query ?? current.query,
+      payment: dto.payment ?? current.payment,
+      hold: dto.hold ?? current.hold,
+      doc: dto.doc ?? current.doc,
+    };
+    await this.adminSettingsRepo.save({ id: 1, notifications: next });
+    return next;
   }
 }

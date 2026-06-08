@@ -43,6 +43,15 @@ export class LivebuildPropertyInfo {
   @Column({ name: 'design_scope', type: 'text', nullable: true })
   designScope: string | null;
 
+  @Column({ name: 'super_built_up_sqft', type: 'int', nullable: true })
+  superBuiltUpSqft: number | null;
+
+  @Column({ name: 'scope_included', type: 'jsonb', nullable: true })
+  scopeIncluded: string[] | null;
+
+  @Column({ type: 'jsonb', nullable: true })
+  specifications: { label: string; value: string }[] | null;
+
   @Column({ type: 'text', nullable: true })
   notes: string | null;
 }

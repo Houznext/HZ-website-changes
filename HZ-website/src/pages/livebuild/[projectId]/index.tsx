@@ -9,17 +9,25 @@ import {
   FolderOpen,
   Box,
   ChevronRight,
+  Minus,
+  Plus,
 } from 'lucide-react';
 import SeoHead from '@/components/SeoHead';
 import Badge from '@/livebuild/components/Badge';
 import Card from '@/livebuild/components/Card';
 import LiveDot from '@/livebuild/components/LiveDot';
-import ProgressGraph from '@/livebuild/components/ProgressGraph';
+import ProgressGraph, { GRAPH_ZOOM_MAX, GRAPH_ZOOM_MIN, GRAPH_ZOOM_STEP } from '@/livebuild/components/ProgressGraph';
 import ProgressRing from '@/livebuild/components/ProgressRing';
+import RoomTypeIcon from '@/livebuild/components/RoomTypeIcon';
 import LivebuildProjectLayout from '@/livebuild/components/LivebuildProjectLayout';
 import { lbIconProps } from '@/livebuild/components/icons';
 import { livebuildApi } from '@/livebuild/lib/api';
-import type { LbProjectHome } from '@/livebuild/lib/types';
+import type { LbGraphPoint, LbProjectHome } from '@/livebuild/lib/types';
+import {
+  getPropertyCategory,
+  PROPERTY_CATEGORY_FEATURES,
+  shouldShowRoomProgressHome,
+} from '@/livebuild/lib/propertyInfoConfig';
 
 export default function LivebuildProjectHomePage() {
   const router = useRouter();
@@ -51,6 +59,20 @@ export default function LivebuildProjectHomePage() {
   const pct = Math.round(project?.overallProgress ?? 0);
   const stats = data?.stats;
   const openQ = data?.openQueriesCount ?? 0;
+  const category = getPropertyCategory(project?.propertyType ?? project?.propertyLabel);
+  const features = PROPERTY_CATEGORY_FEATURES[category];
+  const rooms = data?.rooms ?? [];
+  const showRoomProgress = shouldShowRoomProgressHome(category, rooms.length);
+
+  const [graphZoom, setGraphZoom] = useState(1);
+
+  const openDayFromGraph = (point: LbGraphPoint) => {
+    if (!point.date) {
+      void router.push(`/livebuild/${projectId}/day-progress`);
+      return;
+    }
+    void router.push(`/livebuild/${projectId}/day-progress?date=${point.date}`);
+  };
 
   return (
     <>
@@ -73,6 +95,24 @@ export default function LivebuildProjectHomePage() {
                     </div>
                   </div>
                   <div className="stf">
+                    <button
+                      type="button"
+                      className="stf-btn graph-zoom-btn"
+                      aria-label="Zoom out"
+                      disabled={graphZoom <= GRAPH_ZOOM_MIN}
+                      onClick={() => setGraphZoom((z) => Math.max(GRAPH_ZOOM_MIN, z - GRAPH_ZOOM_STEP))}
+                    >
+                      <Minus size={14} {...lbIconProps()} />
+                    </button>
+                    <button
+                      type="button"
+                      className="stf-btn graph-zoom-btn"
+                      aria-label="Zoom in"
+                      disabled={graphZoom >= GRAPH_ZOOM_MAX}
+                      onClick={() => setGraphZoom((z) => Math.min(GRAPH_ZOOM_MAX, z + GRAPH_ZOOM_STEP))}
+                    >
+                      <Plus size={14} {...lbIconProps()} />
+                    </button>
                     <button type="button" className="stf-btn on">
                       <LiveDot style={{ display: 'inline-block', marginRight: 3 }} />
                       Live
@@ -83,20 +123,13 @@ export default function LivebuildProjectHomePage() {
                   points={data.graphPoints ?? []}
                   todayPct={pct}
                   totalDays={stats?.totalDays ?? 50}
+                  startDate={project?.startedAt}
+                  onPointClick={openDayFromGraph}
+                  zoom={graphZoom}
+                  onZoomChange={setGraphZoom}
                 />
                 {stats && (
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(4,1fr)',
-                      gap: 0,
-                      border: '.5px solid #e2e8f0',
-                      borderRadius: 10,
-                      overflow: 'hidden',
-                      marginTop: 16,
-                    }}
-                    className="grid-4"
-                  >
+                  <div className="lb-stat-row" style={{ marginTop: 16 }}>
                     {[
                       ['Completed', `${stats.completedPct}%`, 'var(--blue)'],
                       ['Days elapsed', `${stats.daysElapsed}/${stats.totalDays}`, 'var(--ch)'],
@@ -123,13 +156,15 @@ export default function LivebuildProjectHomePage() {
                 )}
               </Card>
 
-              <div style={{ fontFamily: 'var(--m)', fontSize: 14, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Home size={14} {...lbIconProps({ color: 'var(--blue)' })} />
-                Room-wise progress
-                {project?.bhk && <Badge variant="blue">{project.bhk}</Badge>}
-              </div>
-              <div className="grid-3" style={{ marginBottom: 16 }}>
-                {(data.rooms ?? []).map((room) => (
+              {showRoomProgress ? (
+                <>
+                  <div style={{ fontFamily: 'var(--m)', fontSize: 14, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Home size={14} {...lbIconProps({ color: 'var(--blue)' })} />
+                    {features.roomProgressTitle}
+                    {features.showBhkBadge && project?.bhk ? <Badge variant="blue">{project.bhk}</Badge> : null}
+                  </div>
+                  <div className="grid-3" style={{ marginBottom: 16 }}>
+                    {rooms.map((room) => (
                   <Link
                     key={room.id}
                     href={`/livebuild/${projectId}/rooms/${room.id}`}
@@ -137,11 +172,19 @@ export default function LivebuildProjectHomePage() {
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
-                        <div style={{ fontSize: 20, marginBottom: 6 }}>{room.icon ?? '🏠'}</div>
+                        <div style={{ marginBottom: 6 }}>
+                          <RoomTypeIcon name={room.name} size={22} color="var(--blue)" />
+                        </div>
                         <div style={{ fontFamily: 'var(--m)', fontWeight: 700, fontSize: 14 }}>{room.name}</div>
                         <div style={{ fontSize: 11.5, color: 'var(--mu)', marginTop: 4 }}>{room.lastUpdate ? `Updated ${room.lastUpdate}` : '—'}</div>
                       </div>
-                      <ProgressRing pct={room.progressPct} size={52} stroke={5} label={`${Math.round(room.progressPct)}%`} />
+                      <ProgressRing
+                        pct={room.progressPct}
+                        size={52}
+                        stroke={5}
+                        labelColor="var(--ch)"
+                        trackColor="#e8eef5"
+                      />
                     </div>
                     <div style={{ marginTop: 12 }}>
                       <div className="lb-prog-bar">
@@ -149,20 +192,22 @@ export default function LivebuildProjectHomePage() {
                       </div>
                     </div>
                   </Link>
-                ))}
-              </div>
+                    ))}
+                  </div>
+                </>
+              ) : null}
 
               <div className="fade-up fa3" style={{ marginBottom: 16 }}>
                 <div style={{ fontFamily: 'var(--m)', fontSize: 14, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Box size={14} {...lbIconProps({ color: 'var(--pu)' })} />
-                  3D Floor Visualisation
+                  {features.vizHomeTitle}
                 </div>
                 <Link href={`/livebuild/${projectId}/viz`} className="viz-card" style={{ height: 200, display: 'block' }}>
                   <div className="viz-overlay">
                     <span className="btn btn-blue">Open 3D View</span>
                   </div>
                   <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, background: 'linear-gradient(to top,rgba(15,42,68,.8),transparent)' }}>
-                    <div style={{ fontFamily: 'var(--m)', fontSize: 13.5, fontWeight: 700, color: '#fff' }}>View 3D Floor Plan</div>
+                    <div style={{ fontFamily: 'var(--m)', fontSize: 13.5, fontWeight: 700, color: '#fff' }}>{features.vizHomeCta}</div>
                     <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,.6)' }}>{pct}% rendered</div>
                   </div>
                 </Link>
@@ -171,7 +216,7 @@ export default function LivebuildProjectHomePage() {
               <div style={{ fontFamily: 'var(--m)', fontSize: 14, fontWeight: 700, marginBottom: 12 }}>Quick links</div>
               <div className="grid-4">
                 {[
-                  { href: `/livebuild/${projectId}/property-info`, Icon: Home, bg: '#e8f1fd', stroke: 'var(--blue)', title: 'Property Info', sub: 'Flat details, dimensions' },
+                  { href: `/livebuild/${projectId}/property-info`, Icon: Home, bg: '#e8f1fd', stroke: 'var(--blue)', title: 'Property Info', sub: features.propertyInfoQuickSub },
                   { href: `/livebuild/${projectId}/materials`, Icon: Tag, bg: '#fef3c7', stroke: 'var(--am)', title: 'Materials', sub: 'BOQ & specifications' },
                   { href: `/livebuild/${projectId}/payments`, Icon: CreditCard, bg: '#f3e8ff', stroke: 'var(--pu)', title: 'Payments', sub: `${data.paymentDuePct != null ? `${data.paymentDuePct}% due` : 'Milestones'}` },
                   { href: `/livebuild/${projectId}/documents`, Icon: FolderOpen, bg: '#ccfbf1', stroke: '#0d9488', title: 'Documents', sub: 'Warranty & project files' },

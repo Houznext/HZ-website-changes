@@ -1,0 +1,11 @@
+ALTER TABLE livebuild_rooms
+  ADD COLUMN IF NOT EXISTS length_ft NUMERIC(6,2),
+  ADD COLUMN IF NOT EXISTS width_ft NUMERIC(6,2),
+  ADD COLUMN IF NOT EXISTS area_sqft INT,
+  ADD COLUMN IF NOT EXISTS ceiling_height VARCHAR(50),
+  ADD COLUMN IF NOT EXISTS flooring VARCHAR(100);
+
+ALTER TABLE livebuild_property_info
+  ADD COLUMN IF NOT EXISTS super_built_up_sqft INT,
+  ADD COLUMN IF NOT EXISTS scope_included JSONB,
+  ADD COLUMN IF NOT EXISTS specifications JSONB;

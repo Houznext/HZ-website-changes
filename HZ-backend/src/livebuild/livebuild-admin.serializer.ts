@@ -5,9 +5,12 @@ import {
   LivebuildMaterial,
   LivebuildPayment,
   LivebuildProject,
+  LivebuildPropertyInfo,
   LivebuildQuery,
   LivebuildRoom,
   LivebuildWorkType,
+  Livebuild3dModel,
+  Livebuild3dHotspot,
 } from './entities';
 
 function mapStatus(status: string | null | undefined): string {
@@ -107,6 +110,8 @@ export function serializeProjectDetail(
     progressOverridePct: p.pctOverride,
     progressOverrideReason: p.pctOverrideReason ?? undefined,
     onHoldReason: p.holdReason ?? undefined,
+    coverImageUrl: p.coverImageUrl ?? undefined,
+    panoramaUrl: p.panoramaUrl ?? undefined,
     customer: p.customer ? serializeCustomer(p.customer) : undefined,
     stats,
     attention: attentionList,
@@ -120,18 +125,44 @@ export function serializeRoom(r: LivebuildRoom) {
       name: rwt.workType?.name ?? 'Work type',
       workTypeId: String(rwt.workTypeId),
     })) ?? [];
-  const dimMatch = r.dimensions?.match(/(\d+)\s*[×x]\s*(\d+)/i);
+  const dimMatch = r.dimensions?.match(/(\d+(?:\.\d+)?)\s*[×x]\s*(\d+(?:\.\d+)?)/i);
+  const lengthFt =
+    r.lengthFt != null ? Number(r.lengthFt) : dimMatch ? Number(dimMatch[1]) : null;
+  const widthFt =
+    r.widthFt != null ? Number(r.widthFt) : dimMatch ? Number(dimMatch[2]) : null;
   return {
     id: String(r.id),
     name: r.name,
     roomType: r.roomType ?? undefined,
     dimensions: r.dimensions ?? undefined,
-    lengthFt: dimMatch ? Number(dimMatch[1]) : null,
-    widthFt: dimMatch ? Number(dimMatch[2]) : null,
+    lengthFt,
+    widthFt,
+    areaSqft: r.areaSqft ?? undefined,
+    ceilingHeight: r.ceilingHeight ?? undefined,
+    flooring: r.flooring ?? undefined,
     progressPct: r.pct ?? 0,
     status: r.status ?? 'live',
     holdReason: r.holdReason,
     workTypes: wt,
+  };
+}
+
+export function serializePropertyInfo(info: LivebuildPropertyInfo) {
+  return {
+    id: String(info.id),
+    projectId: String(info.projectId),
+    flatNumber: info.flatNumber ?? undefined,
+    tower: info.tower ?? undefined,
+    totalAreaSqft: info.totalAreaSqft ?? undefined,
+    carpetAreaSqft: info.carpetAreaSqft ?? undefined,
+    balconySqft: info.balconySqft ?? undefined,
+    superBuiltUpSqft: info.superBuiltUpSqft ?? undefined,
+    floor: info.floor ?? undefined,
+    facing: info.facing ?? undefined,
+    designScope: info.designScope ?? undefined,
+    scopeIncluded: info.scopeIncluded ?? [],
+    specifications: info.specifications ?? [],
+    notes: info.notes ?? undefined,
   };
 }
 
@@ -202,6 +233,7 @@ export function serializeMaterial(m: LivebuildMaterial) {
     quantity: Number(m.quantity),
     unit: m.unit,
     room: m.room?.name ?? '',
+    roomId: m.roomId != null ? String(m.roomId) : undefined,
     brand: m.brand,
     status: m.status ?? 'not_started',
     installDate: m.installDate,
@@ -269,5 +301,77 @@ export function activityFromQuery(q: LivebuildQuery): {
     createdAt:
       q.createdAt instanceof Date ? q.createdAt.toISOString() : String(q.createdAt),
     type: 'query',
+  };
+}
+
+function serialize3dCamera(
+  posX: number | null | undefined,
+  posY: number | null | undefined,
+  posZ: number | null | undefined,
+  targetX: number | null | undefined,
+  targetY: number | null | undefined,
+  targetZ: number | null | undefined,
+) {
+  if (posX == null || posY == null || posZ == null) return undefined;
+  return {
+    position: [Number(posX), Number(posY), Number(posZ)] as [number, number, number],
+    target: [
+      Number(targetX ?? 0),
+      Number(targetY ?? 0),
+      Number(targetZ ?? 0),
+    ] as [number, number, number],
+  };
+}
+
+export function serialize3dHotspot(h: Livebuild3dHotspot) {
+  return {
+    id: String(h.id),
+    modelId: String(h.modelId),
+    roomId: h.roomId != null ? String(h.roomId) : undefined,
+    roomName: h.room?.name ?? undefined,
+    label: h.label,
+    position: [Number(h.positionX), Number(h.positionY), Number(h.positionZ)] as [
+      number,
+      number,
+      number,
+    ],
+    camera: serialize3dCamera(
+      h.cameraPosX,
+      h.cameraPosY,
+      h.cameraPosZ,
+      h.cameraTargetX,
+      h.cameraTargetY,
+      h.cameraTargetZ,
+    ),
+    displayOrder: h.displayOrder ?? 0,
+  };
+}
+
+export function serialize3dModel(m: Livebuild3dModel, withHotspots = false) {
+  return {
+    id: String(m.id),
+    projectId: String(m.projectId),
+    label: m.label,
+    modelType: m.modelType ?? 'full_home',
+    floorNumber: m.floorNumber ?? undefined,
+    roomId: m.roomId != null ? String(m.roomId) : undefined,
+    roomName: m.room?.name ?? undefined,
+    fileUrl: m.fileUrl,
+    fileName: m.fileName ?? undefined,
+    fileSizeBytes: m.fileSizeBytes != null ? Number(m.fileSizeBytes) : undefined,
+    fileFormat: m.fileFormat ?? 'glb',
+    isPrimary: !!m.isPrimary,
+    camera: serialize3dCamera(
+      m.cameraPosX,
+      m.cameraPosY,
+      m.cameraPosZ,
+      m.cameraTargetX,
+      m.cameraTargetY,
+      m.cameraTargetZ,
+    ),
+    displayOrder: m.displayOrder ?? 0,
+    hotspots: withHotspots
+      ? (m.hotspots ?? []).map(serialize3dHotspot)
+      : undefined,
   };
 }

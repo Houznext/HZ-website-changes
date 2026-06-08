@@ -4,6 +4,7 @@ import livebuildApi from '../lib/api';
 import { LB_MATERIAL_STATUSES } from '../lib/constants';
 import type { LbMaterial, LbRoom } from '../lib/types';
 import { AddMaterialModal } from '../components/AddMaterialModal';
+import { EditMaterialModal } from '../components/EditMaterialModal';
 import { Badge, Btn, FormInput, StatCard, TabBar, lbToast } from '../components';
 import Loader from '@/src/common/Loader';
 
@@ -14,6 +15,7 @@ export function ProjectMaterialsTab({ projectId, projectName }: Props) {
   const [rooms, setRooms] = useState<LbRoom[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editMaterial, setEditMaterial] = useState<LbMaterial | null>(null);
   const [roomFilter, setRoomFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -180,7 +182,7 @@ export function ProjectMaterialsTab({ projectId, projectName }: Props) {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {roomItems.map((m) => (
-                <MaterialRow key={m.id} material={m} onChanged={load} />
+                <MaterialRow key={m.id} material={m} onChanged={load} onEdit={setEditMaterial} />
               ))}
             </div>
           </div>
@@ -200,7 +202,7 @@ export function ProjectMaterialsTab({ projectId, projectName }: Props) {
             Other
           </div>
           {uncategorized.map((m) => (
-            <MaterialRow key={m.id} material={m} onChanged={load} />
+            <MaterialRow key={m.id} material={m} onChanged={load} onEdit={setEditMaterial} />
           ))}
         </div>
       ) : null}
@@ -212,11 +214,26 @@ export function ProjectMaterialsTab({ projectId, projectName }: Props) {
         onClose={() => setModalOpen(false)}
         onCreated={load}
       />
+      <EditMaterialModal
+        open={!!editMaterial}
+        material={editMaterial}
+        rooms={rooms}
+        onClose={() => setEditMaterial(null)}
+        onSaved={load}
+      />
     </div>
   );
 }
 
-function MaterialRow({ material: m, onChanged }: { material: LbMaterial; onChanged: () => void }) {
+function MaterialRow({
+  material: m,
+  onChanged,
+  onEdit,
+}: {
+  material: LbMaterial;
+  onChanged: () => void;
+  onEdit: (m: LbMaterial) => void;
+}) {
   const updateStatus = async (status: string) => {
     try {
       await livebuildApi.updateMaterial(m.id, { status });
@@ -236,8 +253,12 @@ function MaterialRow({ material: m, onChanged }: { material: LbMaterial; onChang
           {m.quantity != null ? ` · ${m.quantity} ${m.unit ?? ''}` : ''}
           {m.brand ? ` · ${m.brand}` : ''}
           {m.specification ? ` · ${m.specification}` : ''}
+          {m.installDate ? ` · Installed ${m.installDate.slice(0, 10)}` : ''}
         </div>
       </div>
+      <Btn variant="ghost" size="xs" onClick={() => onEdit(m)}>
+        Edit
+      </Btn>
       <FormInput
         as="select"
         style={{ fontSize: 11, padding: '5px 8px', width: 120 }}

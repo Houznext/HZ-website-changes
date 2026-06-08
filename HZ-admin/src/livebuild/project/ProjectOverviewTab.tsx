@@ -62,6 +62,7 @@ export function ProjectOverviewTab({ project, onUpdated, onSwitchTab }: Props) {
     'Send OTP to verify the mobile number',
   );
   const [mobileSaving, setMobileSaving] = useState(false);
+  const [coverUploading, setCoverUploading] = useState(false);
   const stats = project.stats;
   const hasMobile = projectMobile10(project).length === 10;
   const mobileUnchanged =
@@ -71,6 +72,11 @@ export function ProjectOverviewTab({ project, onUpdated, onSwitchTab }: Props) {
     livebuildApi.listCustomers().then(setCustomers).catch(() => setCustomers([]));
     livebuildApi.listTeam().then(setTeam).catch(() => setTeam([]));
   }, []);
+
+  useEffect(() => {
+    setForm(project);
+    setMethod((project.progressMethod as LbProgressMethod) || 'hybrid');
+  }, [project]);
 
   useEffect(() => {
     const ten = projectMobile10(project);
@@ -171,6 +177,8 @@ export function ProjectOverviewTab({ project, onUpdated, onSwitchTab }: Props) {
         dueDate: form.dueDate,
         address: form.address ?? form.location,
         siteManager: form.siteManagerName ?? undefined,
+        customerId: form.customerId ? Number(form.customerId) : null,
+        panoramaUrl: form.panoramaUrl ?? null,
         progressMethod: method,
         progressOverridePct: form.progressOverridePct ?? null,
         progressOverrideReason: form.progressOverrideReason ?? null,
@@ -184,6 +192,20 @@ export function ProjectOverviewTab({ project, onUpdated, onSwitchTab }: Props) {
       lbToast(e?.body?.message || 'Save failed', 'err');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const uploadCover = async (file: File) => {
+    setCoverUploading(true);
+    try {
+      const res = await livebuildApi.uploadProjectCover(project.id, file);
+      setForm((f) => ({ ...f, coverImageUrl: res.coverImageUrl }));
+      onUpdated({ ...project, coverImageUrl: res.coverImageUrl });
+      lbToast('Cover image updated', 'ok');
+    } catch (e: any) {
+      lbToast(e?.body?.message || 'Cover upload failed', 'err');
+    } finally {
+      setCoverUploading(false);
     }
   };
 
@@ -615,6 +637,44 @@ export function ProjectOverviewTab({ project, onUpdated, onSwitchTab }: Props) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'sticky', top: 128 }}>
         <div className="lb-card">
+          <div style={{ fontFamily: 'var(--lb-m)', fontSize: 13, fontWeight: 700, marginBottom: 10 }}>
+            Customer portal media
+          </div>
+          <div
+            style={{
+              height: 120,
+              borderRadius: 10,
+              marginBottom: 10,
+              background: form.coverImageUrl
+                ? `url(${form.coverImageUrl}) center/cover no-repeat`
+                : 'linear-gradient(135deg, var(--lb-navy), var(--lb-blue))',
+            }}
+          />
+          <label className="lb-dpr-upload" style={{ display: 'block', marginBottom: 10 }}>
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              style={{ display: 'none' }}
+              disabled={coverUploading}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) uploadCover(f);
+                e.target.value = '';
+              }}
+            />
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--lb-ch)' }}>
+              {coverUploading ? 'Uploading cover…' : 'Upload dashboard cover image'}
+            </div>
+          </label>
+          <Label>3D panorama URL</Label>
+          <FormInput
+            placeholder="https://… (Matterport or 360° tour)"
+            value={form.panoramaUrl ?? ''}
+            onChange={(e) => setForm({ ...form, panoramaUrl: e.target.value })}
+          />
+        </div>
+
+        <div className="lb-card">
           <div style={{ fontFamily: 'var(--lb-m)', fontSize: 13, fontWeight: 700, marginBottom: 14 }}>
             Progress summary
           </div>
@@ -651,6 +711,7 @@ export function ProjectOverviewTab({ project, onUpdated, onSwitchTab }: Props) {
                 { tab: 'dpr', label: 'Upload DPR', icon: CalendarCheck, accent: true },
                 { tab: 'payments', label: 'Payments', icon: CreditCard, accent: false },
                 { tab: 'queries', label: 'Queries', icon: MessageSquare, accent: false },
+                { tab: 'property-info', label: 'Property Info', icon: Home, accent: false },
                 { tab: 'documents', label: 'Documents', icon: FileText, accent: false },
                 { tab: 'materials', label: 'Materials & BOQ', icon: Package, accent: false },
               ].map((l) => (

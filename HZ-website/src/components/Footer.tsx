@@ -10,7 +10,7 @@ const SERVICES = [
 ]
 
 const BUILDLIVE = [
-  { label: 'My Home Portal',   href: '/portal/login' },
+  { label: 'LiveBuild Portal', href: '/login?callbackUrl=/livebuild/dashboard' },
   { label: 'Project Tracking', href: '/buildlive' },
   { label: 'Design Approvals', href: '/buildlive' },
   { label: 'Milestone Payments', href: '/buildlive' },

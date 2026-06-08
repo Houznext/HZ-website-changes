@@ -152,7 +152,7 @@ const ProjectSellers = () => {
                 {/* dropdown */}
                 <IconButton
                   id="More-button"
-                  onClick={(event) => handleClick(event, index)}
+                  onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleClick(event, index)}
                 >
                   <IoMdMore />
                 </IconButton>

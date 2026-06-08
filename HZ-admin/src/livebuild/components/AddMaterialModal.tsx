@@ -50,6 +50,7 @@ export function AddMaterialModal({ open, projectId, rooms, onClose, onCreated }:
         roomId: room?.id ? Number(room.id) : undefined,
         brand: brand || undefined,
         status,
+        installDate: installDate || undefined,
       });
       lbToast('Added to BOQ', 'ok');
       onCreated();
@@ -58,6 +59,7 @@ export function AddMaterialModal({ open, projectId, rooms, onClose, onCreated }:
       setQty('');
       setSpecification('');
       setBrand('');
+      setInstallDate('');
     } catch (e: any) {
       lbToast(e?.body?.message || 'Failed', 'err');
     } finally {

@@ -73,6 +73,16 @@ const nextConfig = {
       { source: '/services', destination: '/interiors', permanent: true },
       { source: '/interiors/kitchen', destination: '/services/modular-kitchen', permanent: true },
       { source: '/commercial-interiors', destination: '/services/commercial-interiors', permanent: true },
+      { source: '/portal/login', destination: '/login?callbackUrl=/livebuild/dashboard', permanent: true },
+      { source: '/portal/:projectId/documents', destination: '/livebuild/:projectId/documents', permanent: false },
+      { source: '/portal/:projectId/designs', destination: '/livebuild/:projectId/documents', permanent: false },
+      { source: '/portal/:projectId/gallery', destination: '/livebuild/:projectId/day-progress', permanent: false },
+      { source: '/portal/:projectId/reports', destination: '/livebuild/:projectId/day-progress', permanent: false },
+      { source: '/portal/:projectId/snags', destination: '/livebuild/:projectId/queries', permanent: false },
+      { source: '/portal/:projectId/trades', destination: '/livebuild/:projectId/materials', permanent: false },
+      { source: '/portal/:projectId/rewards', destination: '/livebuild/dashboard', permanent: false },
+      { source: '/portal/:projectId', destination: '/livebuild/:projectId', permanent: false },
+      { source: '/portal/:projectId/:path*', destination: '/livebuild/:projectId', permanent: false },
     ]
   },
   webpack: (config, { isServer }) => {

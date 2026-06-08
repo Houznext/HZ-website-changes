@@ -40,6 +40,8 @@ import {
   CreateQueryDto,
   CreateRoomDto,
   CreateWorkTypeDto,
+  Create3dHotspotDto,
+  Create3dModelMetaDto,
   ReplyQueryDto,
   SendOtpDto,
   UpdateCustomerDto,
@@ -50,7 +52,10 @@ import {
   UpdateRoomDto,
   UpdateRoomWorkTypeDto,
   UpdateWorkTypeDto,
+  Update3dHotspotDto,
+  Update3dModelDto,
   UpsertPropertyInfoDto,
+  UpdateNotificationSettingsDto,
   VerifyOtpDto,
 } from './dto';
 
@@ -275,6 +280,18 @@ export class LivebuildController {
       { id: '1', name: 'Suresh Babu', role: 'Site Manager', initials: 'SB' },
       { id: '2', name: 'Kavitha Nair', role: 'Project Coordinator', initials: 'KN' },
     ];
+  }
+
+  @Get('settings/notifications')
+  @UseGuards(ControllerAuthGuard)
+  getNotificationSettings() {
+    return this.livebuildService.getNotificationSettings();
+  }
+
+  @Patch('settings/notifications')
+  @UseGuards(ControllerAuthGuard)
+  updateNotificationSettings(@Body() dto: UpdateNotificationSettingsDto) {
+    return this.livebuildService.updateNotificationSettings(dto);
   }
 
   // —— Rooms ——
@@ -515,6 +532,16 @@ export class LivebuildController {
     return this.livebuildService.uploadDocument(id, file, meta);
   }
 
+  @Post('projects/:id/cover')
+  @UseGuards(ControllerAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  uploadProjectCover(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: { buffer: Buffer; mimetype: string; size: number; originalname: string },
+  ) {
+    return this.livebuildService.uploadProjectCover(id, file);
+  }
+
   @Delete('documents/:id')
   @UseGuards(ControllerAuthGuard)
   deleteDocument(@Param('id', ParseIntPipe) id: number) {
@@ -628,5 +655,71 @@ export class LivebuildController {
     @Body() dto: UpsertPropertyInfoDto,
   ) {
     return this.livebuildService.upsertPropertyInfo(id, dto);
+  }
+
+  // —— 3D models & hotspots ——
+  @Get('projects/:id/3d-models')
+  @UseGuards(LivebuildDualAuthGuard)
+  list3dModels(@Param('id', ParseIntPipe) id: number, @Req() req: LivebuildRequest) {
+    return this.livebuildService.list3dModels(
+      id,
+      this.livebuildService.resolveAccess(req),
+    );
+  }
+
+  @Post('projects/:id/3d-models')
+  @UseGuards(ControllerAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  upload3dModel(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: { buffer: Buffer; mimetype: string; size: number; originalname: string },
+    @Body() meta: Create3dModelMetaDto,
+  ) {
+    return this.livebuildService.upload3dModel(id, file, meta);
+  }
+
+  @Patch('3d-models/:id')
+  @UseGuards(ControllerAuthGuard)
+  update3dModel(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Update3dModelDto,
+  ) {
+    return this.livebuildService.update3dModel(id, dto);
+  }
+
+  @Delete('3d-models/:id')
+  @UseGuards(ControllerAuthGuard)
+  delete3dModel(@Param('id', ParseIntPipe) id: number) {
+    return this.livebuildService.delete3dModel(id);
+  }
+
+  @Post('3d-models/:id/hotspots')
+  @UseGuards(ControllerAuthGuard)
+  create3dHotspot(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Create3dHotspotDto,
+  ) {
+    return this.livebuildService.create3dHotspot(id, dto);
+  }
+
+  @Post('3d-models/:id/seed-hotspots')
+  @UseGuards(ControllerAuthGuard)
+  seed3dHotspots(@Param('id', ParseIntPipe) id: number) {
+    return this.livebuildService.seed3dHotspotsFromRooms(id);
+  }
+
+  @Patch('3d-hotspots/:id')
+  @UseGuards(ControllerAuthGuard)
+  update3dHotspot(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Update3dHotspotDto,
+  ) {
+    return this.livebuildService.update3dHotspot(id, dto);
+  }
+
+  @Delete('3d-hotspots/:id')
+  @UseGuards(ControllerAuthGuard)
+  delete3dHotspot(@Param('id', ParseIntPipe) id: number) {
+    return this.livebuildService.delete3dHotspot(id);
   }
 }

@@ -127,7 +127,7 @@ export default function LoginPage({ pageSeo }: { pageSeo: PageSeoPublic | null }
   return (
     <>
       <SeoHead
-        title={pageSeo?.metaTitle ?? 'Login | My Home Portal | Houznext'}
+        title={pageSeo?.metaTitle ?? 'Login | LiveBuild | Houznext'}
         description={
           pageSeo?.metaDescription ??
           'Login to your Houznext portal. Track your interior project live, approve designs, view payments, and manage snags from your phone.'

@@ -134,7 +134,7 @@ export default function CustomerPortalDashboard() {
     if (!projectId || typeof projectId !== "string") return;
     const tok = typeof window !== "undefined" ? localStorage.getItem("hz_customer_token") ?? "" : "";
     if (!tok) {
-      void router.replace("/portal/login");
+      void router.replace('/login?callbackUrl=/livebuild/dashboard');
       return;
     }
     setLoading(true);
@@ -146,7 +146,7 @@ export default function CustomerPortalDashboard() {
         fetch(`${API}/interiors/projects/${projectId}/notifications`, { headers: h }),
       ]);
       if (fullRes.status === 401) {
-        void router.replace("/portal/login");
+        void router.replace('/login?callbackUrl=/livebuild/dashboard');
         return;
       }
       if (!fullRes.ok) throw new Error("Could not load project");

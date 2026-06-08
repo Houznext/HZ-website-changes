@@ -387,42 +387,42 @@ export default function Navbar() {
                     </svg>
                   </button>
                   {profileOpen && (
-                    <div style={{ position: 'absolute', top: '100%', right: 0, paddingTop: 10, zIndex: 500 }}>
-                      <div style={{ background: '#fff', border: '1px solid #dde8f5', borderRadius: 14, width: 242, boxShadow: '0 14px 44px rgba(0,0,0,0.14)', overflow: 'hidden' }}>
+                    <div className="hz-profile-dropdown-hit">
+                      <div className="hz-profile-dropdown-panel">
                       <div style={{ padding: '14px 16px', background: '#f5f7fa', borderBottom: '1px solid #dde8f5' }}>
                         <div style={{ fontSize: 12, color: '#5a6a7e', marginBottom: 8 }}>Sign in to access your dashboard</div>
                         <button
                           type="button"
                           onClick={() => openLoginFor('/my-account')}
-                          style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: 'none', background: '#2f80ed', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
+                          className="hz-profile-menu-login-btn"
                         >
                           Login
                         </button>
                       </div>
                       <div
                         onClick={() => openLoginFor('/my-account/quotations')}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}
+                        className="hz-profile-menu-item hz-profile-menu-item--between"
                       >
                         <span>My quotations</span>
                       </div>
                       <div
                         onClick={() => openLoginFor('/my-account/invoices')}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}
+                        className="hz-profile-menu-item hz-profile-menu-item--between"
                       >
                         <span>Invoices</span>
                         <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fee2e2', color: '#dc2626' }}>Due</span>
                       </div>
                       <div
                         onClick={() => openLoginFor('/my-account/saved-designs')}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}
+                        className="hz-profile-menu-item hz-profile-menu-item--between"
                       >
                         <span>Saved designs</span>
                       </div>
                       <div
                         onClick={() => openLoginFor('/livebuild/dashboard')}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s' }}
+                        className="hz-profile-menu-item hz-profile-menu-item--between hz-profile-menu-item--last"
                       >
-                        <span>My Home (LiveBuild)</span>
+                        <span>LiveBuild</span>
                         <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#d97706' }}>Active</span>
                       </div>
                     </div>
@@ -441,11 +441,11 @@ export default function Navbar() {
                     <span style={{ fontFamily: 'Montserrat, system-ui', fontSize: 12, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{getInitials(customer?.name ?? '')}</span>
                   </button>
                   {profileOpen && (
-                    <div style={{ position: 'absolute', top: '100%', right: 0, paddingTop: 10, zIndex: 500 }}>
-                      <div style={{ background: '#fff', border: '1px solid #dde8f5', borderRadius: 14, width: 242, boxShadow: '0 14px 44px rgba(0,0,0,0.14)', overflow: 'hidden' }}>
+                    <div className="hz-profile-dropdown-hit">
+                      <div className="hz-profile-dropdown-panel">
                       <div
                         onClick={() => { setProfileOpen(false); void router.push('/my-account') }}
-                        style={{ padding: '14px 16px', background: '#f5f7fa', borderBottom: '1px solid #dde8f5', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', transition: 'all 0.2s' }}
+                        className="hz-profile-menu-header"
                       >
                         <div style={{ width: 38, height: 38, borderRadius: '50%', background: '#2f80ed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Montserrat, system-ui', fontSize: 14, fontWeight: 800, color: '#fff', flexShrink: 0 }}>
                           {getInitials(customer?.name ?? '')}
@@ -455,24 +455,28 @@ export default function Navbar() {
                           <div style={{ fontSize: 11, color: '#5a6a7e' }}>{customer?.mobile?.trim() || customer?.email || ''}</div>
                         </div>
                       </div>
-                      <div onClick={() => { setProfileOpen(false); void router.push('/my-account/quotations') }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}>
+                      <div onClick={() => { setProfileOpen(false); void router.push('/my-account/quotations') }} className="hz-profile-menu-item">
                         My quotations
                       </div>
-                      <div onClick={() => { setProfileOpen(false); void router.push('/my-account/invoices') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}>
+                      <div onClick={() => { setProfileOpen(false); void router.push('/my-account/invoices') }} className="hz-profile-menu-item hz-profile-menu-item--between">
                         <span>Invoices</span>
                         <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fee2e2', color: '#dc2626' }}>Due</span>
                       </div>
-                      <div onClick={() => { setProfileOpen(false); void router.push('/my-account/saved-designs') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}>
+                      <div onClick={() => { setProfileOpen(false); void router.push('/my-account/saved-designs') }} className="hz-profile-menu-item hz-profile-menu-item--between">
                         <span>Saved designs</span>
                         {savedCount > 0 && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#e8f1fd', color: '#2f80ed' }}>{savedCount}</span>}
                       </div>
-                      <div onClick={() => { setProfileOpen(false); void router.push('/livebuild/dashboard') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}>
-                        <span>My Home (LiveBuild)</span>
+                      <div onClick={() => { setProfileOpen(false); void router.push('/livebuild/dashboard') }} className="hz-profile-menu-item hz-profile-menu-item--between">
+                        <span>LiveBuild</span>
                         <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#d97706' }}>Active</span>
                       </div>
-                      <div onClick={() => { setProfileOpen(false); setLogoutConfirmOpen(true) }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontSize: 13, color: '#5a6a7e', cursor: 'pointer', transition: 'all 0.2s' }}>
+                      <button
+                        type="button"
+                        onClick={() => { setProfileOpen(false); setLogoutConfirmOpen(true) }}
+                        className="hz-profile-menu-logout"
+                      >
                         Log out
-                      </div>
+                      </button>
                     </div>
                     </div>
                   )}
@@ -558,32 +562,36 @@ export default function Navbar() {
                 )}
               </button>
               {profileOpen && (
-                <div style={{ position: 'absolute', top: '100%', right: 0, paddingTop: 10, zIndex: 500 }}>
-                  <div style={{ background: '#fff', border: '1px solid #dde8f5', borderRadius: 14, width: 242, boxShadow: '0 14px 44px rgba(0,0,0,0.14)', overflow: 'hidden' }}>
+                <div className="hz-profile-dropdown-hit">
+                  <div className="hz-profile-dropdown-panel">
                     {!isLoggedIn ? (
                       <>
                         <div style={{ padding: '14px 16px', background: '#f5f7fa', borderBottom: '1px solid #dde8f5' }}>
                           <div style={{ fontSize: 12, color: '#5a6a7e', marginBottom: 8 }}>Sign in to access your dashboard</div>
-                          <button type="button" onClick={() => openLoginFor('/my-account')} style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: 'none', background: '#2f80ed', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>Login</button>
+                          <button type="button" onClick={() => openLoginFor('/my-account')} className="hz-profile-menu-login-btn">Login</button>
                         </div>
-                        <div onClick={() => openLoginFor('/my-account/quotations')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>My quotations</span></div>
-                        <div onClick={() => openLoginFor('/my-account/invoices')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>Invoices</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fee2e2', color: '#dc2626' }}>Due</span></div>
-                        <div onClick={() => openLoginFor('/my-account/saved-designs')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>Saved designs</span></div>
-                        <div onClick={() => openLoginFor('/livebuild/dashboard')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s' }}><span>My Home (LiveBuild)</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#d97706' }}>Active</span></div>
+                        <div onClick={() => openLoginFor('/my-account/quotations')} className="hz-profile-menu-item hz-profile-menu-item--between"><span>My quotations</span></div>
+                        <div onClick={() => openLoginFor('/my-account/invoices')} className="hz-profile-menu-item hz-profile-menu-item--between"><span>Invoices</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fee2e2', color: '#dc2626' }}>Due</span></div>
+                        <div onClick={() => openLoginFor('/my-account/saved-designs')} className="hz-profile-menu-item hz-profile-menu-item--between"><span>Saved designs</span></div>
+                        <div onClick={() => openLoginFor('/livebuild/dashboard')} className="hz-profile-menu-item hz-profile-menu-item--between hz-profile-menu-item--last"><span>LiveBuild</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#d97706' }}>Active</span></div>
                       </>
                     ) : (
                       <>
-                        <div onClick={() => { setProfileOpen(false); void router.push('/my-account') }} style={{ padding: '14px 16px', background: '#f5f7fa', borderBottom: '1px solid #dde8f5', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', transition: 'all 0.2s' }}>
+                        <div onClick={() => { setProfileOpen(false); void router.push('/my-account') }} className="hz-profile-menu-header">
                           <div style={{ width: 38, height: 38, borderRadius: '50%', background: '#2f80ed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Montserrat, system-ui', fontSize: 14, fontWeight: 800, color: '#fff', flexShrink: 0 }}>{getInitials(customer?.name ?? '')}</div>
                           <div><div style={{ fontSize: 13, fontWeight: 700, color: '#1f2933' }}>{customer?.name || 'Profile'}</div><div style={{ fontSize: 11, color: '#5a6a7e' }}>{customer?.mobile?.trim() || customer?.email || ''}</div></div>
                         </div>
-                        <div onClick={() => { setProfileOpen(false); void router.push('/my-account/quotations') }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}>My quotations</div>
-                        <div onClick={() => { setProfileOpen(false); void router.push('/my-account/invoices') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>Invoices</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fee2e2', color: '#dc2626' }}>Due</span></div>
-                        <div onClick={() => { setProfileOpen(false); void router.push('/my-account/saved-designs') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>Saved designs</span>{savedCount > 0 && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#e8f1fd', color: '#2f80ed' }}>{savedCount}</span>}</div>
-                        <div onClick={() => { setProfileOpen(false); void router.push('/livebuild/dashboard') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 16px', fontSize: 13, color: '#1f2933', cursor: 'pointer', transition: 'all 0.2s', borderBottom: '0.5px solid #dde8f5' }}><span>My Home (LiveBuild)</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#d97706' }}>Active</span></div>
-                        <div style={{ padding: '10px 16px', borderTop: '0.5px solid #dde8f5' }}>
-                          <button type="button" onClick={() => { logout(); setProfileOpen(false); void router.push('/') }} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #dbe4f1', background: '#fff', color: '#5a6a7e', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Logout</button>
-                        </div>
+                        <div onClick={() => { setProfileOpen(false); void router.push('/my-account/quotations') }} className="hz-profile-menu-item">My quotations</div>
+                        <div onClick={() => { setProfileOpen(false); void router.push('/my-account/invoices') }} className="hz-profile-menu-item hz-profile-menu-item--between"><span>Invoices</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fee2e2', color: '#dc2626' }}>Due</span></div>
+                        <div onClick={() => { setProfileOpen(false); void router.push('/my-account/saved-designs') }} className="hz-profile-menu-item hz-profile-menu-item--between"><span>Saved designs</span>{savedCount > 0 && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#e8f1fd', color: '#2f80ed' }}>{savedCount}</span>}</div>
+                        <div onClick={() => { setProfileOpen(false); void router.push('/livebuild/dashboard') }} className="hz-profile-menu-item hz-profile-menu-item--between"><span>LiveBuild</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#d97706' }}>Active</span></div>
+                        <button
+                          type="button"
+                          onClick={() => { setProfileOpen(false); setLogoutConfirmOpen(true) }}
+                          className="hz-profile-menu-logout"
+                        >
+                          Log out
+                        </button>
                       </>
                     )}
                   </div>
@@ -716,7 +724,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setLogoutConfirmOpen(false)}
-                className="rounded-lg border px-4 py-2 text-[13px] font-[600] text-[#5a6a7e] transition-all duration-200"
+                className="rounded-lg border px-4 py-2 text-[13px] font-[600] text-[#5a6a7e] transition-all duration-200 hover:bg-[#f5f7fa]"
                 style={{ borderColor: '#dde8f5' }}
               >
                 No
@@ -729,10 +737,10 @@ export default function Navbar() {
                   setProfileOpen(false)
                   void router.push('/')
                 }}
-                className="rounded-lg px-4 py-2 text-[13px] font-[700] text-white transition-all duration-200"
-                style={{ background: '#2f80ed' }}
+                className="rounded-lg px-4 py-2 text-[13px] font-[700] text-white transition-all duration-200 hover:bg-[#b91c1c]"
+                style={{ background: '#dc2626' }}
               >
-                Yes
+                Yes, log out
               </button>
             </div>
           </div>

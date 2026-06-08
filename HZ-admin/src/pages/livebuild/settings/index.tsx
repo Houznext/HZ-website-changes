@@ -1,27 +1,33 @@
 import { useEffect, useState } from 'react';
 import withLivebuildLayout from '@/src/common/LivebuildAdminLayout';
 import livebuildApi from '@/src/livebuild/lib/api';
-import type { LbTeamMember } from '@/src/livebuild/lib/types';
+import type { LbNotificationSettings, LbTeamMember } from '@/src/livebuild/lib/types';
 import { Btn, LiveBuildPageHeader, Toggle, lbToast } from '@/src/livebuild/components';
 import { useLbStickyTop } from '@/src/livebuild/hooks/useLbStickyTop';
 import Loader from '@/src/common/Loader';
 
-type SettingsSection = 'team' | 'notifications' | 'branding';
+type SettingsSection = 'team' | 'notifications';
 
-const NOTIFICATION_TOGGLES = [
+const NOTIFICATION_TOGGLES: {
+  id: keyof LbNotificationSettings;
+  label: string;
+  desc: string;
+}[] = [
   { id: 'dpr', label: 'DPR submitted', desc: 'When site manager submits daily progress' },
   { id: 'query', label: 'New customer query', desc: 'Instant alert for open queries' },
   { id: 'payment', label: 'Payment milestone due', desc: '3 days before due date' },
   { id: 'hold', label: 'Room on hold', desc: 'When a room status changes to hold' },
   { id: 'doc', label: 'Document expiring', desc: 'Warranty slips & agreements' },
-] as const;
+];
 
 function LiveBuildSettingsPage() {
   useLbStickyTop();
   const [section, setSection] = useState<SettingsSection>('team');
   const [team, setTeam] = useState<LbTeamMember[]>([]);
   const [loading, setLoading] = useState(true);
-  const [notif, setNotif] = useState<Record<string, boolean>>({
+  const [notifLoading, setNotifLoading] = useState(true);
+  const [notifSaving, setNotifSaving] = useState<string | null>(null);
+  const [notif, setNotif] = useState<LbNotificationSettings>({
     dpr: true,
     query: true,
     payment: true,
@@ -39,6 +45,33 @@ function LiveBuildSettingsPage() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    livebuildApi
+      .getNotificationSettings()
+      .then(setNotif)
+      .catch((e: any) => {
+        lbToast(e?.body?.message || 'Failed to load notification settings', 'err');
+      })
+      .finally(() => setNotifLoading(false));
+  }, []);
+
+  const toggleNotif = async (key: keyof LbNotificationSettings) => {
+    const next = !notif[key];
+    setNotifSaving(key);
+    try {
+      const saved = await livebuildApi.updateNotificationSettings({ [key]: next });
+      setNotif(saved);
+      lbToast(
+        `${NOTIFICATION_TOGGLES.find((n) => n.id === key)?.label ?? key} ${next ? 'enabled' : 'disabled'}`,
+        'ok',
+      );
+    } catch (e: any) {
+      lbToast(e?.body?.message || 'Failed to save notification setting', 'err');
+    } finally {
+      setNotifSaving(null);
+    }
+  };
 
   const navItem = (id: SettingsSection, label: string) => (
     <button
@@ -64,20 +97,12 @@ function LiveBuildSettingsPage() {
 
   return (
     <div className="lb-page">
-      <LiveBuildPageHeader title="Settings" subtitle="Team, notifications & branding" />
+      <LiveBuildPageHeader title="Settings" subtitle="Team & notification preferences" />
       <div className="lb-content">
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '220px 1fr',
-            gap: 18,
-            alignItems: 'start',
-          }}
-        >
+        <div className="lb-settings-layout">
           <div className="lb-card" style={{ padding: 8 }}>
             {navItem('team', 'Team members')}
             {navItem('notifications', 'Notifications')}
-            {navItem('branding', 'Branding')}
           </div>
 
           {section === 'team' && (
@@ -164,55 +189,37 @@ function LiveBuildSettingsPage() {
                 Notification preferences
               </div>
               <div style={{ fontSize: 12, color: 'var(--lb-mu)', marginBottom: 16 }}>
-                Email & in-app alerts for LiveBuild events (saved locally until API is wired).
+                Email & in-app alerts for LiveBuild events. Changes are saved to the server immediately.
               </div>
-              {NOTIFICATION_TOGGLES.map((n) => (
-                <div
-                  key={n.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '12px 0',
-                    borderBottom: '0.5px solid #f1f5f9',
-                  }}
-                >
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 13 }}>{n.label}</div>
-                    <div style={{ fontSize: 11.5, color: 'var(--lb-mu)' }}>{n.desc}</div>
-                  </div>
-                  <Toggle
-                    on={!!notif[n.id]}
-                    onChange={() => {
-                      setNotif((prev) => {
-                        const next = { ...prev, [n.id]: !prev[n.id] };
-                        lbToast(`${n.label} ${next[n.id] ? 'enabled' : 'disabled'}`, 'ok');
-                        return next;
-                      });
-                    }}
-                    aria-label={n.label}
-                  />
+              {notifLoading ? (
+                <div className="lb-loading">
+                  <Loader />
                 </div>
-              ))}
-            </div>
-          )}
-
-          {section === 'branding' && (
-            <div className="lb-card">
-              <div
-                style={{
-                  fontFamily: 'var(--lb-m)',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  marginBottom: 12,
-                }}
-              >
-                Branding
-              </div>
-              <div className="lb-empty" style={{ textAlign: 'left' }}>
-                Logo and customer portal colours — configure in Houznext site settings when
-                available.
-              </div>
+              ) : (
+                NOTIFICATION_TOGGLES.map((n) => (
+                  <div
+                    key={n.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '12px 0',
+                      borderBottom: '0.5px solid #f1f5f9',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 13 }}>{n.label}</div>
+                      <div style={{ fontSize: 11.5, color: 'var(--lb-mu)' }}>{n.desc}</div>
+                    </div>
+                    <Toggle
+                      on={!!notif[n.id]}
+                      disabled={notifSaving === n.id}
+                      onChange={() => void toggleNotif(n.id)}
+                      aria-label={n.label}
+                    />
+                  </div>
+                ))
+              )}
             </div>
           )}
         </div>

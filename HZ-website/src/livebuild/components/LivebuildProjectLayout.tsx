@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import {
   LayoutGrid,
@@ -9,8 +9,12 @@ import {
   CreditCard,
   MessageSquare,
   ChevronLeft,
-  User,
   Bell,
+  Home,
+  Tag,
+  FolderOpen,
+  MoreHorizontal,
+  X,
 } from 'lucide-react';
 import ProgressRing from './ProgressRing';
 import Navbar from '@/components/Navbar';
@@ -28,7 +32,13 @@ const MAIN_TABS = [
   { key: 'viz', href: '/viz', label: '3D', Icon: Box },
   { key: 'payments', href: '/payments', label: 'Payments', Icon: CreditCard },
   { key: 'queries', href: '/queries', label: 'Queries', Icon: MessageSquare },
+  { key: 'property-info', href: '/property-info', label: 'Property Info', Icon: Home },
+  { key: 'materials', href: '/materials', label: 'Materials', Icon: Tag },
+  { key: 'documents', href: '/documents', label: 'Documents', Icon: FolderOpen },
 ] as const;
+
+const MOBILE_PRIMARY = MAIN_TABS.slice(0, 5);
+const MOBILE_MORE = MAIN_TABS.slice(5);
 
 type Props = {
   project?: LbProjectSummary | null;
@@ -39,10 +49,21 @@ type Props = {
   loading?: boolean;
 };
 
-function tabActive(pathname: string, projectId: string, href: string): boolean {
+function normalizeLbPath(path: string): string {
+  return path.split('?')[0].replace(/\/$/, '') || '/';
+}
+
+function tabActive(asPath: string, projectId: string, href: string): boolean {
+  const path = normalizeLbPath(asPath);
   const base = `/livebuild/${projectId}`;
-  if (!href) return pathname === base || pathname === `${base}/`;
-  return pathname.startsWith(`${base}${href}`);
+
+  if (!href) {
+    if (path === base) return true;
+    return path.startsWith(`${base}/rooms`);
+  }
+
+  const tabPath = `${base}${href}`;
+  return path === tabPath || path.startsWith(`${tabPath}/`);
 }
 
 export default function LivebuildProjectLayout({
@@ -55,6 +76,7 @@ export default function LivebuildProjectLayout({
 }: Props) {
   const router = useRouter();
   const projectId = String(router.query.projectId ?? '');
+  const [moreOpen, setMoreOpen] = useState(false);
   const { ready, canAccess } = useLivebuildSession(true);
 
   useEffect(() => {
@@ -62,6 +84,10 @@ export default function LivebuildProjectLayout({
       void router.replace('/livebuild/dashboard');
     }
   }, [projectId, router]);
+
+  useEffect(() => {
+    setMoreOpen(false);
+  }, [router.asPath]);
 
   if (!ready) {
     return (
@@ -73,8 +99,9 @@ export default function LivebuildProjectLayout({
 
   if (!canAccess) return null;
 
-  const pathname = router.pathname;
+  const asPath = router.asPath;
   const pct = Math.round(project?.overallProgress ?? 0);
+  const moreActive = MOBILE_MORE.some(({ href }) => tabActive(asPath, projectId, href));
 
   return (
     <LivebuildToastProvider>
@@ -94,27 +121,15 @@ export default function LivebuildProjectLayout({
             style={{ flexShrink: 0 }}
           >
             <ChevronLeft size={13} {...lbIconProps()} />
-            <span className="hidden sm:inline">Back</span>
+            <span className="lb-hide-xs">Back</span>
           </Button>
-          <div style={{ minWidth: 0 }}>
+          <div style={{ minWidth: 0, flex: 1 }}>
             {loading ? (
               <div style={{ height: 32, width: 180, background: '#f1f5f9', borderRadius: 6 }} />
             ) : (
               <>
-                <div
-                  style={{
-                    fontFamily: 'var(--m)',
-                    fontSize: 13,
-                    fontWeight: 700,
-                    color: 'var(--ch)',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {project?.title ?? 'Project'}
-                </div>
-                <div style={{ fontSize: 11, color: 'var(--mu)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                <div className="lb-topbar-title">{project?.title ?? 'Project'}</div>
+                <div className="lb-topbar-sub">
                   {project && projectLocation(project)}
                   {project?.status && (
                     <Badge variant={statusBadgeClass(project.status)} style={{ fontSize: 8 }}>
@@ -125,44 +140,21 @@ export default function LivebuildProjectLayout({
               </>
             )}
           </div>
-          <div
-            style={{
-              marginLeft: 'auto',
-              flexShrink: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-            }}
-          >
-            <span style={{ fontFamily: 'var(--m)', fontSize: 12, fontWeight: 700, color: 'var(--mu)' }}>
-              {pct}%
-            </span>
-            <ProgressRing pct={pct} size={36} stroke={4} />
-            <button
-              type="button"
-              aria-label="Notifications"
-              style={{
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                padding: 4,
-                color: 'var(--mu)',
-              }}
-            >
-              <Bell size={18} {...lbIconProps()} />
-            </button>
+          <div className="lb-topbar-actions">
+            <ProgressRing pct={pct} size={40} stroke={4} labelColor="var(--ch)" trackColor="#e8eef5" />
           </div>
         </div>
 
         {showMainTabs && (
           <nav className="ptabs">
             {MAIN_TABS.map(({ key, href, label, Icon }) => {
-              const active = tabActive(pathname, projectId, href);
+              const active = tabActive(asPath, projectId, href);
               return (
                 <Link
                   key={key}
                   href={`/livebuild/${projectId}${href}`}
                   className={`ptab ${active ? 'on' : ''}`}
+                  aria-current={active ? 'page' : undefined}
                 >
                   <Icon size={14} {...lbIconProps()} />
                   {label}
@@ -180,43 +172,67 @@ export default function LivebuildProjectLayout({
         {children}
 
         {showMobileNav && (
-          <nav className="mob-nav">
-            <Link
-              href={`/livebuild/${projectId}`}
-              className={`mob-nav-item ${tabActive(pathname, projectId, '') ? 'on' : ''}`}
-            >
-              <LayoutGrid size={20} {...lbIconProps()} />
-              Home
-            </Link>
-            <Link
-              href={`/livebuild/${projectId}/day-progress`}
-              className={`mob-nav-item ${tabActive(pathname, projectId, '/day-progress') ? 'on' : ''}`}
-            >
-              <Calendar size={20} {...lbIconProps()} />
-              Progress
-            </Link>
-            <Link
-              href={`/livebuild/${projectId}/viz`}
-              className={`mob-nav-item ${tabActive(pathname, projectId, '/viz') ? 'on' : ''}`}
-            >
-              <Box size={20} {...lbIconProps()} />
-              3D
-            </Link>
-            <Link
-              href={`/livebuild/${projectId}/payments`}
-              className={`mob-nav-item ${tabActive(pathname, projectId, '/payments') ? 'on' : ''}`}
-            >
-              <CreditCard size={20} {...lbIconProps()} />
-              Payments
-            </Link>
-            <Link
-              href={`/livebuild/${projectId}/queries`}
-              className={`mob-nav-item ${tabActive(pathname, projectId, '/queries') ? 'on' : ''}`}
-            >
-              <MessageSquare size={20} {...lbIconProps()} />
-              Queries
-            </Link>
-          </nav>
+          <>
+            <nav className="mob-nav">
+              {MOBILE_PRIMARY.map(({ key, href, label, Icon }) => {
+                const active = tabActive(asPath, projectId, href);
+                return (
+                  <Link
+                    key={key}
+                    href={`/livebuild/${projectId}${href}`}
+                    className={`mob-nav-item ${active ? 'on' : ''}`}
+                  >
+                    <Icon size={20} {...lbIconProps()} />
+                    <span className="mob-nav-label">{label === 'Day Progress' ? 'Progress' : label}</span>
+                  </Link>
+                );
+              })}
+              <button
+                type="button"
+                className={`mob-nav-item ${moreActive || moreOpen ? 'on' : ''}`}
+                onClick={() => setMoreOpen(true)}
+                aria-expanded={moreOpen}
+                aria-haspopup="dialog"
+              >
+                <MoreHorizontal size={20} {...lbIconProps()} />
+                <span className="mob-nav-label">More</span>
+              </button>
+            </nav>
+
+            {moreOpen ? (
+              <div className="lb-more-sheet-backdrop" onClick={() => setMoreOpen(false)} role="presentation">
+                <div
+                  className="lb-more-sheet"
+                  onClick={(e) => e.stopPropagation()}
+                  role="dialog"
+                  aria-label="More project sections"
+                >
+                  <div className="lb-more-sheet-head">
+                    <span style={{ fontFamily: 'var(--m)', fontWeight: 700, fontSize: 14 }}>More</span>
+                    <button type="button" className="lb-more-close" onClick={() => setMoreOpen(false)} aria-label="Close">
+                      <X size={18} {...lbIconProps()} />
+                    </button>
+                  </div>
+                  <div className="lb-more-grid">
+                    {MOBILE_MORE.map(({ key, href, label, Icon }) => {
+                      const active = tabActive(asPath, projectId, href);
+                      return (
+                        <Link
+                          key={key}
+                          href={`/livebuild/${projectId}${href}`}
+                          className={`lb-more-item ${active ? 'on' : ''}`}
+                          onClick={() => setMoreOpen(false)}
+                        >
+                          <Icon size={18} {...lbIconProps()} />
+                          {label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </>
         )}
       </div>
     </LivebuildToastProvider>
@@ -253,8 +269,8 @@ export function LivebuildDashboardShell({ children }: { children: React.ReactNod
             Projects
           </Link>
           <Link href="/my-account" className="mob-nav-item">
-            <User size={20} {...lbIconProps()} />
-            Profile
+            <Home size={20} {...lbIconProps()} />
+            Account
           </Link>
         </nav>
       </div>

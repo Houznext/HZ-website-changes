@@ -78,6 +78,12 @@ export class LivebuildProject {
   @Column({ name: 'hold_reason', type: 'text', nullable: true })
   holdReason: string | null;
 
+  @Column({ name: 'cover_image_url', type: 'text', nullable: true })
+  coverImageUrl: string | null;
+
+  @Column({ name: 'panorama_url', type: 'text', nullable: true })
+  panoramaUrl: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 

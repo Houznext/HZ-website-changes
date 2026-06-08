@@ -21,14 +21,27 @@ export interface LbProjectSummary {
   status: LbProjectStatus;
   overallProgress: number;
   coverImageUrl?: string | null;
+  coverGradient?: string;
+  coverThumbnails?: string[];
   bhk?: string;
+  propertyType?: string;
+  propertyLabel?: string;
+  projectType?: string;
+  phase?: string;
+  projectCode?: string;
+  roomCount?: number;
+  daysElapsed?: number;
+  totalDays?: number;
+  daysLabel?: string;
   startedAt?: string | null;
   dueAt?: string | null;
+  latestUpdate?: { text: string; at?: string | null };
 }
 
 export interface LbGraphPoint {
   dayIndex: number;
   label?: string;
+  date?: string;
   actualPct: number;
   targetPct?: number;
   status?: 'live' | 'on_hold' | string;
@@ -101,11 +114,26 @@ export interface LbPaymentMilestone {
   progressPct: number;
   status: string;
   dueDate?: string | null;
+  paidDate?: string | null;
+}
+
+export interface LbPaymentDue {
+  id: string;
+  name: string;
+  progressPct: number;
+  status: string;
+  dueDate?: string | null;
 }
 
 export interface LbPayments {
   overallPaidPct: number;
+  pendingPct?: number;
+  totalMilestones?: number;
+  paidMilestonesCount?: number;
+  pendingMilestonesCount?: number;
   milestones: LbPaymentMilestone[];
+  nextDue?: LbPaymentDue | null;
+  statementUrl?: string | null;
 }
 
 export interface LbQuery {
@@ -137,33 +165,129 @@ export interface LbDocument {
   category?: string;
   url: string;
   uploadedAt?: string;
+  roomName?: string;
+  workType?: string;
+  expiryDate?: string | null;
+  fileSize?: number | null;
+  fileSizeLabel?: string;
+}
+
+export interface LbDocumentsResponse {
+  items: LbDocument[];
+  categoryCounts: LbDocumentCategoryCounts;
+}
+
+export interface LbDocumentCategoryCounts {
+  all: number;
+  warranty: number;
+  boq: number;
+  agreement: number;
+  design: number;
+  other: number;
 }
 
 export interface LbPropertyRoomRow {
   id: string;
   name: string;
+  icon?: string;
   dimensions: string;
+  lengthWidth?: string;
+  areaSqft?: number | null;
+  areaLabel?: string;
+  ceilingHeight?: string;
+  flooring?: string;
+}
+
+export interface LbPropertyTimeline {
+  startDate?: string | null;
+  dueDate?: string | null;
+  durationDays?: number | null;
+  daysLeft?: number | null;
+}
+
+export interface LbMaterialsStats {
+  total: number;
+  installed: number;
+  procured: number;
+  pending: number;
+}
+
+export interface LbMaterialsResponse {
+  stats: LbMaterialsStats;
+  roomOptions: string[];
+  boqPdfUrl?: string | null;
+  items: LbMaterialItem[];
 }
 
 export interface LbPropertyInfo {
   propertyType?: string;
+  propertyCategory?: 'apartment' | 'villa' | 'plot' | 'commercial';
   bhk?: string;
+  apartmentLabel?: string;
+  projectTypeLabel?: string;
   carpetArea?: string;
   builtUpArea?: string;
+  superBuiltUpArea?: string;
+  balconyArea?: string;
+  floorTower?: string;
+  unitNumber?: string;
+  facing?: string;
   address?: string;
+  locationLine?: string;
   city?: string;
   packageName?: string;
   projectTitle?: string;
   projectCode?: string;
   designScope?: string;
+  scopeIncluded?: string[];
+  specifications?: { label: string; value: string }[];
   fields?: { label: string; value: string }[];
   rooms?: LbPropertyRoomRow[];
+  timeline?: LbPropertyTimeline;
+}
+
+export interface Lb3dCamera {
+  position: [number, number, number];
+  target: [number, number, number];
+}
+
+export interface Lb3dHotspot {
+  id: string;
+  modelId: string;
+  roomId?: string;
+  roomName?: string;
+  label: string;
+  position: [number, number, number];
+  camera?: Lb3dCamera;
+  displayOrder?: number;
+}
+
+export interface Lb3dModel {
+  id: string;
+  projectId: string;
+  label: string;
+  modelType: string;
+  floorNumber?: number;
+  roomId?: string;
+  roomName?: string;
+  fileUrl: string;
+  isPrimary: boolean;
+  camera?: Lb3dCamera;
+  hotspots?: Lb3dHotspot[];
 }
 
 export interface LbViz {
   panoramaUrl?: string | null;
   renderPct?: number;
   floorPlanUrl?: string | null;
+  floorPlanPdfUrl?: string | null;
+  floorPlanTitle?: string;
+  rooms?: LbRoomSummary[];
+  designSpecs?: { label: string; value: string }[];
+  modelUrl?: string | null;
+  models?: Lb3dModel[];
+  primaryModel?: Lb3dModel | null;
+  hotspots?: Lb3dHotspot[];
 }
 
 export interface LbAccountStats {

@@ -17,6 +17,9 @@ import {
   LivebuildMaterial,
   LivebuildPropertyInfo,
   LivebuildOtp,
+  Livebuild3dModel,
+  Livebuild3dHotspot,
+  LivebuildAdminSettings,
 } from './entities';
 import { LivebuildController } from './livebuild.controller';
 import { LivebuildService } from './livebuild.service';
@@ -48,6 +51,9 @@ import { MailerService } from 'src/sendEmail.service';
       LivebuildMaterial,
       LivebuildPropertyInfo,
       LivebuildOtp,
+      Livebuild3dModel,
+      Livebuild3dHotspot,
+      LivebuildAdminSettings,
       User,
     ]),
     JwtModule.register({

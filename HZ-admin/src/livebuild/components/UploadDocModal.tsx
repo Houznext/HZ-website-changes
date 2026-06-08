@@ -13,6 +13,7 @@ const CAT_MAP: Record<string, string> = {
   BOQ: 'boq',
   Agreement: 'agreement',
   'Design file': 'design',
+  'Payment statement': 'statement',
   Other: 'other',
 };
 
@@ -50,12 +51,17 @@ export function UploadDocModal({ open, projectId, rooms, onClose, onUploaded }: 
         name: name.trim(),
         category: CAT_MAP[category] ?? 'other',
         roomId: roomId || undefined,
+        workTypeId: workTypeId || undefined,
+        expiryDate: expiryDate || undefined,
       });
       lbToast('Document uploaded', 'ok');
       onUploaded();
       onClose();
       setName('');
       setFile(null);
+      setRoomId('');
+      setWorkTypeId('');
+      setExpiryDate('');
     } catch (e: any) {
       lbToast(e?.body?.message || 'Upload failed', 'err');
     } finally {

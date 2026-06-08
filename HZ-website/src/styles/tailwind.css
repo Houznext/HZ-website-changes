@@ -66,3 +66,102 @@ select:-webkit-autofill:focus {
     @apply text-[11px] md:text-[12px] font-medium font-semibold text-gray-700;
   }
 }
+
+/* Navbar profile dropdown */
+.hz-profile-dropdown-hit {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 500;
+  margin-top: -6px;
+  padding: 14px 12px 12px;
+}
+
+.hz-profile-dropdown-panel {
+  background: #fff;
+  border: 1px solid #dde8f5;
+  border-radius: 14px;
+  width: 242px;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+}
+
+.hz-profile-menu-header {
+  padding: 14px 16px;
+  background: #f5f7fa;
+  border-bottom: 1px solid #dde8f5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.hz-profile-menu-header:hover {
+  background: #e8f1fd;
+}
+
+.hz-profile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  font-size: 13px;
+  color: #1f2933;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+  border-bottom: 0.5px solid #dde8f5;
+}
+
+.hz-profile-menu-item:hover {
+  background: #e8f1fd;
+  color: #2f80ed;
+}
+
+.hz-profile-menu-item--between {
+  justify-content: space-between;
+}
+
+.hz-profile-menu-item--last {
+  border-bottom: none;
+}
+
+.hz-profile-menu-login-btn {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  background: #2f80ed;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.15s ease, box-shadow 0.18s ease;
+}
+
+.hz-profile-menu-login-btn:hover {
+  background: #1a6fd4;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(47, 128, 237, 0.35);
+}
+
+.hz-profile-menu-logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #dc2626;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+  border: none;
+  background: #fff;
+  border-top: 0.5px solid #fde8e8;
+}
+
+.hz-profile-menu-logout:hover {
+  background: #fef2f2;
+  color: #b91c1c;
+}

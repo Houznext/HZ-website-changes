@@ -78,9 +78,28 @@ export interface LbProjectDetail extends LbProjectSummary {
   progressOverridePct?: number | null;
   progressOverrideReason?: string | null;
   onHoldReason?: string | null;
+  coverImageUrl?: string | null;
+  panoramaUrl?: string | null;
   customer?: LbCustomer;
   attention?: string[];
   stats?: LbProjectStats;
+}
+
+export interface LbPropertyInfo {
+  id?: string;
+  projectId?: string;
+  flatNumber?: string;
+  tower?: string;
+  totalAreaSqft?: number;
+  carpetAreaSqft?: number;
+  balconySqft?: number;
+  superBuiltUpSqft?: number;
+  floor?: string;
+  facing?: string;
+  designScope?: string;
+  scopeIncluded?: string[];
+  specifications?: { label: string; value: string }[];
+  notes?: string;
 }
 
 export interface LbRoom {
@@ -89,6 +108,10 @@ export interface LbRoom {
   roomType?: string;
   lengthFt?: number | null;
   widthFt?: number | null;
+  areaSqft?: number;
+  ceilingHeight?: string;
+  flooring?: string;
+  dimensions?: string;
   progressPct: number;
   status: LbRoomStatus | string;
   holdReason?: string | null;
@@ -198,6 +221,48 @@ export interface LbTeamMember {
   name: string;
   role: string;
   initials?: string;
+}
+
+export interface LbNotificationSettings {
+  dpr: boolean;
+  query: boolean;
+  payment: boolean;
+  hold: boolean;
+  doc: boolean;
+}
+
+export interface Lb3dCamera {
+  position: [number, number, number];
+  target: [number, number, number];
+}
+
+export interface Lb3dHotspot {
+  id: string;
+  modelId: string;
+  roomId?: string;
+  roomName?: string;
+  label: string;
+  position: [number, number, number];
+  camera?: Lb3dCamera;
+  displayOrder?: number;
+}
+
+export interface Lb3dModel {
+  id: string;
+  projectId: string;
+  label: string;
+  modelType: 'full_home' | 'floor' | 'room' | string;
+  floorNumber?: number;
+  roomId?: string;
+  roomName?: string;
+  fileUrl: string;
+  fileName?: string;
+  fileSizeBytes?: number;
+  fileFormat?: string;
+  isPrimary: boolean;
+  camera?: Lb3dCamera;
+  displayOrder?: number;
+  hotspots?: Lb3dHotspot[];
 }
 
 export interface CreateProjectPayload {

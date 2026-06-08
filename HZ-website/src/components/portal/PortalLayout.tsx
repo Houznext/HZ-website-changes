@@ -58,7 +58,7 @@ export default function PortalLayout(props: PortalLayoutProps) {
     if (typeof window !== "undefined") {
       localStorage.removeItem("hz_customer_token");
     }
-    router.push("/portal/login");
+    router.push('/login?callbackUrl=/livebuild/dashboard');
   };
 
   return (

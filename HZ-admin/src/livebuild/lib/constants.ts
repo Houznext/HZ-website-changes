@@ -67,6 +67,7 @@ export const LB_DOC_CATEGORIES = [
   { id: 'boq', label: 'BOQ' },
   { id: 'agreement', label: 'Agreements' },
   { id: 'design', label: 'Design files' },
+  { id: 'statement', label: 'Payment statements' },
   { id: 'other', label: 'Other' },
 ] as const;
 
@@ -75,6 +76,7 @@ export const LB_DOC_UPLOAD_CATEGORIES = [
   'BOQ',
   'Agreement',
   'Design file',
+  'Payment statement',
   'Other',
 ] as const;
 

@@ -24,7 +24,105 @@ export class LivebuildPortalService {
     private readonly roomRepo: Repository<LivebuildRoom>,
     @InjectRepository(LivebuildQuery)
     private readonly queryRepo: Repository<LivebuildQuery>,
+    @InjectRepository(LivebuildDpr)
+    private readonly dprRepo: Repository<LivebuildDpr>,
   ) {}
+
+  private formatFileSize(bytes?: number | null): string {
+    if (bytes == null || bytes <= 0) return '—';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  private parseBhkLabel(name?: string | null): string | undefined {
+    if (!name) return undefined;
+    const m = name.match(/(\d)\s*bhk/i);
+    if (m) return `${m[1]} BHK`;
+    return undefined;
+  }
+
+  private propertyCategory(
+    propertyType?: string | null,
+  ): 'apartment' | 'villa' | 'plot' | 'commercial' {
+    const p = (propertyType ?? '').toLowerCase();
+    if (p === 'plot') return 'plot';
+    if (p === 'commercial') return 'commercial';
+    if (p.includes('villa') || p.includes('independent house')) return 'villa';
+    return 'apartment';
+  }
+
+  private propertyTypeBadgeLabel(propertyType?: string | null): string {
+    const cat = this.propertyCategory(propertyType);
+    if (cat === 'plot') return 'Plot';
+    if (cat === 'commercial') return 'Commercial';
+    if (cat === 'villa') return 'Villa';
+    return 'Apartment';
+  }
+
+  private parseRoomDimensions(room: LivebuildRoom): {
+    lengthWidth: string;
+    areaSqft: number | null;
+  } {
+    if (room.lengthFt != null && room.widthFt != null) {
+      const l = Number(room.lengthFt);
+      const w = Number(room.widthFt);
+      return {
+        lengthWidth: `${l} × ${w} ft`,
+        areaSqft: room.areaSqft ?? Math.round(l * w),
+      };
+    }
+    const dim = room.dimensions ?? '';
+    const m = dim.match(/(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)/i);
+    if (m) {
+      const l = parseFloat(m[1]);
+      const w = parseFloat(m[2]);
+      return {
+        lengthWidth: `${l} × ${w} ft`,
+        areaSqft: room.areaSqft ?? Math.round(l * w),
+      };
+    }
+    return { lengthWidth: dim || '—', areaSqft: room.areaSqft ?? null };
+  }
+
+  private projectDaysLeft(dueDate?: string | null): number | null {
+    if (!dueDate) return null;
+    const due = new Date(dueDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    due.setHours(0, 0, 0, 0);
+    return Math.max(0, Math.ceil((due.getTime() - today.getTime()) / 86400000));
+  }
+
+  private projectDurationDays(
+    startDate?: string | null,
+    dueDate?: string | null,
+  ): number | null {
+    if (!startDate || !dueDate) return null;
+    const start = new Date(startDate);
+    const due = new Date(dueDate);
+    return Math.max(
+      1,
+      Math.ceil((due.getTime() - start.getTime()) / 86400000) + 1,
+    );
+  }
+
+  private mapMaterialItem(m: Record<string, unknown>) {
+    const status = String(m.status);
+    const workTypeName = (m.workType as { name?: string })?.name;
+    return {
+      id: String(m.id),
+      name: String(m.name),
+      spec: String(m.specification ?? ''),
+      category: String(m.category ?? workTypeName ?? ''),
+      brand: String(m.brand ?? '—'),
+      qty: m.quantity != null ? String(m.quantity) : '',
+      unit: String(m.unit ?? ''),
+      status: status === 'not_started' ? 'pending' : status,
+      room: (m.room as { name?: string })?.name,
+      installedAt: m.installDate ? String(m.installDate) : null,
+    };
+  }
 
   private mapStatus(status: string): string {
     if (status === 'progress') return 'in_progress';
@@ -80,8 +178,86 @@ export class LivebuildPortalService {
     return d >= startStr && d <= end;
   }
 
-  private mapProjectSummary(p: LivebuildProject) {
+  private coverGradientForProject(id: number): string {
+    const gradients = [
+      'linear-gradient(135deg,#1a3d5c,#0f2a44)',
+      'linear-gradient(135deg,#1e3a5f,#162d4a)',
+      'linear-gradient(135deg,#0d2233,#1a3d5c)',
+      'linear-gradient(135deg,#1a365d,#0c4a6e)',
+    ];
+    return gradients[id % gradients.length];
+  }
+
+  private projectTimeline(p: LivebuildProject): {
+    daysElapsed: number;
+    totalDays: number;
+  } {
+    const start = p.startDate ? new Date(p.startDate) : new Date();
+    const due = p.dueDate
+      ? new Date(p.dueDate)
+      : new Date(start.getTime() + 45 * 86400000);
+    const totalDays = Math.max(
+      1,
+      Math.ceil((due.getTime() - start.getTime()) / 86400000),
+    );
+    const daysElapsed = p.startDate
+      ? Math.min(
+          totalDays,
+          Math.max(
+            0,
+            Math.ceil(
+              (Date.now() - new Date(p.startDate).getTime()) / 86400000,
+            ),
+          ),
+        )
+      : 0;
+    return { daysElapsed, totalDays };
+  }
+
+  private latestUpdateForProject(
+    p: LivebuildProject,
+    latestDpr?: LivebuildDpr & { workType?: { name?: string } },
+  ): { text: string; at: string | null } {
     const pct = this.core.getEffectivePct(p);
+    if (latestDpr) {
+      const wt = latestDpr.workType?.name;
+      const note = latestDpr.notes?.trim();
+      const text =
+        note ||
+        (wt ? `${wt} updated` : `${p.phase ?? 'Site'} progress logged`);
+      return {
+        text,
+        at: (latestDpr.createdAt ?? latestDpr.reportDate)?.toString() ?? null,
+      };
+    }
+    if (
+      p.status === 'complete' ||
+      p.overallPct >= 100 ||
+      p.pctOverride === 100
+    ) {
+      const when = p.dueDate ?? p.updatedAt?.toISOString?.() ?? null;
+      return {
+        text: when
+          ? `Completed on ${new Date(when).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`
+          : 'Project completed',
+        at: when,
+      };
+    }
+    return {
+      text: `${p.phase ?? 'Project'} · ${pct}% complete`,
+      at: p.updatedAt?.toISOString?.() ?? null,
+    };
+  }
+
+  private mapProjectSummary(
+    p: LivebuildProject,
+    roomCount = 0,
+    latestDpr?: LivebuildDpr,
+    coverThumbnails?: string[],
+  ) {
+    const pct = this.core.getEffectivePct(p);
+    const { daysElapsed, totalDays } = this.projectTimeline(p);
+    const latest = this.latestUpdateForProject(p, latestDpr as LivebuildDpr & { workType?: { name?: string } });
     return {
       id: String(p.id),
       title: p.name,
@@ -90,12 +266,22 @@ export class LivebuildPortalService {
       locality: undefined,
       status: this.mapStatus(p.status),
       overallProgress: pct,
-      coverImageUrl: null,
-      bhk: p.propertyType ?? undefined,
+      coverImageUrl: p.coverImageUrl ?? null,
+      coverGradient: this.coverGradientForProject(p.id),
+      coverThumbnails: coverThumbnails?.length ? coverThumbnails.slice(0, 4) : undefined,
+      bhk: this.parseBhkLabel(p.name),
+      propertyType: p.propertyType ?? undefined,
+      propertyLabel: p.propertyType ?? undefined,
+      projectType: p.projectType ?? 'Interior',
       startedAt: p.startDate ?? null,
       dueAt: p.dueDate ?? null,
       phase: p.phase,
       projectCode: p.projectCode,
+      roomCount,
+      daysElapsed,
+      totalDays,
+      daysLabel: `${daysElapsed}/${totalDays}`,
+      latestUpdate: latest,
     };
   }
 
@@ -176,38 +362,98 @@ export class LivebuildPortalService {
     const suffix = mobileSuffix10(mobile);
     const projects = await this.projectRepo
       .createQueryBuilder('p')
+      .leftJoinAndSelect('p.rooms', 'rooms')
       .where(
         `p.customer_mobile = :normalized OR RIGHT(REGEXP_REPLACE(p.customer_mobile, '[^0-9]', '', 'g'), 10) = :suffix`,
         { normalized, suffix },
       )
       .orderBy('p.id', 'ASC')
       .getMany();
-    return projects.map((p) => this.mapProjectSummary(p));
+
+    const ids = projects.map((p) => p.id);
+    const latestByProject = new Map<number, LivebuildDpr>();
+    const thumbnailsByProject = new Map<number, string[]>();
+    if (ids.length > 0) {
+      const dprs = await this.dprRepo
+        .createQueryBuilder('d')
+        .leftJoinAndSelect('d.workType', 'wt')
+        .leftJoinAndSelect('d.photos', 'photos')
+        .where('d.project_id IN (:...ids)', { ids })
+        .orderBy('d.report_date', 'DESC')
+        .addOrderBy('d.created_at', 'DESC')
+        .addOrderBy('photos.display_order', 'ASC')
+        .getMany();
+      for (const d of dprs) {
+        if (!latestByProject.has(d.projectId)) {
+          latestByProject.set(d.projectId, d);
+        }
+        const urls = thumbnailsByProject.get(d.projectId) ?? [];
+        if (urls.length >= 4) continue;
+        const sorted = [...(d.photos ?? [])].sort(
+          (a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0),
+        );
+        for (const ph of sorted) {
+          if (urls.length >= 4) break;
+          if (ph.fileUrl && !urls.includes(ph.fileUrl)) urls.push(ph.fileUrl);
+        }
+        if (urls.length) thumbnailsByProject.set(d.projectId, urls);
+      }
+    }
+
+    return projects.map((p) =>
+      this.mapProjectSummary(
+        p,
+        p.rooms?.length ?? 0,
+        latestByProject.get(p.id),
+        thumbnailsByProject.get(p.id),
+      ),
+    );
   }
 
   private buildGraph(project: LivebuildProject, rooms: LivebuildRoom[]) {
     const start = project.startDate ? new Date(project.startDate) : new Date();
+    start.setHours(0, 0, 0, 0);
     const due = project.dueDate
       ? new Date(project.dueDate)
       : new Date(start.getTime() + 45 * 86400000);
+    due.setHours(0, 0, 0, 0);
     const totalDays = Math.max(
       1,
       Math.ceil((due.getTime() - start.getTime()) / 86400000),
     );
     const actualPct = this.core.getEffectivePct(project);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const elapsedDay = project.startDate
+      ? Math.min(
+          totalDays,
+          Math.max(0, Math.ceil((today.getTime() - start.getTime()) / 86400000)),
+        )
+      : totalDays;
+    const onHold = rooms.some((r) => r.status === 'hold');
     const points = [];
-    for (let i = 0; i <= Math.min(totalDays, 14); i++) {
+    for (let i = 0; i <= totalDays; i++) {
       const targetPct = Math.min(100, Math.round((i / totalDays) * 100));
-      const actual =
-        i === Math.min(totalDays, 14)
-          ? actualPct
-          : Math.round((actualPct * i) / Math.min(totalDays, 14));
+      let actual = 0;
+      if (i <= elapsedDay) {
+        actual =
+          elapsedDay > 0
+            ? Math.round((actualPct * i) / elapsedDay)
+            : i === 0
+              ? 0
+              : actualPct;
+      } else {
+        actual = actualPct;
+      }
+      if (i === elapsedDay) actual = actualPct;
+      const dayDate = new Date(start.getTime() + i * 86400000);
       points.push({
         dayIndex: i,
-        label: `D${i}`,
+        label: `Day ${i + 1}`,
+        date: dayDate.toISOString().slice(0, 10),
         actualPct: actual,
         targetPct,
-        status: rooms.some((r) => r.status === 'hold') ? 'on_hold' : 'live',
+        status: onHold ? 'on_hold' : 'live',
       });
     }
     return { points, totalDays, start, due };
@@ -239,7 +485,7 @@ export class LivebuildPortalService {
         )
       : 0;
     return {
-      project: this.mapProjectSummary(project),
+      project: this.mapProjectSummary(project, rooms.length),
       graphPoints: points,
       stats: {
         completedPct: this.core.getEffectivePct(project),
@@ -275,8 +521,12 @@ export class LivebuildPortalService {
       return { rooms: roomRows.map((r) => this.mapRoom(r)), workTypes: [] };
     }
 
-    const rangeDays = this.parseRangeDays(opts.range);
-    const anchor = opts.date ? new Date(opts.date) : new Date();
+    const explicitDate = opts.date ? this.normalizeDate(opts.date) : null;
+    const rangeDays =
+      explicitDate && !opts.range ? 1 : this.parseRangeDays(opts.range);
+    const anchor = explicitDate
+      ? new Date(`${explicitDate}T12:00:00.000Z`)
+      : new Date();
 
     const dprEntries = (await this.core.listDpr(
       projectId,
@@ -403,19 +653,43 @@ export class LivebuildPortalService {
   async paymentsPortal(projectId: number, mobile: string) {
     const ctx = { isAdmin: false, mobile };
     const rows = await this.core.listPayments(projectId, ctx);
-    const paid = (rows as Array<{ status: string; pct: number }>).filter(
-      (p) => p.status === 'paid',
+    const milestones = (rows as Array<Record<string, unknown>>).map((p) => ({
+      id: String(p.id),
+      name: String(p.label),
+      progressPct: Number(p.pct),
+      status: String(p.status),
+      dueDate: p.dueDate ? String(p.dueDate) : null,
+      paidDate: p.paidDate ? String(p.paidDate) : null,
+    }));
+    const paidRows = milestones.filter((p) => p.status === 'paid');
+    const pendingRows = milestones.filter((p) => p.status !== 'paid');
+    const overallPaidPct = Math.min(
+      100,
+      Math.round(paidRows.reduce((s, p) => s + p.progressPct, 0)),
     );
-    const overallPaidPct = paid.reduce((s, p) => s + Number(p.pct), 0);
+    const pendingPct = Math.min(
+      100,
+      Math.round(pendingRows.reduce((s, p) => s + p.progressPct, 0)),
+    );
+    const nextDue =
+      milestones.find((p) => p.status === 'due') ??
+      milestones.find((p) => p.status === 'upcoming') ??
+      null;
+
+    const docs = await this.core.listDocuments(projectId, ctx);
+    const statement = (
+      docs as Array<{ category: string; fileUrl: string }>
+    ).find((d) => d.category === 'statement' || d.category === 'payment');
+
     return {
-      overallPaidPct: Math.min(100, Math.round(overallPaidPct)),
-      milestones: (rows as Array<Record<string, unknown>>).map((p) => ({
-        id: String(p.id),
-        name: String(p.label),
-        progressPct: Number(p.pct),
-        status: String(p.status),
-        dueDate: p.dueDate ? String(p.dueDate) : null,
-      })),
+      overallPaidPct,
+      pendingPct,
+      totalMilestones: milestones.length,
+      paidMilestonesCount: paidRows.length,
+      pendingMilestonesCount: pendingRows.length,
+      milestones,
+      nextDue,
+      statementUrl: statement?.fileUrl ?? null,
     };
   }
 
@@ -445,41 +719,98 @@ export class LivebuildPortalService {
     await this.core.getProject(projectId, ctx);
 
     const info = project.propertyInfo;
-    const fields = [
-      { label: 'Flat number', value: info?.flatNumber ?? '' },
-      { label: 'Tower', value: info?.tower ?? '' },
-      {
-        label: 'Carpet area',
-        value: info?.carpetAreaSqft ? `${info.carpetAreaSqft} sqft` : '',
-      },
-      {
-        label: 'Total area',
-        value: info?.totalAreaSqft ? `${info.totalAreaSqft} sqft` : '',
-      },
-      { label: 'Floor', value: info?.floor ?? '' },
-      { label: 'Facing', value: info?.facing ?? '' },
-      { label: 'Project code', value: project.projectCode ?? '' },
-    ].filter((f) => f.value);
+    const bhk = this.parseBhkLabel(project.name);
+    const locationParts = [
+      project.address,
+      [
+        info?.tower,
+        info?.floor ? `Floor ${info.floor}` : null,
+        info?.flatNumber ? `Unit ${info.flatNumber}` : null,
+      ]
+        .filter(Boolean)
+        .join(', '),
+    ].filter(Boolean);
 
-    const rooms = (project.rooms ?? []).map((r) => ({
-      id: String(r.id),
-      name: r.name,
-      dimensions: r.dimensions ?? '—',
-    }));
+    const scopeIncluded =
+      info?.scopeIncluded?.length
+        ? info.scopeIncluded
+        : info?.designScope
+          ? info.designScope
+              .split(/[,—–-]/)
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : [];
+
+    const specifications =
+      info?.specifications?.length
+        ? info.specifications
+        : [
+            { label: 'Package notes', value: info?.notes ?? '—' },
+          ].filter((s) => s.value && s.value !== '—');
+
+    const rooms = (project.rooms ?? [])
+      .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+      .map((r) => {
+        const dims = this.parseRoomDimensions(r);
+        return {
+          id: String(r.id),
+          name: r.name,
+          icon: this.roomIcon(r.name),
+          dimensions: r.dimensions ?? dims.lengthWidth,
+          lengthWidth: dims.lengthWidth,
+          areaSqft: dims.areaSqft,
+          areaLabel: dims.areaSqft != null ? `${dims.areaSqft} sqft` : '—',
+          ceilingHeight: r.ceilingHeight ?? '—',
+          flooring: r.flooring ?? '—',
+        };
+      });
+
+    const durationDays = this.projectDurationDays(
+      project.startDate,
+      project.dueDate,
+    );
+    const daysLeft = this.projectDaysLeft(project.dueDate);
+    const propertyCategory = this.propertyCategory(project.propertyType);
 
     return {
       propertyType: project.propertyType ?? undefined,
-      bhk: project.propertyType ?? undefined,
-      carpetArea: info?.carpetAreaSqft ? `${info.carpetAreaSqft} sq ft` : undefined,
-      builtUpArea: info?.totalAreaSqft ? `${info.totalAreaSqft} sq ft` : undefined,
+      propertyCategory,
+      bhk,
+      apartmentLabel: this.propertyTypeBadgeLabel(project.propertyType),
+      projectTypeLabel: project.projectType
+        ? `${project.projectType} project`
+        : 'Interior project',
+      carpetArea: info?.carpetAreaSqft
+        ? `${info.carpetAreaSqft}`
+        : undefined,
+      builtUpArea: info?.totalAreaSqft ? `${info.totalAreaSqft}` : undefined,
+      superBuiltUpArea: info?.superBuiltUpSqft
+        ? `${info.superBuiltUpSqft}`
+        : info?.totalAreaSqft && info?.balconySqft
+          ? `${info.totalAreaSqft + info.balconySqft}`
+          : undefined,
+      balconyArea: info?.balconySqft ? `${info.balconySqft}` : undefined,
+      floorTower:
+        info?.floor || info?.tower
+          ? `${info?.floor ? `Floor ${info.floor}` : ''}${info?.floor && info?.tower ? ' · ' : ''}${info?.tower ?? ''}`
+          : undefined,
+      unitNumber: info?.flatNumber ?? undefined,
+      facing: info?.facing ? `${info.facing} facing` : undefined,
       address: project.address ?? undefined,
-      city: undefined,
+      locationLine: locationParts.join(' · ') || undefined,
       packageName: project.phase ?? undefined,
-      fields,
-      designScope: info?.designScope ?? undefined,
-      rooms,
       projectTitle: project.name,
       projectCode: project.projectCode ?? undefined,
+      designScope: info?.designScope ?? undefined,
+      scopeIncluded,
+      specifications,
+      rooms,
+      timeline: {
+        startDate: project.startDate ?? null,
+        dueDate: project.dueDate ?? null,
+        durationDays,
+        daysLeft,
+      },
     };
   }
 
@@ -488,39 +819,49 @@ export class LivebuildPortalService {
     mobile: string,
     filters?: { status?: string; room?: string },
   ) {
-    const rows = await this.core.listMaterials(projectId, {
-      isAdmin: false,
-      mobile,
-    });
-    let list = rows as unknown as Array<Record<string, unknown>>;
-    if (filters?.status) {
+    const ctx = { isAdmin: false, mobile };
+    const rows = await this.core.listMaterials(projectId, ctx);
+    const allItems = (rows as unknown as Array<Record<string, unknown>>).map(
+      (m) => this.mapMaterialItem(m),
+    );
+
+    let items = allItems;
+    if (filters?.status && filters.status !== 'all') {
       const want =
-        filters.status === 'pending' ? 'not_started' : filters.status;
-      list = list.filter((m) => String(m.status) === want);
+        filters.status === 'pending' ? 'pending' : filters.status;
+      items = items.filter((m) => m.status === want);
     }
-    if (filters?.room) {
-      list = list.filter(
+    if (filters?.room && filters.room !== 'all') {
+      items = items.filter(
         (m) =>
-          String((m.room as { name?: string })?.name ?? '')
+          String(m.room ?? '')
             .toLowerCase()
             .includes(filters.room!.toLowerCase()),
       );
     }
-    return list.map((m) => {
-      const status = String(m.status);
-      return {
-        id: String(m.id),
-        name: String(m.name),
-        spec: String(m.specification ?? ''),
-        category: String(m.category ?? ''),
-        brand: String(m.brand ?? ''),
-        qty: m.quantity != null ? String(m.quantity) : '',
-        unit: String(m.unit ?? ''),
-        status: status === 'not_started' ? 'pending' : status,
-        room: (m.room as { name?: string })?.name,
-        installedAt: m.installDate ? String(m.installDate) : null,
-      };
-    });
+
+    const stats = {
+      total: allItems.length,
+      installed: allItems.filter((m) => m.status === 'installed').length,
+      procured: allItems.filter((m) => m.status === 'procured').length,
+      pending: allItems.filter((m) => m.status === 'pending').length,
+    };
+
+    const roomOptions = Array.from(
+      new Set(allItems.map((m) => m.room).filter(Boolean) as string[]),
+    ).sort();
+
+    const docs = await this.core.listDocuments(projectId, ctx);
+    const boq = (docs as Array<{ category: string; fileUrl: string }>).find(
+      (d) => d.category === 'boq',
+    );
+
+    return {
+      stats,
+      roomOptions,
+      boqPdfUrl: boq?.fileUrl ?? null,
+      items,
+    };
   }
 
   async documentsPortal(projectId: number, mobile: string) {
@@ -528,30 +869,89 @@ export class LivebuildPortalService {
       isAdmin: false,
       mobile,
     });
-    return (rows as unknown as Array<Record<string, unknown>>).map((d) => ({
-      id: String(d.id),
-      name: String(d.name),
-      category: String(d.category),
-      url: String(d.fileUrl),
-      uploadedAt: d.createdAt ? String(d.createdAt) : undefined,
-    }));
+    const items = (rows as unknown as Array<Record<string, unknown>>).map(
+      (d) => ({
+        id: String(d.id),
+        name: String(d.name),
+        category: String(d.category ?? 'other').toLowerCase(),
+        url: String(d.fileUrl),
+        uploadedAt: d.createdAt ? String(d.createdAt) : undefined,
+        roomName: (d.room as { name?: string })?.name ?? 'General',
+        workType: d.relatedWorkType ? String(d.relatedWorkType) : undefined,
+        expiryDate: d.expiryDate ? String(d.expiryDate) : null,
+        fileSize: d.fileSize != null ? Number(d.fileSize) : null,
+        fileSizeLabel: this.formatFileSize(
+          d.fileSize != null ? Number(d.fileSize) : null,
+        ),
+      }),
+    );
+
+    const countFor = (cat: string) =>
+      items.filter((d) => d.category === cat).length;
+
+    const categoryCounts = {
+      all: items.length,
+      warranty: countFor('warranty'),
+      boq: countFor('boq'),
+      agreement: countFor('agreement'),
+      design: countFor('design'),
+      other: items.filter(
+        (d) =>
+          !['warranty', 'boq', 'agreement', 'design'].includes(d.category),
+      ).length,
+    };
+
+    return { items, categoryCounts };
   }
 
   async vizPortal(projectId: number, mobile: string) {
-    await this.core.getProject(projectId, { isAdmin: false, mobile });
-    const docs = await this.core.listDocuments(projectId, {
-      isAdmin: false,
-      mobile,
+    const ctx = { isAdmin: false, mobile };
+    await this.core.getProject(projectId, ctx);
+    const project = await this.projectRepo.findOne({
+      where: { id: projectId },
+      relations: ['propertyInfo', 'rooms'],
     });
+    const docs = await this.core.listDocuments(projectId, ctx);
     const design = (docs as Array<{ category: string; fileUrl: string }>).find(
-      (d) => d.category === 'design',
+      (d) => d.category === 'design' || d.category === 'floor_plan',
     );
+    const info = project?.propertyInfo;
+    const rooms = (project?.rooms ?? []).map((r) => this.mapRoom(r));
+    const floorPlanTitle = project
+      ? `${this.parseBhkLabel(project.name) ?? 'Project'} Floor Plan`
+      : 'Floor Plan';
+    const designSpecs = [
+      { label: 'Style', value: project?.name ?? 'Interior design' },
+      {
+        label: 'Scope',
+        value: info?.designScope ?? 'Full home interior',
+      },
+      {
+        label: 'Floor',
+        value: info?.floor ? `Floor ${info.floor}` : '—',
+      },
+      {
+        label: 'Facing',
+        value: info?.facing ?? '—',
+      },
+    ];
+
+    const viz3d = await this.core.get3dVizPayload(projectId);
+
     return {
-      panoramaUrl: null,
-      renderPct: this.core.getEffectivePct(
-        (await this.projectRepo.findOne({ where: { id: projectId } }))!,
-      ),
+      panoramaUrl: project?.panoramaUrl ?? null,
+      renderPct: project
+        ? this.core.getEffectivePct(project)
+        : 0,
       floorPlanUrl: design?.fileUrl ?? null,
+      floorPlanPdfUrl: design?.fileUrl ?? null,
+      floorPlanTitle,
+      rooms,
+      designSpecs,
+      models: viz3d.models,
+      primaryModel: viz3d.primaryModel,
+      modelUrl: viz3d.primaryModel?.fileUrl ?? null,
+      hotspots: viz3d.primaryModel?.hotspots ?? [],
     };
   }
 }
