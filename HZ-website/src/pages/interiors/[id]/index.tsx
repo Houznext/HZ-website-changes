@@ -3,14 +3,26 @@ import FAQSComp from "@/components/Products/components/SubServices/Components/FA
 import InteriorsList, {
   InteriorCalc,
 } from "@/components/Products/components/SubServices/InteriorsComponent/InteriorsCard";
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import SEO from '@/components/SEO';
 import { listItems } from "@/utils/interiorshelper";
 
+const LEGACY_PRIVACY_SLUGS = new Set(['privacy-policy', 'privacypolicy']);
+
 const InteriorsId = () => {
   const router = useRouter();
   const { id } = router.query;
+
+  useEffect(() => {
+    if (typeof id === 'string' && LEGACY_PRIVACY_SLUGS.has(id.toLowerCase().replace(/_/g, '-'))) {
+      void router.replace('/privacy-policy');
+    }
+  }, [id, router]);
+
+  if (typeof id === 'string' && LEGACY_PRIVACY_SLUGS.has(id.toLowerCase().replace(/_/g, '-'))) {
+    return null;
+  }
 
   let item = id ? String(id).toLowerCase().replace("-", "") : "";
 

@@ -72,6 +72,8 @@ const nextConfig = {
       { source: '/forgot-password/:path*', destination: '/login', permanent: true },
       { source: '/services', destination: '/interiors', permanent: true },
       { source: '/interiors/kitchen', destination: '/services/modular-kitchen', permanent: true },
+      { source: '/interiors/Privacy-policy', destination: '/privacy-policy', permanent: true },
+      { source: '/interiors/privacy-policy', destination: '/privacy-policy', permanent: true },
       { source: '/commercial-interiors', destination: '/services/commercial-interiors', permanent: true },
       { source: '/portal/login', destination: '/login?callbackUrl=/livebuild/dashboard', permanent: true },
       { source: '/portal/:projectId/documents', destination: '/livebuild/:projectId/documents', permanent: false },

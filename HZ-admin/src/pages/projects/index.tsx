@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   Chip,
+  Checkbox,
   CircularProgress,
   Dialog,
   DialogContent,
@@ -29,6 +30,7 @@ import apiClient from "@/src/utils/apiClient";
 import { uploadFile } from "@/src/utils/uploadFile";
 import AccessDenied from "@/src/common/AccessDenied";
 import { usePermissionStore } from "@/src/stores/usePermissions";
+import { LANDING_PAGES_BY_STATE } from "@/src/lib/landingPagesByState";
 
 interface InteriorProject {
   id: number; title: string; location: string;
@@ -37,6 +39,7 @@ interface InteriorProject {
   style: string; rating: number; description: string;
   rooms: string[]; images: string[];
   status: string; featured: boolean; sortOrder: number;
+  showOnLandingPage: boolean; landingPageCities: string[];
   createdAt: string; updatedAt: string;
 }
 
@@ -46,7 +49,7 @@ interface ProjectForm {
   deliveryDays: string; style: string; rating: string;
   description: string; rooms: string[];
   images: string[]; status: string; featured: boolean;
-  sortOrder: string;
+  sortOrder: string; showOnLandingPage: boolean; landingPageCities: string[];
 }
 
 const INITIAL_FORM: ProjectForm = {
@@ -55,6 +58,7 @@ const INITIAL_FORM: ProjectForm = {
   deliveryDays: "", style: "Modern", rating: "4.8",
   description: "", rooms: [], images: [],
   status: "Draft", featured: false, sortOrder: "",
+  showOnLandingPage: false, landingPageCities: [],
 };
 
 const ROOMS_LIST = [
@@ -257,6 +261,8 @@ const Projects = () => {
         status: row.status || "Draft",
         featured: !!row.featured,
         sortOrder: row.sortOrder ? String(row.sortOrder) : "",
+        showOnLandingPage: !!row.showOnLandingPage,
+        landingPageCities: Array.isArray(row.landingPageCities) ? row.landingPageCities : [],
       });
     }
     setOpen(true);
@@ -278,6 +284,8 @@ const Projects = () => {
     status: forceStatus || f.status,
     featured: f.featured,
     sortOrder: f.sortOrder ? Number(f.sortOrder) : undefined,
+    showOnLandingPage: f.showOnLandingPage,
+    landingPageCities: f.showOnLandingPage ? f.landingPageCities : [],
   });
 
   const handleImageUpload = async (files: File[]) => {
@@ -788,6 +796,60 @@ const Projects = () => {
               <MenuItem value="Draft">Draft</MenuItem><MenuItem value="Live">Live</MenuItem><MenuItem value="Hidden">Hidden</MenuItem>
             </Select>
             <FormControlLabel control={<Switch checked={form.featured} onChange={(e) => setForm((p) => ({ ...p, featured: e.target.checked }))} />} label="Mark as featured" />
+          </Box>
+
+          <Box sx={{ mt: 2.5, p: 2, border: "1.5px solid #e2e8f0", borderRadius: "12px", background: "#fff" }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={form.showOnLandingPage}
+                  onChange={(e) =>
+                    setForm((p) => ({
+                      ...p,
+                      showOnLandingPage: e.target.checked,
+                      landingPageCities: e.target.checked ? p.landingPageCities : [],
+                    }))
+                  }
+                />
+              }
+              label={<Typography sx={{ fontWeight: 700, color: "#0f2a44", fontSize: 14 }}>Show on landing pages</Typography>}
+            />
+            <Typography sx={{ fontSize: 12, color: "#64748b", mt: 0.5, mb: form.showOnLandingPage ? 1.5 : 0 }}>
+              When enabled, choose which city landing pages should display this project (max 4 per page).
+            </Typography>
+            {form.showOnLandingPage && (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                {LANDING_PAGES_BY_STATE.map((group) => (
+                  <Box key={group.state}>
+                    <Typography sx={{ fontWeight: 800, color: "#0f2a44", fontSize: 13, mb: 0.8 }}>
+                      {group.state}
+                    </Typography>
+                    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr 1fr", md: "1fr 1fr 1fr" }, gap: 0.5 }}>
+                      {group.cities.map((city) => (
+                        <FormControlLabel
+                          key={city.slug}
+                          control={
+                            <Checkbox
+                              size="small"
+                              checked={form.landingPageCities.includes(city.slug)}
+                              onChange={() => {
+                                setForm((prev) => {
+                                  const next = new Set(prev.landingPageCities);
+                                  if (next.has(city.slug)) next.delete(city.slug);
+                                  else next.add(city.slug);
+                                  return { ...prev, landingPageCities: Array.from(next) };
+                                });
+                              }}
+                            />
+                          }
+                          label={<Typography sx={{ fontSize: 13, color: "#334155" }}>{city.label}</Typography>}
+                        />
+                      ))}
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            )}
           </Box>
         </DialogContent>
         <Box sx={{ p: "16px 20px", borderTop: "1.5px solid #e2e8f0", display: "flex", gap: 1, justifyContent: "flex-end", background: "#f8fafc" }}>

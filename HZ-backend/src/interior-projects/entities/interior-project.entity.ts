@@ -56,6 +56,12 @@ export class InteriorProject {
   @Column({ nullable: true })
   sortOrder: number;
 
+  @Column({ default: false })
+  showOnLandingPage: boolean;
+
+  @Column({ type: 'simple-array', nullable: true })
+  landingPageCities: string[];
+
   @CreateDateColumn()
   createdAt: Date;
 

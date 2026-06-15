@@ -89,6 +89,20 @@ export class InteriorProjectsService {
     return project;
   }
 
+  async findForLandingPage(citySlug: string, limit = 4) {
+    const safeLimit = Math.min(Math.max(limit, 1), 12);
+    const projects = await this.repo.find({
+      where: { status: 'Live', showOnLandingPage: true },
+      order: { sortOrder: 'ASC', createdAt: 'DESC' },
+    });
+
+    return projects
+      .filter((project) =>
+        (project.landingPageCities || []).includes(citySlug),
+      )
+      .slice(0, safeLimit);
+  }
+
   async update(id: number, dto: UpdateInteriorProjectDto) {
     await this.findOne(id);
     await this.repo.update(id, dto);

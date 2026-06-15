@@ -99,9 +99,29 @@ export function ProjectPaymentsTab({ projectId, projectName }: Props) {
                 />
               </td>
               <td>
-                <Badge variant={p.status === 'paid' ? 'tl' : p.status === 'due' ? 'red' : 'gray'}>
-                  {p.status === 'paid' ? 'Paid ✓' : p.status === 'due' ? 'Due now' : p.status}
-                </Badge>
+                <select
+                  value={p.status}
+                  onChange={(e) => updatePayment(p, { status: e.target.value })}
+                  style={{
+                    fontSize: 12,
+                    padding: '5px 8px',
+                    borderRadius: 6,
+                    border: '1px solid var(--lb-bd)',
+                    background: '#fff',
+                    color:
+                      p.status === 'paid'
+                        ? 'var(--lb-tl)'
+                        : p.status === 'due'
+                          ? 'var(--lb-rd)'
+                          : 'var(--lb-mu)',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="upcoming">Upcoming</option>
+                  <option value="due">Due now</option>
+                  <option value="paid">Paid</option>
+                </select>
               </td>
               <td style={{ fontSize: 12.5, color: 'var(--lb-mu)' }}>{p.paidDate?.slice(0, 10) || '—'}</td>
               <td>

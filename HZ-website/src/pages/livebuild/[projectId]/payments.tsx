@@ -265,7 +265,17 @@ function LivebuildPaymentsContent() {
                   <Button
                     variant="blue"
                     style={{ width: '100%', justifyContent: 'center', padding: 12 }}
-                    onClick={() => toast('Redirecting to payment…')}
+                    onClick={() => {
+                      if (payments.payNowUrl) {
+                        window.location.href = payments.payNowUrl;
+                        return;
+                      }
+                      if (payments.statementUrl) {
+                        window.open(payments.statementUrl, '_blank', 'noopener,noreferrer');
+                        return;
+                      }
+                      toast('Contact your project manager to complete payment.');
+                    }}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                       <rect x="1" y="4" width="22" height="16" rx="2" />

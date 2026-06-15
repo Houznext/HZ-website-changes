@@ -58,6 +58,9 @@ export class LivebuildSeedService implements OnModuleInit {
       const docRepo = manager.getRepository(LivebuildDocument);
       const matRepo = manager.getRepository(LivebuildMaterial);
       const propRepo = manager.getRepository(LivebuildPropertyInfo);
+      const roomWtRepo = manager.getRepository(LivebuildRoomWorkType);
+      const dprRepo = manager.getRepository(LivebuildDpr);
+      const dprPhotoRepo = manager.getRepository(LivebuildDprPhoto);
 
       const customers = await customerRepo.save([
         {
@@ -102,6 +105,7 @@ export class LivebuildSeedService implements OnModuleInit {
           startDate: '2025-11-01',
           dueDate: '2026-04-30',
           address: 'Gachibowli, Hyderabad',
+          siteManager: 'Suresh Babu',
         },
         {
           projectCode: 'HZLB-0002',
@@ -140,6 +144,7 @@ export class LivebuildSeedService implements OnModuleInit {
         {
           name: 'Plywood work',
           category: 'Carpentry',
+          defaultRooms: ['Master Bedroom', "Children's Bedroom", 'Kitchen'],
           requiresPhotos: true,
           status: 'active',
           displayOrder: 1,
@@ -147,6 +152,7 @@ export class LivebuildSeedService implements OnModuleInit {
         {
           name: 'Electrical work',
           category: 'Electrical',
+          defaultRooms: ['Master Bedroom', 'Living Room'],
           requiresPhotos: true,
           status: 'active',
           displayOrder: 2,
@@ -154,6 +160,7 @@ export class LivebuildSeedService implements OnModuleInit {
         {
           name: 'Painting',
           category: 'Painting',
+          defaultRooms: ['Master Bedroom', "Children's Bedroom", 'Living Room'],
           requiresPhotos: true,
           status: 'active',
           displayOrder: 3,
@@ -168,6 +175,7 @@ export class LivebuildSeedService implements OnModuleInit {
         {
           name: 'False ceiling',
           category: 'False ceiling',
+          defaultRooms: ['Living Room'],
           requiresPhotos: true,
           status: 'active',
           displayOrder: 5,
@@ -175,6 +183,7 @@ export class LivebuildSeedService implements OnModuleInit {
         {
           name: 'Tiles',
           category: 'Flooring',
+          defaultRooms: ['Master Bedroom', "Children's Bedroom", 'Kitchen', 'Master Bath', 'Common Bath'],
           requiresPhotos: true,
           status: 'active',
           displayOrder: 6,
@@ -279,6 +288,97 @@ export class LivebuildSeedService implements OnModuleInit {
       ]);
 
       const roomByName = Object.fromEntries(rooms.map((r) => [r.name, r]));
+      const wtMapEarly = Object.fromEntries(workTypes.map((w) => [w.name, w]));
+
+      const roomWtRows: Array<{
+        roomId: number;
+        workTypeId: number;
+        pct: number;
+        status: string;
+      }> = [
+        { room: 'Master Bedroom', wt: 'Plywood work', pct: 90, status: 'in_progress' },
+        { room: 'Master Bedroom', wt: 'Electrical work', pct: 85, status: 'in_progress' },
+        { room: 'Master Bedroom', wt: 'Tiles', pct: 80, status: 'in_progress' },
+        { room: 'Master Bedroom', wt: 'Painting', pct: 85, status: 'in_progress' },
+        { room: "Children's Bedroom", wt: 'Plywood work', pct: 75, status: 'in_progress' },
+        { room: "Children's Bedroom", wt: 'Tiles', pct: 70, status: 'in_progress' },
+        { room: "Children's Bedroom", wt: 'Painting', pct: 72, status: 'in_progress' },
+        { room: 'Living Room', wt: 'False ceiling', pct: 65, status: 'in_progress' },
+        { room: 'Living Room', wt: 'Electrical work', pct: 70, status: 'in_progress' },
+        { room: 'Living Room', wt: 'Painting', pct: 68, status: 'in_progress' },
+        { room: 'Kitchen', wt: 'Tiles', pct: 40, status: 'not_started' },
+        { room: 'Kitchen', wt: 'Plywood work', pct: 50, status: 'not_started' },
+        { room: 'Master Bath', wt: 'Tiles', pct: 90, status: 'completed' },
+        { room: 'Common Bath', wt: 'Tiles', pct: 88, status: 'completed' },
+      ].map((row) => ({
+        roomId: roomByName[row.room as keyof typeof roomByName].id,
+        workTypeId: wtMapEarly[row.wt as keyof typeof wtMapEarly].id,
+        pct: row.pct,
+        status: row.status,
+      }));
+
+      await roomWtRepo.save(roomWtRows);
+
+      const seedPhotoUrl = (label: string) =>
+        `https://placehold.co/800x600/e2e8f0/475569?text=${encodeURIComponent(label)}`;
+
+      const dprDate = '2026-05-30';
+      const dprEntries = await dprRepo.save([
+        {
+          projectId: p1.id,
+          roomId: roomByName['Master Bedroom'].id,
+          workTypeId: wtMapEarly['Plywood work'].id,
+          reportDate: dprDate,
+          pctToday: 90,
+          doneToday: true,
+          notes: 'Loft shutter installation completed',
+          submittedBy: 'Suresh Babu',
+        },
+        {
+          projectId: p1.id,
+          roomId: roomByName['Master Bedroom'].id,
+          workTypeId: wtMapEarly['Painting'].id,
+          reportDate: dprDate,
+          pctToday: 85,
+          doneToday: true,
+          notes: 'Final coat applied',
+          submittedBy: 'Suresh Babu',
+        },
+        {
+          projectId: p1.id,
+          roomId: roomByName['Living Room'].id,
+          workTypeId: wtMapEarly['False ceiling'].id,
+          reportDate: dprDate,
+          pctToday: 65,
+          doneToday: true,
+          notes: 'Gypsum board fixing in progress',
+          submittedBy: 'Suresh Babu',
+        },
+      ]);
+
+      await dprPhotoRepo.save([
+        {
+          dprId: dprEntries[0].id,
+          fileUrl: seedPhotoUrl('Master BR Plywood'),
+          fileName: 'master-br-plywood.jpg',
+          fileSize: 245000,
+          displayOrder: 0,
+        },
+        {
+          dprId: dprEntries[0].id,
+          fileUrl: seedPhotoUrl('Master BR Loft'),
+          fileName: 'master-br-loft.jpg',
+          fileSize: 198000,
+          displayOrder: 1,
+        },
+        {
+          dprId: dprEntries[2].id,
+          fileUrl: seedPhotoUrl('Living False Ceiling'),
+          fileName: 'living-ceiling.jpg',
+          fileSize: 210000,
+          displayOrder: 0,
+        },
+      ]);
 
       await paymentRepo.save([
         {

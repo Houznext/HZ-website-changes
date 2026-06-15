@@ -163,16 +163,12 @@ function LiveBuildSettingsPage() {
                 ))
               )}
               {!loading && team.length === 0 ? (
-                <div className="lb-empty">No team members</div>
+                <div className="lb-empty">No site managers assigned yet</div>
               ) : null}
-              <Btn
-                variant="ghost"
-                size="sm"
-                style={{ marginTop: 12 }}
-                onClick={() => lbToast('Add team member — connect HR module', 'info')}
-              >
-                + Add member
-              </Btn>
+              <div style={{ fontSize: 12, color: 'var(--lb-mu)', marginTop: 14, lineHeight: 1.5 }}>
+                Site managers are assigned per project in project settings. This list is built from
+                active LiveBuild projects.
+              </div>
             </div>
           )}
 

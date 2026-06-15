@@ -134,6 +134,7 @@ export interface LbPayments {
   milestones: LbPaymentMilestone[];
   nextDue?: LbPaymentDue | null;
   statementUrl?: string | null;
+  payNowUrl?: string | null;
 }
 
 export interface LbQuery {

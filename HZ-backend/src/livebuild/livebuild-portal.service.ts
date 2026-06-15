@@ -681,6 +681,43 @@ export class LivebuildPortalService {
       docs as Array<{ category: string; fileUrl: string }>
     ).find((d) => d.category === 'statement' || d.category === 'payment');
 
+    const project = await this.projectRepo.findOne({
+      where: { id: projectId },
+      select: ['projectCode', 'name', 'siteManager'],
+    });
+    const payEmail =
+      process.env.LIVEBUILD_PAYMENTS_EMAIL?.trim() || 'accounts@houznext.com';
+    const payWhatsApp = process.env.LIVEBUILD_PAYMENTS_WHATSAPP?.replace(
+      /\D/g,
+      '',
+    );
+    let payNowUrl: string | null = null;
+    if (nextDue && project) {
+      const subject = encodeURIComponent(
+        `Payment — ${project.projectCode} — ${nextDue.name}`,
+      );
+      const body = encodeURIComponent(
+        [
+          'Hello,',
+          '',
+          `I would like to pay for: ${nextDue.name}`,
+          `Project: ${project.name} (${project.projectCode})`,
+          `Amount: ${Math.round(nextDue.progressPct)}% of total project cost`,
+          project.siteManager ? `Site manager: ${project.siteManager}` : '',
+          '',
+          'Thank you.',
+        ]
+          .filter(Boolean)
+          .join('\n'),
+      );
+      if (payWhatsApp && payWhatsApp.length >= 10) {
+        const text = decodeURIComponent(body);
+        payNowUrl = `https://wa.me/${payWhatsApp}?text=${encodeURIComponent(text)}`;
+      } else {
+        payNowUrl = `mailto:${payEmail}?subject=${subject}&body=${body}`;
+      }
+    }
+
     return {
       overallPaidPct,
       pendingPct,
@@ -690,6 +727,7 @@ export class LivebuildPortalService {
       milestones,
       nextDue,
       statementUrl: statement?.fileUrl ?? null,
+      payNowUrl,
     };
   }
 

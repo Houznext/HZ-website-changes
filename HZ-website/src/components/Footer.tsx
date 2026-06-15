@@ -17,6 +17,15 @@ const BUILDLIVE = [
   { label: 'Snag Management',  href: '/buildlive' },
 ]
 
+const CITIES = [
+  { label: 'Vikarabad', href: '/interior-designers-in-vikarabad' },
+  { label: 'Mahabubnagar', href: '/interior-designers-in-mahabubnagar' },
+  { label: 'Sangareddy', href: '/interior-designers-in-sangareddy' },
+  { label: 'Siddipet', href: '/interior-designers-in-siddipet' },
+  { label: 'Adilabad', href: '/interior-designers-in-adilabad' },
+  { label: 'Suryapet', href: '/interior-designers-in-suryapet' },
+]
+
 const COMPANY = [
   { label: 'About Us',         href: '/about-us' },
   { label: 'Blog',             href: '/blog' },
@@ -33,7 +42,7 @@ export default function Footer() {
   return (
     <footer style={{ background: '#0f2a44' }} className="relative z-10">
       <div className="max-w-7xl mx-auto px-6 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand column */}
           <div className="md:col-span-1">
             <Link
@@ -114,6 +123,22 @@ export default function Footer() {
             </ul>
           </div>
 
+          {/* Cities */}
+          <div>
+            <h4 className="font-head font-bold text-white text-[13px] uppercase tracking-wider mb-4">
+              Cities
+            </h4>
+            <ul className="space-y-2.5">
+              {CITIES.map((item) => (
+                <li key={item.label}>
+                  <Link href={item.href} className={footerLinkClass}>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Company */}
           <div>
             <h4 className="font-head font-bold text-white text-[13px] uppercase tracking-wider mb-4">
@@ -134,24 +159,10 @@ export default function Footer() {
 
       {/* Bottom bar */}
       <div style={{ background: '#071828' }}>
-        <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-2">
-          <p className="text-xs" style={{ color: '#5a6a7e' }}>
-            © {new Date().getFullYear()} Houznext. All rights reserved.
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-center">
+          <p className="text-xs text-center" style={{ color: '#5a6a7e' }}>
+            © {new Date().getFullYear()} Houznext Group PVT. LTD. All rights reserved.
           </p>
-          <div className="flex items-center gap-4">
-            <span
-              className="text-xs px-2 py-0.5 rounded border font-[500]"
-              style={{ color: '#5a6a7e', borderColor: '#1a3a5c' }}
-            >
-              RERA Registered
-            </span>
-            <span
-              className="text-xs px-2 py-0.5 rounded border font-[500]"
-              style={{ color: '#5a6a7e', borderColor: '#1a3a5c' }}
-            >
-              ISO 9001:2015
-            </span>
-          </div>
         </div>
       </div>
     </footer>

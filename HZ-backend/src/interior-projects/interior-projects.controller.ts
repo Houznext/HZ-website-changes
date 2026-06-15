@@ -42,6 +42,17 @@ export class InteriorProjectsController {
     return this.service.publicStats();
   }
 
+  @Get('public/landing/:citySlug')
+  findForLandingPage(
+    @Param('citySlug') citySlug: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.service.findForLandingPage(
+      citySlug,
+      limit ? parseInt(limit, 10) : 4,
+    );
+  }
+
   @Get('public/:id')
   findPublicOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findPublicOne(id);

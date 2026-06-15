@@ -22,6 +22,7 @@ import {
   Users,
   Star,
   Sparkles,
+  MapPin,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useSidebarBadges } from "@/src/hooks/useSidebarBadges";
@@ -232,6 +233,18 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/crm", label: "CRM Leads", icon: MessageSquare, badgeKey: "crmOverdue" },
       { href: "/generalenquires", label: "Enquiries", icon: Inbox },
       { href: "/calculator-leads", label: "Calculator Leads", icon: NavCalculatorLeadsIcon },
+    ],
+  },
+  {
+    id: "landing",
+    title: "Landing page",
+    links: [
+      { href: "/landing-pages/vikarabad", label: "Vikarabad", icon: MapPin },
+      { href: "/landing-pages/mahabubnagar", label: "Mahabubnagar", icon: MapPin },
+      { href: "/landing-pages/sangareddy", label: "Sangareddy", icon: MapPin },
+      { href: "/landing-pages/siddipet", label: "Siddipet", icon: MapPin },
+      { href: "/landing-pages/adilabad", label: "Adilabad", icon: MapPin },
+      { href: "/landing-pages/suryapet", label: "Suryapet", icon: MapPin },
     ],
   },
   {

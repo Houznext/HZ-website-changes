@@ -408,10 +408,24 @@ export default function LoginModal({
     }
   }, [applyCustomerSession])
 
+  const resolvePostLoginPath = useCallback((): string => {
+    const fromQuery =
+      typeof router.query.callbackUrl === 'string' ? router.query.callbackUrl.trim() : ''
+    const fromStorage =
+      typeof window !== 'undefined' ? sessionStorage.getItem('hz_login_redirect')?.trim() : ''
+    const candidate = fromQuery || fromStorage || ''
+    if (candidate.startsWith('/') && !candidate.startsWith('//')) {
+      if (typeof window !== 'undefined') sessionStorage.removeItem('hz_login_redirect')
+      return candidate
+    }
+    return '/livebuild/dashboard'
+  }, [router.query.callbackUrl])
+
   const handleFinish = () => {
+    const dest = resolvePostLoginPath()
     onClose()
     onSuccess?.()
-    void router.push('/my-account')
+    void router.push(dest)
   }
 
   const handleOtpChange = (idx: number, val: string) => {

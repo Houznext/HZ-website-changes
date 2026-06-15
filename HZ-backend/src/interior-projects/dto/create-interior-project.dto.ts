@@ -66,4 +66,12 @@ export class CreateInteriorProjectDto {
   @IsOptional()
   @IsNumber()
   sortOrder?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  showOnLandingPage?: boolean;
+
+  @IsOptional()
+  @IsArray()
+  landingPageCities?: string[];
 }

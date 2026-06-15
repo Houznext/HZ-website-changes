@@ -276,10 +276,7 @@ export class LivebuildController {
   @Get('settings/team')
   @UseGuards(ControllerAuthGuard)
   listTeam() {
-    return [
-      { id: '1', name: 'Suresh Babu', role: 'Site Manager', initials: 'SB' },
-      { id: '2', name: 'Kavitha Nair', role: 'Project Coordinator', initials: 'KN' },
-    ];
+    return this.livebuildService.listSettingsTeam();
   }
 
   @Get('settings/notifications')

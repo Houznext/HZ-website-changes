@@ -15,6 +15,8 @@ export interface InteriorProject {
   status: string
   featured: boolean
   sortOrder: number
+  showOnLandingPage?: boolean
+  landingPageCities?: string[]
   createdAt: string
   updatedAt: string
 }

@@ -187,6 +187,19 @@ export class LivebuildService {
     return rows[0].code;
   }
 
+  async recalcRoomPctFromWorkTypes(roomId: number): Promise<void> {
+    const result = await this.roomWtRepo
+      .createQueryBuilder('rwt')
+      .select('COALESCE(ROUND(AVG(rwt.pct)), 0)', 'avg')
+      .where('rwt.room_id = :roomId', { roomId })
+      .getRawOne<{ avg: string }>();
+    const avg = Number(result?.avg ?? 0);
+    const room = await this.roomRepo.findOne({ where: { id: roomId } });
+    if (!room) return;
+    await this.roomRepo.update(roomId, { pct: avg });
+    await this.recalcHybridPct(room.projectId);
+  }
+
   async recalcHybridPct(projectId: number): Promise<void> {
     const project = await this.projectRepo.findOne({ where: { id: projectId } });
     if (!project || project.pctMethod !== 'hybrid' || project.pctOverride != null) return;
@@ -850,7 +863,7 @@ export class LivebuildService {
     const saved = await this.roomWtRepo.save(
       this.roomWtRepo.create({ roomId, workTypeId, pct: 0, status: 'not_started' }),
     );
-    await this.recalcHybridPct(room.projectId);
+    await this.recalcRoomPctFromWorkTypes(roomId);
     return saved;
   }
 
@@ -860,8 +873,7 @@ export class LivebuildService {
     Object.assign(rwt, dto);
     const saved = await this.roomWtRepo.save(rwt);
     if (dto.pct != null) {
-      await this.roomRepo.update(rwt.roomId, { pct: dto.pct });
-      await this.recalcHybridPct(rwt.room.projectId);
+      await this.recalcRoomPctFromWorkTypes(rwt.roomId);
     }
     return saved;
   }
@@ -875,7 +887,7 @@ export class LivebuildService {
     const projectId = rwt.room.projectId;
     const result = await this.roomWtRepo.delete(id);
     if (!result.affected) throw new NotFoundException('Room work type not found');
-    await this.recalcHybridPct(projectId);
+    await this.recalcRoomPctFromWorkTypes(rwt.roomId);
     return { deleted: true };
   }
 
@@ -912,7 +924,48 @@ export class LivebuildService {
         workTypeId,
       })
       .execute();
-    await this.recalcHybridPct(projectId);
+    await this.recalcRoomPctFromWorkTypes(roomId);
+  }
+
+  async listSettingsTeam() {
+    const projects = await this.projectRepo.find({
+      select: ['id', 'projectCode', 'siteManager'],
+      order: { id: 'ASC' },
+    });
+    const byManager = new Map<
+      string,
+      { name: string; role: string; projectCodes: string[] }
+    >();
+    for (const p of projects) {
+      const name = p.siteManager?.trim();
+      if (!name) continue;
+      const key = name.toLowerCase();
+      const existing = byManager.get(key);
+      if (existing) {
+        existing.projectCodes.push(p.projectCode);
+      } else {
+        byManager.set(key, {
+          name,
+          role: 'Site Manager',
+          projectCodes: [p.projectCode],
+        });
+      }
+    }
+    return Array.from(byManager.values()).map((m, i) => ({
+      id: String(i + 1),
+      name: m.name,
+      role:
+        m.projectCodes.length > 1
+          ? `${m.role} · ${m.projectCodes.length} projects`
+          : `${m.role} · ${m.projectCodes[0]}`,
+      initials: m.name
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((part) => part[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase(),
+    }));
   }
 
   async buildDprContext(projectId: number, date: string, roomId: number) {
