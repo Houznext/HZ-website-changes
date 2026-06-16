@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import adminApi from '@/lib/axios';
@@ -8,12 +9,19 @@ import { getToken, getUser, saveSession } from '@/lib/session';
 import { INFRA_WHATSAPP_DISPLAY, infraBusinessWhatsappE164, infraWhatsAppMeUrl } from '@/lib/infra-public-contact';
 
 export default function SettingsPage() {
+  const router = useRouter();
   const [tab, setTab] = useState<'profile' | 'security' | 'prefs'>('profile');
   const [me, setMe] = useState<{ firstName?: string; lastName?: string; email?: string; phone?: string; id: string } | null>(
     null,
   );
   const [pwd, setPwd] = useState({ current: '', next: '', confirm: '' });
   const [profile, setProfile] = useState({ firstName: '', lastName: '', email: '', phone: '' });
+
+  useEffect(() => {
+    const q = router.query.tab;
+    const t = Array.isArray(q) ? q[0] : q;
+    if (t === 'profile' || t === 'security' || t === 'prefs') setTab(t);
+  }, [router.query.tab]);
 
   useEffect(() => {
     (async () => {

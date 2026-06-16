@@ -1,39 +1,13 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/hooks/useAuth';
-import { useEffect, useState } from 'react';
-import {
-  Bell,
-  Building2,
-  CalendarDays,
-  ChevronDown,
-  Clock,
-  FileText,
-  GitBranch,
-  Home,
-  Image,
-  LayoutGrid,
-  Inbox,
-  MessageSquare,
-  Plus,
-  Search,
-  Settings,
-  Shield,
-  UserPlus,
-  Users,
-} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ChevronDown, LogOut, Search, Settings, User } from 'lucide-react';
 import adminApi from '@/lib/axios';
-
-type NavCounts = { properties: number; pending: number; leads: number; enquiries: number; crmOverdue: number; crmVisits: number; dev: number; projects: number };
-
-const iconProps = { size: 13, strokeWidth: 1.8, fill: 'none' as const };
-
-function fmtCount(n: number) {
-  return n.toLocaleString('en-IN');
-}
+import { AdminSidebarNav, type NavCounts } from '@/components/layout/AdminSidebarNav';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 export function AdminLayout({
   children,
@@ -53,11 +27,23 @@ export function AdminLayout({
 }) {
   const router = useRouter();
   const { user, signOut } = useAuth();
-  const [counts, setCounts] = useState<NavCounts>({ properties: 0, pending: 0, leads: 0, enquiries: 0, crmOverdue: 0, crmVisits: 0, dev: 0, projects: 0 });
+  const profileWrapRef = useRef<HTMLDivElement>(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+  const [counts, setCounts] = useState<NavCounts>({
+    properties: 0,
+    pending: 0,
+    leads: 0,
+    enquiries: 0,
+    crmOverdue: 0,
+    crmVisits: 0,
+    dev: 0,
+    projects: 0,
+  });
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    void (async () => {
       try {
         const [listRes, pendRes, crmStats, enqRes, projRes] = await Promise.all([
           adminApi.get('/admin/properties', { params: { page: 1, limit: 1 } }).catch(() => null),
@@ -84,45 +70,15 @@ export function AdminLayout({
     };
   }, []);
 
-  const path = router.pathname;
-
-  const NavRow = ({
-    href,
-    label,
-    icon: Icon,
-    badge,
-  badgeVariant = 'blue',
-  active,
-}: {
-  href: string;
-  label: string;
-  icon: typeof Building2;
-  badge?: number;
-  badgeVariant?: 'blue' | 'amber' | 'accent' | 'red';
-  active: boolean;
-}) => (
-  <Link href={href} className={`asi ${active ? 'on' : ''}`}>
-    <span className="ic">
-      <Icon {...iconProps} color="currentColor" />
-    </span>
-    {label}
-    {badge != null && badge > 0 ? (
-      <span
-        className={
-          badgeVariant === 'blue'
-            ? 'nav-badge-blue'
-            : badgeVariant === 'amber'
-              ? 'nav-badge-amber'
-              : badgeVariant === 'red'
-                ? 'nav-badge-red'
-                : 'nav-badge-accent'
-        }
-      >
-        {fmtCount(badge)}
-      </span>
-    ) : null}
-  </Link>
-);
+  useEffect(() => {
+    const onPointerDown = (e: MouseEvent) => {
+      if (!profileWrapRef.current?.contains(e.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    return () => document.removeEventListener('mousedown', onPointerDown);
+  }, []);
 
   const initials = (user?.name || user?.username || '?')
     .split(/\s+/)
@@ -165,174 +121,14 @@ export function AdminLayout({
           </span>
         </div>
 
-        <nav style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
-          <div className="asec">Overview</div>
-          <NavRow
-            href="/listings"
-            label="All properties"
-            icon={Building2}
-            badge={counts.properties}
-            badgeVariant="blue"
-            active={path.startsWith('/listings')}
-          />
-          <NavRow
-            href="/pending"
-            label="Pending approval"
-            icon={Clock}
-            badge={counts.pending}
-            badgeVariant="amber"
-            active={path.startsWith('/pending')}
-          />
+        <AdminSidebarNav counts={counts} />
 
-          <div className="asec">Content</div>
-          <NavRow
-            href="/projects"
-            label="Projects"
-            icon={Home}
-            badge={counts.projects}
-            badgeVariant="blue"
-            active={path.startsWith('/projects') && !path.startsWith('/projects/new')}
-          />
-          <NavRow href="/projects/new" label="Add project" icon={Plus} badgeVariant="blue" active={path.startsWith('/projects/new')} />
-          <NavRow href="/rera-docs" label="RERA & documents" icon={FileText} badgeVariant="blue" active={path.startsWith('/rera-docs')} />
-          <div className="asec">Website CMS</div>
-          <NavRow
-            href="/website-cms/hero"
-            label="Website Hero"
-            icon={Image}
-            badgeVariant="blue"
-            active={path.startsWith('/website-cms/hero')}
-          />
-          <NavRow
-            href="/website-cms/browse-by-type"
-            label="Browse by type"
-            icon={LayoutGrid}
-            badgeVariant="blue"
-            active={path.startsWith('/website-cms/browse-by-type')}
-          />
-          <NavRow
-            href="/website-cms/featured-projects"
-            label="Featured projects"
-            icon={Home}
-            badgeVariant="blue"
-            active={path.startsWith('/website-cms/featured-projects')}
-          />
-          <NavRow
-            href="/website-cms/curated-properties"
-            label="Curated for you"
-            icon={LayoutGrid}
-            badgeVariant="blue"
-            active={path.startsWith('/website-cms/curated-properties')}
-          />
-          <NavRow
-            href="/website-cms/browse-by-city"
-            label="Browse by city"
-            icon={LayoutGrid}
-            badgeVariant="blue"
-            active={path.startsWith('/website-cms/browse-by-city')}
-          />
-          <NavRow
-            href="/website-cms/testimonials"
-            label="Customer stories"
-            icon={MessageSquare}
-            badgeVariant="blue"
-            active={path.startsWith('/website-cms/testimonials')}
-          />
-          <NavRow
-            href="/website-cms/for-sellers"
-            label="For sellers"
-            icon={FileText}
-            badgeVariant="blue"
-            active={path.startsWith('/website-cms/for-sellers')}
-          />
-          <NavRow
-            href="/website-cms/why-houznext"
-            label="Why Houznext"
-            icon={LayoutGrid}
-            badgeVariant="blue"
-            active={path.startsWith('/website-cms/why-houznext')}
-          />
-          <NavRow
-            href="/website-cms/seo"
-            label="SEO & GEO"
-            icon={Search}
-            badgeVariant="blue"
-            active={path.startsWith('/website-cms/seo')}
-          />
-
-          <div className="asec">CRM</div>
-          <NavRow
-            href="/enquiries"
-            label="Enquiries"
-            icon={Inbox}
-            badge={counts.enquiries}
-            badgeVariant="blue"
-            active={path.startsWith('/enquiries')}
-          />
-          <NavRow
-            href="/crm"
-            label="CRM"
-            icon={MessageSquare}
-            badge={counts.leads}
-            badgeVariant="amber"
-            active={path.startsWith('/crm')}
-          />
-          <NavRow
-            href="/crm/site-visits"
-            label="CRM site visits"
-            icon={CalendarDays}
-            badge={counts.crmVisits}
-            badgeVariant="blue"
-            active={path.startsWith('/crm/site-visits')}
-          />
-          <NavRow
-            href="/crm/follow-ups"
-            label="CRM follow-ups"
-            icon={Bell}
-            badge={counts.crmOverdue}
-            badgeVariant="red"
-            active={path.startsWith('/crm/follow-ups')}
-          />
-
-          <div className="asec">Team</div>
-          <NavRow href="/users" label="Users" icon={Users} badgeVariant="blue" active={path.startsWith('/users')} />
-          <NavRow href="/branches" label="Branches" icon={GitBranch} badgeVariant="blue" active={path.startsWith('/branches')} />
-          <NavRow href="/roles" label="Roles" icon={Shield} badgeVariant="blue" active={path.startsWith('/roles')} />
-
-          <div className="asec">System</div>
-          <NavRow
-            href="/developer-submissions"
-            label="Developer submissions"
-            icon={UserPlus}
-            badge={counts.dev}
-            badgeVariant="accent"
-            active={path.startsWith('/developer-submissions')}
-          />
-          <NavRow href="/settings" label="Settings" icon={Settings} badgeVariant="blue" active={path.startsWith('/settings')} />
-        </nav>
-
-        <div style={{ padding: 10, borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+        <div ref={profileWrapRef} className="sb-profile-wrap">
           <button
             type="button"
-            onClick={() => signOut()}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 9,
-              padding: '8px 10px',
-              borderRadius: 9,
-              cursor: 'pointer',
-              width: '100%',
-              border: 'none',
-              background: 'transparent',
-              color: 'inherit',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-            }}
+            className="sb-profile-btn"
+            aria-expanded={isProfileOpen}
+            onClick={() => setIsProfileOpen((v) => !v)}
           >
             <span
               style={{
@@ -354,11 +150,59 @@ export function AdminLayout({
               {initials}
             </span>
             <span style={{ textAlign: 'left', flex: 1, minWidth: 0 }}>
-              <span style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>{user?.name || user?.username || 'User'}</span>
+              <span style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>
+                {user?.name || user?.username || 'User'}
+              </span>
               <span style={{ display: 'block', fontSize: 10.5, color: 'rgba(255,255,255,0.38)' }}>{user?.role || '—'}</span>
             </span>
-            <ChevronDown size={14} strokeWidth={1.8} color="rgba(255,255,255,0.3)" style={{ marginLeft: 'auto', flexShrink: 0 }} />
+            <ChevronDown
+              size={14}
+              strokeWidth={1.8}
+              color="rgba(255,255,255,0.3)"
+              className="sb-profile-chevron"
+            />
           </button>
+
+          {isProfileOpen ? (
+            <div className="sb-profile-menu" role="menu">
+              <button
+                type="button"
+                role="menuitem"
+                className="sb-profile-menu-item primary"
+                onClick={() => {
+                  setIsProfileOpen(false);
+                  void router.push('/settings?tab=profile');
+                }}
+              >
+                <User size={14} strokeWidth={1.8} />
+                Profile
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className="sb-profile-menu-item"
+                onClick={() => {
+                  setIsProfileOpen(false);
+                  void router.push('/settings?tab=security');
+                }}
+              >
+                <Settings size={14} strokeWidth={1.8} />
+                Settings
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className="sb-profile-menu-item danger"
+                onClick={() => {
+                  setIsProfileOpen(false);
+                  setLogoutConfirmOpen(true);
+                }}
+              >
+                <LogOut size={14} strokeWidth={1.8} />
+                Log out
+              </button>
+            </div>
+          ) : null}
         </div>
       </aside>
 
@@ -369,9 +213,7 @@ export function AdminLayout({
           ) : (
             <>
               {titleLeft ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
-                  {titleLeft}
-                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>{titleLeft}</div>
               ) : (
                 <h1 style={{ fontSize: 15, fontWeight: 700, fontFamily: 'Montserrat, sans-serif', flex: 1, margin: 0 }}>{title}</h1>
               )}
@@ -396,7 +238,20 @@ export function AdminLayout({
         </header>
         <main className="admin-content">{children}</main>
       </div>
+
+      <ConfirmDialog
+        open={logoutConfirmOpen}
+        title="Log out?"
+        message="Are you sure you want to log out of Infra admin?"
+        confirmLabel="Yes"
+        cancelLabel="No"
+        danger
+        onCancel={() => setLogoutConfirmOpen(false)}
+        onConfirm={() => {
+          setLogoutConfirmOpen(false);
+          signOut();
+        }}
+      />
     </div>
   );
 }
-
