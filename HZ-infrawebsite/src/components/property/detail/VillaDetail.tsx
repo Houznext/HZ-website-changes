@@ -1,11 +1,12 @@
 import type { PublicProperty } from '@/types/property.types';
-import { formatPriceInr, formatPSF, num } from '@/lib/property-utils';
+import { formatPriceInr, formatPSF, num, showsConstructionStatus } from '@/lib/property-utils';
 import { AmenitiesGrid, KeyStatsBar, LegalSection, PriceBreakdownCard } from './pdp-blocks';
 
 export function VillaDetail({ property }: { property: PublicProperty }) {
   const ready = property.constructionStatus === 'Ready to Move';
   const area = property.plotArea || property.carpetArea;
   const unit = property.areaUnit || 'sqyd';
+  const showStatus = showsConstructionStatus(property.propertyType);
 
   return (
     <>
@@ -21,7 +22,9 @@ export function VillaDetail({ property }: { property: PublicProperty }) {
             value: property.plotArea ? num(property.plotArea).toLocaleString('en-IN') : '—',
             sub: 'sqyds',
           },
-          { label: 'Status', value: ready ? 'Ready' : property.constructionStatus, sub: '' },
+          ...(showStatus
+            ? [{ label: 'Status', value: ready ? 'Ready' : property.constructionStatus, sub: '' }]
+            : [{ label: 'Facing', value: property.facing || '—', sub: property.furnishingStatus || '' }]),
           { label: 'BHK', value: property.bhkType || '—', sub: property.numberOfFloors || '' },
         ]}
       />

@@ -198,6 +198,18 @@ class CityCardPatchDto {
   @IsOptional()
   @IsString()
   badgeLabel?: string;
+
+  @IsOptional()
+  @IsString()
+  parentCity?: string;
+
+  @IsOptional()
+  @IsString()
+  imageUrl?: string | null;
+
+  @IsOptional()
+  @IsNumber()
+  overlayOpacity?: number;
 }
 
 class PatchBrowseCityDto {

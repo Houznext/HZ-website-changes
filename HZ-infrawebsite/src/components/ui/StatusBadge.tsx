@@ -1,4 +1,5 @@
 import type { ConstructionStatus } from '@/types/property.types';
+import { showsConstructionStatus } from '@/lib/property-utils';
 
 const STATUS: Record<
   string,
@@ -9,9 +10,16 @@ const STATUS: Record<
   'New Launch': { bg: '#e8f1fd', text: '#1e40af' },
 };
 
-type Props = { status: ConstructionStatus | string; className?: string };
+type Props = {
+  status: ConstructionStatus | string;
+  className?: string;
+  /** When set, badge is hidden for Land, Plot, and Farmhouse. */
+  propertyType?: string | null;
+};
 
-export function StatusBadge({ status, className = '' }: Props) {
+export function StatusBadge({ status, className = '', propertyType }: Props) {
+  if (propertyType != null && !showsConstructionStatus(propertyType)) return null;
+
   const s = STATUS[status] || { bg: '#f1f5f9', text: '#475569' };
   return (
     <span

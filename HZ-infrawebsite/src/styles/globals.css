@@ -1014,17 +1014,28 @@ nav a,
   max-height: calc(100vh - 120px);
   overflow-y: auto;
 }
+.plp-filter-bar {
+  overflow: visible;
+}
 .plp-filter-bar-scroll {
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x;
   scrollbar-width: none;
+  flex-wrap: nowrap;
 }
 .plp-filter-bar-scroll::-webkit-scrollbar {
   display: none;
 }
 @media (max-width: 1023px) {
   .plp-filters {
-    position: static;
     max-height: none;
+    overflow-y: visible;
+  }
+}
+@media (min-width: 1024px) {
+  .plp-filters {
+    max-height: calc(100vh - 4.5rem);
   }
 }
 

@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
   MaxLength,
+  ValidateIf,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { ConstructionStatus, ListingFor, PropertyType } from '../../common/enums/infra.enums';
@@ -25,8 +26,9 @@ export class CreatePropertyDto {
   @IsEnum(ListingFor)
   listingFor?: ListingFor;
 
+  @ValidateIf((o: CreatePropertyDto) => !['Land', 'Plot', 'Farmhouse'].includes(o.propertyType))
   @IsEnum(ConstructionStatus)
-  constructionStatus: ConstructionStatus;
+  constructionStatus?: ConstructionStatus;
 
   @IsOptional()
   @IsString()

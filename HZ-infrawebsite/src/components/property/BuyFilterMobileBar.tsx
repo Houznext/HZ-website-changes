@@ -11,13 +11,11 @@ import {
   PLP_PROPERTY_TYPES,
   PLP_STATUS_OPTIONS,
   type BuyFilters,
-  type BuySort,
   type ListingMode,
 } from '@/lib/buyFilters';
 
 type Props = {
   filters: BuyFilters;
-  hasSearch: boolean;
   onChange: (patch: Partial<BuyFilters>) => void;
   onClear: () => void;
 };
@@ -50,26 +48,17 @@ function Divider() {
   return <span className="mx-0.5 w-px shrink-0 self-stretch bg-[#dde8f5]" aria-hidden />;
 }
 
-const SORT_OPTIONS: { value: BuySort; label: string }[] = [
-  { value: 'relevance', label: 'Relevance' },
-  { value: 'price_asc', label: 'Price ↑' },
-  { value: 'price_desc', label: 'Price ↓' },
-  { value: 'newest', label: 'Newest' },
-];
-
-export function BuyFilterMobileBar({ filters, hasSearch, onChange, onClear }: Props) {
+export function BuyFilterMobileBar({ filters, onChange, onClear }: Props) {
   const toggleArr = (key: 'types' | 'bhk' | 'statuses' | 'furnishing', value: string) => {
     const list = filters[key];
     const next = list.includes(value) ? list.filter((x) => x !== value) : [...list, value];
     onChange({ [key]: next, page: 1 });
   };
 
-  const sortOptions = hasSearch ? SORT_OPTIONS : SORT_OPTIONS.filter((o) => o.value !== 'relevance');
-  const sortValue = filters.sort === 'relevance' && !hasSearch ? 'newest' : filters.sort;
   const chips = activeFilterChips(filters);
 
   return (
-    <div className="plp-filter-bar sticky top-14 z-20 -mx-4 mb-3 border-b border-[#dde8f5] bg-white shadow-[0_4px_12px_rgba(15,42,68,0.06)] lg:hidden">
+    <div className="plp-filter-bar sticky top-14 z-20 -mx-4 mb-3 w-[calc(100%+2rem)] max-w-[100vw] border-b border-[#dde8f5] bg-white shadow-[0_4px_12px_rgba(15,42,68,0.06)] md:top-16 lg:hidden">
       <div className="flex items-center gap-2 px-4 py-2">
         <SlidersHorizontal className="h-4 w-4 shrink-0 text-muted" strokeWidth={1.8} aria-hidden />
         <span className="shrink-0 font-montserrat text-[10px] font-bold uppercase tracking-wide text-muted">Filters</span>
@@ -81,7 +70,7 @@ export function BuyFilterMobileBar({ filters, hasSearch, onChange, onClear }: Pr
           Clear
         </button>
       </div>
-      <div className="plp-filter-bar-scroll flex items-center gap-2 overflow-x-auto px-4 pb-3">
+      <div className="plp-filter-bar-scroll flex w-full flex-nowrap items-center gap-2 overflow-x-auto px-4 pb-3">
         {(['Buy', 'Rent'] as ListingMode[]).map((mode) => (
           <Pill
             key={mode}
@@ -148,26 +137,10 @@ export function BuyFilterMobileBar({ filters, hasSearch, onChange, onClear }: Pr
           </Pill>
         ))}
 
-        <Divider />
-
-        <label className="relative shrink-0">
-          <span className="sr-only">Sort results</span>
-          <select
-            className="appearance-none rounded-full border border-[#dde8f5] bg-offwhite py-1.5 pr-7 pl-3 font-montserrat text-[11.5px] font-semibold text-charcoal"
-            value={sortValue}
-            onChange={(e) => onChange({ sort: e.target.value as BuySort, page: 1 })}
-          >
-            {sortOptions.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </label>
       </div>
 
       {chips.length > 0 ? (
-        <div className="plp-filter-bar-scroll flex items-center gap-1.5 overflow-x-auto border-t border-[#e8eff5] px-4 py-2">
+        <div className="plp-filter-bar-scroll flex w-full flex-nowrap items-center gap-1.5 overflow-x-auto border-t border-[#e8eff5] px-4 py-2">
           <span className="shrink-0 font-inter text-[10px] font-semibold text-muted">Active</span>
           {chips.map((chip) => (
             <button

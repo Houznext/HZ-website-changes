@@ -40,7 +40,7 @@ export function BuyFilterSidebar({ filters, onChange, onClear }: Props) {
   };
 
   return (
-    <aside className="plp-filters sticky top-[108px] hidden rounded-[14px] border border-[#dde8f5] bg-white p-4 lg:block">
+    <aside className="plp-filters rounded-[14px] border border-[#dde8f5] bg-white p-4 lg:max-h-[calc(100vh-4.5rem)] lg:overflow-y-auto">
       <div className="mb-3.5 flex items-center justify-between">
         <h2 className="font-montserrat text-base font-bold text-charcoal">Filters</h2>
         <button

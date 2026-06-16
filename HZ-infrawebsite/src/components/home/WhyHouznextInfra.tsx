@@ -120,7 +120,7 @@ export function WhyHouznextInfra() {
               >
                 {p.icon}
                 <h3 className="mt-3.5 font-montserrat text-[17px] font-bold text-white">{p.title}</h3>
-                <p className="mt-1.5 font-inter text-xs leading-relaxed text-white/58">{p.body}</p>
+                <p className="mt-1.5 font-inter text-xs leading-relaxed text-white">{p.body}</p>
                 {p.badgeLabel ? (
                   <span className="mt-2.5 inline-flex rounded-md bg-[#fef3c7] px-2 py-0.5 font-montserrat text-[10px] font-bold uppercase tracking-wide text-[#92400e]">
                     {p.badgeLabel}

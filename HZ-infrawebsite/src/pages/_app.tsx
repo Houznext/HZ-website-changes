@@ -34,7 +34,7 @@ export default function App({ Component, pageProps: { session, initialPageSeo, i
     <SessionProvider session={session}>
       <InfraTokenSync />
       <InfraSeoRouter initialPage={initialPageSeo ?? undefined} initialGeo={initialSeoGeo ?? undefined} />
-      <div className="site-root max-w-[100vw] overflow-x-hidden">
+      <div className="site-root max-w-[100vw] overflow-x-clip">
         <Component {...pageProps} />
       </div>
       <Toaster position="bottom-right" />

@@ -1,5 +1,6 @@
 import type { ListingDraft } from '@/context/ListingFormContext';
 import { LISTING_FORM_DEFAULTS } from '@/context/ListingFormContext';
+import { needsConstructionStatus } from '@/lib/propertyListingHelpers';
 
 function num(v: unknown): number | undefined {
   if (v === null || v === undefined || v === '') return undefined;
@@ -47,12 +48,16 @@ export function mapApiPropertyToListingDraft(api: Record<string, unknown>): List
   const photos = mergePhotoUrls(api);
   const cover = str(api.coverImageUrl) || photos[0] || '';
 
+  const propertyType = str(api.propertyType) || 'Apartment';
+
   return {
     ...LISTING_FORM_DEFAULTS,
     title: str(api.title),
-    propertyType: str(api.propertyType) || 'Apartment',
+    propertyType,
     listingFor: str(api.listingFor) || 'Buy',
-    constructionStatus: str(api.constructionStatus) || 'Ready to Move',
+    constructionStatus: needsConstructionStatus(propertyType)
+      ? str(api.constructionStatus) || 'Ready to Move'
+      : undefined,
     city: str(api.city),
     locality: str(api.locality),
     address: str(api.address),

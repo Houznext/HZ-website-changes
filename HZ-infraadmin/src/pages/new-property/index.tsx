@@ -10,6 +10,7 @@ import { PropertyCard } from '@/components/listing/PropertyCard';
 import { PropertyTypeIcon } from '@/components/listing/PropertyTypeIcon';
 import { SectionDivider } from '@/components/listing/SectionDivider';
 import { useListingForm } from '@/context/ListingFormContext';
+import { needsConstructionStatus } from '@/lib/propertyListingHelpers';
 
 const TYPES = ['Apartment', 'Villa', 'Land', 'Plot', 'Row House', 'Commercial', 'Studio', 'Farmhouse'] as const;
 const ic = { size: 18, strokeWidth: 1.8, fill: 'none' as const };
@@ -38,6 +39,7 @@ export default function NewPropertyStep1() {
     void router.push('/new-property/step2');
   };
 
+  const showConstructionStatus = needsConstructionStatus(form.propertyType);
   const typeOk = !!form.propertyType;
   const titleOk = !!(form.title && String(form.title).trim());
   const locOk = !!(form.city && form.locality);
@@ -87,7 +89,12 @@ export default function NewPropertyStep1() {
                   key={t}
                   type="button"
                   className={`chip ${form.propertyType === t ? 'sel' : ''}`}
-                  onClick={() => setField('propertyType', t)}
+                  onClick={() => {
+                    setField('propertyType', t);
+                    if (!needsConstructionStatus(t)) {
+                      setField('constructionStatus', undefined);
+                    }
+                  }}
                 >
                   <span className="pt-icon" style={{ color: form.propertyType === t ? 'var(--blue)' : 'var(--mu)' }}>
                     <PropertyTypeIcon type={t} />
@@ -164,21 +171,30 @@ export default function NewPropertyStep1() {
                 placeholder="Street address, landmark…"
               />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: showConstructionStatus ? '1fr 1fr' : '1fr',
+                gap: 12,
+                marginTop: 12,
+              }}
+            >
               <div>
                 <label className="label">Pincode</label>
                 <input className="fi" type="number" value={String(form.pincode ?? '')} onChange={(e) => setField('pincode', e.target.value)} placeholder="500032" />
               </div>
-              <div>
-                <label className="label req">Construction status</label>
-                <select className="fi" style={{ width: '100%' }} value={String(form.constructionStatus ?? '')} onChange={(e) => setField('constructionStatus', e.target.value)}>
-                  {['Ready to Move', 'Under Construction', 'New Launch'].map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {showConstructionStatus ? (
+                <div>
+                  <label className="label req">Construction status</label>
+                  <select className="fi" style={{ width: '100%' }} value={String(form.constructionStatus ?? '')} onChange={(e) => setField('constructionStatus', e.target.value)}>
+                    {['Ready to Move', 'Under Construction', 'New Launch'].map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : null}
             </div>
             <div style={{ marginTop: 12 }}>
               <label className="label">Property description</label>

@@ -78,6 +78,26 @@ export class UploadController {
     return { url };
   }
 
+  @Post('browse-city-image')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 8 * 1024 * 1024 },
+    }),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  async browseCityImage(@UploadedFile() file: Express.Multer.File) {
+    if (!file) return { url: null };
+    const { url } = await this.s3.uploadBuffer('infra/browse-city', file.buffer, file.mimetype || 'image/jpeg');
+    return { url };
+  }
+
   @Post('rera-doc')
   @UseInterceptors(
     FileInterceptor('file', {

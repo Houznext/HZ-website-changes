@@ -38,6 +38,9 @@ export type CityCard = {
   showBadge: boolean;
   wide: boolean;
   badgeLabel: string;
+  parentCity?: string;
+  imageUrl?: string | null;
+  overlayOpacity?: number;
 };
 
 export type BrowseCityContent = {

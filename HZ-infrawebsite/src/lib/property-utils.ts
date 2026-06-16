@@ -68,3 +68,10 @@ export function propertyImageUrls(p: {
 export function showEmiBlock(propertyType: PropertyType | string): boolean {
   return ['Apartment', 'Villa', 'Studio', 'Row House', 'Farmhouse'].includes(String(propertyType));
 }
+
+const NO_CONSTRUCTION_STATUS_TYPES = new Set(['Land', 'Plot', 'Farmhouse']);
+
+/** Construction status badge/field — not used for land, plot, or farmhouse listings. */
+export function showsConstructionStatus(propertyType: PropertyType | string | null | undefined): boolean {
+  return !NO_CONSTRUCTION_STATUS_TYPES.has(String(propertyType ?? ''));
+}

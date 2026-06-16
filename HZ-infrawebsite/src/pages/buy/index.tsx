@@ -9,6 +9,7 @@ import { Footer } from '@/components/layout/Footer';
 import { BuyFilterMobileBar } from '@/components/property/BuyFilterMobileBar';
 import { BuyFilterSidebar } from '@/components/property/BuyFilterSidebar';
 import { BuyResultsToolbar } from '@/components/property/BuyResultsToolbar';
+import { BuySearchSortBar } from '@/components/property/BuySearchSortBar';
 import { PlpPropertyCard } from '@/components/property/PlpPropertyCard';
 import { SearchProjectsRow } from '@/components/projects/SearchProjectsRow';
 import { useProperties } from '@/hooks/useProperties';
@@ -80,7 +81,7 @@ export default function BuyPage() {
   }, [page, totalPages]);
 
   return (
-    <div id="pg-buy" className="min-h-screen overflow-x-hidden bg-offwhite">
+    <div id="pg-buy" className="min-h-screen overflow-x-clip bg-offwhite">
       <Navbar />
       <div className="mx-auto max-w-infra px-4 pb-12 pt-5 md:px-7">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2.5">
@@ -132,23 +133,22 @@ export default function BuyPage() {
           </div>
         </div>
 
-        <BuyFilterMobileBar
+        <BuySearchSortBar
           filters={filters}
           hasSearch={!!filters.q.trim()}
           onChange={applyFilters}
-          onClear={clearFilters}
+          className="mb-3 md:mb-4"
         />
 
-        <div className="plp-grid grid grid-cols-1 items-start gap-5 lg:grid-cols-[256px_1fr] lg:gap-5">
-          <BuyFilterSidebar filters={filters} onChange={applyFilters} onClear={clearFilters} />
+        <BuyFilterMobileBar filters={filters} onChange={applyFilters} onClear={clearFilters} />
+
+        <div className="plp-grid grid grid-cols-1 items-start gap-5 lg:grid-cols-[256px_minmax(0,1fr)] lg:gap-5">
+          <div className="hidden lg:sticky lg:top-16 lg:z-[5] lg:block lg:max-h-[calc(100vh-4.5rem)] lg:self-start">
+            <BuyFilterSidebar filters={filters} onChange={applyFilters} onClear={clearFilters} />
+          </div>
 
           <div className="min-w-0">
-            <BuyResultsToolbar
-              filters={filters}
-              hasSearch={!!filters.q.trim()}
-              onChange={applyFilters}
-              className="hidden lg:flex"
-            />
+            <BuyResultsToolbar filters={filters} onChange={applyFilters} className="mb-3 hidden md:flex" />
 
             {view === 'map' ? (
               <div className="rounded-2xl border border-dashed border-[#dde8f5] bg-white px-4 py-16 text-center">

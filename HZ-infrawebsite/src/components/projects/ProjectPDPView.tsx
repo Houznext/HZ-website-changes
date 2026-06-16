@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   ChevronDown,
@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import type { InfraProject } from '@/types/infra.types';
 import { SectionDivider } from '@/components/projects/SectionDivider';
+import { PhotoGallery, type GalleryBadge } from '@/components/property/PhotoGallery';
+import { resolveCmsAssetUrl } from '@/lib/cmsAssetUrl';
 import {
   projectLocation,
   projectStartingPrice,
@@ -199,6 +201,17 @@ export function ProjectPDPView({ project }: { project: InfraProject }) {
   const downloadLabel =
     typeKey === 'venture' || typeKey === 'villaplot' ? 'Download master plan' : 'Download brochure';
 
+  const projectPhotos = useMemo(() => {
+    const url = project.heroImageUrl ? resolveCmsAssetUrl(project.heroImageUrl, '') : '';
+    return url ? [url] : [];
+  }, [project.heroImageUrl]);
+
+  const galleryBadges: GalleryBadge[] = useMemo(() => {
+    const b: GalleryBadge[] = [{ label: 'Zero brokerage', variant: 'navy' }];
+    if (project.reraVerified) b.unshift({ label: 'RERA ✓', variant: 'teal' });
+    return b;
+  }, [project.reraVerified]);
+
   return (
     <div className="bg-offwhite pb-16">
       <div className="mx-auto max-w-infra px-4 py-6 md:px-7 md:py-8">
@@ -219,21 +232,33 @@ export function ProjectPDPView({ project }: { project: InfraProject }) {
         <div className="pdp-grid">
           <div className="min-w-0">
             {/* Gallery */}
-            <div className="mb-3.5 overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
-              <div className="pdp-gallery-main flex items-center justify-center" style={{ background: bg }}>
-                <span className="text-6xl opacity-30">{typeIcon}</span>
-                <span
-                  className="absolute left-3.5 top-3.5 rounded-full px-3 py-1 font-montserrat text-[10px] font-bold uppercase tracking-wide text-white"
-                  style={{ background: `${typeColor}d9` }}
-                >
-                  {typeIcon} {typeLabel} Project
-                </span>
-                <div className="absolute bottom-3.5 left-3.5 flex flex-wrap gap-1.5">
-                  <span className={`infra-proj-badge ${statusCls}`}>{statusLabel}</span>
-                  {project.reraVerified ? <span className="infra-proj-badge b-teal">RERA Verified</span> : null}
-                  <span className="infra-proj-badge b-navy bg-[#e0e7ef] text-navy">Zero Brokerage</span>
+            <div className="mb-3.5">
+              {projectPhotos.length > 0 ? (
+                <PhotoGallery
+                  photos={projectPhotos}
+                  propertyType={typeLabel}
+                  title={project.name}
+                  constructionStatus={project.status}
+                  badges={galleryBadges}
+                />
+              ) : (
+                <div className="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
+                  <div className="pdp-gallery-main relative flex items-center justify-center" style={{ background: bg }}>
+                    <span className="text-6xl opacity-30">{typeIcon}</span>
+                    <span
+                      className="absolute left-3.5 top-3.5 rounded-full px-3 py-1 font-montserrat text-[10px] font-bold uppercase tracking-wide text-white"
+                      style={{ background: `${typeColor}d9` }}
+                    >
+                      {typeIcon} {typeLabel} Project
+                    </span>
+                    <div className="absolute bottom-3.5 left-3.5 flex flex-wrap gap-1.5">
+                      <span className={`infra-proj-badge ${statusCls}`}>{statusLabel}</span>
+                      {project.reraVerified ? <span className="infra-proj-badge b-teal">RERA Verified</span> : null}
+                      <span className="infra-proj-badge b-navy bg-[#e0e7ef] text-navy">Zero Brokerage</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Header */}

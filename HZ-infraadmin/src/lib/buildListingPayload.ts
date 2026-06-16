@@ -1,4 +1,5 @@
 import type { ListingDraft } from '@/context/ListingFormContext';
+import { needsConstructionStatus } from '@/lib/propertyListingHelpers';
 
 /** Maps listing wizard draft to HZ-infrabackend CreatePropertyDto shape. */
 export function buildCreatePropertyPayload(form: ListingDraft): Record<string, unknown> {
@@ -14,7 +15,9 @@ export function buildCreatePropertyPayload(form: ListingDraft): Record<string, u
     title: form.title,
     propertyType: form.propertyType,
     listingFor: form.listingFor,
-    constructionStatus: form.constructionStatus,
+    ...(needsConstructionStatus(form.propertyType) && form.constructionStatus
+      ? { constructionStatus: form.constructionStatus }
+      : {}),
     city: form.city,
     locality: form.locality,
     address: form.address,

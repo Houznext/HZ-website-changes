@@ -32,7 +32,14 @@ function configLine(property: PublicProperty): string {
   return parts.join(' · ') || property.propertyType;
 }
 
-export function PlpPropertyCard({ property }: { property: PublicProperty }) {
+export function PlpPropertyCard({
+  property,
+  layout = 'list',
+}: {
+  property: PublicProperty;
+  /** `list` = full-width horizontal row (buy PLP & SEO landings). `grid` = compact card for grids. */
+  layout?: 'list' | 'grid';
+}) {
   const slug = property.slug || property.propertyId;
   const href = `/property/${slug}`;
   const rawImg = propertyImageUrls(property)[0];
@@ -44,11 +51,26 @@ export function PlpPropertyCard({ property }: { property: PublicProperty }) {
     slug: String(slug),
   });
 
+  const isList = layout === 'list';
+
   return (
-    <article className="plp-card group flex flex-col overflow-hidden rounded-[14px] border border-[#dde8f5] bg-white transition-all duration-200 hover:border-[#93c5fd] hover:shadow-[0_16px_48px_rgba(15,42,68,0.10)] sm:flex-row">
-      <Link href={href} className="relative w-full shrink-0 sm:w-[220px]">
+    <article
+      className={clsx(
+        'plp-card group overflow-hidden rounded-[14px] border border-[#dde8f5] bg-white transition-all duration-200 hover:border-[#93c5fd] hover:shadow-[0_16px_48px_rgba(15,42,68,0.10)]',
+        isList ? 'flex w-full flex-col sm:flex-row' : 'flex flex-col',
+      )}
+    >
+      <Link
+        href={href}
+        className={clsx('relative shrink-0', isList ? 'w-full sm:w-[220px] md:w-[260px] lg:w-[300px]' : 'w-full')}
+      >
         <div
-          className="relative flex min-h-[160px] items-center justify-center overflow-hidden sm:min-h-[140px] sm:rounded-l-[13px]"
+          className={clsx(
+            'relative flex items-center justify-center overflow-hidden',
+            isList
+              ? 'min-h-[200px] sm:min-h-[148px] sm:rounded-l-[13px] md:min-h-[156px]'
+              : 'min-h-[180px]',
+          )}
           style={!img ? { background: getPropertyGradient(property.propertyType) } : undefined}
         >
           {img ? (
@@ -57,14 +79,14 @@ export function PlpPropertyCard({ property }: { property: PublicProperty }) {
               alt=""
               fill
               className="object-cover"
-              sizes="220px"
+              sizes={isList ? '(max-width:640px) 100vw, 300px' : '(max-width:768px) 100vw, 33vw'}
               unoptimized={img.includes('127.0.0.1') || img.includes('localhost')}
             />
           ) : (
             <Building2 className="h-9 w-9 text-[#0f2a44]/20" strokeWidth={1} />
           )}
           <div className="pointer-events-none absolute bottom-2.5 left-2.5">
-            <StatusBadge status={property.constructionStatus} />
+            <StatusBadge status={property.constructionStatus} propertyType={property.propertyType} />
           </div>
           <button
             type="button"
@@ -80,13 +102,15 @@ export function PlpPropertyCard({ property }: { property: PublicProperty }) {
         </div>
       </Link>
 
-      <Link href={href} className="flex min-w-0 flex-1 flex-col p-3.5 sm:p-4">
-        <div className="font-montserrat text-[10px] font-bold uppercase tracking-wide text-muted">
+      <Link href={href} className="flex min-w-0 flex-1 flex-col p-3.5 sm:p-4 md:p-5">
+        <div className="font-montserrat text-[10px] font-bold uppercase tracking-wide text-muted md:text-[11px]">
           {property.propertyType}
           {property.propertyCode ? ` · ${property.propertyCode}` : ''}
         </div>
-        <h2 className="font-montserrat text-base font-bold leading-snug text-charcoal line-clamp-2">{property.title}</h2>
-        <p className="mt-0.5 font-inter text-[11px] text-muted">{configLine(property)}</p>
+        <h2 className="font-montserrat text-base font-bold leading-snug text-charcoal line-clamp-2 md:text-[17px]">
+          {property.title}
+        </h2>
+        <p className="mt-0.5 font-inter text-[11px] text-muted md:text-xs">{configLine(property)}</p>
         <div className="mt-1 flex items-center gap-1 font-inter text-xs text-muted">
           <MapPin className="h-3 w-3 shrink-0" strokeWidth={1.8} />
           <span className="truncate">
@@ -111,7 +135,14 @@ export function PlpPropertyCard({ property }: { property: PublicProperty }) {
         ) : null}
       </Link>
 
-      <div className="flex shrink-0 flex-row gap-2 border-t border-[#dde8f5] p-3 sm:w-[130px] sm:flex-col sm:justify-center sm:border-l sm:border-t-0 sm:p-3.5">
+      <div
+        className={clsx(
+          'flex shrink-0 gap-2 border-[#dde8f5] p-3',
+          isList
+            ? 'flex-row border-t sm:w-[130px] sm:flex-col sm:justify-center sm:border-l sm:border-t-0 sm:p-3.5 md:w-[150px] lg:w-[160px]'
+            : 'flex-row border-t sm:flex-col',
+        )}
+      >
         <Link
           href={href}
           className="flex flex-1 items-center justify-center rounded-lg bg-[#2f80ed] px-4 py-2.5 text-center font-montserrat text-xs font-bold text-white transition hover:bg-[#1a6dd6] sm:flex-none"

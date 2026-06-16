@@ -28,6 +28,11 @@ export default function NewPropertyStep3() {
   const gstAmt = base * (gst / 100);
   const regAmt = base * (reg / 100);
 
+  const removeDoc = (key: 'reraCertUrl' | 'ecCertUrl' | 'floorPlanUrl' | 'brochureUrl', label: string) => {
+    setField(key, undefined);
+    toast.success(`${label} removed`);
+  };
+
   const uploadRow = async (key: 'reraCertUrl' | 'ecCertUrl' | 'floorPlanUrl' | 'brochureUrl', label: string) => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -173,18 +178,36 @@ export default function NewPropertyStep3() {
           <div className="acard">
             <SectionDivider icon={<FileText size={16} strokeWidth={1.8} color="#7c3aed" />} title="Documents" subtitle="PDFs · Max 10MB each" iconBackground="#f3e8ff" />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {docs.map((d) => (
-                <div key={d.key} className="doc-upload-row" onClick={() => void uploadRow(d.key, d.title)}>
-                  <div style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
-                    <FileText size={18} strokeWidth={1.8} color="var(--mu)" />
-                    <div>
-                      <div style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ch)' }}>{d.title}</div>
-                      <div style={{ fontSize: 11, color: 'var(--mu)' }}>{d.sub}</div>
+              {docs.map((d) => {
+                const hasDoc = Boolean(String(form[d.key] ?? '').trim());
+                return (
+                  <div key={d.key} className="doc-upload-row" style={{ cursor: 'default' }}>
+                    <div style={{ display: 'flex', gap: 9, alignItems: 'center', minWidth: 0 }}>
+                      <FileText size={18} strokeWidth={1.8} color="var(--mu)" />
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ch)' }}>{d.title}</div>
+                        <div style={{ fontSize: 11, color: 'var(--mu)' }}>{d.sub}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
+                      {hasDoc ? (
+                        <>
+                          <button type="button" className="btn btn-ghost btn-xs" style={{ color: 'var(--blue)' }} onClick={() => void uploadRow(d.key, d.title)}>
+                            Replace
+                          </button>
+                          <button type="button" className="btn btn-danger btn-xs" onClick={() => removeDoc(d.key, d.title)}>
+                            Delete
+                          </button>
+                        </>
+                      ) : (
+                        <button type="button" className="btn btn-ghost btn-xs" style={{ color: 'var(--blue)' }} onClick={() => void uploadRow(d.key, d.title)}>
+                          + Upload
+                        </button>
+                      )}
                     </div>
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--blue)' }}>{String(form[d.key] ?? '') ? 'Replace' : '+ Upload'}</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

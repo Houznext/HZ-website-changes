@@ -83,8 +83,8 @@ export function HeroSearch() {
 
   return (
     <div ref={wrapRef} className="relative w-full">
-      <div className="flex flex-col overflow-hidden rounded-xl border border-white/15 bg-white/[0.07] shadow-inner backdrop-blur-md sm:flex-row sm:items-stretch">
-        <div className="flex shrink-0 items-center px-4 pt-3 sm:items-center sm:pl-4 sm:pt-0" aria-hidden>
+      <div className="flex flex-row items-stretch overflow-hidden rounded-xl border border-white/15 bg-white/[0.07] shadow-inner backdrop-blur-md">
+        <div className="flex shrink-0 items-center pl-3 sm:pl-4" aria-hidden>
           <Search className="h-5 w-5 text-white/55" strokeWidth={2} />
         </div>
         <input
@@ -105,13 +105,15 @@ export function HeroSearch() {
           autoComplete="off"
           spellCheck={false}
         />
-        <div className="flex shrink-0 items-center p-2 sm:p-1.5">
+        <div className="flex shrink-0 items-center p-1.5 pr-2 sm:pr-1.5">
           <button
             type="button"
             onClick={goToBuy}
-            className="min-h-[44px] w-full rounded-lg bg-hero-blue px-4 py-2.5 font-montserrat text-[13px] font-bold text-white shadow-md transition hover:bg-blue-600 active:scale-[0.98] sm:w-auto sm:px-5"
+            aria-label="Search"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-hero-blue text-white shadow-md transition hover:bg-blue-600 active:scale-[0.98] sm:h-auto sm:min-h-[44px] sm:w-auto sm:px-5 sm:py-2.5"
           >
-            Search
+            <Search className="h-[18px] w-[18px] sm:hidden" strokeWidth={2.25} />
+            <span className="hidden font-montserrat text-[13px] font-bold sm:inline">Search</span>
           </button>
         </div>
       </div>

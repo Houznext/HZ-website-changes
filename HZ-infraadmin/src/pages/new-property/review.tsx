@@ -12,6 +12,7 @@ import { useListingForm } from '@/context/ListingFormContext';
 import { buildCreatePropertyPayload } from '@/lib/buildListingPayload';
 import { formatPrice } from '@/lib/utils';
 import { parseYoutubeVideoId } from '@/lib/youtubeUrl';
+import { needsConstructionStatus } from '@/lib/propertyListingHelpers';
 
 function Cell({ label, value }: { label: string; value: string }) {
   return (
@@ -42,6 +43,7 @@ export default function NewPropertyReview() {
   const showPhotos = ordered.slice(0, 3);
   const yt = String(form.youtubeVideoUrl ?? '').trim();
   const ytOk = yt ? Boolean(parseYoutubeVideoId(yt)) : false;
+  const showConstructionStatus = needsConstructionStatus(form.propertyType);
 
   const runSubmit = async (asDraft?: boolean) => {
     setBusy(true);
@@ -84,7 +86,7 @@ export default function NewPropertyReview() {
               <Pencil size={14} strokeWidth={1.8} />
               Edit details
             </Link>
-            <button type="button" className="btn btn-tl btn-sm" disabled={busy} onClick={() => void runSubmit()}>
+            <button type="button" className="btn btn-blue btn-sm" disabled={busy} onClick={() => void runSubmit()}>
               <Check size={14} strokeWidth={1.8} />
               {busy ? 'Publishing…' : 'Confirm & publish'}
             </button>
@@ -105,7 +107,7 @@ export default function NewPropertyReview() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
               <Cell label="Type" value={String(form.propertyType ?? '—')} />
               <Cell label="Listing for" value={String(form.listingFor ?? '—')} />
-              <Cell label="Status" value={String(form.constructionStatus ?? '—')} />
+              {showConstructionStatus ? <Cell label="Status" value={String(form.constructionStatus ?? '—')} /> : null}
               <div style={{ gridColumn: '1 / -1' }}>
                 <Cell label="Title" value={String(form.title ?? '—')} />
               </div>
@@ -204,7 +206,7 @@ export default function NewPropertyReview() {
 
           <div className="acard" style={{ background: '#f0f9ff', borderColor: '#bae6fd' }}>
             <p style={{ fontSize: 12, color: '#0c4a6e', marginBottom: 12 }}>Property will go to Pending review first. Admin can approve from the listings dashboard.</p>
-            <button type="button" className="btn btn-tl btn-lg" style={{ width: '100%', justifyContent: 'center', gap: 8 }} disabled={busy} onClick={() => void runSubmit()}>
+            <button type="button" className="btn btn-blue btn-lg" style={{ width: '100%', justifyContent: 'center', gap: 8 }} disabled={busy} onClick={() => void runSubmit()}>
               <Check size={16} strokeWidth={1.8} />
               {busy ? 'Submitting…' : 'Submit listing'}
             </button>

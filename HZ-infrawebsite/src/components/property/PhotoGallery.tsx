@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { FileText } from 'lucide-react';
 import { clsx } from 'clsx';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { ImageLightbox } from '@/components/ui/ImageLightbox';
 import type { ConstructionStatus } from '@/types/property.types';
 import { getPropertyGradient } from '@/lib/property-utils';
 import { Building2 } from 'lucide-react';
@@ -30,12 +31,19 @@ type Props = {
 export function PhotoGallery({ photos, propertyType, title, constructionStatus, badges, floorPlanUrl }: Props) {
   const list = useMemo(() => (photos.length ? photos : []), [photos]);
   const [active, setActive] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const main = list[active] || null;
+
+  const openLightbox = (idx: number) => {
+    if (!list.length) return;
+    setActive(idx);
+    setLightboxOpen(true);
+  };
 
   return (
     <div className="relative">
       <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-wrap gap-2">
-        <StatusBadge status={constructionStatus} />
+        <StatusBadge status={constructionStatus} propertyType={propertyType} />
         {badges.map((b) => (
           <span
             key={b.label}
@@ -63,9 +71,16 @@ export function PhotoGallery({ photos, propertyType, title, constructionStatus, 
         )}
       </div>
 
-      <div
-        className="relative h-[240px] w-full overflow-hidden rounded-xl border border-[#dde8f5] sm:h-[300px] md:h-[360px]"
+      <button
+        type="button"
+        className={clsx(
+          'relative block h-[240px] w-full overflow-hidden rounded-xl border border-[#dde8f5] sm:h-[300px] md:h-[360px]',
+          main && 'cursor-zoom-in',
+        )}
         style={!main ? { background: getPropertyGradient(propertyType) } : undefined}
+        onClick={() => main && openLightbox(active)}
+        aria-label={main ? 'Open image gallery' : undefined}
+        disabled={!main}
       >
         {main ? (
           <Image src={main} alt={title} fill className="object-cover" sizes="(max-width:1024px) 100vw, 66vw" priority />
@@ -74,17 +89,17 @@ export function PhotoGallery({ photos, propertyType, title, constructionStatus, 
             <Building2 className="h-20 w-20 text-charcoal/20" strokeWidth={1.8} />
           </div>
         )}
-      </div>
+      </button>
 
       {list.length > 1 && (
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {list.slice(0, 5).map((url, i) => (
+          {list.map((url, i) => (
             <button
               key={`${url}-${i}`}
               type="button"
-              onClick={() => setActive(i)}
+              onClick={() => openLightbox(i)}
               className={clsx(
-                'relative h-16 w-24 shrink-0 overflow-hidden rounded-lg border transition',
+                'relative h-16 w-24 shrink-0 cursor-pointer overflow-hidden rounded-lg border transition',
                 i === active ? 'border-[#2f80ed] ring-2 ring-[rgba(47,128,237,0.25)]' : 'border-[#dde8f5] hover:border-[#93c5fd]',
               )}
             >
@@ -93,6 +108,15 @@ export function PhotoGallery({ photos, propertyType, title, constructionStatus, 
           ))}
         </div>
       )}
+
+      <ImageLightbox
+        images={list}
+        index={active}
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        onIndexChange={setActive}
+        alt={title}
+      />
     </div>
   );
 }

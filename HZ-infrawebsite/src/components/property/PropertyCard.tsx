@@ -47,7 +47,7 @@ export function PropertyCard({ property, variant = 'vertical' }: Props) {
             <div className="h-[180px] w-full sm:h-full sm:min-h-[140px]" />
           )}
           <div className="pointer-events-none absolute bottom-2 left-2">
-            <StatusBadge status={property.constructionStatus} />
+            <StatusBadge status={property.constructionStatus} propertyType={property.propertyType} />
           </div>
         </div>
         <div className="flex min-w-0 flex-1 flex-col p-4">
@@ -103,7 +103,7 @@ export function PropertyCard({ property, variant = 'vertical' }: Props) {
             <div className="h-full w-full" style={{ background: getPropertyGradient(property.propertyType) }} />
           )}
           <div className="pointer-events-none absolute bottom-2 left-2">
-            <StatusBadge status={property.constructionStatus} />
+            <StatusBadge status={property.constructionStatus} propertyType={property.propertyType} />
           </div>
         </div>
         <div className="flex flex-1 flex-col p-4">

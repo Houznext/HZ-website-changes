@@ -14,7 +14,7 @@ import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { FilterPropertyDto } from './dto/filter-property.dto';
 import { JwtPayload } from '../auth/jwt.strategy';
-import { ListingFor } from '../common/enums/infra.enums';
+import { ConstructionStatus, ListingFor } from '../common/enums/infra.enums';
 import { InfraMailService, PropertyAlertAction } from '../common/mail/infra-mail.service';
 import { infraBusinessWhatsappE164 } from '../common/infra-public-contact';
 import { sanitizeYoutubeVideoUrl } from '../common/youtube-url';
@@ -563,7 +563,7 @@ export class PropertyService {
     entity.title = dto.title;
     entity.propertyType = dto.propertyType;
     entity.listingFor = dto.listingFor ?? entity.listingFor ?? ListingFor.Buy;
-    entity.constructionStatus = dto.constructionStatus;
+    entity.constructionStatus = dto.constructionStatus ?? ConstructionStatus.ReadyToMove;
     entity.bhkType = dto.bhkType ?? null;
     entity.carpetArea = toDec(dto.carpetArea);
     entity.builtUpArea = toDec(dto.builtUpArea);
