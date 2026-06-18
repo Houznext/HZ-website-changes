@@ -217,7 +217,7 @@ export default function LivebuildProjectHomePage() {
               <div className="grid-4">
                 {[
                   { href: `/livebuild/${projectId}/property-info`, Icon: Home, bg: '#e8f1fd', stroke: 'var(--blue)', title: 'Property Info', sub: features.propertyInfoQuickSub },
-                  { href: `/livebuild/${projectId}/materials`, Icon: Tag, bg: '#fef3c7', stroke: 'var(--am)', title: 'Materials', sub: 'BOQ & specifications' },
+                  { href: `/livebuild/${projectId}/materials`, Icon: Tag, bg: '#fef3c7', stroke: 'var(--am)', title: 'Materials and BOQ', sub: 'BOQ & specifications' },
                   { href: `/livebuild/${projectId}/payments`, Icon: CreditCard, bg: '#f3e8ff', stroke: 'var(--pu)', title: 'Payments', sub: `${data.paymentDuePct != null ? `${data.paymentDuePct}% due` : 'Milestones'}` },
                   { href: `/livebuild/${projectId}/documents`, Icon: FolderOpen, bg: '#ccfbf1', stroke: '#0d9488', title: 'Documents', sub: 'Warranty & project files' },
                 ].map(({ href, Icon, bg, stroke, title, sub }) => (

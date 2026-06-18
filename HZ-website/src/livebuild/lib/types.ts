@@ -210,7 +210,7 @@ export interface LbMaterialsStats {
   total: number;
   installed: number;
   procured: number;
-  pending: number;
+  started: number;
 }
 
 export interface LbMaterialsResponse {

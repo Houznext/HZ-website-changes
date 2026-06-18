@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   CalendarCheck,
@@ -44,9 +44,11 @@ type Props = {
   project: LbProjectDetail;
   onUpdated: (p: LbProjectDetail) => void;
   onSwitchTab?: (tab: string) => void;
+  /** Lets the page header Save / Publish buttons persist overview form state. */
+  onRegisterSave?: (fn: ((publish?: boolean) => Promise<void>) | null) => void;
 };
 
-export function ProjectOverviewTab({ project, onUpdated, onSwitchTab }: Props) {
+export function ProjectOverviewTab({ project, onUpdated, onSwitchTab, onRegisterSave }: Props) {
   const [form, setForm] = useState(project);
   const [method, setMethod] = useState<LbProgressMethod>(
     (project.progressMethod as LbProgressMethod) || 'hybrid',
@@ -166,7 +168,7 @@ export function ProjectOverviewTab({ project, onUpdated, onSwitchTab }: Props) {
     }
   };
 
-  const save = async () => {
+  const save = useCallback(async (options?: { successMessage?: string }) => {
     setSaving(true);
     try {
       const updated = await livebuildApi.updateProject(project.id, {
@@ -187,13 +189,22 @@ export function ProjectOverviewTab({ project, onUpdated, onSwitchTab }: Props) {
         onHoldReason: form.onHoldReason ?? null,
       });
       onUpdated(updated);
-      lbToast('Project saved', 'ok');
+      lbToast(options?.successMessage ?? 'Project saved', 'ok');
     } catch (e: any) {
       lbToast(e?.body?.message || 'Save failed', 'err');
     } finally {
       setSaving(false);
     }
-  };
+  }, [form, method, onUpdated, project.id]);
+
+  useEffect(() => {
+    onRegisterSave?.((publish) =>
+      save({
+        successMessage: publish ? 'Update published to customer portal' : 'Project saved',
+      }),
+    );
+    return () => onRegisterSave?.(null);
+  }, [onRegisterSave, save]);
 
   const uploadCover = async (file: File) => {
     setCoverUploading(true);
@@ -447,7 +458,7 @@ export function ProjectOverviewTab({ project, onUpdated, onSwitchTab }: Props) {
               onChange={(e) => setForm({ ...form, address: e.target.value })}
             />
           </div>
-          <Btn variant="blue" size="sm" style={{ marginTop: 12 }} onClick={save} disabled={saving}>
+          <Btn variant="blue" size="sm" style={{ marginTop: 12 }} onClick={() => save()} disabled={saving}>
             Save details
           </Btn>
         </div>
@@ -519,6 +530,9 @@ export function ProjectOverviewTab({ project, onUpdated, onSwitchTab }: Props) {
               </div>
             ))}
           </div>
+          <Btn variant="blue" size="sm" style={{ marginTop: 14 }} onClick={() => save()} disabled={saving}>
+            Save timeline &amp; phase
+          </Btn>
         </div>
 
         <div className="lb-card lb-fa lb-fa3">
@@ -548,8 +562,11 @@ export function ProjectOverviewTab({ project, onUpdated, onSwitchTab }: Props) {
               Recommendation: Hybrid method
             </div>
             <div style={{ fontSize: 12, color: 'var(--lb-ch)', lineHeight: 1.6 }}>
-              Auto-calculates from completed items per room. Admin can override with a reason if
-              needed.
+              {method === 'hybrid'
+                ? 'Auto-calculates from DPR work-type % per room. Admin can override with a reason if needed.'
+                : method === 'items'
+                  ? 'Uses BOQ material completion per room (installed ÷ total items).'
+                  : 'Admin enters the project progress % directly.'}
             </div>
           </div>
           <div className="lb-g3">
@@ -584,15 +601,17 @@ export function ProjectOverviewTab({ project, onUpdated, onSwitchTab }: Props) {
               }}
             >
               <div style={{ fontFamily: 'var(--lb-m)', fontSize: 12, fontWeight: 700, marginBottom: 10 }}>
-                Override progress %
+                {method === 'manual' ? 'Manual progress %' : 'Override progress %'}
               </div>
               <div className="lb-form-row">
                 <div>
                   <Label>
-                    Override %{' '}
-                    <span style={{ color: 'var(--lb-mu)', fontWeight: 400, textTransform: 'none', fontSize: 10 }}>
-                      (leave blank to use auto)
-                    </span>
+                    {method === 'manual' ? 'Progress %' : 'Override %'}{' '}
+                    {method === 'hybrid' ? (
+                      <span style={{ color: 'var(--lb-mu)', fontWeight: 400, textTransform: 'none', fontSize: 10 }}>
+                        (leave blank to use auto)
+                      </span>
+                    ) : null}
                   </Label>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                     <FormInput
@@ -620,18 +639,27 @@ export function ProjectOverviewTab({ project, onUpdated, onSwitchTab }: Props) {
                   </div>
                 </div>
                 <div>
-                  <Label>Override reason</Label>
+                  <Label>{method === 'manual' ? 'Note' : 'Override reason'}</Label>
                   <FormInput
                     value={form.progressOverrideReason ?? ''}
                     onChange={(e) =>
                       setForm({ ...form, progressOverrideReason: e.target.value })
                     }
-                    placeholder="e.g. On-hold days excluded"
+                    placeholder={
+                      method === 'manual'
+                        ? 'Optional note for this progress value'
+                        : 'e.g. On-hold days excluded'
+                    }
                   />
                 </div>
               </div>
             </div>
-          ) : null}
+          ) : (
+            <p style={{ fontSize: 12, color: 'var(--lb-mu)', marginTop: 14, lineHeight: 1.6 }}>
+              Progress is calculated from BOQ materials per room: installed items ÷ total items.
+              Mark materials as <strong>Installed</strong> in Materials &amp; BOQ to increase %.
+            </p>
+          )}
         </div>
       </div>
 

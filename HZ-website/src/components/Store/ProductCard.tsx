@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 import { useCustomerAuth } from '@/context/CustomerAuthContext'
-import { FurnitureProduct } from '@/store/storeApi'
+import { getStoreCartUserId } from '@/utils/storeCustomer'
 
 interface ProductCardProps {
   product: FurnitureProduct
@@ -28,7 +28,9 @@ export default function ProductCard({ product, imageHeight = 190 }: ProductCardP
       return
     }
     const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
-    await fetch(`${API}/cart/${customer.id}/items`, {
+    const storeUserId = getStoreCartUserId(customer)
+    if (!storeUserId) return
+    await fetch(`${API}/cart/${storeUserId}/items`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

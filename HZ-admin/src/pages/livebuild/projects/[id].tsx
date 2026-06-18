@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import {
@@ -31,13 +31,13 @@ import Loader from '@/src/common/Loader';
 const TABS = [
   { id: 'overview', label: 'Overview', icon: LayoutGrid },
   { id: 'rooms', label: 'Rooms & Progress', icon: Home },
-  { id: 'property-info', label: 'Property Info', icon: Building2 },
-  { id: '3d', label: '3D', icon: Box },
   { id: 'dpr', label: 'DPR Upload', icon: CalendarCheck, pulse: true },
-  { id: 'payments', label: 'Payments', icon: CreditCard },
-  { id: 'queries', label: 'Queries', icon: MessageSquare },
-  { id: 'documents', label: 'Documents', icon: FileText },
   { id: 'materials', label: 'Materials & BOQ', icon: Package },
+  { id: 'documents', label: 'Documents', icon: FileText },
+  { id: 'payments', label: 'Payments', icon: CreditCard },
+  { id: '3d', label: '3D', icon: Box },
+  { id: 'property-info', label: 'Property Info', icon: Building2 },
+  { id: 'queries', label: 'Queries', icon: MessageSquare },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
@@ -53,6 +53,7 @@ function LiveBuildProjectDetailPage() {
   const [rooms, setRooms] = useState<LbRoom[]>([]);
   const [tab, setTab] = useState<TabId>('overview');
   const [loading, setLoading] = useState(true);
+  const overviewSaveRef = useRef<((publish?: boolean) => Promise<void>) | null>(null);
 
   useEffect(() => {
     if (TABS.some((t) => t.id === tabFromQuery)) setTab(tabFromQuery);
@@ -87,7 +88,11 @@ function LiveBuildProjectDetailPage() {
     });
   };
 
-  const saveProject = async () => {
+  const saveProject = async (publish = false) => {
+    if (tab === 'overview' && overviewSaveRef.current) {
+      await overviewSaveRef.current(publish);
+      return;
+    }
     if (!project) return;
     try {
       const updated = await livebuildApi.updateProject(project.id, {
@@ -105,7 +110,7 @@ function LiveBuildProjectDetailPage() {
         onHoldReason: project.onHoldReason ?? null,
       });
       setProject(updated);
-      lbToast('Project saved', 'ok');
+      lbToast(publish ? 'Update published to customer portal' : 'Project saved', 'ok');
     } catch (e: any) {
       lbToast(e?.body?.message || 'Save failed', 'err');
     }
@@ -146,10 +151,10 @@ function LiveBuildProjectDetailPage() {
           actions={
             project ? (
               <>
-                <Btn variant="ghost" size="sm" onClick={saveProject}>
+                <Btn variant="ghost" size="sm" onClick={() => saveProject(false)}>
                   Save changes
                 </Btn>
-                <Btn variant="blue" size="sm" onClick={saveProject}>
+                <Btn variant="blue" size="sm" onClick={() => saveProject(true)}>
                   Publish update
                 </Btn>
               </>
@@ -197,6 +202,9 @@ function LiveBuildProjectDetailPage() {
                 project={project}
                 onUpdated={setProject}
                 onSwitchTab={(t) => switchTab(t as TabId)}
+                onRegisterSave={(fn) => {
+                  overviewSaveRef.current = fn;
+                }}
               />
             )}
             {tab === 'rooms' && (

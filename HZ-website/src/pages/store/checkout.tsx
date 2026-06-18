@@ -4,6 +4,8 @@ import { withStoreLayout } from '@/components/Layouts/StoreLayout'
 import { useCustomerAuth } from '@/context/CustomerAuthContext'
 import SeoHead from '@/components/SeoHead'
 
+import { getStoreCartUserId } from '@/utils/storeCustomer'
+
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
 function CheckoutPage() {
@@ -29,7 +31,9 @@ function CheckoutPage() {
       router.replace('/?login=1')
       return
     }
-    fetch(`${API}/cart/${customer.id}`, { headers: { Authorization: `Bearer ${customer.token}` } })
+    const storeUserId = getStoreCartUserId(customer)
+    if (!storeUserId) return
+    fetch(`${API}/cart/${storeUserId}`, { headers: { Authorization: `Bearer ${customer.token}` } })
       .then((r) => r.json())
       .then(setCart)
       .catch(() => setCart(null))

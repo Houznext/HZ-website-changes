@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Package } from 'lucide-react';
 import livebuildApi from '../lib/api';
-import { LB_MATERIAL_CATEGORIES, LB_MATERIAL_UNITS, LB_ROOM_NAMES } from '../lib/constants';
+import { LB_MATERIAL_CATEGORIES, LB_MATERIAL_STATUSES, LB_MATERIAL_UNITS, normalizeMaterialStatus } from '../lib/constants';
 import type { LbRoom } from '../lib/types';
 import { Btn } from './Btn';
 import { FormInput } from './FormInput';
@@ -23,36 +23,61 @@ export function AddMaterialModal({ open, projectId, rooms, onClose, onCreated }:
   const [specification, setSpecification] = useState('');
   const [qty, setQty] = useState('');
   const [unit, setUnit] = useState('No.');
-  const [roomName, setRoomName] = useState('');
+  const [selectedRoomIds, setSelectedRoomIds] = useState<string[]>([]);
   const [brand, setBrand] = useState('');
-  const [status, setStatus] = useState('not_started');
+  const [status, setStatus] = useState('started');
   const [installDate, setInstallDate] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (open && rooms.length) setRoomName(rooms[0].name);
+    if (open && rooms.length) setSelectedRoomIds([rooms[0].id]);
+    if (!open) setSelectedRoomIds([]);
   }, [open, rooms]);
+
+  const toggleRoom = (roomId: string) => {
+    setSelectedRoomIds((prev) =>
+      prev.includes(roomId) ? prev.filter((id) => id !== roomId) : [...prev, roomId],
+    );
+  };
+
+  const selectAllRooms = () => setSelectedRoomIds(rooms.map((r) => r.id));
+  const clearRooms = () => setSelectedRoomIds([]);
 
   const submit = async () => {
     if (!name.trim()) {
       lbToast('Material name required', 'err');
       return;
     }
-    const room = rooms.find((r) => r.name === roomName);
+    if (!selectedRoomIds.length) {
+      lbToast('Select at least one room', 'err');
+      return;
+    }
     setSaving(true);
     try {
-      await livebuildApi.createMaterial(projectId, {
+      const payload = {
         name: name.trim(),
         category,
         specification: specification || undefined,
         quantity: qty ? Number(qty) : 1,
         unit,
-        roomId: room?.id ? Number(room.id) : undefined,
         brand: brand || undefined,
         status,
         installDate: installDate || undefined,
-      });
-      lbToast('Added to BOQ', 'ok');
+      };
+      await Promise.all(
+        selectedRoomIds.map((roomId) =>
+          livebuildApi.createMaterial(projectId, {
+            ...payload,
+            roomId: Number(roomId),
+          }),
+        ),
+      );
+      lbToast(
+        selectedRoomIds.length > 1
+          ? `Added to ${selectedRoomIds.length} rooms`
+          : 'Added to BOQ',
+        'ok',
+      );
       onCreated();
       onClose();
       setName('');
@@ -60,14 +85,13 @@ export function AddMaterialModal({ open, projectId, rooms, onClose, onCreated }:
       setSpecification('');
       setBrand('');
       setInstallDate('');
+      setSelectedRoomIds([]);
     } catch (e: any) {
       lbToast(e?.body?.message || 'Failed', 'err');
     } finally {
       setSaving(false);
     }
   };
-
-  const roomOptions = [...new Set([...rooms.map((r) => r.name), ...LB_ROOM_NAMES, 'All rooms'])];
 
   return (
     <Modal
@@ -133,34 +157,121 @@ export function AddMaterialModal({ open, projectId, rooms, onClose, onCreated }:
         </div>
       </div>
       <div className="lb-form-row" style={{ marginBottom: 12 }}>
-        <div>
-          <Label required>Room</Label>
-          <FormInput as="select" value={roomName} onChange={(e) => setRoomName(e.target.value)}>
-            {roomOptions.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </FormInput>
+        <div style={{ gridColumn: '1 / -1' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <Label required>Rooms</Label>
+            {rooms.length > 1 ? (
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  type="button"
+                  onClick={selectAllRooms}
+                  style={{
+                    border: 'none',
+                    background: 'none',
+                    color: 'var(--lb-blue)',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    padding: 0,
+                  }}
+                >
+                  Select all
+                </button>
+                <button
+                  type="button"
+                  onClick={clearRooms}
+                  style={{
+                    border: 'none',
+                    background: 'none',
+                    color: 'var(--lb-mu)',
+                    fontSize: 11,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    padding: 0,
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
+            ) : null}
+          </div>
+          {rooms.length === 0 ? (
+            <p style={{ fontSize: 12, color: 'var(--lb-mu)', margin: 0 }}>
+              Add rooms to this project first, then assign materials.
+            </p>
+          ) : (
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 8,
+                padding: '10px 12px',
+                border: '1.5px solid var(--lb-bd)',
+                borderRadius: 10,
+                background: '#fff',
+                maxHeight: 140,
+                overflowY: 'auto',
+              }}
+            >
+              {rooms.map((room) => {
+                const checked = selectedRoomIds.includes(room.id);
+                return (
+                  <label
+                    key={room.id}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '6px 10px',
+                      borderRadius: 8,
+                      border: `1.5px solid ${checked ? 'var(--lb-blue)' : 'var(--lb-bd)'}`,
+                      background: checked ? 'var(--lb-bl)' : '#fff',
+                      cursor: 'pointer',
+                      fontSize: 12,
+                      fontWeight: checked ? 700 : 500,
+                      color: checked ? 'var(--lb-blue)' : 'var(--lb-ch)',
+                      userSelect: 'none',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => toggleRoom(room.id)}
+                      style={{ accentColor: 'var(--lb-blue)' }}
+                    />
+                    {room.name}
+                  </label>
+                );
+              })}
+            </div>
+          )}
+          <p style={{ fontSize: 11, color: 'var(--lb-mu)', margin: '8px 0 0' }}>
+            Total quantity applies to the procurement. The same item appears under each selected room.
+          </p>
         </div>
+      </div>
+      <div className="lb-form-row" style={{ marginBottom: 12 }}>
         <div>
           <Label>Brand</Label>
           <FormInput value={brand} onChange={(e) => setBrand(e.target.value)} placeholder="e.g. Greenply" />
         </div>
-      </div>
-      <div className="lb-form-row">
         <div>
           <Label>Status</Label>
           <FormInput as="select" value={status} onChange={(e) => setStatus(e.target.value)}>
-            <option value="not_started">Not started</option>
-            <option value="procured">Procured</option>
-            <option value="installed">Installed</option>
+            {LB_MATERIAL_STATUSES.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label}
+              </option>
+            ))}
           </FormInput>
         </div>
+      </div>
+      <div className="lb-form-row" style={{ marginBottom: 0 }}>
         <div>
           <Label>Install date</Label>
           <FormInput type="date" value={installDate} onChange={(e) => setInstallDate(e.target.value)} />
         </div>
+        <div />
       </div>
       <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
         <Btn variant="ghost" onClick={onClose}>

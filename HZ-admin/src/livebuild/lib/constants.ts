@@ -106,10 +106,16 @@ export const LB_MATERIAL_UNITS = [
 ] as const;
 
 export const LB_MATERIAL_STATUSES = [
-  { id: 'not_started', label: 'Not started' },
+  { id: 'started', label: 'Started' },
   { id: 'procured', label: 'Procured' },
   { id: 'installed', label: 'Installed' },
 ] as const;
+
+/** Normalize legacy material status values for admin UI and API writes. */
+export function normalizeMaterialStatus(status?: string | null): string {
+  if (!status || status === 'not_started' || status === 'pending') return 'started';
+  return status;
+}
 
 export const LB_PROGRESS_METHOD_LABEL: Record<string, string> = {
   hybrid: '⚡ Hybrid',

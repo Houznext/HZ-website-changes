@@ -68,6 +68,14 @@ export class InteriorController {
     return this.interiorService.loginWithOtp(dto.mobile, dto.otp);
   }
 
+  @UseGuards(InteriorJwtGuard)
+  @Get('auth/store-context')
+  storeContext(@Req() req: { user: InteriorJwtPayload }) {
+    return this.interiorService.resolveStoreUserId(req.user.sub).then((storeUserId) => ({
+      storeUserId,
+    }));
+  }
+
   @Post('auth/login-password')
   loginPassword(@Body() dto: LoginPasswordDto) {
     return this.interiorService.loginWithPassword(dto.mobile, dto.password);

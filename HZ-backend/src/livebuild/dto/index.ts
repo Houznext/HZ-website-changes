@@ -92,19 +92,41 @@ export class CreateProjectDto {
   @IsString()
   pctMethod?: string;
 
+  /** Admin UI alias for pctMethod */
+  @IsOptional()
+  @IsString()
+  progressMethod?: string;
+
   @IsOptional()
   overallPct?: number;
 
   @IsOptional()
   pctOverride?: number;
 
+  /** Admin UI alias for pctOverride */
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  progressOverridePct?: number | null;
+
   @IsOptional()
   @IsString()
   pctOverrideReason?: string;
 
+  /** Admin UI alias for pctOverrideReason */
+  @IsOptional()
+  @IsString()
+  progressOverrideReason?: string;
+
   @IsOptional()
   @IsString()
   holdReason?: string;
+
+  /** Admin UI alias for holdReason */
+  @IsOptional()
+  @IsString()
+  onHoldReason?: string;
 
   @IsOptional()
   @IsString()
@@ -184,7 +206,7 @@ export class CreateRoomDto {
   flooring?: string;
 }
 
-export class UpdateRoomDto extends CreateRoomDto {}
+export class UpdateRoomDto extends PartialType(CreateRoomDto) {}
 
 export class AddRoomWorkTypeDto {
   @IsNumber()
@@ -376,7 +398,7 @@ export class CreateMaterialDto {
   displayOrder?: number;
 }
 
-export class UpdateMaterialDto extends CreateMaterialDto {}
+export class UpdateMaterialDto extends PartialType(CreateMaterialDto) {}
 
 export class UpsertPropertyInfoDto {
   @IsOptional()

@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import {
   LayoutGrid,
@@ -23,18 +23,19 @@ import Badge from './Badge';
 import Button from './Button';
 import { lbIconProps } from './icons';
 import { useLivebuildSession } from '../lib/useLivebuildSession';
+import { useLbProjectId } from '../lib/useLbProjectId';
 import { projectLocation, statusBadgeClass, statusLabel } from '../lib/format';
 import type { LbProjectSummary } from '../lib/types';
 
 const MAIN_TABS = [
   { key: 'home', href: '', label: 'Home', Icon: LayoutGrid },
   { key: 'day-progress', href: '/day-progress', label: 'Day Progress', Icon: Calendar },
-  { key: 'viz', href: '/viz', label: '3D', Icon: Box },
+  { key: 'materials', href: '/materials', label: 'Materials and BOQ', Icon: Tag },
+  { key: 'documents', href: '/documents', label: 'Documents', Icon: FolderOpen },
   { key: 'payments', href: '/payments', label: 'Payments', Icon: CreditCard },
+  { key: 'viz', href: '/viz', label: '3D', Icon: Box },
   { key: 'queries', href: '/queries', label: 'Queries', Icon: MessageSquare },
   { key: 'property-info', href: '/property-info', label: 'Property Info', Icon: Home },
-  { key: 'materials', href: '/materials', label: 'Materials', Icon: Tag },
-  { key: 'documents', href: '/documents', label: 'Documents', Icon: FolderOpen },
 ] as const;
 
 const MOBILE_PRIMARY = MAIN_TABS.slice(0, 5);
@@ -53,17 +54,33 @@ function normalizeLbPath(path: string): string {
   return path.split('?')[0].replace(/\/$/, '') || '/';
 }
 
-function tabActive(asPath: string, projectId: string, href: string): boolean {
-  const path = normalizeLbPath(asPath);
-  const base = `/livebuild/${projectId}`;
-
+/** Match active tab from Next route pattern — stable while query hydrates. */
+function tabActive(pathname: string, asPath: string, projectId: string, href: string): boolean {
   if (!href) {
-    if (path === base) return true;
-    return path.startsWith(`${base}/rooms`);
+    if (pathname === '/livebuild/[projectId]') return true;
+    if (
+      pathname === '/livebuild/[projectId]/rooms/[roomId]' ||
+      pathname === '/livebuild/[projectId]/rooms'
+    ) {
+      return true;
+    }
+    const path = normalizeLbPath(asPath);
+    const base = projectId ? `/livebuild/${projectId}` : '';
+    return !!base && (path === base || path.startsWith(`${base}/rooms`));
   }
 
-  const tabPath = `${base}${href}`;
-  return path === tabPath || path.startsWith(`${tabPath}/`);
+  const tabPath = `/livebuild/[projectId]${href}`;
+  if (pathname === tabPath) return true;
+
+  const path = normalizeLbPath(asPath);
+  if (!projectId) return false;
+  const concrete = `/livebuild/${projectId}${href}`;
+  return path === concrete || path.startsWith(`${concrete}/`);
+}
+
+function projectTabHref(projectId: string, href: string): string {
+  if (!projectId) return '#';
+  return `/livebuild/${projectId}${href}`;
 }
 
 export default function LivebuildProjectLayout({
@@ -75,7 +92,8 @@ export default function LivebuildProjectLayout({
   loading,
 }: Props) {
   const router = useRouter();
-  const projectId = String(router.query.projectId ?? '');
+  const projectId = useLbProjectId();
+  const tabsRef = useRef<HTMLElement>(null);
   const [moreOpen, setMoreOpen] = useState(false);
   const { ready, canAccess } = useLivebuildSession(true);
 
@@ -89,6 +107,13 @@ export default function LivebuildProjectLayout({
     setMoreOpen(false);
   }, [router.asPath]);
 
+  useEffect(() => {
+    const nav = tabsRef.current;
+    if (!nav) return;
+    const active = nav.querySelector<HTMLElement>('.ptab.on');
+    active?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }, [router.pathname, router.asPath]);
+
   if (!ready) {
     return (
       <div className="lb-root flex items-center justify-center min-h-[50vh]">
@@ -100,8 +125,9 @@ export default function LivebuildProjectLayout({
   if (!canAccess) return null;
 
   const asPath = router.asPath;
+  const pathname = router.pathname;
   const pct = Math.round(project?.overallProgress ?? 0);
-  const moreActive = MOBILE_MORE.some(({ href }) => tabActive(asPath, projectId, href));
+  const moreActive = MOBILE_MORE.some(({ href }) => tabActive(pathname, asPath, projectId, href));
 
   return (
     <LivebuildToastProvider>
@@ -113,6 +139,7 @@ export default function LivebuildProjectLayout({
       </Head>
       <div className={`lb-root ${showMobileNav ? 'lb-has-mob-nav' : ''}`}>
         <Navbar />
+        <div className="lb-sticky-head">
         <div className="lb-topbar">
           <Button
             variant="ghost"
@@ -146,15 +173,20 @@ export default function LivebuildProjectLayout({
         </div>
 
         {showMainTabs && (
-          <nav className="ptabs">
+          <nav className="ptabs" ref={tabsRef}>
             {MAIN_TABS.map(({ key, href, label, Icon }) => {
-              const active = tabActive(asPath, projectId, href);
+              const active = tabActive(pathname, asPath, projectId, href);
+              const dest = projectTabHref(projectId, href);
               return (
                 <Link
                   key={key}
-                  href={`/livebuild/${projectId}${href}`}
+                  href={dest}
                   className={`ptab ${active ? 'on' : ''}`}
                   aria-current={active ? 'page' : undefined}
+                  scroll={false}
+                  onClick={(e) => {
+                    if (!projectId) e.preventDefault();
+                  }}
                 >
                   <Icon size={14} {...lbIconProps()} />
                   {label}
@@ -168,6 +200,7 @@ export default function LivebuildProjectLayout({
             })}
           </nav>
         )}
+        </div>
 
         {children}
 
@@ -175,15 +208,26 @@ export default function LivebuildProjectLayout({
           <>
             <nav className="mob-nav">
               {MOBILE_PRIMARY.map(({ key, href, label, Icon }) => {
-                const active = tabActive(asPath, projectId, href);
+                const active = tabActive(pathname, asPath, projectId, href);
+                const dest = projectTabHref(projectId, href);
                 return (
                   <Link
                     key={key}
-                    href={`/livebuild/${projectId}${href}`}
+                    href={dest}
                     className={`mob-nav-item ${active ? 'on' : ''}`}
+                    scroll={false}
+                    onClick={(e) => {
+                      if (!projectId) e.preventDefault();
+                    }}
                   >
                     <Icon size={20} {...lbIconProps()} />
-                    <span className="mob-nav-label">{label === 'Day Progress' ? 'Progress' : label}</span>
+                    <span className="mob-nav-label">
+                      {label === 'Day Progress'
+                        ? 'Progress'
+                        : label === 'Materials and BOQ'
+                          ? 'Materials'
+                          : label}
+                    </span>
                   </Link>
                 );
               })}
@@ -215,13 +259,18 @@ export default function LivebuildProjectLayout({
                   </div>
                   <div className="lb-more-grid">
                     {MOBILE_MORE.map(({ key, href, label, Icon }) => {
-                      const active = tabActive(asPath, projectId, href);
+                      const active = tabActive(pathname, asPath, projectId, href);
+                      const dest = projectTabHref(projectId, href);
                       return (
                         <Link
                           key={key}
-                          href={`/livebuild/${projectId}${href}`}
+                          href={dest}
                           className={`lb-more-item ${active ? 'on' : ''}`}
-                          onClick={() => setMoreOpen(false)}
+                          scroll={false}
+                          onClick={(e) => {
+                            if (!projectId) e.preventDefault();
+                            else setMoreOpen(false);
+                          }}
                         >
                           <Icon size={18} {...lbIconProps()} />
                           {label}

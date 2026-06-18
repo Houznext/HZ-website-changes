@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Download, Plus, Package, CheckCircle, Clock, Trash2 } from 'lucide-react';
+import { Download, Plus, Package, CheckCircle, Clock, Hammer, Trash2 } from 'lucide-react';
 import livebuildApi from '../lib/api';
-import { LB_MATERIAL_STATUSES } from '../lib/constants';
+import { LB_MATERIAL_STATUSES, normalizeMaterialStatus } from '../lib/constants';
 import type { LbMaterial, LbRoom } from '../lib/types';
 import { AddMaterialModal } from '../components/AddMaterialModal';
 import { EditMaterialModal } from '../components/EditMaterialModal';
@@ -42,12 +42,13 @@ export function ProjectMaterialsTab({ projectId, projectName }: Props) {
 
   const filtered = items.filter((m) => {
     if (roomFilter !== 'all' && m.room !== roomFilter && m.roomId !== roomFilter) return false;
-    if (statusFilter !== 'all' && m.status !== statusFilter) return false;
+    if (statusFilter !== 'all' && normalizeMaterialStatus(m.status) !== statusFilter) return false;
     return true;
   });
 
-  const installed = items.filter((m) => m.status === 'installed').length;
-  const pending = items.filter((m) => m.status !== 'installed').length;
+  const installed = items.filter((m) => normalizeMaterialStatus(m.status) === 'installed').length;
+  const started = items.filter((m) => normalizeMaterialStatus(m.status) === 'started').length;
+  const pending = items.filter((m) => normalizeMaterialStatus(m.status) === 'procured').length;
 
   const byRoom = rooms.map((room) => ({
     room,
@@ -117,7 +118,7 @@ export function ProjectMaterialsTab({ projectId, projectName }: Props) {
           </Btn>
         </div>
       </div>
-      <div className="lb-g3" style={{ marginBottom: 16 }}>
+      <div className="lb-g4" style={{ marginBottom: 16 }}>
         <StatCard
           label="Total items"
           value={items.length}
@@ -125,16 +126,22 @@ export function ProjectMaterialsTab({ projectId, projectName }: Props) {
           icon={<Package size={18} strokeWidth={1.8} color="#2563eb" />}
         />
         <StatCard
-          label="Installed"
-          value={installed}
-          valueColor="var(--lb-tl)"
-          icon={<CheckCircle size={18} strokeWidth={1.8} color="var(--lb-tl)" />}
-        />
-        <StatCard
           label="Pending"
           value={pending}
           valueColor="var(--lb-am)"
           icon={<Clock size={18} strokeWidth={1.8} color="var(--lb-am)" />}
+        />
+        <StatCard
+          label="Started"
+          value={started}
+          valueColor="var(--lb-ch)"
+          icon={<Hammer size={18} strokeWidth={1.8} color="#475569" />}
+        />
+        <StatCard
+          label="Installed"
+          value={installed}
+          valueColor="var(--lb-tl)"
+          icon={<CheckCircle size={18} strokeWidth={1.8} color="var(--lb-tl)" />}
         />
       </div>
       <div style={{ marginBottom: 12 }}>
@@ -262,7 +269,7 @@ function MaterialRow({
       <FormInput
         as="select"
         style={{ fontSize: 11, padding: '5px 8px', width: 120 }}
-        value={m.status}
+        value={normalizeMaterialStatus(m.status)}
         onChange={(e) => updateStatus(e.target.value)}
       >
         {LB_MATERIAL_STATUSES.map((s) => (

@@ -21,6 +21,7 @@ import { EstimationCategory } from './Enum/cost-estimator.enum';
 import { MailerService } from 'src/sendEmail.service';
 import { RequestUser } from 'src/guard';
 import { S3Service } from 'src/common/s3/s3.service';
+import { mobileSuffix10, sqlMobileSuffixMatch } from 'src/common/phone.util';
 
 @Injectable()
 export class CostEstimatorService {
@@ -144,8 +145,9 @@ export class CostEstimatorService {
       }
 
       if (customerMobile) {
-        queryBuilder.andWhere('costEstimator.customerMobile = :customerMobile', {
-          customerMobile,
+        const suffix = mobileSuffix10(customerMobile);
+        queryBuilder.andWhere(sqlMobileSuffixMatch('costEstimator.customerMobile'), {
+          mobileSuffix: suffix,
         });
       }
 
@@ -470,8 +472,9 @@ export class CostEstimatorService {
     }
 
     if (filters.customerMobile) {
-      queryBuilder.andWhere('costEstimator.customerMobile = :customerMobile', {
-        customerMobile: filters.customerMobile,
+      const suffix = mobileSuffix10(filters.customerMobile);
+      queryBuilder.andWhere(sqlMobileSuffixMatch('costEstimator.customerMobile'), {
+        mobileSuffix: suffix,
       });
     }
 

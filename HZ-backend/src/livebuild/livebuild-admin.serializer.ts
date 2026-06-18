@@ -225,6 +225,7 @@ export function serializeDocument(d: LivebuildDocument) {
 }
 
 export function serializeMaterial(m: LivebuildMaterial) {
+  const status = m.status ?? 'started';
   return {
     id: String(m.id),
     name: m.name,
@@ -235,7 +236,8 @@ export function serializeMaterial(m: LivebuildMaterial) {
     room: m.room?.name ?? '',
     roomId: m.roomId != null ? String(m.roomId) : undefined,
     brand: m.brand,
-    status: m.status ?? 'not_started',
+    status:
+      status === 'not_started' || status === 'pending' ? 'started' : status,
     installDate: m.installDate,
   };
 }

@@ -21,7 +21,7 @@ function MaterialIcon() {
 function statusStyle(status: string) {
   if (status === 'installed') return { bg: '#e8f1fd', cl: '#1d4ed8', tx: '✓ Installed' };
   if (status === 'procured') return { bg: '#fef3c7', cl: '#92400e', tx: 'Procured' };
-  return { bg: '#f1f5f9', cl: '#64748b', tx: 'Not started' };
+  return { bg: '#f1f5f9', cl: '#64748b', tx: 'Started' };
 }
 
 function MaterialRow({ m }: { m: LbMaterialItem }) {
@@ -111,7 +111,7 @@ function LivebuildMaterialsContent() {
     };
   }, [projectId, statusFilter, roomFilter]);
 
-  const stats = data?.stats ?? { total: 0, installed: 0, procured: 0, pending: 0 };
+  const stats = data?.stats ?? { total: 0, installed: 0, procured: 0, started: 0 };
   const items = data?.items ?? [];
 
   const byRoom = useMemo(() => {
@@ -136,12 +136,12 @@ function LivebuildMaterialsContent() {
     { key: 'all', label: `All (${stats.total})` },
     { key: 'installed', label: `✓ Installed (${stats.installed})` },
     { key: 'procured', label: `Procured (${stats.procured})` },
-    { key: 'pending', label: `Pending (${stats.pending})` },
+    { key: 'started', label: `Started (${stats.started})` },
   ];
 
   return (
     <>
-      <SeoHead title="Materials | LiveBuild" description="BOQ and materials" canonical={`/livebuild/${projectId}/materials`} />
+      <SeoHead title="Materials and BOQ | LiveBuild" description="BOQ and materials" canonical={`/livebuild/${projectId}/materials`} />
       <LivebuildProjectLayout project={project}>
         <div className="content" style={{ maxWidth: 960, margin: '0 auto', paddingBottom: 80 }}>
           <div className="grid-3 fade-up" style={{ marginBottom: 16 }}>
@@ -159,9 +159,9 @@ function LivebuildMaterialsContent() {
             </Card>
             <Card small style={{ textAlign: 'center', background: '#fff8f5', borderColor: '#fed7aa' }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--am)', textTransform: 'uppercase', letterSpacing: '.07em', fontFamily: 'var(--m)', marginBottom: 4 }}>
-                Pending
+                Started
               </div>
-              <div style={{ fontFamily: 'var(--m)', fontSize: 22, fontWeight: 800, color: 'var(--am)' }}>{stats.pending}</div>
+              <div style={{ fontFamily: 'var(--m)', fontSize: 22, fontWeight: 800, color: 'var(--am)' }}>{stats.started}</div>
             </Card>
           </div>
 

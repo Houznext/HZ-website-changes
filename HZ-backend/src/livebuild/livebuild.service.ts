@@ -59,6 +59,7 @@ import {
 import { LivebuildRequest } from './livebuild-auth.guard';
 import { S3Service } from 'src/common/s3/s3.service';
 import { MailerService } from 'src/sendEmail.service';
+import { CustomerIdentityService } from '../common/customer-identity/customer-identity.service';
 import { LivebuildOtpService } from './livebuild-otp.service';
 import {
   activityFromDpr,
@@ -121,6 +122,7 @@ export class LivebuildService {
     private readonly s3Service: S3Service,
     private readonly mailerService: MailerService,
     private readonly otpService: LivebuildOtpService,
+    private readonly customerIdentity: CustomerIdentityService,
   ) {}
 
   resolveAccess(req: LivebuildRequest): LbAccessContext {
@@ -200,9 +202,7 @@ export class LivebuildService {
     await this.recalcHybridPct(room.projectId);
   }
 
-  async recalcHybridPct(projectId: number): Promise<void> {
-    const project = await this.projectRepo.findOne({ where: { id: projectId } });
-    if (!project || project.pctMethod !== 'hybrid' || project.pctOverride != null) return;
+  private async rollupProjectPctFromRooms(projectId: number): Promise<void> {
     const result = await this.roomRepo
       .createQueryBuilder('r')
       .select('COALESCE(ROUND(AVG(r.pct)), 0)', 'avg')
@@ -211,6 +211,49 @@ export class LivebuildService {
     await this.projectRepo.update(projectId, {
       overallPct: Number(result?.avg ?? 0),
     });
+  }
+
+  async recalcHybridPct(projectId: number): Promise<void> {
+    const project = await this.projectRepo.findOne({ where: { id: projectId } });
+    if (!project || project.pctMethod !== 'hybrid' || project.pctOverride != null) return;
+    await this.rollupProjectPctFromRooms(projectId);
+  }
+
+  async recalcItemsPct(projectId: number): Promise<void> {
+    const project = await this.projectRepo.findOne({ where: { id: projectId } });
+    if (!project || project.pctMethod !== 'items' || project.pctOverride != null) return;
+
+    const rooms = await this.roomRepo.find({ where: { projectId } });
+    for (const room of rooms) {
+      const total = await this.materialRepo.count({
+        where: { projectId, roomId: room.id },
+      });
+      const installed = await this.materialRepo.count({
+        where: { projectId, roomId: room.id, status: 'installed' },
+      });
+      const pct = total === 0 ? 0 : Math.round((installed / total) * 100);
+      await this.roomRepo.update(room.id, { pct });
+    }
+
+    await this.rollupProjectPctFromRooms(projectId);
+  }
+
+  private async rollupProjectPctIfAuto(projectId: number): Promise<void> {
+    const project = await this.projectRepo.findOne({ where: { id: projectId } });
+    if (!project || project.pctOverride != null) return;
+    if (project.pctMethod === 'hybrid' || project.pctMethod === 'items') {
+      await this.rollupProjectPctFromRooms(projectId);
+    }
+  }
+
+  private async recalcProjectPctIfAuto(projectId: number): Promise<void> {
+    const project = await this.projectRepo.findOne({ where: { id: projectId } });
+    if (!project || project.pctOverride != null) return;
+    if (project.pctMethod === 'hybrid') {
+      await this.recalcHybridPct(projectId);
+    } else if (project.pctMethod === 'items') {
+      await this.recalcItemsPct(projectId);
+    }
   }
 
   // —— Projects ——
@@ -367,9 +410,10 @@ export class LivebuildService {
     if (progressMethod != null) project.pctMethod = progressMethod;
     if ('progressOverridePct' in dto) {
       project.pctOverride =
-        dto.progressOverridePct === null || dto.progressOverridePct === ''
-          ? null
-          : Number(dto.progressOverridePct);
+        dto.progressOverridePct != null ? Number(dto.progressOverridePct) : null;
+      if (project.pctMethod === 'manual' && project.pctOverride != null) {
+        project.overallPct = project.pctOverride;
+      }
     }
     if ('progressOverrideReason' in dto) {
       project.pctOverrideReason = (dto.progressOverrideReason as string) || null;
@@ -400,18 +444,20 @@ export class LivebuildService {
     }
     customerMobile = normalizeLbMobile(customerMobile);
 
-    const existingCustomer = await this.customerRepo.findOne({
-      where: { mobile: customerMobile },
-    });
+    let existingCustomer = await this.customerIdentity.findLivebuildByMobile(
+      customerMobile,
+    );
+    let lbCustomer: LivebuildCustomer | null = existingCustomer;
     if (existingCustomer) {
       if (dto.customerFullName?.trim()) existingCustomer.name = dto.customerFullName.trim();
       if (dto.customerEmail !== undefined) existingCustomer.email = dto.customerEmail || null;
       if (dto.address !== undefined) existingCustomer.address = dto.address || null;
       if (dto.otpVerifiedToken) existingCustomer.otpVerified = true;
-      await this.customerRepo.save(existingCustomer);
-      customerId = existingCustomer.id;
+      lbCustomer = await this.customerRepo.save(existingCustomer);
+      customerId = lbCustomer.id;
+      await this.customerIdentity.syncPortalFromLivebuild(lbCustomer);
     } else if (dto.customerFullName?.trim()) {
-      const created = await this.customerRepo.save(
+      lbCustomer = await this.customerRepo.save(
         this.customerRepo.create({
           name: dto.customerFullName.trim(),
           mobile: customerMobile,
@@ -420,7 +466,8 @@ export class LivebuildService {
           otpVerified: !!dto.otpVerifiedToken,
         }),
       );
-      customerId = created.id;
+      customerId = lbCustomer.id;
+      await this.customerIdentity.syncPortalFromLivebuild(lbCustomer);
     }
 
     const project = this.projectRepo.create({
@@ -443,6 +490,20 @@ export class LivebuildService {
       customerId,
     });
     const saved = await this.projectRepo.save(project);
+    await this.customerIdentity.syncPortalCustomer({
+      mobile: customerMobile,
+      fullName: dto.customerFullName?.trim() || lbCustomer?.name || null,
+      email: dto.customerEmail ?? lbCustomer?.email ?? null,
+      otpVerified: Boolean(dto.otpVerifiedToken || lbCustomer?.otpVerified),
+    });
+    const portal = await this.customerIdentity.findPortalByMobile(customerMobile);
+    if (portal) {
+      try {
+        await this.customerIdentity.ensureStoreUserForPortalCustomer(portal.id);
+      } catch {
+        // mobile may be missing until customer completes profile
+      }
+    }
     const full = await this.projectRepo.findOne({
       where: { id: saved.id },
       relations: ['customer'],
@@ -484,9 +545,7 @@ export class LivebuildService {
       }
     }
     const saved = await this.projectRepo.save(project);
-    if (saved.pctMethod === 'hybrid' && saved.pctOverride == null) {
-      await this.recalcHybridPct(id);
-    }
+    await this.recalcProjectPctIfAuto(id);
     const full = await this.projectRepo.findOne({
       where: { id },
       relations: ['customer'],
@@ -548,13 +607,14 @@ export class LivebuildService {
     const previousMobile = project.customerMobile;
     project.customerMobile = newMobile;
 
-    const existingCustomer = await this.customerRepo.findOne({
-      where: { mobile: newMobile },
-    });
+    const existingCustomer = await this.customerIdentity.findLivebuildByMobile(
+      newMobile,
+    );
     if (existingCustomer) {
       existingCustomer.otpVerified = true;
       await this.customerRepo.save(existingCustomer);
       project.customerId = existingCustomer.id;
+      await this.customerIdentity.syncPortalFromLivebuild(existingCustomer);
     } else if (project.customerId) {
       const linked = await this.customerRepo.findOne({
         where: { id: project.customerId },
@@ -565,8 +625,16 @@ export class LivebuildService {
       ) {
         linked.mobile = newMobile;
         linked.otpVerified = true;
-        await this.customerRepo.save(linked);
+        const savedLinked = await this.customerRepo.save(linked);
+        await this.customerIdentity.syncPortalFromLivebuild(savedLinked);
       }
+    } else {
+      await this.customerIdentity.syncPortalCustomer({
+        mobile: newMobile,
+        otpVerified: true,
+        fullName: project.customer?.name ?? null,
+        email: project.customer?.email ?? null,
+      });
     }
 
     await this.projectRepo.save(project);
@@ -674,17 +742,17 @@ export class LivebuildService {
 
   async createCustomer(dto: CreateCustomerDto & { fullName?: string; phone?: string }) {
     const mobile = normalizeLbMobile(dto.mobile ?? dto.phone ?? '');
-    return serializeCustomer(
-      await this.customerRepo.save(
-        this.customerRepo.create({
-          name: dto.name ?? dto.fullName ?? 'Customer',
-          mobile,
-          email: dto.email ?? null,
-          address: dto.address ?? null,
-          otpVerified: dto.otpVerified ?? false,
-        }),
-      ),
+    const saved = await this.customerRepo.save(
+      this.customerRepo.create({
+        name: dto.name ?? dto.fullName ?? 'Customer',
+        mobile,
+        email: dto.email ?? null,
+        address: dto.address ?? null,
+        otpVerified: dto.otpVerified ?? false,
+      }),
     );
+    const synced = await this.customerIdentity.afterLivebuildCustomerSaved(saved);
+    return serializeCustomer(synced);
   }
 
   async updateCustomer(id: number, dto: UpdateCustomerDto) {
@@ -781,7 +849,7 @@ export class LivebuildService {
     if (patch.pct != null) room.pct = Number(patch.pct);
     Object.assign(room, patch);
     const saved = await this.roomRepo.save(room);
-    await this.recalcHybridPct(saved.projectId);
+    await this.rollupProjectPctIfAuto(saved.projectId);
     const full = await this.roomRepo.findOne({
       where: { id: saved.id },
       relations: ['roomWorkTypes', 'roomWorkTypes.workType'],
@@ -1468,9 +1536,14 @@ export class LivebuildService {
   }
 
   async createMaterial(projectId: number, dto: CreateMaterialDto) {
+    const status =
+      !dto.status || dto.status === 'not_started' || dto.status === 'pending'
+        ? 'started'
+        : dto.status;
     const saved = await this.materialRepo.save(
-      this.materialRepo.create({ ...dto, projectId }),
+      this.materialRepo.create({ ...dto, projectId, status }),
     );
+    await this.recalcItemsPct(projectId);
     const full = await this.materialRepo.findOne({
       where: { id: saved.id },
       relations: ['room', 'workType'],
@@ -1481,8 +1554,16 @@ export class LivebuildService {
   async updateMaterial(id: number, dto: UpdateMaterialDto) {
     const material = await this.materialRepo.findOne({ where: { id } });
     if (!material) throw new NotFoundException('Material not found');
-    Object.assign(material, dto);
+    const patch = { ...dto } as UpdateMaterialDto;
+    if (patch.status != null) {
+      patch.status =
+        patch.status === 'not_started' || patch.status === 'pending'
+          ? 'started'
+          : patch.status;
+    }
+    Object.assign(material, patch);
     const saved = await this.materialRepo.save(material);
+    await this.recalcItemsPct(material.projectId);
     const full = await this.materialRepo.findOne({
       where: { id: saved.id },
       relations: ['room', 'workType'],
@@ -1491,8 +1572,11 @@ export class LivebuildService {
   }
 
   async deleteMaterial(id: number) {
-    const result = await this.materialRepo.delete(id);
-    if (!result.affected) throw new NotFoundException('Material not found');
+    const material = await this.materialRepo.findOne({ where: { id } });
+    if (!material) throw new NotFoundException('Material not found');
+    const projectId = material.projectId;
+    await this.materialRepo.delete(id);
+    await this.recalcItemsPct(projectId);
     return { deleted: true };
   }
 

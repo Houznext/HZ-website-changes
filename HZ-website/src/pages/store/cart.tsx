@@ -4,6 +4,8 @@ import { withStoreLayout } from '@/components/Layouts/StoreLayout'
 import { useCustomerAuth } from '@/context/CustomerAuthContext'
 import SeoHead from '@/components/SeoHead'
 
+import { getStoreCartUserId } from '@/utils/storeCustomer'
+
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
 function StoreCartPage() {
@@ -14,7 +16,9 @@ function StoreCartPage() {
 
   const load = () => {
     if (!customer) return
-    fetch(`${API}/cart/${customer.id}`, { headers: { Authorization: `Bearer ${customer.token}` } })
+    const storeUserId = getStoreCartUserId(customer)
+    if (!storeUserId) return
+    fetch(`${API}/cart/${storeUserId}`, { headers: { Authorization: `Bearer ${customer.token}` } })
       .then((r) => r.json())
       .then(setCart)
       .catch(() => setCart(null))
@@ -36,8 +40,10 @@ function StoreCartPage() {
 
   const updateQty = async (item: any, delta: number) => {
     if (!customer) return
+    const storeUserId = getStoreCartUserId(customer)
+    if (!storeUserId) return
     const nextQty = Math.max(1, Number(item.quantity || 1) + delta)
-    await fetch(`${API}/cart/${customer.id}/items/${item.id}`, {
+    await fetch(`${API}/cart/${storeUserId}/items/${item.id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -50,7 +56,9 @@ function StoreCartPage() {
 
   const removeItem = async (itemId: string) => {
     if (!customer) return
-    await fetch(`${API}/cart/${customer.id}/items/${itemId}`, {
+    const storeUserId = getStoreCartUserId(customer)
+    if (!storeUserId) return
+    await fetch(`${API}/cart/${storeUserId}/items/${itemId}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${customer.token}` },
     })
@@ -59,7 +67,9 @@ function StoreCartPage() {
 
   const applyCoupon = async () => {
     if (!customer) return
-    await fetch(`${API}/cart/${customer.id}/meta`, {
+    const storeUserId = getStoreCartUserId(customer)
+    if (!storeUserId) return
+    await fetch(`${API}/cart/${storeUserId}/meta`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

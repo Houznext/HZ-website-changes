@@ -146,7 +146,7 @@ export default function LoginModal({
     }, 1000)
   }
 
-  const applyCustomerSession = useCallback((data: { token: string; customer: CustomerResp }, nameOverride?: string) => {
+  const applyCustomerSession = useCallback((data: { token: string; customer: CustomerResp; storeUserId?: string }, nameOverride?: string) => {
     const c = data.customer
     const finalName = nameOverride?.trim()
       || (c.fullName && c.fullName.trim())
@@ -157,6 +157,7 @@ export default function LoginModal({
       id: c.id,
       name: finalName,
       token: data.token,
+      storeUserId: data.storeUserId,
       mobile: c.mobile && String(c.mobile).trim() ? String(c.mobile).trim() : null,
       email: c.email && String(c.email).trim() ? String(c.email).trim().toLowerCase() : null,
     })
@@ -194,6 +195,12 @@ export default function LoginModal({
             setTimeout(() => nameInputRef.current?.focus(), 80)
             return
           }
+          if (low.includes('already registered') || low.includes('please login')) {
+            setAuthMode('login')
+            setError('This number is already registered. Use login with OTP below.')
+            setLoading(false)
+            return
+          }
           if (typeof raw === 'string' && raw.trim()) {
             msg = raw
           }
@@ -228,7 +235,7 @@ export default function LoginModal({
         body: JSON.stringify({ mobile: digits, otp: code }),
       })
       if (!res.ok) throw new Error('Invalid or expired OTP.')
-      const data = await res.json() as { token: string; customer: CustomerResp }
+      const data = await res.json() as { token: string; customer: CustomerResp; storeUserId?: string }
       if (authMode === 'signup' && name.trim() && name.trim() !== (data.customer.fullName ?? '')) {
         await fetch(`${API}/interiors/customers/${data.customer.id}`, {
           method: 'PATCH',
@@ -308,7 +315,7 @@ export default function LoginModal({
           }
           throw new Error(msg)
         }
-        const data = await res.json() as { token: string; customer: CustomerResp }
+        const data = await res.json() as { token: string; customer: CustomerResp; storeUserId?: string }
         applyCustomerSession(data)
       } else {
         const res = await fetch(`${API}/interiors/auth/register-email`, {
@@ -332,7 +339,7 @@ export default function LoginModal({
           }
           throw new Error(msg)
         }
-        const data = await res.json() as { token: string; customer: CustomerResp }
+        const data = await res.json() as { token: string; customer: CustomerResp; storeUserId?: string }
         applyCustomerSession(data)
       }
     } catch (e) {

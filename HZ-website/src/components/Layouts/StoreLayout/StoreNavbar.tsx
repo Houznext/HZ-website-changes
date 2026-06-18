@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { useCustomerAuth } from '@/context/CustomerAuthContext'
 import LoginModal from '@/components/LoginModal'
 
+import { getStoreCartUserId } from '@/utils/storeCustomer'
+
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
 const STORE_CATEGORIES = [
@@ -41,7 +43,9 @@ export default function StoreNavbar() {
   useEffect(() => {
     const updateCounts = () => {
       if (!customer) return
-      fetch(`${API}/cart/${customer.id}`, { headers: { Authorization: `Bearer ${customer.token}` } })
+      const storeUserId = getStoreCartUserId(customer)
+      if (!storeUserId) return
+      fetch(`${API}/cart/${storeUserId}`, { headers: { Authorization: `Bearer ${customer.token}` } })
         .then((r) => (r.ok ? r.json() : null))
         .then((data) => setCartCount(data?.items?.length ?? 0))
         .catch(() => {})

@@ -31,6 +31,7 @@ import {
   UpdateOrderStatusDto,
 } from './dto/orders.dto';
 import { FilterOrdersDto } from './dto/order-filter.dto';
+import { CustomerIdentityService } from 'src/common/customer-identity/customer-identity.service';
 
 type RequestUser = {
   id: string;
@@ -79,6 +80,7 @@ export class OrdersService {
 
     private readonly eventEmitter: EventEmitter2,
     private readonly cartService: CartService,
+    private readonly customerIdentity: CustomerIdentityService,
   ) {}
 
   private isAdmin(user: RequestUser) {
@@ -553,11 +555,25 @@ export class OrdersService {
   // =========================
 
   async findByCustomer(customerId: string) {
-    return this.orderRepo.find({
-      where: { meta: { customerId } as any },
-      relations: ['items'],
-      order: { createdAt: 'DESC' },
-    });
+    let storeUserId: string | undefined;
+    try {
+      const storeUser =
+        await this.customerIdentity.ensureStoreUserForPortalCustomer(customerId);
+      storeUserId = storeUser.id;
+    } catch {
+      storeUserId = undefined;
+    }
+
+    const qb = this.orderRepo
+      .createQueryBuilder('o')
+      .leftJoinAndSelect('o.items', 'items')
+      .where(`o.meta ->> 'customerId' = :customerId`, { customerId });
+
+    if (storeUserId) {
+      qb.orWhere('o.userId = :storeUserId', { storeUserId });
+    }
+
+    return qb.orderBy('o.createdAt', 'DESC').getMany();
   }
 
   async placeOrder(
@@ -570,7 +586,9 @@ export class OrdersService {
       paymentProvider?: string;
     },
   ) {
-    const cart = await this.cartService.getOrCreateCart(customerId);
+    const storeUser =
+      await this.customerIdentity.ensureStoreUserForPortalCustomer(customerId);
+    const cart = await this.cartService.getOrCreateCart(storeUser.id);
     if (!cart || !cart.items || cart.items.length === 0) {
       throw new BadRequestException('Cart is empty');
     }
@@ -579,6 +597,7 @@ export class OrdersService {
       orderNo: await this.generateOrderNo(),
       type: OrderType.FURNITURE,
       status: OrderStatusEnum.CREATED,
+      user: storeUser,
       currency: cart.currency ?? 'INR',
       couponCode: dto.couponCode ?? cart.couponCode ?? null,
       couponDiscount: cart.couponDiscount ?? '0.00',
@@ -595,6 +614,7 @@ export class OrdersService {
       meta: {
         ...(cart.meta ?? {}),
         customerId,
+        storeUserId: storeUser.id,
         paymentProvider: dto.paymentProvider,
       },
     });
@@ -622,7 +642,7 @@ export class OrdersService {
       }),
     );
     await this.orderItemRepo.save(orderItems);
-    await this.cartService.clear(customerId);
+    await this.cartService.clear(storeUser.id);
 
     return this.orderRepo.findOne({
       where: { id: savedOrder.id },

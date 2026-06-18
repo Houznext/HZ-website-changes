@@ -45,6 +45,8 @@ import {
   UpdatePortfolioDto,
 } from './dto';
 import { subDays, startOfDay, parseISO } from 'date-fns';
+import { CustomerIdentityService } from '../common/customer-identity/customer-identity.service';
+import { normalizePortalMobile } from '../common/phone.util';
 
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
@@ -71,6 +73,7 @@ export class InteriorService {
     @InjectRepository(ReferralLead) private readonly referralLeadRepo: Repository<ReferralLead>,
     @InjectRepository(PaymentMilestone) private readonly milestoneRepo: Repository<PaymentMilestone>,
     private readonly jwtService: JwtService,
+    private readonly customerIdentity: CustomerIdentityService,
   ) {}
 
   private signCustomerToken(customer: Customer): string {
@@ -83,6 +86,31 @@ export class InteriorService {
       },
       { expiresIn: '30d' },
     );
+  }
+
+  private async customerLoginPayload(customer: Customer) {
+    const token = this.signCustomerToken(customer);
+    let storeUserId: string | undefined;
+    try {
+      const storeUser = await this.customerIdentity.ensureStoreUserForPortalCustomer(
+        customer.id,
+      );
+      storeUserId = storeUser.id;
+    } catch {
+      storeUserId = undefined;
+    }
+    return { token, customer, storeUserId };
+  }
+
+  async resolveStoreUserId(portalCustomerId: string): Promise<string | undefined> {
+    try {
+      const user = await this.customerIdentity.ensureStoreUserForPortalCustomer(
+        portalCustomerId,
+      );
+      return user.id;
+    } catch {
+      return undefined;
+    }
   }
 
   private normalizeCustomerEmail(email: string): string {
@@ -127,14 +155,13 @@ export class InteriorService {
       isVerified: true,
     });
     const saved = await this.customerRepo.save(customer);
-    const token = this.signCustomerToken(saved);
-    return { token, customer: saved };
+    return this.customerLoginPayload(saved);
   }
 
   async loginCustomerWithEmail(
     emailRaw: string,
     password: string,
-  ): Promise<{ token: string; customer: Customer }> {
+  ): Promise<{ token: string; customer: Customer; storeUserId?: string }> {
     const email = this.normalizeCustomerEmail(emailRaw);
     const customer = await this.customerRepo.findOne({ where: { email } });
     if (!customer) {
@@ -149,8 +176,7 @@ export class InteriorService {
     if (!match) {
       throw new UnauthorizedException('Invalid email or password');
     }
-    const token = this.signCustomerToken(customer);
-    return { token, customer };
+    return this.customerLoginPayload(customer);
   }
 
   private async resolveCustomerFromGoogleProfile(
@@ -208,8 +234,7 @@ export class InteriorService {
     }
 
     const customer = await this.resolveCustomerFromGoogleProfile(email, googleName);
-    const token = this.signCustomerToken(customer);
-    return { token, customer };
+    return this.customerLoginPayload(customer);
   }
 
   async loginOrRegisterCustomerWithGoogleAccessToken(
@@ -236,8 +261,7 @@ export class InteriorService {
     const email = this.normalizeCustomerEmail(body.email);
     const googleName = body.name?.trim() || undefined;
     const customer = await this.resolveCustomerFromGoogleProfile(email, googleName);
-    const token = this.signCustomerToken(customer);
-    return { token, customer };
+    return this.customerLoginPayload(customer);
   }
 
   async sendMobileLinkOtpForCustomer(
@@ -295,12 +319,19 @@ export class InteriorService {
     mobile: string,
     mode: 'login' | 'signup' = 'login',
   ): Promise<{ sent: boolean; customerId: string }> {
-    let customer = await this.customerRepo.findOne({ where: { mobile } });
-    const isRegisteredCustomer = Boolean(
-      customer &&
-      customer.isVerified &&
-      (customer.fullName ?? '').trim().length > 0,
-    );
+    const suffix = normalizePortalMobile(mobile);
+    if (suffix.length !== 10) {
+      throw new BadRequestException('Enter a valid 10-digit mobile number');
+    }
+
+    const livebuild = await this.customerIdentity.findLivebuildByMobile(suffix);
+    if (livebuild) {
+      await this.customerIdentity.syncPortalFromLivebuild(livebuild);
+    }
+
+    let customer = await this.customerIdentity.findPortalByMobile(suffix);
+    const isRegisteredCustomer = await this.customerIdentity.isRegisteredOnPlatform(suffix);
+
     if (mode === 'login' && !isRegisteredCustomer) {
       throw new BadRequestException('This mobile number is not registered. Please sign up first.');
     }
@@ -310,11 +341,15 @@ export class InteriorService {
     if (!customer && mode === 'signup') {
       customer = this.customerRepo.create({
         fullName: '',
-        mobile,
+        mobile: suffix,
         isVerified: false,
       });
       customer = await this.customerRepo.save(customer);
     }
+    if (!customer) {
+      throw new BadRequestException('This mobile number is not registered. Please sign up first.');
+    }
+
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiresAt = new Date(Date.now() + 3 * 60 * 1000);
     await this.customerRepo.update(customer.id, { otpCode: code, otpExpiresAt });
@@ -323,7 +358,7 @@ export class InteriorService {
         const twilio = await import('twilio');
         const client = twilio.default(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
         await client.messages.create({
-          to: mobile.startsWith('+') ? mobile : `+91${mobile}`,
+          to: `+91${suffix}`,
           from: TWILIO_PHONE,
           body: `Your Houznext verification code is ${code}. Valid for 3 minutes.`,
         });
@@ -331,13 +366,14 @@ export class InteriorService {
         // fallback to console in dev
       }
     } else {
-      console.log(`[DEV OTP] ${mobile}: ${code}`);
+      console.log(`[DEV OTP] +91${suffix}: ${code}`);
     }
     return { sent: true, customerId: customer.id };
   }
 
   async verifyOtp(mobile: string, otp: string): Promise<{ verified: boolean; customerId: string }> {
-    const customer = await this.customerRepo.findOne({ where: { mobile } });
+    const suffix = normalizePortalMobile(mobile);
+    const customer = await this.customerIdentity.findPortalByMobile(suffix);
     if (!customer || customer.otpCode !== otp || !customer.otpExpiresAt || customer.otpExpiresAt < new Date()) {
       throw new UnauthorizedException('Invalid or expired OTP');
     }
@@ -345,25 +381,32 @@ export class InteriorService {
       isVerified: true,
       otpCode: null,
       otpExpiresAt: null,
+      mobile: suffix,
     });
     return { verified: true, customerId: customer.id };
   }
 
-  async loginWithOtp(mobile: string, otp: string): Promise<{ token: string; customer: Customer }> {
-    await this.verifyOtp(mobile, otp);
-    const customer = await this.customerRepo.findOne({ where: { mobile } });
+  async loginWithOtp(
+    mobile: string,
+    otp: string,
+  ): Promise<{ token: string; customer: Customer; storeUserId?: string }> {
+    const suffix = normalizePortalMobile(mobile);
+    await this.verifyOtp(suffix, otp);
+    const customer = await this.customerIdentity.findPortalByMobile(suffix);
     if (!customer) throw new UnauthorizedException();
-    const token = this.signCustomerToken(customer);
-    return { token, customer };
+    return this.customerLoginPayload(customer);
   }
 
-  async loginWithPassword(mobile: string, password: string): Promise<{ token: string; customer: Customer }> {
-    const customer = await this.customerRepo.findOne({ where: { mobile } });
+  async loginWithPassword(
+    mobile: string,
+    password: string,
+  ): Promise<{ token: string; customer: Customer; storeUserId?: string }> {
+    const suffix = normalizePortalMobile(mobile);
+    const customer = await this.customerIdentity.findPortalByMobile(suffix);
     if (!customer?.passwordHash) throw new UnauthorizedException('Invalid credentials');
     const match = await bcrypt.compare(password, customer.passwordHash);
     if (!match) throw new UnauthorizedException('Invalid credentials');
-    const token = this.signCustomerToken(customer);
-    return { token, customer };
+    return this.customerLoginPayload(customer);
   }
 
   async setPassword(customerId: string, password: string): Promise<void> {
@@ -394,9 +437,17 @@ export class InteriorService {
   }
 
   async createCustomer(dto: CreateCustomerDto): Promise<Customer> {
+    const suffix = normalizePortalMobile(dto.mobile ?? '');
+    if (suffix.length !== 10) {
+      throw new BadRequestException('Enter a valid 10-digit mobile number');
+    }
+    const existing = await this.customerIdentity.findPortalByMobile(suffix);
+    if (existing) {
+      throw new ConflictException('A customer with this mobile number already exists');
+    }
     const customer = this.customerRepo.create({
       fullName: dto.fullName,
-      mobile: dto.mobile,
+      mobile: suffix,
       email: dto.email ?? null,
       city: dto.city ?? null,
       locality: dto.locality ?? null,

@@ -108,7 +108,9 @@ export class LivebuildPortalService {
   }
 
   private mapMaterialItem(m: Record<string, unknown>) {
-    const status = String(m.status);
+    const raw = String(m.status);
+    const status =
+      raw === 'not_started' || raw === 'pending' ? 'started' : raw;
     const workTypeName = (m.workType as { name?: string })?.name;
     return {
       id: String(m.id),
@@ -118,7 +120,7 @@ export class LivebuildPortalService {
       brand: String(m.brand ?? '—'),
       qty: m.quantity != null ? String(m.quantity) : '',
       unit: String(m.unit ?? ''),
-      status: status === 'not_started' ? 'pending' : status,
+      status,
       room: (m.room as { name?: string })?.name,
       installedAt: m.installDate ? String(m.installDate) : null,
     };
@@ -866,7 +868,9 @@ export class LivebuildPortalService {
     let items = allItems;
     if (filters?.status && filters.status !== 'all') {
       const want =
-        filters.status === 'pending' ? 'pending' : filters.status;
+        filters.status === 'pending' || filters.status === 'not_started'
+          ? 'started'
+          : filters.status;
       items = items.filter((m) => m.status === want);
     }
     if (filters?.room && filters.room !== 'all') {
@@ -882,7 +886,7 @@ export class LivebuildPortalService {
       total: allItems.length,
       installed: allItems.filter((m) => m.status === 'installed').length,
       procured: allItems.filter((m) => m.status === 'procured').length,
-      pending: allItems.filter((m) => m.status === 'pending').length,
+      started: allItems.filter((m) => m.status === 'started').length,
     };
 
     const roomOptions = Array.from(

@@ -4,7 +4,7 @@ export type LbPaymentStatus = 'paid' | 'due' | 'upcoming';
 export type LbQueryStatus = 'open' | 'resolved';
 export type LbWorkTypeStatus = 'active' | 'disabled';
 export type LbRoomStatus = 'live' | 'hold' | 'done';
-export type LbMaterialStatus = 'not_started' | 'procured' | 'installed';
+export type LbMaterialStatus = 'started' | 'procured' | 'installed';
 
 export interface LbCustomer {
   id: string;

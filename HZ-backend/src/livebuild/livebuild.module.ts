@@ -30,6 +30,7 @@ import {
   LivebuildAuthGuard,
   LivebuildDualAuthGuard,
 } from './livebuild-auth.guard';
+import { CustomerIdentityModule } from 'src/common/customer-identity/customer-identity.module';
 import { S3Module } from 'src/common/s3/s3.module';
 import { SmsService } from 'src/sms.service';
 import { User } from 'src/user/entities/user.entity';
@@ -64,6 +65,7 @@ import { MailerService } from 'src/sendEmail.service';
       signOptions: { expiresIn: '30d' },
     }),
     S3Module,
+    CustomerIdentityModule,
     MulterModule.register({ storage: memoryStorage() }),
   ],
   controllers: [LivebuildController],

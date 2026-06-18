@@ -169,6 +169,7 @@ export default function LoginComponent() {
                   onChange={handleInputChange}
                   placeholder="Enter your password"
                   leftIcon={<MdLock className="h-5 w-5" />}
+                  autoComplete="current-password"
                   required
                 />
 

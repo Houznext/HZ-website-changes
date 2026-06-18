@@ -8,10 +8,13 @@ function mobileReady(mobile?: string | null): boolean {
   return (mobile ?? '').replace(/\D/g, '').length >= 10;
 }
 
+/** Avoid full-page auth gate on every LiveBuild tab navigation. */
+let lbSessionPrimed = false;
+
 export function useLivebuildSession(requireAuth = true) {
   const router = useRouter();
   const { customer, isLoading: authLoading, isLoggedIn } = useCustomerAuth();
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(() => lbSessionPrimed);
   const [stats, setStats] = useState<LbAccountStats | null>(null);
   const [projects, setProjects] = useState<LbProjectSummary[]>([]);
 
@@ -25,15 +28,19 @@ export function useLivebuildSession(requireAuth = true) {
   useEffect(() => {
     if (authLoading) return;
     if (!isLoggedIn) {
+      lbSessionPrimed = false;
       setReady(true);
       if (requireAuth) void router.replace('/login?callbackUrl=/livebuild/dashboard');
       return;
     }
     if (!hasMobile) {
+      lbSessionPrimed = false;
       setReady(true);
       if (requireAuth) void router.replace('/my-account');
       return;
     }
+    lbSessionPrimed = true;
+    setReady(true);
     configureLivebuildAuth(customer!.token);
     let cancelled = false;
     (async () => {
@@ -51,8 +58,6 @@ export function useLivebuildSession(requireAuth = true) {
           setStats(null);
           setProjects([]);
         }
-      } finally {
-        if (!cancelled) setReady(true);
       }
     })();
     return () => {

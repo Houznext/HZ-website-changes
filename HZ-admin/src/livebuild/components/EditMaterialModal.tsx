@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Package } from 'lucide-react';
 import livebuildApi from '../lib/api';
-import { LB_MATERIAL_CATEGORIES, LB_MATERIAL_STATUSES, LB_MATERIAL_UNITS } from '../lib/constants';
+import { LB_MATERIAL_CATEGORIES, LB_MATERIAL_STATUSES, LB_MATERIAL_UNITS, normalizeMaterialStatus } from '../lib/constants';
 import type { LbMaterial, LbRoom } from '../lib/types';
 import { Btn } from './Btn';
 import { FormInput } from './FormInput';
@@ -25,7 +25,7 @@ export function EditMaterialModal({ open, material, rooms, onClose, onSaved }: P
   const [unit, setUnit] = useState('No.');
   const [roomId, setRoomId] = useState('');
   const [brand, setBrand] = useState('');
-  const [status, setStatus] = useState('not_started');
+  const [status, setStatus] = useState('started');
   const [installDate, setInstallDate] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -38,7 +38,7 @@ export function EditMaterialModal({ open, material, rooms, onClose, onSaved }: P
     setUnit(material.unit ?? 'No.');
     setRoomId(material.roomId ?? '');
     setBrand(material.brand ?? '');
-    setStatus(material.status ?? 'not_started');
+    setStatus(normalizeMaterialStatus(material.status));
     setInstallDate(material.installDate?.slice(0, 10) ?? '');
   }, [open, material]);
 

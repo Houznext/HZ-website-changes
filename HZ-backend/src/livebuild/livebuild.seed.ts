@@ -594,7 +594,7 @@ export class LivebuildSeedService implements OnModuleInit {
           specification: '5-coat',
           quantity: 18,
           unit: 'Ltrs',
-          status: 'not_started',
+          status: 'started',
         },
         {
           projectId: p1.id,
@@ -644,7 +644,7 @@ export class LivebuildSeedService implements OnModuleInit {
           specification: '300x600mm',
           quantity: 210,
           unit: 'sqft',
-          status: 'not_started',
+          status: 'started',
         },
         {
           projectId: p1.id,
@@ -653,7 +653,7 @@ export class LivebuildSeedService implements OnModuleInit {
           specification: '20mm',
           quantity: 28,
           unit: 'sqft',
-          status: 'not_started',
+          status: 'started',
         },
         {
           projectId: p1.id,

@@ -14,9 +14,11 @@ import { Branch } from 'src/branch/entities/branch.entity';
 import { CartModule } from 'src/cart/cart.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AnyAuthGuard } from 'src/common/guards/any-auth.guard';
+import { CustomerIdentityModule } from 'src/common/customer-identity/customer-identity.module';
 @Module({
   imports: [
     CartModule,
+    CustomerIdentityModule,
     JwtModule,
     TypeOrmModule.forFeature([Order, OrderItem, OrderQuery, Cart, CartItem, User, FurnitureVariant, Branch]),
   ],

@@ -17,6 +17,7 @@ import { InvoiceEstimator } from './entities/invoice-estimator.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
 import { RequestUser } from 'src/guard';
 import { MailerService } from 'src/sendEmail.service';
+import { mobileSuffix10, sqlMobileSuffixMatch } from 'src/common/phone.util';
 
 @Injectable()
 export class InvoiceEstimatorService {
@@ -284,10 +285,13 @@ export class InvoiceEstimatorService {
   }
 
   async findByCustomerMobile(mobile: string): Promise<InvoiceEstimator[]> {
-    return this.invoiceEstimatorRepository.find({
-      where: { customerMobile: mobile },
-      order: { invoiceDate: 'DESC' },
-    });
+    const suffix = mobileSuffix10(mobile);
+    if (suffix.length !== 10) return [];
+    return this.invoiceEstimatorRepository
+      .createQueryBuilder('invoice')
+      .where(sqlMobileSuffixMatch('invoice.customerMobile'), { mobileSuffix: suffix })
+      .orderBy('invoice.invoiceDate', 'DESC')
+      .getMany();
   }
 
   // 🔹 NON-REGISTERED INVOICES, ALSO ROLE-AWARE

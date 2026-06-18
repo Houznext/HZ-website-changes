@@ -45,7 +45,7 @@ const RenderInput = ({ type, ...props }: any) => {
   if (type === 'textarea') {
     return <textarea {...props} />;
   }
-  return <input {...props} />;
+  return <input type={type} {...props} />;
 };
 
 
@@ -78,7 +78,16 @@ const CustomInput = forwardRef<CustomInputRef, ICustomInputProps>(
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
 
-    const handlePasswordToggle = () => {
+    const resolvedInputType =
+      type === 'password'
+        ? isPasswordVisible
+          ? 'text'
+          : 'password'
+        : type;
+
+    const handlePasswordToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
       setIsPasswordVisible((prev) => !prev);
     };
 
@@ -183,7 +192,6 @@ const CustomInput = forwardRef<CustomInputRef, ICustomInputProps>(
               required={required}
               name={name}
               placeholder={placeholder}
-              type={type === 'password' && !isPasswordVisible ? 'password' : 'text'}
               maxLength={maxLength}
               onFocus={(e: any) => {
                 setIsFocused(true);
@@ -209,6 +217,7 @@ const CustomInput = forwardRef<CustomInputRef, ICustomInputProps>(
                 })
               )}
               {...extraInputProps}
+              type={resolvedInputType}
             />
             {unitsDropdown && (
               <select
@@ -235,12 +244,13 @@ const CustomInput = forwardRef<CustomInputRef, ICustomInputProps>(
                   "focus:outline-none focus:ring-2 focus:ring-blue-200"
                 )}
                 onClick={handlePasswordToggle}
-                title={isPasswordVisible ? "Hide Password" : "Show Password"}
+                aria-label={isPasswordVisible ? "Hide password" : "Show password"}
+                title={isPasswordVisible ? "Hide password" : "Show password"}
               >
                 {isPasswordVisible ? (
-                  <Eye size={14} />
-                ) : (
                   <EyeOff size={14} />
+                ) : (
+                  <Eye size={14} />
                 )}
               </button>
             )}

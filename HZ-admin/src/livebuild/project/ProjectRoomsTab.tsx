@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Trash2, X } from 'lucide-react';
 import livebuildApi from '../lib/api';
 import { LB_ROOM_ICONS } from '../lib/constants';
@@ -49,6 +49,12 @@ function RoomCard({
   const [pct, setPct] = useState(String(room.progressPct));
   const [status, setStatus] = useState(room.status);
   const [holdReason, setHoldReason] = useState(room.holdReason ?? '');
+
+  useEffect(() => {
+    setPct(String(room.progressPct));
+    setStatus(room.status);
+    setHoldReason(room.holdReason ?? '');
+  }, [room.id, room.progressPct, room.status, room.holdReason]);
   const icon = LB_ROOM_ICONS[room.name] ?? '🏠';
   const dim =
     room.lengthFt && room.widthFt ? `${room.lengthFt}×${room.widthFt} ft` : room.dimensions ?? '';

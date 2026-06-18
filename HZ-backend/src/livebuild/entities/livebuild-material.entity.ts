@@ -54,7 +54,7 @@ export class LivebuildMaterial {
   @Column({ type: 'varchar', length: 50, nullable: true })
   unit: string | null;
 
-  @Column({ type: 'varchar', length: 30, default: 'not_started' })
+  @Column({ type: 'varchar', length: 30, default: 'started' })
   status: string;
 
   @Column({ name: 'install_date', type: 'date', nullable: true })

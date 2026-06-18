@@ -4,7 +4,7 @@ import { withStoreLayout } from '@/components/Layouts/StoreLayout'
 import ProductCard from '@/components/Store/ProductCard'
 import { fetchProduct, fetchProducts, recordBrowse, FurnitureProduct } from '@/store/storeApi'
 import { useCustomerAuth } from '@/context/CustomerAuthContext'
-import SeoHead from '@/components/SeoHead'
+import { getStoreCartUserId } from '@/utils/storeCustomer'
 
 function ProductDetailsPage() {
   const router = useRouter()
@@ -93,7 +93,9 @@ function ProductDetailsPage() {
       router.push('/?login=1')
       return
     }
-    await fetch(`${API}/cart/${customer.id}/items`, {
+    const storeUserId = getStoreCartUserId(customer)
+    if (!storeUserId) return
+    await fetch(`${API}/cart/${storeUserId}/items`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

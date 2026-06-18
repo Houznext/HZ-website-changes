@@ -19,12 +19,14 @@ import { DailyProgressReport } from './entities/daily-progress-report.entity';
 import { ReferralLead } from './entities/referral-lead.entity';
 import { PaymentMilestone } from './entities/payment-milestone.entity';
 import { User } from '../user/entities/user.entity';
+import { CustomerIdentityModule } from '../common/customer-identity/customer-identity.module';
 import { InteriorService } from './interior.service';
 import { InteriorController } from './interior.controller';
 import { InteriorSeedService } from './interior-seed.service';
 
 @Module({
   imports: [
+    CustomerIdentityModule,
     TypeOrmModule.forFeature([
       Customer,
       Rep,
