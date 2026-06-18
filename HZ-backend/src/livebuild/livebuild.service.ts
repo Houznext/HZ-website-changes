@@ -1277,6 +1277,25 @@ export class LivebuildService {
       patch.pct = patch.pctOfTotal;
     }
     delete (patch as { pctOfTotal?: number }).pctOfTotal;
+
+    if (patch.paidDate !== undefined) {
+      patch.paidDate = patch.paidDate?.trim() ? patch.paidDate.trim() : null;
+      if (patch.paidDate && patch.status == null && payment.status !== 'paid') {
+        patch.status = 'paid';
+      }
+      if (!patch.paidDate && patch.status == null && payment.status === 'paid') {
+        patch.status = 'upcoming';
+      }
+    }
+
+    if (patch.status === 'paid') {
+      const nextPaid =
+        patch.paidDate !== undefined ? patch.paidDate : payment.paidDate;
+      if (!nextPaid) {
+        patch.paidDate = new Date().toISOString().slice(0, 10);
+      }
+    }
+
     Object.assign(payment, patch);
     return serializePayment(await this.paymentRepo.save(payment));
   }

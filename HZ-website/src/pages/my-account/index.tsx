@@ -303,7 +303,7 @@ export default function MyAccountDashboard() {
             hasMobile={hasMobile}
             isLoggedIn={!!customer}
           />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10 }}>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-2.5">
             {[
               {
                 val: '—',
@@ -338,12 +338,32 @@ export default function MyAccountDashboard() {
                 icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>,
               },
             ].map((card) => (
-              <div key={card.href} onClick={() => void router.push(card.href)} style={{ background: '#fff', border: '1px solid #dde8f5', borderRadius: 11, padding: '13px 15px', cursor: 'pointer', transition: 'all 0.2s' }}>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 6 }}>{card.icon}</div>
-                <div style={{ fontFamily: 'Montserrat, system-ui', fontSize: 24, fontWeight: 800, color: '#1f2933' }}>{card.val}</div>
-                <div style={{ fontSize: 11, color: '#5a6a7e', marginTop: 3, fontWeight: 600 }}>{card.lbl}</div>
-                <div style={{ fontSize: 10, color: '#5a6a7e', marginTop: 2 }}>{card.sub}</div>
-                <div style={{ marginTop: 10, fontSize: 11, fontWeight: 700, color: card.accent }}>View all →</div>
+              <div
+                key={card.href}
+                onClick={() => void router.push(card.href)}
+                className="flex items-center gap-3 rounded-[11px] border border-[#dde8f5] bg-white px-3.5 py-3 cursor-pointer transition-all hover:border-[#c7daf3] hover:shadow-sm lg:block lg:p-[13px_15px]"
+              >
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#f4f8fd] lg:hidden">
+                  {card.icon}
+                </div>
+                <div className="min-w-0 flex-1 lg:block">
+                  <div className="hidden lg:flex lg:justify-end lg:mb-1.5">{card.icon}</div>
+                  <div className="flex items-center justify-between gap-2 lg:block">
+                    <div
+                      className="font-[Montserrat,system-ui] text-[22px] font-extrabold leading-none text-[#1f2933] lg:text-2xl"
+                    >
+                      {card.val}
+                    </div>
+                    <div className="text-[11px] font-bold lg:hidden" style={{ color: card.accent }}>
+                      View all →
+                    </div>
+                  </div>
+                  <div className="mt-1 text-[12px] font-semibold text-[#5a6a7e] lg:mt-[3px] lg:text-[11px]">{card.lbl}</div>
+                  <div className="text-[11px] text-[#5a6a7e] lg:mt-0.5 lg:text-[10px]">{card.sub}</div>
+                  <div className="mt-2.5 hidden text-[11px] font-bold lg:block" style={{ color: card.accent }}>
+                    View all →
+                  </div>
+                </div>
               </div>
             ))}
           </div>

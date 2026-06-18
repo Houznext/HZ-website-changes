@@ -18,6 +18,7 @@ export function AddMilestoneModal({ open, projectId, onClose, onCreated }: Props
   const [label, setLabel] = useState('');
   const [pct, setPct] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [paidDate, setPaidDate] = useState('');
   const [saving, setSaving] = useState(false);
 
   const submit = async () => {
@@ -36,7 +37,8 @@ export function AddMilestoneModal({ open, projectId, onClose, onCreated }: Props
         label: label.trim(),
         pct: pctNum,
         dueDate,
-        status: 'upcoming',
+        paidDate: paidDate.trim() || null,
+        status: paidDate.trim() ? 'paid' : 'upcoming',
       });
       lbToast('Milestone added', 'ok');
       onCreated();
@@ -44,6 +46,7 @@ export function AddMilestoneModal({ open, projectId, onClose, onCreated }: Props
       setLabel('');
       setPct('');
       setDueDate('');
+      setPaidDate('');
     } catch (e: any) {
       const msg =
         e?.body?.message ||
@@ -75,6 +78,10 @@ export function AddMilestoneModal({ open, projectId, onClose, onCreated }: Props
           <Label required>Due date</Label>
           <FormInput type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
         </div>
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <Label>Paid date</Label>
+        <FormInput type="date" value={paidDate} onChange={(e) => setPaidDate(e.target.value)} />
       </div>
       <div
         style={{

@@ -201,28 +201,8 @@ export default function LivebuildDashboardPage() {
         canonical="/livebuild/dashboard"
       />
       <LivebuildDashboardShell>
-        <div
-          style={{
-            background: '#fff',
-            borderBottom: '1px solid var(--brd)',
-            padding: '0 24px',
-            position: 'sticky',
-            top: 60,
-            zIndex: 150,
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '12px 0',
-              gap: 12,
-              flexWrap: 'wrap',
-              maxWidth: 1440,
-              margin: '0 auto',
-            }}
-          >
+        <div className="lb-dash-sticky">
+          <div className="lb-dash-head">
             <div>
               <div
                 style={{
@@ -238,15 +218,15 @@ export default function LivebuildDashboardPage() {
                 Track your construction progress in real time
               </div>
             </div>
-            <div className="stf">
+            <div className="stf lb-dash-filter">
               {(
                 [
-                  ['all', `All (${counts.all})`, false],
-                  ['in_progress', `In Progress (${counts.progress})`, true],
-                  ['completed', `Completed (${counts.completed})`, false],
-                  ['on_hold', `On Hold (${counts.hold})`, false],
-                ] as const
-              ).map(([key, label, showDot]) => (
+                  { key: 'all' as const, labelLong: 'All', labelShort: 'All', count: counts.all, showDot: false },
+                  { key: 'in_progress' as const, labelLong: 'In Progress', labelShort: 'Active', count: counts.progress, showDot: true },
+                  { key: 'completed' as const, labelLong: 'Completed', labelShort: 'Done', count: counts.completed, showDot: false },
+                  { key: 'on_hold' as const, labelLong: 'On Hold', labelShort: 'Hold', count: counts.hold, showDot: false },
+                ]
+              ).map(({ key, labelLong, labelShort, count, showDot }) => (
                 <button
                   key={key}
                   type="button"
@@ -254,9 +234,14 @@ export default function LivebuildDashboardPage() {
                   onClick={() => setFilter(key)}
                 >
                   {showDot && filter === key ? (
-                    <LiveDot style={{ display: 'inline-block', marginRight: 3 }} />
+                    <LiveDot style={{ marginRight: 3 }} />
                   ) : null}
-                  {label}
+                  <span className="lb-dash-filter-label lb-dash-filter-label--long">
+                    {labelLong} ({count})
+                  </span>
+                  <span className="lb-dash-filter-label lb-dash-filter-label--short">
+                    {labelShort} ({count})
+                  </span>
                 </button>
               ))}
             </div>

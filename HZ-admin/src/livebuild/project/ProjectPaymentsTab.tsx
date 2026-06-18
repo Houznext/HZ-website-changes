@@ -101,7 +101,15 @@ export function ProjectPaymentsTab({ projectId, projectName }: Props) {
               <td>
                 <select
                   value={p.status}
-                  onChange={(e) => updatePayment(p, { status: e.target.value })}
+                  onChange={(e) => {
+                    const status = e.target.value;
+                    updatePayment(p, {
+                      status,
+                      ...(status === 'paid' && !p.paidDate
+                        ? { paidDate: new Date().toISOString().slice(0, 10) }
+                        : {}),
+                    });
+                  }}
                   style={{
                     fontSize: 12,
                     padding: '5px 8px',
@@ -123,11 +131,36 @@ export function ProjectPaymentsTab({ projectId, projectName }: Props) {
                   <option value="paid">Paid</option>
                 </select>
               </td>
-              <td style={{ fontSize: 12.5, color: 'var(--lb-mu)' }}>{p.paidDate?.slice(0, 10) || '—'}</td>
+              <td>
+                <FormInput
+                  type="date"
+                  style={{ fontSize: 12, padding: '5px 9px' }}
+                  defaultValue={p.paidDate?.slice(0, 10) || ''}
+                  onBlur={(e) => {
+                    const nextPaid = e.target.value.trim();
+                    updatePayment(p, {
+                      paidDate: nextPaid || null,
+                      ...(nextPaid ? { status: 'paid' } : p.status === 'paid' ? { status: 'upcoming' } : {}),
+                    });
+                  }}
+                />
+              </td>
               <td>
                 <div style={{ display: 'flex', gap: 5 }}>
                   {p.status !== 'paid' ? (
-                    <Btn variant="tl" size="xs" onClick={() => livebuildApi.markPaymentPaid(p.id).then(load)}>
+                    <Btn
+                      variant="tl"
+                      size="xs"
+                      onClick={async () => {
+                        try {
+                          await livebuildApi.markPaymentPaid(p.id);
+                          lbToast('Marked as paid', 'ok');
+                          load();
+                        } catch (e: any) {
+                          lbToast(e?.body?.message || 'Failed to mark as paid', 'err');
+                        }
+                      }}
+                    >
                       Mark paid
                     </Btn>
                   ) : (

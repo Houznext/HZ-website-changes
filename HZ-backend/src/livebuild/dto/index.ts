@@ -8,6 +8,7 @@ import {
   Max,
   Min,
 } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
 
 export class SendOtpDto {
   @IsString()
@@ -255,7 +256,7 @@ export class CreatePaymentDto {
   displayOrder?: number;
 }
 
-export class UpdatePaymentDto extends CreatePaymentDto {}
+export class UpdatePaymentDto extends PartialType(CreatePaymentDto) {}
 
 export class CreateQueryDto {
   @IsOptional()

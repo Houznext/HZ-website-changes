@@ -222,6 +222,7 @@ export const livebuildApi = {
       label: string;
       pct: number;
       dueDate: string;
+      paidDate?: string | null;
       status?: string;
     },
   ) =>
