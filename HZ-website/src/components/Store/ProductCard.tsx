@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 import { useCustomerAuth } from '@/context/CustomerAuthContext'
 import { getStoreCartUserId } from '@/utils/storeCustomer'
+import type { FurnitureProduct } from '@/store/storeApi'
 
 interface ProductCardProps {
   product: FurnitureProduct
