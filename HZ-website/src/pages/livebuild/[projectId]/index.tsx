@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
@@ -9,19 +9,20 @@ import {
   FolderOpen,
   Box,
   ChevronRight,
-  Minus,
-  Plus,
 } from 'lucide-react';
 import SeoHead from '@/components/SeoHead';
 import Badge from '@/livebuild/components/Badge';
 import Card from '@/livebuild/components/Card';
-import LiveDot from '@/livebuild/components/LiveDot';
-import ProgressGraph, { GRAPH_ZOOM_MAX, GRAPH_ZOOM_MIN, GRAPH_ZOOM_STEP } from '@/livebuild/components/ProgressGraph';
+import GraphRangeControls from '@/livebuild/components/GraphRangeControls';
+import ProgressBar from '@/livebuild/components/ProgressBar';
+import ProgressGraph from '@/livebuild/components/ProgressGraph';
 import ProgressRing from '@/livebuild/components/ProgressRing';
 import RoomTypeIcon from '@/livebuild/components/RoomTypeIcon';
 import LivebuildProjectLayout from '@/livebuild/components/LivebuildProjectLayout';
 import { lbIconProps } from '@/livebuild/components/icons';
 import { livebuildApi } from '@/livebuild/lib/api';
+import { filterGraphPointsByRange, type GraphRange } from '@/livebuild/lib/graphRange';
+import { roomRingColor } from '@/livebuild/lib/format';
 import type { LbGraphPoint, LbProjectHome } from '@/livebuild/lib/types';
 import {
   getPropertyCategory,
@@ -65,6 +66,17 @@ export default function LivebuildProjectHomePage() {
   const showRoomProgress = shouldShowRoomProgressHome(category, rooms.length);
 
   const [graphZoom, setGraphZoom] = useState(1);
+  const [graphRange, setGraphRange] = useState<GraphRange>('7d');
+
+  const filteredGraphPoints = useMemo(
+    () =>
+      filterGraphPointsByRange(
+        data?.graphPoints ?? [],
+        graphRange,
+        project?.startedAt,
+      ),
+    [data?.graphPoints, graphRange, project?.startedAt],
+  );
 
   const openDayFromGraph = (point: LbGraphPoint) => {
     if (!point.date) {
@@ -94,39 +106,23 @@ export default function LivebuildProjectHomePage() {
                       {project?.startedAt && ` · Started ${new Date(project.startedAt).toLocaleDateString('en-IN')}`}
                     </div>
                   </div>
-                  <div className="stf">
-                    <button
-                      type="button"
-                      className="stf-btn graph-zoom-btn"
-                      aria-label="Zoom out"
-                      disabled={graphZoom <= GRAPH_ZOOM_MIN}
-                      onClick={() => setGraphZoom((z) => Math.max(GRAPH_ZOOM_MIN, z - GRAPH_ZOOM_STEP))}
-                    >
-                      <Minus size={14} {...lbIconProps()} />
-                    </button>
-                    <button
-                      type="button"
-                      className="stf-btn graph-zoom-btn"
-                      aria-label="Zoom in"
-                      disabled={graphZoom >= GRAPH_ZOOM_MAX}
-                      onClick={() => setGraphZoom((z) => Math.min(GRAPH_ZOOM_MAX, z + GRAPH_ZOOM_STEP))}
-                    >
-                      <Plus size={14} {...lbIconProps()} />
-                    </button>
-                    <button type="button" className="stf-btn on">
-                      <LiveDot style={{ display: 'inline-block', marginRight: 3 }} />
-                      Live
-                    </button>
-                  </div>
+                  <GraphRangeControls
+                    range={graphRange}
+                    onRangeChange={setGraphRange}
+                    zoom={graphZoom}
+                    onZoomChange={setGraphZoom}
+                    showLive
+                  />
                 </div>
                 <ProgressGraph
-                  points={data.graphPoints ?? []}
+                  points={filteredGraphPoints}
                   todayPct={pct}
                   totalDays={stats?.totalDays ?? 50}
                   startDate={project?.startedAt}
                   onPointClick={openDayFromGraph}
                   zoom={graphZoom}
                   onZoomChange={setGraphZoom}
+                  scrollResetKey={graphRange}
                 />
                 {stats && (
                   <div className="lb-stat-row" style={{ marginTop: 16 }}>
@@ -187,9 +183,10 @@ export default function LivebuildProjectHomePage() {
                       />
                     </div>
                     <div style={{ marginTop: 12 }}>
-                      <div className="lb-prog-bar">
-                        <div className="lb-prog-bar-fill" style={{ width: `${room.progressPct}%` }} />
-                      </div>
+                      <ProgressBar
+                        pct={room.progressPct}
+                        color={roomRingColor(room.color)}
+                      />
                     </div>
                   </Link>
                     ))}

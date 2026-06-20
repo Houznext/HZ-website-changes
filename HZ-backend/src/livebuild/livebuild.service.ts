@@ -79,6 +79,7 @@ import {
   serialize3dModel,
   serialize3dHotspot,
 } from './livebuild-admin.serializer';
+import { thumbnailsByProjectFromDprs } from './livebuild-cover.util';
 
 export type LbAccessContext = {
   isAdmin: boolean;
@@ -134,6 +135,22 @@ export class LivebuildService {
   getEffectivePct(project: LivebuildProject): number {
     if (project.pctOverride != null) return project.pctOverride;
     return project.overallPct ?? 0;
+  }
+
+  /** DPR photo thumbnails for project cards (matches customer portal). */
+  private async loadCoverThumbnailsByProjectIds(
+    projectIds: number[],
+  ): Promise<Map<number, string[]>> {
+    if (!projectIds.length) return new Map();
+    const dprs = await this.dprRepo
+      .createQueryBuilder('d')
+      .leftJoinAndSelect('d.photos', 'photos')
+      .where('d.project_id IN (:...ids)', { ids: projectIds })
+      .orderBy('d.report_date', 'DESC')
+      .addOrderBy('d.created_at', 'DESC')
+      .addOrderBy('photos.display_order', 'ASC')
+      .getMany();
+    return thumbnailsByProjectFromDprs(dprs);
   }
 
   private formatProject(project: LivebuildProject, isAdmin: boolean) {
@@ -270,7 +287,10 @@ export class LivebuildService {
       );
     }
     const projects = await qb.getMany();
-    return projects.map((p) => serializeProjectSummary(p));
+    const thumbnails = await this.loadCoverThumbnailsByProjectIds(projects.map((p) => p.id));
+    return projects.map((p) =>
+      serializeProjectSummary(p, { coverThumbnails: thumbnails.get(p.id) }),
+    );
   }
 
   async listMyProjects(mobile: string) {
@@ -1854,6 +1874,10 @@ export class LivebuildService {
       relations: ['customer'],
     });
 
+    const coverThumbnailsByProject = await this.loadCoverThumbnailsByProjectIds(
+      projects.map((p) => p.id),
+    );
+
     const recentActivity = [
       ...recentDpr.map(activityFromDpr),
       ...recentQueries.map(activityFromQuery),
@@ -1869,6 +1893,7 @@ export class LivebuildService {
       pendingMilestones,
       totalCustomers,
       projects,
+      coverThumbnailsByProject,
       recentActivity,
       openQueriesList,
     });

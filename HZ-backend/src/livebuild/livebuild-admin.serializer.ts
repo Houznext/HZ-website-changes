@@ -12,6 +12,10 @@ import {
   Livebuild3dModel,
   Livebuild3dHotspot,
 } from './entities';
+import {
+  coverGradientForProject,
+  resolveCoverThumbnails,
+} from './livebuild-cover.util';
 
 function mapStatus(status: string | null | undefined): string {
   const s = (status ?? 'progress').toLowerCase();
@@ -59,8 +63,12 @@ function projectDaysLabel(p: LivebuildProject): string {
 
 export function serializeProjectSummary(
   p: LivebuildProject,
-  extras?: { openQueries?: number },
+  extras?: { openQueries?: number; coverThumbnails?: string[] },
 ) {
+  const coverThumbnails = resolveCoverThumbnails(
+    p.coverImageUrl,
+    extras?.coverThumbnails,
+  );
   return {
     id: String(p.id),
     code: p.projectCode,
@@ -77,6 +85,9 @@ export function serializeProjectSummary(
     location: p.address ?? undefined,
     openQueries: extras?.openQueries,
     days: projectDaysLabel(p),
+    coverImageUrl: p.coverImageUrl ?? undefined,
+    coverGradient: coverGradientForProject(p.id),
+    coverThumbnails: coverThumbnails.length ? coverThumbnails : undefined,
   };
 }
 
@@ -250,6 +261,7 @@ export function serializeDashboard(payload: {
   pendingMilestones: number;
   totalCustomers: number;
   projects: LivebuildProject[];
+  coverThumbnailsByProject?: Map<number, string[]>;
   recentActivity: { id: string; message: string; projectName?: string; createdAt: string; type?: string }[];
   openQueriesList: LivebuildQuery[];
 }) {
@@ -262,7 +274,11 @@ export function serializeDashboard(payload: {
       pendingMilestones: payload.pendingMilestones,
       customers: payload.totalCustomers,
     },
-    projects: payload.projects.map((p) => serializeProjectSummary(p)),
+    projects: payload.projects.map((p) =>
+      serializeProjectSummary(p, {
+        coverThumbnails: payload.coverThumbnailsByProject?.get(p.id),
+      }),
+    ),
     activity: payload.recentActivity,
     openQueries: payload.openQueriesList.map(serializeQuery),
   };

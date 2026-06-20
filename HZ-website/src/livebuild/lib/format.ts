@@ -76,6 +76,8 @@ export function roomRingColor(color?: string): string {
   if (color === 'apt') return 'var(--blue)';
   if (color === 'pu') return 'var(--pu)';
   if (color === 'am') return 'var(--am)';
+  if (color === 'tl') return 'var(--tl)';
+  if (color === 'red') return 'var(--rd)';
   return 'var(--navy)';
 }
 

@@ -38,7 +38,7 @@ function statusBadge(status: string) {
   );
 }
 
-function headerBg(status: string) {
+function statusHeaderGradient(status: string) {
   const s = status?.toLowerCase?.() ?? '';
   if (s.includes('hold')) return LB_STATUS_HEADER_BG.on_hold;
   if (s.includes('complete')) return LB_STATUS_HEADER_BG.completed;
@@ -46,9 +46,17 @@ function headerBg(status: string) {
   return LB_STATUS_HEADER_BG.in_progress;
 }
 
+function projectCoverImages(project: LbProjectSummary): string[] {
+  if (project.coverThumbnails?.length) return project.coverThumbnails.slice(0, 4);
+  if (project.coverImageUrl) return [project.coverImageUrl];
+  return [];
+}
+
 export function ProjectCard({ project, onClick, onDpr, onDelete, index = 0 }: Props) {
   const method = project.progressMethod ?? 'hybrid';
   const methodLabel = LB_PROGRESS_METHOD_LABEL[method] ?? method;
+  const thumbnails = projectCoverImages(project);
+  const fallbackBg = project.coverGradient || statusHeaderGradient(project.status);
 
   return (
     <div
@@ -59,7 +67,18 @@ export function ProjectCard({ project, onClick, onDpr, onDelete, index = 0 }: Pr
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && onClick()}
     >
-      <div className="lb-proj-card-header" style={{ background: headerBg(project.status) }}>
+      <div
+        className="lb-proj-card-header"
+        style={thumbnails.length ? undefined : { background: fallbackBg }}
+      >
+        {thumbnails.length > 0 ? (
+          <div className={`lb-proj-thumb-grid cols-${Math.min(thumbnails.length, 4)}`}>
+            {thumbnails.map((url, i) => (
+              <img key={`${url}-${i}`} src={url} alt="" className="lb-proj-thumb-cell" loading="lazy" />
+            ))}
+          </div>
+        ) : null}
+        {thumbnails.length > 0 ? <div className="lb-proj-img-overlay" /> : null}
         <ProgressRing pct={project.progressPct} size={82} strokeWidth={6} light />
         <div className="lb-proj-card-header-tl">{statusBadge(project.status)}</div>
         <div className="lb-proj-card-header-tr">

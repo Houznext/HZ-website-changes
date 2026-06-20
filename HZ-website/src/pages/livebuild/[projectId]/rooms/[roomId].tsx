@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import SeoHead from '@/components/SeoHead';
 import Card from '@/livebuild/components/Card';
+import GraphRangeControls from '@/livebuild/components/GraphRangeControls';
 import ProgressBar from '@/livebuild/components/ProgressBar';
 import ProgressGraph from '@/livebuild/components/ProgressGraph';
 import ProgressRing from '@/livebuild/components/ProgressRing';
 import LivebuildProjectLayout from '@/livebuild/components/LivebuildProjectLayout';
 import { livebuildApi } from '@/livebuild/lib/api';
+import { filterGraphPointsByRange, type GraphRange } from '@/livebuild/lib/graphRange';
 import { formatDate } from '@/livebuild/lib/format';
 import type { LbProjectHome, LbProjectSummary, LbRoomDetail, LbWorkTypeProgress } from '@/livebuild/lib/types';
 
@@ -64,8 +66,15 @@ export default function LivebuildRoomPage() {
   const [homeRooms, setHomeRooms] = useState<NonNullable<LbProjectHome['rooms']>>([]);
   const [room, setRoom] = useState<LbRoomDetail | null>(null);
   const [tab, setTab] = useState<SubTab>('overview');
-  const [range, setRange] = useState('14d');
+  const [range, setRange] = useState<GraphRange>('7d');
+  const [graphZoom, setGraphZoom] = useState(1);
   const [loading, setLoading] = useState(true);
+
+  const filteredGraphPoints = useMemo(
+    () =>
+      filterGraphPointsByRange(room?.graphPoints ?? [], range, room?.startDate),
+    [room?.graphPoints, range, room?.startDate],
+  );
 
   useEffect(() => {
     if (!projectId) return;
@@ -177,20 +186,22 @@ export default function LivebuildRoomPage() {
                       <div style={{ fontFamily: 'var(--m)', fontSize: 14, fontWeight: 700 }}>{room.name} — Progress</div>
                       <div style={{ fontSize: 12, color: 'var(--mu)' }}>Day-by-day completion tracker</div>
                     </div>
-                    <div className="cal-filter">
-                      {(['7d', '14d', '30d'] as const).map((r) => (
-                        <button
-                          key={r}
-                          type="button"
-                          className={`cal-chip ${range === r ? 'on' : ''}`}
-                          onClick={() => setRange(r)}
-                        >
-                          Last {r.replace('d', '')} days
-                        </button>
-                      ))}
-                    </div>
+                    <GraphRangeControls
+                      range={range}
+                      onRangeChange={setRange}
+                      zoom={graphZoom}
+                      onZoomChange={setGraphZoom}
+                    />
                   </div>
-                  <ProgressGraph points={room.graphPoints ?? []} todayPct={room.progressPct} />
+                  <ProgressGraph
+                    points={filteredGraphPoints}
+                    todayPct={room.progressPct}
+                    totalDays={room.totalDays ?? room.graphPoints?.length ?? 50}
+                    startDate={room.startDate}
+                    zoom={graphZoom}
+                    onZoomChange={setGraphZoom}
+                    scrollResetKey={range}
+                  />
                   <div style={{ marginTop: 16 }}>
                     {(room.workTypes ?? []).map((wt) => (
                       <WorkTypeOverviewRow key={wt.id} wt={wt} />

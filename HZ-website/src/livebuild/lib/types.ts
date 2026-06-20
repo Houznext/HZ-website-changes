@@ -41,6 +41,7 @@ export interface LbProjectSummary {
 export interface LbGraphPoint {
   dayIndex: number;
   label?: string;
+  dayName?: string;
   date?: string;
   actualPct: number;
   targetPct?: number;
@@ -102,6 +103,8 @@ export interface LbRoomDetail {
   name: string;
   progressPct: number;
   graphPoints?: LbGraphPoint[];
+  totalDays?: number;
+  startDate?: string | null;
   workTypes?: LbWorkTypeProgress[];
   materials?: LbMaterialItem[];
   images?: LbDprPhoto[];

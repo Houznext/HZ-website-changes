@@ -35,6 +35,9 @@ export interface LbProjectSummary {
   location?: string;
   openQueries?: number;
   days?: string;
+  coverImageUrl?: string | null;
+  coverGradient?: string;
+  coverThumbnails?: string[];
 }
 
 export interface LbProjectStats {

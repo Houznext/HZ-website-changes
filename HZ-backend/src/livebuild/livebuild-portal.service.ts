@@ -9,6 +9,18 @@ import {
   LivebuildRoom,
   LivebuildQuery,
 } from './entities';
+import {
+  coverGradientForProject,
+  resolveCoverThumbnails,
+  thumbnailsByProjectFromDprs,
+} from './livebuild-cover.util';
+import {
+  averagePct,
+  buildGraphPoints,
+  projectGraphTimeline,
+  roomPctFromWorkTypes,
+  workTypePctAtDate,
+} from './livebuild-graph.util';
 
 function readPaymentPct(pay: { pct?: number; pctOfTotal?: number }): number {
   return Number(pay.pctOfTotal ?? pay.pct ?? 0);
@@ -180,16 +192,6 @@ export class LivebuildPortalService {
     return d >= startStr && d <= end;
   }
 
-  private coverGradientForProject(id: number): string {
-    const gradients = [
-      'linear-gradient(135deg,#1a3d5c,#0f2a44)',
-      'linear-gradient(135deg,#1e3a5f,#162d4a)',
-      'linear-gradient(135deg,#0d2233,#1a3d5c)',
-      'linear-gradient(135deg,#1a365d,#0c4a6e)',
-    ];
-    return gradients[id % gradients.length];
-  }
-
   private projectTimeline(p: LivebuildProject): {
     daysElapsed: number;
     totalDays: number;
@@ -260,6 +262,7 @@ export class LivebuildPortalService {
     const pct = this.core.getEffectivePct(p);
     const { daysElapsed, totalDays } = this.projectTimeline(p);
     const latest = this.latestUpdateForProject(p, latestDpr as LivebuildDpr & { workType?: { name?: string } });
+    const thumbnails = resolveCoverThumbnails(p.coverImageUrl, coverThumbnails);
     return {
       id: String(p.id),
       title: p.name,
@@ -269,8 +272,8 @@ export class LivebuildPortalService {
       status: this.mapStatus(p.status),
       overallProgress: pct,
       coverImageUrl: p.coverImageUrl ?? null,
-      coverGradient: this.coverGradientForProject(p.id),
-      coverThumbnails: coverThumbnails?.length ? coverThumbnails.slice(0, 4) : undefined,
+      coverGradient: coverGradientForProject(p.id),
+      coverThumbnails: thumbnails.length ? thumbnails : undefined,
       bhk: this.parseBhkLabel(p.name),
       propertyType: p.propertyType ?? undefined,
       propertyLabel: p.propertyType ?? undefined,
@@ -296,12 +299,13 @@ export class LivebuildPortalService {
   }
 
   private mapRoom(room: LivebuildRoom, lastUpdate?: string | null) {
+    const progressPct = roomPctFromWorkTypes(room.roomWorkTypes ?? [], room.pct ?? 0);
     return {
       id: String(room.id),
       name: room.name,
       icon: this.roomIcon(room.name),
-      progressPct: room.pct,
-      color: this.roomColor(room),
+      progressPct,
+      color: this.roomColor({ ...room, pct: progressPct }),
       status: room.status,
       dimensions: room.dimensions ?? undefined,
       lastUpdate: lastUpdate ?? undefined,
@@ -374,7 +378,7 @@ export class LivebuildPortalService {
 
     const ids = projects.map((p) => p.id);
     const latestByProject = new Map<number, LivebuildDpr>();
-    const thumbnailsByProject = new Map<number, string[]>();
+    let thumbnailsByProject = new Map<number, string[]>();
     if (ids.length > 0) {
       const dprs = await this.dprRepo
         .createQueryBuilder('d')
@@ -389,17 +393,8 @@ export class LivebuildPortalService {
         if (!latestByProject.has(d.projectId)) {
           latestByProject.set(d.projectId, d);
         }
-        const urls = thumbnailsByProject.get(d.projectId) ?? [];
-        if (urls.length >= 4) continue;
-        const sorted = [...(d.photos ?? [])].sort(
-          (a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0),
-        );
-        for (const ph of sorted) {
-          if (urls.length >= 4) break;
-          if (ph.fileUrl && !urls.includes(ph.fileUrl)) urls.push(ph.fileUrl);
-        }
-        if (urls.length) thumbnailsByProject.set(d.projectId, urls);
       }
+      thumbnailsByProject = thumbnailsByProjectFromDprs(dprs);
     }
 
     return projects.map((p) =>
@@ -412,53 +407,46 @@ export class LivebuildPortalService {
     );
   }
 
-  private buildGraph(project: LivebuildProject, rooms: LivebuildRoom[]) {
-    const start = project.startDate ? new Date(project.startDate) : new Date();
-    start.setHours(0, 0, 0, 0);
-    const due = project.dueDate
-      ? new Date(project.dueDate)
-      : new Date(start.getTime() + 45 * 86400000);
-    due.setHours(0, 0, 0, 0);
-    const totalDays = Math.max(
-      1,
-      Math.ceil((due.getTime() - start.getTime()) / 86400000),
-    );
-    const actualPct = this.core.getEffectivePct(project);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const elapsedDay = project.startDate
-      ? Math.min(
-          totalDays,
-          Math.max(0, Math.ceil((today.getTime() - start.getTime()) / 86400000)),
-        )
-      : totalDays;
+  private async buildGraph(project: LivebuildProject, rooms: LivebuildRoom[]) {
+    const timeline = projectGraphTimeline(project);
+    const { totalDays, elapsedDay } = timeline;
     const onHold = rooms.some((r) => r.status === 'hold');
-    const points = [];
-    for (let i = 0; i <= totalDays; i++) {
-      const targetPct = Math.min(100, Math.round((i / totalDays) * 100));
-      let actual = 0;
-      if (i <= elapsedDay) {
-        actual =
-          elapsedDay > 0
-            ? Math.round((actualPct * i) / elapsedDay)
-            : i === 0
-              ? 0
-              : actualPct;
-      } else {
-        actual = actualPct;
-      }
-      if (i === elapsedDay) actual = actualPct;
-      const dayDate = new Date(start.getTime() + i * 86400000);
-      points.push({
-        dayIndex: i,
-        label: `Day ${i + 1}`,
-        date: dayDate.toISOString().slice(0, 10),
-        actualPct: actual,
-        targetPct,
-        status: onHold ? 'on_hold' : 'live',
-      });
-    }
-    return { points, totalDays, start, due };
+    const dprs = await this.dprRepo.find({
+      where: { projectId: project.id },
+      order: { reportDate: 'ASC', createdAt: 'ASC' },
+    });
+
+    const currentRoomPcts = rooms.map((room) => {
+      const wts = room.roomWorkTypes ?? [];
+      return roomPctFromWorkTypes(wts, room.pct ?? 0);
+    });
+    const currentActualPct = currentRoomPcts.length
+      ? averagePct(currentRoomPcts)
+      : this.core.getEffectivePct(project);
+
+    const points = buildGraphPoints({
+      timeline,
+      onHold,
+      currentActualPct,
+      actualAtDay: (_dayIndex, dateStr, elapsed) => {
+        const roomPcts = rooms.map((room) => {
+          const wts = room.roomWorkTypes ?? [];
+          if (!wts.length) return room.pct ?? 0;
+          const wtPcts = wts.map((wt) => {
+            if (_dayIndex === elapsed) return Number(wt.pct ?? 0);
+            return workTypePctAtDate(
+              wt.workTypeId,
+              dateStr,
+              dprs.filter((d) => d.roomId === room.id),
+            );
+          });
+          return averagePct(wtPcts);
+        });
+        return roomPcts.length ? averagePct(roomPcts) : currentActualPct;
+      },
+    });
+
+    return { points, totalDays, start: timeline.start };
   }
 
   async projectHome(projectId: number, mobile: string) {
@@ -466,11 +454,11 @@ export class LivebuildPortalService {
     const raw = await this.core.getProject(projectId, ctx);
     const project = await this.projectRepo.findOne({
       where: { id: projectId },
-      relations: ['rooms'],
+      relations: ['rooms', 'rooms.roomWorkTypes'],
     });
     if (!project) throw new Error('Project not found');
     const rooms = project.rooms ?? [];
-    const { points, totalDays, start } = this.buildGraph(project, rooms);
+    const { points, totalDays, start } = await this.buildGraph(project, rooms);
     const openQueries = await this.queryRepo.count({
       where: { projectId, status: 'open' },
     });
@@ -587,7 +575,10 @@ export class LivebuildPortalService {
 
   async roomDetail(projectId: number, roomId: number, mobile: string) {
     const ctx = { isAdmin: false, mobile };
-    const room = await this.roomRepo.findOne({ where: { id: roomId, projectId } });
+    const room = await this.roomRepo.findOne({
+      where: { id: roomId, projectId },
+      relations: ['roomWorkTypes', 'roomWorkTypes.workType'],
+    });
     if (!room) throw new Error('Room not found');
     const project = await this.projectRepo.findOne({ where: { id: projectId } });
     const materials = await this.core.listMaterials(projectId, ctx);
@@ -608,27 +599,33 @@ export class LivebuildPortalService {
       )
       .slice(0, 24);
 
-    const start = project?.startDate ? new Date(project.startDate) : new Date();
-    const due = project?.dueDate
-      ? new Date(project.dueDate)
-      : new Date(start.getTime() + 45 * 86400000);
-    const totalDays = Math.max(
-      1,
-      Math.ceil((due.getTime() - start.getTime()) / 86400000),
-    );
-    const graphPoints = [];
-    for (let i = 0; i <= Math.min(totalDays, 10); i++) {
-      graphPoints.push({
-        dayIndex: i,
-        label: `D${i}`,
-        actualPct: Math.round((room.pct * i) / Math.min(totalDays, 10)),
-        targetPct: Math.min(100, Math.round((100 * i) / totalDays)),
-        status: room.status === 'hold' ? 'on_hold' : 'live',
-      });
-    }
-    if (graphPoints.length) {
-      graphPoints[graphPoints.length - 1].actualPct = room.pct;
-    }
+    const timeline = projectGraphTimeline(project ?? {});
+    const { totalDays } = timeline;
+    const roomDprs = await this.dprRepo.find({
+      where: { projectId, roomId },
+      order: { reportDate: 'ASC', createdAt: 'ASC' },
+    });
+    const workTypes = room.roomWorkTypes ?? [];
+    const progressPct = roomPctFromWorkTypes(workTypes, room.pct ?? 0);
+
+    const graphPoints = buildGraphPoints({
+      timeline,
+      onHold: room.status === 'hold',
+      currentActualPct: progressPct,
+      actualAtDay: (dayIndex, dateStr, elapsed) => {
+        if (!workTypes.length) {
+          if (dayIndex === elapsed) return progressPct;
+          return elapsed > 0
+            ? Math.round((progressPct * dayIndex) / elapsed)
+            : 0;
+        }
+        const wtPcts = workTypes.map((wt) => {
+          if (dayIndex === elapsed) return Number(wt.pct ?? 0);
+          return workTypePctAtDate(wt.workTypeId, dateStr, roomDprs);
+        });
+        return averagePct(wtPcts);
+      },
+    });
 
     const docs = await this.core.listDocuments(projectId, ctx);
     const design = (docs as Array<{ category: string; fileUrl: string }>).find(
@@ -638,8 +635,10 @@ export class LivebuildPortalService {
     return {
       id: String(room.id),
       name: room.name,
-      progressPct: room.pct,
+      progressPct,
       graphPoints,
+      totalDays,
+      startDate: project?.startDate ?? null,
       workTypes: dayData.workTypes,
       materials: roomMaterials.map((m: Record<string, unknown>) => ({
         id: String(m.id),
