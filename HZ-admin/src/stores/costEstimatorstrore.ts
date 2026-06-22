@@ -14,8 +14,14 @@ interface FiltersState {
 interface CostEstimatorStore {
   costEstimators: CostEstimator[];
   setCostEstimators: (estimators: CostEstimator[]) => void;
+  total: number;
   isLoading: boolean;
-  fetchCostEstimators: (userId: string, category: string) => Promise<void>;
+  fetchCostEstimators: (
+    userId: string,
+    category: string,
+    page?: number,
+    limit?: number,
+  ) => Promise<void>;
   filters: FiltersState;
   setFilters: (filters: FiltersState) => void;
   activeTab: string;
@@ -24,6 +30,7 @@ interface CostEstimatorStore {
 
 export const useCostEstimatorStore = create<CostEstimatorStore>((set, get) => ({
   costEstimators: [],
+  total: 0,
   isLoading: false,
   filters: { bhkTypeData: {}, DateData: {}, DesignedData: {}, stateData: {} },
    setCostEstimators: (estimators: CostEstimator[]) => set({ costEstimators: estimators }),
@@ -33,21 +40,22 @@ export const useCostEstimatorStore = create<CostEstimatorStore>((set, get) => ({
 
   setFilters: (filters: FiltersState) => set({ filters }),
 
-  fetchCostEstimators: async (userId, category) => {
+  fetchCostEstimators: async (userId, category, page = 1, limit = 10) => {
     set({ isLoading: true });
     try {
       const cleaned = category?.trim().replace(/\?+$/, "");
-      let url = `${apiClient.URLS.cost_estimator}/by-user/${userId}?category=${encodeURIComponent(
-        cleaned
-      )}`;
-      const res = await apiClient.get(url,{},true);
-     const data = Array.isArray(res.body?.data)
-      ? res.body.data
-      : Array.isArray(res.body)
-      ? res.body
-      : [];
+      const url = `${apiClient.URLS.cost_estimator}/by-user/${userId}?category=${encodeURIComponent(
+        cleaned,
+      )}&page=${page}&limit=${limit}`;
+      const res = await apiClient.get(url, {}, true);
+      const data = Array.isArray(res.body?.data)
+        ? res.body.data
+        : Array.isArray(res.body)
+          ? res.body
+          : [];
+      const total = Number(res.body?.total ?? data.length);
 
-    set({ costEstimators: data });
+      set({ costEstimators: data, total });
     } catch (err) {
       console.error(err);
       toast.error("Error fetching cost estimations");

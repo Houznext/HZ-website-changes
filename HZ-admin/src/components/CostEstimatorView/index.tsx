@@ -63,6 +63,7 @@ const CostEstimatorView: React.FC = () => {
     fetchCostEstimators,
     activeTab,
     setActiveTab,
+    total,
   } = useCostEstimatorStore();
 
   console.log("costEstimators", costEstimators);
@@ -102,12 +103,12 @@ const CostEstimatorView: React.FC = () => {
     }
   }, [router.query?.category]);
 
-  // Fetch on auth/tab change
+  // Fetch on auth / tab / pagination change
   useEffect(() => {
     if (status === "authenticated" && userId) {
-      fetchCostEstimators(userId, activeTab);
+      fetchCostEstimators(userId, activeTab, currentPage, pageSize);
     }
-  }, [status, userId, activeTab]);
+  }, [status, userId, activeTab, currentPage, pageSize]);
 
   // Build filter option sets whenever data changes
   useEffect(() => {
@@ -240,16 +241,22 @@ const CostEstimatorView: React.FC = () => {
 
     return out;
   }, [costEstimators, debouncedQuery, selectedFilters, sort]);
-  const totalPages = Math.ceil(filtered.length / pageSize);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
-  const paginatedData = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize;
-    return filtered.slice(start, end);
-  }, [filtered, currentPage, pageSize]);
+  const paginatedData = useMemo(() => filtered, [filtered]);
+  const refetchList = () => {
+    if (userId) fetchCostEstimators(userId, activeTab, currentPage, pageSize);
+  };
+
   useEffect(() => {
     setCurrentPage(1);
   }, [debouncedQuery, selectedFilters, activeTab]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(Math.max(1, totalPages));
+    }
+  }, [currentPage, totalPages]);
 
   const exportCSV = () => {
     if (!paginatedData.length) {
@@ -349,7 +356,15 @@ const CostEstimatorView: React.FC = () => {
       );
       if (response.status === 200) {
         toast.success("Quotation deleted");
-        setCostEstimators(costEstimators.filter((e) => e.id !== id));
+        const nextPage =
+          paginatedData.length === 1 && currentPage > 1
+            ? currentPage - 1
+            : currentPage;
+        if (nextPage !== currentPage) {
+          setCurrentPage(nextPage);
+        } else if (userId) {
+          await fetchCostEstimators(userId, activeTab, currentPage, pageSize);
+        }
       }
     } catch (error) {
       console.error(error);
@@ -382,7 +397,7 @@ const CostEstimatorView: React.FC = () => {
             Quotations
           </h1>
           <p className="text-[12px] text-[#8c959f] mt-0.5">
-            {filtered.length} quotation{filtered.length !== 1 ? "s" : ""} found
+            {total} quotation{total !== 1 ? "s" : ""} found
           </p>
         </div>
 
@@ -459,7 +474,7 @@ const CostEstimatorView: React.FC = () => {
             Total
           </div>
           <div className="text-[22px] font-bold text-[#24292f] tracking-tight">
-            {filtered.length}
+            {total}
           </div>
           <div className="text-[11px] text-[#8c959f] mt-1">quotations</div>
         </div>
@@ -621,7 +636,7 @@ const CostEstimatorView: React.FC = () => {
                   onDuplicate={async (d) => {
                     try {
                       await handleDuplicateProxy(d);
-                      await fetchCostEstimators(userId!, activeTab);
+                      await fetchCostEstimators(userId!, activeTab, currentPage, pageSize);
                     } catch {}
                   }}
                   onEdit={handleEditProxy}
@@ -640,7 +655,7 @@ const CostEstimatorView: React.FC = () => {
                 onDuplicate={async (d) => {
                   try {
                     await handleDuplicateProxy(d);
-                    await fetchCostEstimators(userId!, activeTab);
+                    await fetchCostEstimators(userId!, activeTab, currentPage, pageSize);
                   } catch {}
                 }}
                 onEdit={handleEditProxy}
@@ -651,11 +666,12 @@ const CostEstimatorView: React.FC = () => {
         ))}
 
       {/* ── Pagination ── */}
-      {totalPages > 1 && (
-        <div className="px-5 py-4">
+      {total > 0 && (
+        <div className="mx-5 mb-6 bg-white border border-[#eaeef2] rounded-[10px] px-4 py-3">
           <PaginationControls
             currentPage={currentPage}
             totalPages={totalPages}
+            totalItems={total}
             onPageChange={setCurrentPage}
             pageSize={pageSize}
             onPageSizeChange={(size) => {
@@ -683,7 +699,7 @@ const CostEstimatorView: React.FC = () => {
             editingEstimation={editingEstimation}
             userId={userId}
             category={activeTab}
-            onSuccessRefetch={() => fetchCostEstimators(userId!, activeTab)}
+            onSuccessRefetch={refetchList}
           />
         </div>
       </Modal>
