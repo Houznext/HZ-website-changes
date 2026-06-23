@@ -7,6 +7,7 @@ import GraphRangeControls from '@/livebuild/components/GraphRangeControls';
 import ProgressBar from '@/livebuild/components/ProgressBar';
 import ProgressGraph from '@/livebuild/components/ProgressGraph';
 import ProgressRing from '@/livebuild/components/ProgressRing';
+import ImageLightbox from '@/livebuild/components/ImageLightbox';
 import LivebuildProjectLayout from '@/livebuild/components/LivebuildProjectLayout';
 import { livebuildApi } from '@/livebuild/lib/api';
 import { filterGraphPointsByRange, type GraphRange } from '@/livebuild/lib/graphRange';
@@ -18,7 +19,12 @@ type SubTab = 'overview' | 'material' | 'images' | 'viz';
 function WorkTypeOverviewRow({ wt }: { wt: LbWorkTypeProgress }) {
   const days = wt.days ?? [];
   const [activeDate, setActiveDate] = useState(days[0]?.date ?? '');
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const photos = days.find((d) => d.date === activeDate)?.photos ?? [];
+
+  useEffect(() => {
+    setLightboxIndex(null);
+  }, [activeDate]);
 
   return (
     <div className="work-row" style={{ marginBottom: 8 }}>
@@ -43,17 +49,29 @@ function WorkTypeOverviewRow({ wt }: { wt: LbWorkTypeProgress }) {
       )}
       {photos.length > 0 && (
         <div style={{ display: 'flex', gap: 6, marginTop: 8, overflowX: 'auto' }}>
-          {photos.map((ph) => (
-            <a key={ph.id} href={ph.url} target="_blank" rel="noopener noreferrer">
+          {photos.map((ph, i) => (
+            <button
+              key={ph.id}
+              type="button"
+              className="lb-photo-thumb"
+              onClick={() => setLightboxIndex(i)}
+              aria-label="View photo"
+            >
               <img
                 src={ph.url}
                 alt=""
                 style={{ width: 56, height: 46, borderRadius: 8, objectFit: 'cover', border: '1px solid #e2e8f0' }}
               />
-            </a>
+            </button>
           ))}
         </div>
       )}
+      <ImageLightbox
+        images={photos}
+        index={lightboxIndex}
+        onClose={() => setLightboxIndex(null)}
+        onIndexChange={setLightboxIndex}
+      />
     </div>
   );
 }
@@ -69,6 +87,7 @@ export default function LivebuildRoomPage() {
   const [range, setRange] = useState<GraphRange>('7d');
   const [graphZoom, setGraphZoom] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [galleryIndex, setGalleryIndex] = useState<number | null>(null);
 
   const filteredGraphPoints = useMemo(
     () =>
@@ -236,19 +255,25 @@ export default function LivebuildRoomPage() {
                   {(room.images ?? []).length === 0 ? (
                     <Card><p style={{ color: 'var(--mu)' }}>No site photos yet for this room.</p></Card>
                   ) : (
-                    (room.images ?? []).map((img) => (
-                      <a
+                    (room.images ?? []).map((img, i) => (
+                      <button
                         key={img.id}
-                        href={img.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="card-sm"
-                        style={{ padding: 0, overflow: 'hidden' }}
+                        type="button"
+                        className="card-sm lb-photo-thumb"
+                        style={{ padding: 0, overflow: 'hidden', width: '100%', textAlign: 'left' }}
+                        onClick={() => setGalleryIndex(i)}
+                        aria-label="View photo"
                       >
                         <img src={img.url} alt="" style={{ width: '100%', height: 140, objectFit: 'cover' }} />
-                      </a>
+                      </button>
                     ))
                   )}
+                  <ImageLightbox
+                    images={room.images ?? []}
+                    index={galleryIndex}
+                    onClose={() => setGalleryIndex(null)}
+                    onIndexChange={setGalleryIndex}
+                  />
                 </div>
               )}
 

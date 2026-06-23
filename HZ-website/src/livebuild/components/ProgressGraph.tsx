@@ -8,7 +8,8 @@ export const GRAPH_ZOOM_STEP = 0.2;
 
 const PLOT_TOP = 28;
 const PLOT_HEIGHT = 168;
-const X_AXIS_GAP = 7;
+const PLOT_BOTTOM_INSET = 12;
+const X_LABEL_TOP_GAP = 16;
 const X_LABEL_LINE_GAP = 11;
 const X_LABEL_BOTTOM_PAD = 8;
 const Y_AXIS_W = 44;
@@ -45,8 +46,12 @@ function xAxisTickIndices(pointCount: number, step: number): number[] {
   return ticks;
 }
 
-function yForPct(pct: number, xAxisY: number): number {
-  return PLOT_TOP + (1 - pct / 100) * (xAxisY - PLOT_TOP);
+function yForPct(pct: number, plotBottomY: number): number {
+  return PLOT_TOP + (1 - pct / 100) * (plotBottomY - PLOT_TOP);
+}
+
+function yAxisTickY(pct: number, plotBottomY: number, xAxisY: number): number {
+  return pct === 0 ? xAxisY : yForPct(pct, plotBottomY);
 }
 
 function xForIndex(i: number, total: number, chartW: number): number {
@@ -163,10 +168,11 @@ export default function ProgressGraph({
   const chartW = useMemo(() => Math.round(baseChartW * zoom), [baseChartW, zoom]);
   const plotW = Math.max(1, chartW - PAD_LEFT - PAD_RIGHT);
   const xAxisY = PLOT_TOP + PLOT_HEIGHT;
+  const plotBottomY = xAxisY - PLOT_BOTTOM_INSET;
   const isMobileGraph = viewportW > 0 && viewportW <= 768;
   const xLabelLineGap = isMobileGraph ? 16 : X_LABEL_LINE_GAP;
-  const chartH = xAxisY + X_AXIS_GAP + 9 + xLabelLineGap + 9 + X_LABEL_BOTTOM_PAD;
-  const xLabelY = xAxisY + X_AXIS_GAP;
+  const chartH = xAxisY + X_LABEL_TOP_GAP + 9 + xLabelLineGap + 9 + X_LABEL_BOTTOM_PAD;
+  const xLabelY = xAxisY + X_LABEL_TOP_GAP;
   const plotClipId = useMemo(() => `plot-clip-${Math.random().toString(36).slice(2, 9)}`, []);
   const initialScrollDone = useRef(false);
   const prevZoomRef = useRef(zoom);
@@ -186,9 +192,9 @@ export default function ProgressGraph({
     if (!sorted.length) return '';
     const slice = sorted.slice(0, todayIndex + 1);
     return slice
-      .map((p, i) => `${xForIndex(i, sorted.length, chartW)},${yForPct(p.actualPct, xAxisY)}`)
+      .map((p, i) => `${xForIndex(i, sorted.length, chartW)},${yForPct(p.actualPct, plotBottomY)}`)
       .join(' ');
-  }, [sorted, todayIndex, chartW, xAxisY]);
+  }, [sorted, todayIndex, chartW, plotBottomY]);
 
   const futureLine = useMemo(() => {
     if (!sorted.length || todayIndex >= sorted.length - 1) return '';
@@ -196,29 +202,29 @@ export default function ProgressGraph({
     return slice
       .map((p, j) => {
         const i = todayIndex + j;
-        return `${xForIndex(i, sorted.length, chartW)},${yForPct(p.actualPct, xAxisY)}`;
+        return `${xForIndex(i, sorted.length, chartW)},${yForPct(p.actualPct, plotBottomY)}`;
       })
       .join(' ');
-  }, [sorted, todayIndex, chartW, xAxisY]);
+  }, [sorted, todayIndex, chartW, plotBottomY]);
 
   const targetLine = useMemo(() => {
     if (!sorted.length) return '';
     return sorted
       .map((p, i) =>
-        `${xForIndex(i, sorted.length, chartW)},${yForPct(p.targetPct ?? ((i + 1) / sorted.length) * 100, xAxisY)}`,
+        `${xForIndex(i, sorted.length, chartW)},${yForPct(p.targetPct ?? ((i + 1) / sorted.length) * 100, plotBottomY)}`,
       )
       .join(' ');
-  }, [sorted, chartW, xAxisY]);
+  }, [sorted, chartW, plotBottomY]);
 
   const areaPoly = useMemo(() => {
     if (!sorted.length) return '';
     const past = sorted.slice(0, todayIndex + 1);
     const top = past
-      .map((p, i) => `${xForIndex(i, sorted.length, chartW)},${yForPct(p.actualPct, xAxisY)}`)
+      .map((p, i) => `${xForIndex(i, sorted.length, chartW)},${yForPct(p.actualPct, plotBottomY)}`)
       .join(' ');
     const lastPastX = xForIndex(todayIndex, sorted.length, chartW);
-    return `${PAD_LEFT},${xAxisY} ${PAD_LEFT},${yForPct(past[0]?.actualPct ?? 0, xAxisY)} ${top} ${lastPastX},${xAxisY}`;
-  }, [sorted, todayIndex, chartW, xAxisY]);
+    return `${PAD_LEFT},${xAxisY} ${PAD_LEFT},${yForPct(past[0]?.actualPct ?? 0, plotBottomY)} ${top} ${lastPastX},${xAxisY}`;
+  }, [sorted, todayIndex, chartW, xAxisY, plotBottomY]);
 
   const todayX = sorted.length ? xForIndex(todayIndex, sorted.length, chartW) : chartW - PAD_RIGHT;
   const todayPoint = sorted[todayIndex];
@@ -301,10 +307,10 @@ export default function ProgressGraph({
       setHover(point);
       setTipPos({
         left: chartX - scrollLeft,
-        top: yForPct(point.actualPct, xAxisY),
+        top: yForPct(point.actualPct, plotBottomY),
       });
     },
-    [sorted, chartW, xAxisY],
+    [sorted, chartW, plotBottomY],
   );
 
   const handlePointClick = useCallback(
@@ -475,7 +481,7 @@ export default function ProgressGraph({
         <div className="graph-canvas" style={{ width: Y_AXIS_W + chartW, height: chartH }}>
           <div className="graph-y-axis" style={{ width: Y_AXIS_W, height: chartH }}>
             {Y_TICKS.map((pct) => {
-              const y = yForPct(pct, xAxisY);
+              const y = yAxisTickY(pct, plotBottomY, xAxisY);
               return (
                 <div key={pct} className="graph-y-tick" style={{ top: y }}>
                   <span className="graph-y-label">{pct}%</span>
@@ -511,7 +517,7 @@ export default function ProgressGraph({
             </defs>
             <g clipPath={`url(#${plotClipId})`}>
               {Y_TICKS.map((pct) => {
-                const y = yForPct(pct, xAxisY);
+                const y = yAxisTickY(pct, plotBottomY, xAxisY);
                 return (
                   <line key={pct} x1={0} y1={y} x2={chartW} y2={y} stroke="#eef2f6" strokeWidth="1" />
                 );
@@ -524,7 +530,7 @@ export default function ProgressGraph({
               ) : null}
               {sorted.map((p, i) => {
                 const cx = xForIndex(i, sorted.length, chartW);
-                const cy = yForPct(p.actualPct, xAxisY);
+                const cy = yForPct(p.actualPct, plotBottomY);
                 const hold = p.status === 'on_hold';
                 const isFuture = i > todayIndex;
                 const isToday = i === todayIndex;
@@ -575,7 +581,7 @@ export default function ProgressGraph({
                 <>
                   <circle
                     cx={todayX}
-                    cy={yForPct(displayTodayPct, xAxisY)}
+                    cy={yForPct(displayTodayPct, plotBottomY)}
                     r="5.5"
                     fill="var(--blue)"
                     stroke="#fff"
@@ -583,7 +589,7 @@ export default function ProgressGraph({
                   />
                   <rect
                     x={todayX - 38}
-                    y={yForPct(displayTodayPct, xAxisY) - 30}
+                    y={yForPct(displayTodayPct, plotBottomY) - 30}
                     width="76"
                     height="21"
                     rx="6"
@@ -591,7 +597,7 @@ export default function ProgressGraph({
                   />
                   <text
                     x={todayX}
-                    y={yForPct(displayTodayPct, xAxisY) - 16}
+                    y={yForPct(displayTodayPct, plotBottomY) - 16}
                     fontSize="10.5"
                     fill="#fff"
                     fontFamily="Montserrat, sans-serif"

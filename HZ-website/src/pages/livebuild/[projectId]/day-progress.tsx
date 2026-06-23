@@ -4,6 +4,7 @@ import SeoHead from '@/components/SeoHead';
 import Card from '@/livebuild/components/Card';
 import LiveDot from '@/livebuild/components/LiveDot';
 import RoomTypeIcon from '@/livebuild/components/RoomTypeIcon';
+import ImageLightbox from '@/livebuild/components/ImageLightbox';
 import LivebuildProjectLayout from '@/livebuild/components/LivebuildProjectLayout';
 import { LivebuildToastProvider, useLbToast } from '@/livebuild/components/ToastProvider';
 import { livebuildApi } from '@/livebuild/lib/api';
@@ -25,12 +26,17 @@ function WrenchIcon() {
 function WorkTypeDayCard({ wt, index }: { wt: LbWorkTypeProgress; index: number }) {
   const days = wt.days ?? [];
   const [activeDate, setActiveDate] = useState(days[days.length - 1]?.date ?? '');
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (days.length && !days.some((d) => d.date === activeDate)) {
       setActiveDate(days[days.length - 1].date);
     }
   }, [days, activeDate]);
+
+  useEffect(() => {
+    setLightboxIndex(null);
+  }, [activeDate]);
 
   const activePhotos = days.find((d) => d.date === activeDate)?.photos ?? [];
   const photoCount = days.reduce((n, d) => n + d.photos.length, 0);
@@ -157,12 +163,13 @@ function WorkTypeDayCard({ wt, index }: { wt: LbWorkTypeProgress; index: number 
             })}
           </div>
           <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 6 }}>
-            {activePhotos.map((ph) => (
-              <a
+            {activePhotos.map((ph, i) => (
+              <button
                 key={ph.id}
-                href={ph.url}
-                target="_blank"
-                rel="noopener noreferrer"
+                type="button"
+                className="lb-photo-thumb"
+                onClick={() => setLightboxIndex(i)}
+                aria-label="View photo"
                 style={{
                   flexShrink: 0,
                   width: 88,
@@ -174,12 +181,18 @@ function WorkTypeDayCard({ wt, index }: { wt: LbWorkTypeProgress; index: number 
                 }}
               >
                 <img src={ph.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </a>
+              </button>
             ))}
             {!activePhotos.length && (
               <span style={{ fontSize: 12, color: 'var(--mu)', padding: '6px 0' }}>No photos for this day.</span>
             )}
           </div>
+          <ImageLightbox
+            images={activePhotos}
+            index={lightboxIndex}
+            onClose={() => setLightboxIndex(null)}
+            onIndexChange={setLightboxIndex}
+          />
         </>
       ) : (
         <p style={{ fontSize: 12.5, color: 'var(--mu)', padding: '6px 0' }}>No photos for selected period.</p>
