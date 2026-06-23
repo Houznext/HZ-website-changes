@@ -163,7 +163,9 @@ export default function ProgressGraph({
   const chartW = useMemo(() => Math.round(baseChartW * zoom), [baseChartW, zoom]);
   const plotW = Math.max(1, chartW - PAD_LEFT - PAD_RIGHT);
   const xAxisY = PLOT_TOP + PLOT_HEIGHT;
-  const chartH = xAxisY + X_AXIS_GAP + 9 + X_LABEL_LINE_GAP + 9 + X_LABEL_BOTTOM_PAD;
+  const isMobileGraph = viewportW > 0 && viewportW <= 768;
+  const xLabelLineGap = isMobileGraph ? 16 : X_LABEL_LINE_GAP;
+  const chartH = xAxisY + X_AXIS_GAP + 9 + xLabelLineGap + 9 + X_LABEL_BOTTOM_PAD;
   const xLabelY = xAxisY + X_AXIS_GAP;
   const plotClipId = useMemo(() => `plot-clip-${Math.random().toString(36).slice(2, 9)}`, []);
   const initialScrollDone = useRef(false);
@@ -643,7 +645,7 @@ export default function ProgressGraph({
                     {nameLabel ? (
                       <tspan
                         x={labelX}
-                        dy={X_LABEL_LINE_GAP}
+                        dy={xLabelLineGap}
                         fontSize="8.5"
                         fill="#94a3b8"
                         fontWeight="600"
