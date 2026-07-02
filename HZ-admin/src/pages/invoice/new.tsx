@@ -1,26 +1,20 @@
 import React from "react";
-import { useRouter } from "next/router";
 import withAdminLayout from "@/src/common/AdminLayout";
 import AccessDenied from "@/src/common/AccessDenied";
 import { usePermissionStore } from "@/src/stores/usePermissions";
 import InvoiceEditor from "@/src/components/InvoiceView/InvoiceEditor";
 
-function InvoiceDetailPage() {
-  const router = useRouter();
+function NewInvoicePage() {
   const { hasPermission, isLoading, initialized } = usePermissionStore();
-  const id = router.query.id as string | undefined;
-
   if (isLoading && !initialized) return null;
-  if (!hasPermission("invoice_estimator", "view")) {
+  if (!hasPermission("invoice_estimator", "create")) {
     return <AccessDenied resource="Invoice" />;
   }
-  if (!id) return null;
-
   return (
     <div className="w-full min-h-screen p-2 md:p-4">
-      <InvoiceEditor invoiceId={id} />
+      <InvoiceEditor />
     </div>
   );
 }
 
-export default withAdminLayout(InvoiceDetailPage);
+export default withAdminLayout(NewInvoicePage);

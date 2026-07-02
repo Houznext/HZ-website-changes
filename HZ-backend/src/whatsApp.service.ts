@@ -21,10 +21,9 @@ export class WhatsAppMsgService {
   // Send regular chat/text message
   async sendMessage(to: string, message: string) {
     if (!this.isConfigured()) {
-      console.warn(
-        'WhatsApp (UltraMsg): set ULTRAMSG_INSTANCE_ID and ULTRAMSG_TOKEN in .env to send messages.',
+      throw new Error(
+        'WhatsApp is not configured. Set ULTRAMSG_INSTANCE_ID and ULTRAMSG_TOKEN in the backend .env file.',
       );
-      return;
     }
 
     const url = `${this.baseURL}/${this.instanceId}/messages/chat`;
@@ -36,21 +35,38 @@ export class WhatsAppMsgService {
 
     try {
       const response = await axios.post(url, payload);
-      return response.data;
+      const data = response.data as Record<string, unknown>;
+      if (data?.error || data?.sent === 'false' || data?.sent === false) {
+        const detail =
+          typeof data.error === 'string'
+            ? data.error
+            : JSON.stringify(data.error ?? data);
+        throw new Error(detail || 'UltraMsg rejected the message');
+      }
+      return data;
     } catch (error) {
-      console.error(
-        'UltraMsg send error:',
-        error?.response?.data || error.message,
-      );
-      throw new Error('Failed to send WhatsApp message via UltraMsg');
+      const axiosData = (error as { response?: { data?: unknown } })?.response
+        ?.data;
+      console.error('UltraMsg send error:', axiosData || (error as Error).message);
+      if (error instanceof Error && error.message.includes('WhatsApp is not configured')) {
+        throw error;
+      }
+      const detail =
+        typeof axiosData === 'string'
+          ? axiosData
+          : axiosData
+            ? JSON.stringify(axiosData)
+            : (error as Error).message;
+      throw new Error(`Failed to send WhatsApp message: ${detail}`);
     }
   }
 
   // Send a PDF document
   async sendPdf(to: string, pdfUrl: string, fileName: string) {
     if (!this.isConfigured()) {
-      console.warn('WhatsApp sendPdf skipped: UltraMsg not configured.');
-      return;
+      throw new Error(
+        'WhatsApp is not configured. Set ULTRAMSG_INSTANCE_ID and ULTRAMSG_TOKEN in the backend .env file.',
+      );
     }
     const url = `${this.baseURL}/${this.instanceId}/messages/document`;
     const payload = {
@@ -62,13 +78,26 @@ export class WhatsAppMsgService {
 
     try {
       const response = await axios.post(url, payload);
-      return response.data;
+      const data = response.data as Record<string, unknown>;
+      if (data?.error || data?.sent === 'false' || data?.sent === false) {
+        const detail =
+          typeof data.error === 'string'
+            ? data.error
+            : JSON.stringify(data.error ?? data);
+        throw new Error(detail || 'UltraMsg rejected the document');
+      }
+      return data;
     } catch (error) {
-      console.error(
-        'UltraMsg PDF send error:',
-        error?.response?.data || error.message,
-      );
-      throw new Error('Failed to send PDF via UltraMsg');
+      const axiosData = (error as { response?: { data?: unknown } })?.response
+        ?.data;
+      console.error('UltraMsg PDF send error:', axiosData || (error as Error).message);
+      const detail =
+        typeof axiosData === 'string'
+          ? axiosData
+          : axiosData
+            ? JSON.stringify(axiosData)
+            : (error as Error).message;
+      throw new Error(`Failed to send PDF via WhatsApp: ${detail}`);
     }
   }
 

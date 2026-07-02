@@ -13,10 +13,18 @@ function getTokenFromStore() {
   if (typeof window === "undefined") return null;
   try {
     const { useSessionStore } = require("@/src/stores/useSessionStore");
-    return useSessionStore.getState().token;
+    const state = useSessionStore.getState();
+    if (state.token) return state.token;
+    const userToken = state.user?.token;
+    if (typeof userToken === "string" && userToken.trim()) return userToken.trim();
+
+    const { useAuthBranchStore } = require("@/src/stores/useAuthBranchStore");
+    const branchToken = useAuthBranchStore.getState().token;
+    if (typeof branchToken === "string" && branchToken.trim()) return branchToken.trim();
   } catch {
     return null;
   }
+  return null;
 }
 
 export function encodeQueryData(data = {}) {
@@ -97,6 +105,7 @@ const URLS = {
   furniture: `${base_url}furniture`,
   furnitureSeed: `${base_url}furniture/seed`,
   invoice_estimator: `${base_url}invoice-estimator`,
+  invoices: `${base_url}invoices`,
   whatsappSend: `${base_url}send-whatsapp`,
   queries: `${base_url}queries`,
   servicecustomlead: `${base_url}Servicecustomlead`,
@@ -190,6 +199,10 @@ const makeHeadersAndParams = async (params, auth, type, ctx = undefined) => {
     if (!bearer && typeof window !== "undefined") {
       bearer = await getSessionTokenOnce({ force: true });
     }
+    if (!bearer && typeof window !== "undefined") {
+      const session = await getSession();
+      bearer = bearerFromSession(session) || "";
+    }
     if (!bearer && ctx) {
       const session = await getSession(ctx);
       bearer = bearerFromSession(session) || "";
@@ -197,7 +210,9 @@ const makeHeadersAndParams = async (params, auth, type, ctx = undefined) => {
     if (bearer) {
       headerConfig.set("Authorization", `Bearer ${bearer}`);
     } else {
-      console.warn("apiClient: missing auth token for request");
+      throw new ResponseError(401, null, {
+        message: "Not authenticated. Please sign in again.",
+      });
     }
   }
   return {

@@ -333,6 +333,7 @@ export const config = {
     "/access-control",
     "/livebuild/:path*",
     "/invoice",
+    "/invoice/:path*",
     "/blogs",
     "/company-property",
     "/cost-estimator/:path*",

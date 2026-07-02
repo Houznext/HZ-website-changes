@@ -1,0 +1,373 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.pg{font-family:'Inter',sans-serif;font-size:11px;color:#1f2933;background:#fff;width:100%;max-width:660px;margin:0 auto;border:0.5px solid #e2e8f0;border-radius:8px;overflow:hidden}
+.mf{font-family:'Montserrat',sans-serif;letter-spacing:-.005em}
+
+.header{background:#0f2a44;color:#fff;padding:22px 26px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.h-l{display:flex;flex-direction:column;gap:7px}
+.h-brand{display:flex;align-items:center;gap:9px}
+.h-logo{width:28px;height:28px;background:#fff;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#0f2a44;font-weight:800;font-family:'Montserrat',sans-serif;font-size:14px}
+.h-name{font-family:'Montserrat',sans-serif;font-size:20px;font-weight:800;letter-spacing:-.015em}
+.h-tag{font-size:8.5px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.12em;font-family:'Montserrat',sans-serif;font-weight:600}
+.h-contact{font-size:10.5px;color:rgba(255,255,255,.85);margin-top:6px;display:flex;flex-direction:column;gap:2px}
+.h-r{text-align:right}
+.h-doctype{font-size:9px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.14em;font-family:'Montserrat',sans-serif;font-weight:700;margin-bottom:6px}
+.h-no{font-family:'Montserrat',sans-serif;font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1;margin-bottom:5px}
+.h-meta{font-size:10px;color:rgba(255,255,255,.65);margin-top:6px;display:flex;flex-direction:column;gap:2px;text-align:right}
+.h-status{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:700;font-family:'Montserrat',sans-serif;padding:3px 10px;border-radius:20px;background:rgba(242,153,74,.18);color:#f2994a;margin-top:6px}
+
+.parties{padding:18px 26px;background:#f8fafc;border-bottom:0.5px solid #e2e8f0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+.party-l{font-size:8.5px;font-weight:700;color:#5a6a7e;text-transform:uppercase;letter-spacing:.1em;font-family:'Montserrat',sans-serif;margin-bottom:5px}
+.party-n{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;color:#1f2933;margin-bottom:4px;letter-spacing:-.01em}
+.party-d{font-size:10px;color:#5a6a7e;line-height:1.55}
+.party-d strong{color:#1f2933;font-weight:600}
+
+.scope{padding:18px 26px 9px}
+.scope-h{font-size:9px;font-weight:700;color:#5a6a7e;text-transform:uppercase;letter-spacing:.12em;font-family:'Montserrat',sans-serif;margin-bottom:11px}
+
+.tbl{width:100%;border-collapse:collapse;font-size:10px}
+.tbl thead th{background:#f8fafc;padding:9px 8px;text-align:left;font-size:8.5px;font-weight:700;color:#5a6a7e;text-transform:uppercase;letter-spacing:.06em;font-family:'Montserrat',sans-serif;border-bottom:1px solid #e2e8f0}
+.tbl thead th.right{text-align:right}
+.tbl tbody td{padding:9px 8px;border-bottom:0.5px solid #f1f5f9;vertical-align:top}
+.tbl tbody td.right{text-align:right;font-family:'Montserrat',sans-serif;font-weight:700;font-size:10.5px}
+.tbl tbody td.amt{color:#2f80ed;font-family:'Montserrat',sans-serif;font-weight:700;font-size:10.5px;text-align:right}
+.row-grp td{background:#f8fafc;padding:7px 8px;font-family:'Montserrat',sans-serif;font-size:9.5px;font-weight:700;color:#1f2933;letter-spacing:.05em;text-transform:uppercase}
+.row-num{color:#5a6a7e;font-size:9px;font-family:'Montserrat',sans-serif;font-weight:600}
+.item-name{font-weight:700;color:#1f2933;font-size:10.5px}
+.item-desc{font-size:9.5px;color:#5a6a7e;margin-top:1px}
+
+.totals-box{margin:20px 26px;background:#0f2a44;color:#fff;border-radius:10px;padding:16px 18px}
+.tot-r{display:flex;justify-content:space-between;padding:5px 0;font-size:11px;color:rgba(255,255,255,.75)}
+.tot-r .v{font-family:'Montserrat',sans-serif;font-weight:700;color:#fff}
+.tot-r.disc .v{color:#fbbf77}
+.divider{height:0.5px;background:rgba(255,255,255,.18);margin:8px 0}
+.grand-r{display:flex;justify-content:space-between;align-items:baseline;padding-top:8px;margin-top:4px;border-top:1px solid rgba(255,255,255,.25)}
+.grand-r .l{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;color:#fff;letter-spacing:.01em}
+.grand-r .v{font-family:'Montserrat',sans-serif;font-size:23px;font-weight:800;color:#fff;letter-spacing:-.015em}
+.words{margin:11px 26px 4px;padding:10px 14px;background:#fff7ed;border:0.5px solid #fed7aa;border-radius:8px;font-size:10px;color:#92400e;font-style:italic}
+.words strong{font-weight:700;font-style:normal}
+
+.pay-status{margin:11px 26px;padding:12px 14px;background:#f0fdf4;border:0.5px solid #bbf7d0;border-radius:8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.ps-l{font-size:8.5px;font-weight:700;color:#15803d;text-transform:uppercase;letter-spacing:.08em;font-family:'Montserrat',sans-serif;margin-bottom:3px}
+.ps-v{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;color:#15803d}
+
+.work-details{margin:14px 26px;background:#f8fafc;border-radius:8px;padding:12px 14px}
+.work-h{font-size:8.5px;font-weight:700;color:#5a6a7e;text-transform:uppercase;letter-spacing:.1em;font-family:'Montserrat',sans-serif;margin-bottom:6px}
+.work-l{font-size:10px;color:#1f2933;line-height:1.7}
+
+.bank{margin:11px 26px;background:#fff;border:0.5px solid #e2e8f0;border-radius:8px;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.bank-h{font-size:8.5px;font-weight:700;color:#5a6a7e;text-transform:uppercase;letter-spacing:.1em;font-family:'Montserrat',sans-serif;margin-bottom:4px}
+.bank-i{font-size:10.5px;color:#1f2933;line-height:1.7}
+.bank-i strong{font-weight:700}
+
+.terms{margin:14px 26px;padding:12px 14px}
+.terms-h{font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:800;color:#1f2933;margin-bottom:9px}
+.terms-l{display:flex;flex-direction:column;gap:6px}
+.term-i{display:flex;gap:6px;font-size:9.5px;color:#3f4b5a;line-height:1.55}
+.term-i::before{content:'•';color:#5a6a7e;flex-shrink:0}
+.term-i strong{font-weight:700;color:#1f2933}
+
+.promise{margin:11px 26px;background:#e8f1fd;border-radius:8px;padding:14px 16px}
+.promise-h{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:800;color:#1f2933;margin-bottom:8px}
+.promise-l{display:flex;flex-direction:column;gap:4px}
+.promise-i{display:flex;gap:6px;font-size:10px;color:#1f2933;align-items:center}
+.promise-i .ti{color:#2f80ed;font-size:11px}
+
+.footer{margin:20px 26px 22px;padding-top:14px;border-top:0.5px solid #e2e8f0;display:flex;justify-content:space-between;align-items:flex-end}
+.foot-l{font-size:9.5px;color:#5a6a7e;line-height:1.5}
+.foot-l strong{font-family:'Montserrat',sans-serif;font-weight:800;color:#1f2933;font-size:12px;display:block;margin-bottom:2px}
+.foot-r{text-align:right}
+.foot-thank{font-family:Georgia,serif;font-style:italic;font-size:18px;color:#1f2933;margin-bottom:3px}
+.foot-sig{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;color:#1f2933}
+.foot-role{font-size:9.5px;color:#5a6a7e}
+
+.computer-gen{text-align:center;padding:8px 26px 14px;font-size:8.5px;color:#94a3b8;font-style:italic}
+
+@media(max-width:540px){
+  .header{grid-template-columns:1fr;gap:14px;padding:18px}
+  .h-r{text-align:left}
+  .h-meta{text-align:left}
+  .parties{grid-template-columns:1fr;padding:14px 18px}
+  .scope{padding:14px 18px 6px}
+  .tbl{font-size:9px}
+  .tbl thead th{font-size:7.5px;padding:7px 5px}
+  .tbl tbody td{padding:7px 5px;font-size:9px}
+  .totals-box,.words,.pay-status,.work-details,.bank,.terms,.promise,.footer{margin-left:14px;margin-right:14px}
+  .pay-status{grid-template-columns:1fr}
+  .bank{grid-template-columns:1fr}
+  .footer{flex-direction:column;gap:14px;align-items:flex-start}
+  .foot-r{text-align:left}
+}
+</style>
+
+<h2 class="sr-only">Houznext Admin — GST-compliant Tax Invoice PDF download design</h2>
+
+<div class="pg">
+
+  <div class="header">
+    <div class="h-l">
+      <div class="h-brand">
+        <div class="h-logo">H</div>
+        <div>
+          <div class="h-name">Houznext</div>
+          <div class="h-tag">Buy Right · Build Strong · Design Beautiful</div>
+        </div>
+      </div>
+      <div class="h-contact">
+        <div>+91 97597 50770 · business@houznext.com</div>
+        <div>Houznext Interiors Pvt Ltd · GSTIN: 36AABCH9876F1Z2</div>
+        <div>Plot 18, Hitech City Road, Hyderabad — 500081</div>
+      </div>
+    </div>
+    <div class="h-r">
+      <div class="h-doctype">Tax Invoice</div>
+      <div class="h-no">INV-0042</div>
+      <div class="h-meta">
+        <div>Issued: 23 June 2026</div>
+        <div>Due: 23 July 2026</div>
+        <div>Place of Supply: Telangana (36)</div>
+      </div>
+      <div class="h-status"><i class="ti ti-check" aria-hidden="true"></i>Paid in Full</div>
+    </div>
+  </div>
+
+  <div class="parties">
+    <div>
+      <div class="party-l">Bill To</div>
+      <div class="party-n">Raju Sir</div>
+      <div class="party-d">
+        Plot 142, Sai Nagar Colony<br>
+        Gajwel, Telangana — 502278<br>
+        <strong>Mobile:</strong> 9010806806<br>
+        <strong>GSTIN:</strong> 36AABCH1234E1Z5
+      </div>
+    </div>
+    <div>
+      <div class="party-l">Ship To</div>
+      <div class="party-d" style="margin-top:6px">Same as billing address</div>
+      <div class="party-l" style="margin-top:12px">Project</div>
+      <div class="party-d">3BHK · Independent House<br>Work: Interiors · Furniture<br>Linked Quotation: QT-0023</div>
+    </div>
+    <div>
+      <div class="party-l">Prepared By</div>
+      <div class="party-n">Rishwanth</div>
+      <div class="party-d">
+        Senior Interior Designer<br>
+        krishwanthrathod@gmail.com<br>
+        8008163242
+      </div>
+    </div>
+  </div>
+
+  <div class="scope">
+    <div class="scope-h">Scope of Work &amp; Cost Breakdown</div>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th style="width:24px">#</th>
+          <th>Item Description</th>
+          <th style="width:60px">HSN</th>
+          <th class="right" style="width:46px">Qty/Area</th>
+          <th class="right" style="width:46px">Rate (₹)</th>
+          <th class="right" style="width:42px">GST</th>
+          <th class="right" style="width:78px">Amount (₹)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-grp"><td colspan="7">Ground Floor — Living Room</td></tr>
+        <tr>
+          <td class="row-num">1</td>
+          <td><div class="item-name">TV unit</div><div class="item-desc">TV unit · area-based pricing</div></td>
+          <td>940360</td>
+          <td class="right">154 sqft</td>
+          <td class="right">899</td>
+          <td class="right">18%</td>
+          <td class="amt">₹1,38,446</td>
+        </tr>
+        <tr>
+          <td class="row-num">2</td>
+          <td><div class="item-name">Arch</div><div class="item-desc">Arch panelling</div></td>
+          <td>940360</td>
+          <td class="right">33 sqft</td>
+          <td class="right">799</td>
+          <td class="right">18%</td>
+          <td class="amt">₹26,367</td>
+        </tr>
+
+        <tr class="row-grp"><td colspan="7">Ground Floor — Master Bedroom</td></tr>
+        <tr>
+          <td class="row-num">1</td>
+          <td><div class="item-name">Wardrobe</div><div class="item-desc">Wardrobe framing · Hettich soft-close</div></td>
+          <td>940360</td>
+          <td class="right">90 sqft</td>
+          <td class="right">849</td>
+          <td class="right">18%</td>
+          <td class="amt">₹76,410</td>
+        </tr>
+        <tr>
+          <td class="row-num">2</td>
+          <td><div class="item-name">Dressing unit</div><div class="item-desc">Dressing unit</div></td>
+          <td>940360</td>
+          <td class="right">21 sqft</td>
+          <td class="right">899</td>
+          <td class="right">18%</td>
+          <td class="amt">₹18,879</td>
+        </tr>
+
+        <tr class="row-grp"><td colspan="7">Ground Floor — Kitchen</td></tr>
+        <tr>
+          <td class="row-num">1</td>
+          <td><div class="item-name">Base cabinet</div><div class="item-desc">Modular base cabinet · soft-close channels</div></td>
+          <td>940360</td>
+          <td class="right">40 sqft</td>
+          <td class="right">1,249</td>
+          <td class="right">18%</td>
+          <td class="amt">₹49,960</td>
+        </tr>
+        <tr>
+          <td class="row-num">2</td>
+          <td><div class="item-name">Wall cabinet</div><div class="item-desc">Wall cabinet</div></td>
+          <td>940360</td>
+          <td class="right">26 sqft</td>
+          <td class="right">1,249</td>
+          <td class="right">18%</td>
+          <td class="amt">₹32,474</td>
+        </tr>
+        <tr>
+          <td class="row-num">3</td>
+          <td><div class="item-name">Breakfast counter</div><div class="item-desc">Base + side cabinet</div></td>
+          <td>940360</td>
+          <td class="right">25 sqft</td>
+          <td class="right">1,249</td>
+          <td class="right">18%</td>
+          <td class="amt">₹31,225</td>
+        </tr>
+
+        <tr class="row-grp"><td colspan="7">Furniture (Unit-priced)</td></tr>
+        <tr>
+          <td class="row-num">1</td>
+          <td><div class="item-name">3-Seater Sofa (premium)</div><div class="item-desc">Fabric upholstery · solid sheesham frame</div></td>
+          <td>940161</td>
+          <td class="right">2 nos</td>
+          <td class="right">45,000</td>
+          <td class="right">18%</td>
+          <td class="amt">₹90,000</td>
+        </tr>
+        <tr>
+          <td class="row-num">2</td>
+          <td><div class="item-name">Dining chairs</div><div class="item-desc">Upholstered dining chair · pack of 6</div></td>
+          <td>940161</td>
+          <td class="right">6 nos</td>
+          <td class="right">8,500</td>
+          <td class="right">18%</td>
+          <td class="amt">₹51,000</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="totals-box">
+    <div class="tot-r"><span>Subtotal (taxable value before invoice discount)</span><span class="v">₹9,46,347.00</span></div>
+    <div class="tot-r disc"><span>Item-level discounts</span><span class="v">−₹0.00</span></div>
+    <div class="tot-r disc"><span>Invoice discount</span><span class="v">−₹34,000.00</span></div>
+    <div class="divider"></div>
+    <div class="tot-r"><span>Taxable value</span><span class="v">₹9,12,347.00</span></div>
+    <div class="tot-r"><span>CGST @ 9%</span><span class="v">₹82,111.23</span></div>
+    <div class="tot-r"><span>SGST @ 9%</span><span class="v">₹82,111.23</span></div>
+    <div class="tot-r"><span>Round off</span><span class="v">+₹0.54</span></div>
+    <div class="grand-r">
+      <span class="l">Grand Total</span>
+      <span class="v">₹10,76,570.00</span>
+    </div>
+  </div>
+
+  <div class="words">
+    <strong>Amount in words:</strong> Rupees Ten Lakh Seventy Six Thousand Five Hundred Seventy only.
+  </div>
+
+  <div class="pay-status">
+    <div>
+      <div class="ps-l">Total Paid</div>
+      <div class="ps-v">₹10,76,570.00</div>
+    </div>
+    <div>
+      <div class="ps-l">Balance Due</div>
+      <div class="ps-v">₹0.00</div>
+    </div>
+    <div>
+      <div class="ps-l">Last Payment</div>
+      <div class="ps-v" style="font-size:11px">20 Jun 2026 · UPI</div>
+    </div>
+  </div>
+
+  <div class="bank">
+    <div>
+      <div class="bank-h">Bank Details for Payment</div>
+      <div class="bank-i">
+        <strong>Houznext Interiors Pvt Ltd</strong><br>
+        A/c: 1234 5678 9012 3456<br>
+        IFSC: HDFC0001234 · HDFC Bank, Hitech City<br>
+        UPI: business@houznext / 9759750770@upi
+      </div>
+    </div>
+    <div>
+      <div class="bank-h">Supplier Identifiers</div>
+      <div class="bank-i">
+        <strong>GSTIN:</strong> 36AABCH9876F1Z2<br>
+        <strong>PAN:</strong> AABCH9876F<br>
+        <strong>State Code:</strong> 36 (Telangana)<br>
+        <strong>CIN:</strong> U74999TG2022PTC123456
+      </div>
+    </div>
+  </div>
+
+  <div class="work-details">
+    <div class="work-h">Additional Work Details</div>
+    <div class="work-l">
+      Century Plywood BWP 710 GRADE · Nimmi, Ebco, Hettich or Doorset hardware<br>
+      0.8mm thickness inner laminate · 1mm thickness outer laminate
+    </div>
+  </div>
+
+  <div class="terms">
+    <div class="terms-h">Terms &amp; Conditions</div>
+    <div class="terms-l">
+      <div class="term-i"><span><strong>Payment terms:</strong> Full payment received against this invoice. No further payment is due against the line items billed above.</span></div>
+      <div class="term-i"><span><strong>Taxes:</strong> All amounts are inclusive of GST as itemised above. Tax invoice issued under GST Rules 2017.</span></div>
+      <div class="term-i"><span><strong>Scope of work:</strong> This invoice covers work executed as per the approved BOQ and design drawings. Any changes after approval may be re-quoted.</span></div>
+      <div class="term-i"><span><strong>Warranty:</strong> Houznext provides up to 10 years workmanship warranty on built-in interior components per company warranty policy. Hardware warranties are passed through from the manufacturer.</span></div>
+      <div class="term-i"><span><strong>Material substitution:</strong> Where a listed material was unavailable, an equivalent material was used with client approval and is reflected above.</span></div>
+      <div class="term-i"><span><strong>Dispute resolution:</strong> Any disputes shall be subject to the exclusive jurisdiction of courts at Hyderabad, Telangana.</span></div>
+    </div>
+  </div>
+
+  <div class="promise">
+    <div class="promise-h">Houznext Promise</div>
+    <div class="promise-l">
+      <div class="promise-i"><i class="ti ti-check" aria-hidden="true"></i>Free 3D Design</div>
+      <div class="promise-i"><i class="ti ti-check" aria-hidden="true"></i>Transparent Pricing — fixed quote, fixed invoice</div>
+      <div class="promise-i"><i class="ti ti-check" aria-hidden="true"></i>40+ Quality Checks</div>
+      <div class="promise-i"><i class="ti ti-check" aria-hidden="true"></i>10-Year Workmanship Warranty</div>
+      <div class="promise-i"><i class="ti ti-check" aria-hidden="true"></i>Real-time updates via LiveBuild</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="foot-l">
+      <strong>Houznext Interiors Pvt Ltd</strong>
+      +91 97597 50770 · business@houznext.com<br>
+      For payment queries, reply to this email or call our team.
+    </div>
+    <div class="foot-r">
+      <div class="foot-thank">Thank You</div>
+      <div class="foot-sig">Rishwanth</div>
+      <div class="foot-role">Authorised Signatory · Houznext</div>
+    </div>
+  </div>
+
+  <div class="computer-gen">
+    This is a computer-generated invoice. Generated on 23 June 2026, 15:58 IST. Signature not required.
+  </div>
+
+</div>

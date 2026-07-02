@@ -15,7 +15,8 @@ import { CostEstimator } from "../CostEstimatorView/helper";
 import CostEstimatorForm from "../CostEstimatorView/CostEstimatorForm";
 import CostEstimationHeader from "./CostEstimatorHeader";
 import { usePermissionStore } from "@/src/stores/usePermissions";
-import { ArrowLeft, Download, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Download, Pencil, Trash2, FileText } from "lucide-react";
+import { useInvoiceStore } from "@/src/stores/invoicesstrore";
 
 const CostEstimatorDetailsView = () => {
   const [details, setDetails] = useState<CostEstimator | null>(null);
@@ -33,6 +34,7 @@ const CostEstimatorDetailsView = () => {
     setAnchorEl(null);
   };
   const { hasPermission, permissions } = usePermissionStore((state) => state);
+  const { convertFromQuotation } = useInvoiceStore();
 
   // States required for editing estimation
 
@@ -239,6 +241,25 @@ const CostEstimatorDetailsView = () => {
                   >
                     <Download className="w-3.5 h-3.5" /> Download PDF
                   </button>
+
+                  {hasPermission("invoice_estimator", "create") && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          const inv = await convertFromQuotation(String(router.query.id));
+                          router.push(`/invoice/${inv.id}`);
+                        } catch {
+                          toast.error("Could not convert to invoice");
+                        }
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px]
+                                 bg-white border border-[#2f80ed] hover:bg-[#e8f1fd]
+                                 text-[#2f80ed] text-[12.5px] font-semibold transition-all"
+                      style={{ fontFamily: "'Inter', sans-serif" }}
+                    >
+                      <FileText className="w-3.5 h-3.5" /> Convert to Invoice
+                    </button>
+                  )}
 
                   {/* Edit */}
                   <button

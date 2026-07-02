@@ -1,0 +1,336 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.app{font-family:'Inter','Anthropic Sans',sans-serif;font-size:13px;color:var(--color-text-primary);background:var(--color-background-tertiary);min-height:600px;border-radius:var(--border-radius-lg);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.mf{font-family:'Montserrat','Anthropic Sans',sans-serif;letter-spacing:-.01em}
+
+.topbar{padding:18px 26px;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.tb-l h1{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:800;color:var(--color-text-primary);margin-bottom:2px;letter-spacing:-.015em}
+.tb-l p{font-size:12.5px;color:var(--color-text-secondary)}
+.tb-r{display:flex;align-items:center;gap:9px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;font-size:12.5px;font-weight:700;border:1.5px solid transparent;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .15s;background:var(--color-background-primary);color:var(--color-text-primary);border-color:var(--color-border-secondary)}
+.btn:hover{border-color:#2f80ed;color:#2f80ed;background:#e8f1fd}
+.btn-pri{background:#2f80ed;color:#fff;border-color:#2f80ed}
+.btn-pri:hover{background:#1a6dd6;color:#fff;border-color:#1a6dd6}
+.btn-typetab{background:#2f80ed;color:#fff;border-color:#2f80ed}
+
+.content{padding:22px 26px}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.stat{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:13px;padding:18px 20px}
+.stat-l{font-size:10px;font-weight:700;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.08em;font-family:'Montserrat',sans-serif;margin-bottom:7px}
+.stat-v{font-family:'Montserrat',sans-serif;font-size:26px;font-weight:800;color:var(--color-text-primary);line-height:1;margin-bottom:4px;letter-spacing:-.015em}
+.stat-v.blue{color:#2f80ed}
+.stat-v.teal{color:#0d9488}
+.stat-v.am{color:#d97706}
+.stat-v.rd{color:#dc2626}
+.stat-s{font-size:11.5px;color:var(--color-text-secondary)}
+
+.toolbar{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:13px;padding:11px;display:flex;gap:9px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+.search-wrap{flex:1;min-width:240px;position:relative}
+.search-wrap .ti{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--color-text-secondary);font-size:15px}
+.search{width:100%;padding:9px 13px 9px 36px;border:1.5px solid var(--color-border-tertiary);border-radius:9px;font-size:13px;font-family:'Inter',sans-serif;background:#fff;outline:none}
+.search:focus{border-color:#2f80ed;box-shadow:0 0 0 3px rgba(47,128,237,.08)}
+.tab-pill{display:inline-flex;align-items:center;gap:5px;padding:8px 13px;border-radius:9px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;border:1.5px solid var(--color-border-tertiary);background:#fff;color:var(--color-text-secondary)}
+.tab-pill.on{background:#2f80ed;color:#fff;border-color:#2f80ed}
+.tab-pill .ti{font-size:14px}
+
+.list{display:flex;flex-direction:column;gap:11px}
+.row{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:13px;padding:0;overflow:hidden;display:grid;grid-template-columns:120px 1fr 200px;align-items:stretch;transition:all .18s}
+.row:hover{border-color:#93c5fd;box-shadow:0 8px 28px rgba(15,42,68,.06)}
+.row-thumb{background:#e8f1fd;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px;position:relative}
+.row-thumb .ti{font-size:30px;color:rgba(47,128,237,.4)}
+.row-thumb .lbl{font-size:10px;color:var(--color-text-secondary)}
+.row-status{position:absolute;top:8px;left:8px;display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;font-family:'Montserrat',sans-serif;padding:2px 7px;border-radius:20px}
+.row-mid{padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.row-name{font-family:'Montserrat',sans-serif;font-size:15.5px;font-weight:800;color:var(--color-text-primary);margin-bottom:1px;letter-spacing:-.01em}
+.row-sub{font-size:11.5px;color:var(--color-text-secondary);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.row-sub .sep{color:var(--color-text-tertiary)}
+.row-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;background:#f5f7fa;color:#475569;font-weight:500}
+.tag .ti{font-size:12px;color:#5a6a7e}
+.tag.tag-teal{background:#ccfbf1;color:#0f766e}
+.tag.tag-teal .ti{color:#0f766e}
+.row-actions{padding:16px 18px;display:flex;flex-direction:column;gap:7px;justify-content:center;border-left:0.5px dashed var(--color-border-tertiary)}
+.row-actions .row-amount{font-family:'Montserrat',sans-serif;font-size:21px;font-weight:800;color:#2f80ed;text-align:right;line-height:1;margin-bottom:2px;letter-spacing:-.02em}
+.row-actions .row-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.row-actions .row-id{font-size:11px;color:var(--color-text-secondary);font-family:'Montserrat',sans-serif;font-weight:600}
+.row-actions .row-pay{font-size:10.5px;color:#0d9488;font-weight:700;font-family:'Montserrat',sans-serif}
+.action-btns{display:flex;gap:5px;justify-content:flex-end}
+.btn-mini{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border:1px solid var(--color-border-tertiary);border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;background:#fff;color:var(--color-text-primary);font-family:'Montserrat',sans-serif}
+.btn-mini:hover{border-color:#2f80ed;color:#2f80ed;background:#e8f1fd}
+.btn-mini .ti{font-size:11px}
+.btn-mini.blue{background:#2f80ed;color:#fff;border-color:#2f80ed}
+.btn-mini.blue:hover{background:#1a6dd6;border-color:#1a6dd6;color:#fff}
+
+.row-paid{border-left:4px solid #0d9488}
+.row-partial{border-left:4px solid #d97706}
+.row-overdue{border-left:4px solid #dc2626}
+.row-draft{border-left:4px solid #94a3b8}
+.row-sent{border-left:4px solid #2f80ed}
+
+.st-paid{background:#ccfbf1;color:#0f766e}
+.st-partial{background:#fef3c7;color:#92400e}
+.st-overdue{background:#fee2e2;color:#b91c1c}
+.st-draft{background:#f1f5f9;color:#475569}
+.st-sent{background:#e8f1fd;color:#1e40af}
+
+@media(max-width:840px){
+  .stats{grid-template-columns:1fr 1fr}
+  .row{grid-template-columns:90px 1fr}
+  .row-actions{grid-column:1/-1;border-left:none;border-top:0.5px dashed var(--color-border-tertiary);flex-direction:row;align-items:center;justify-content:space-between}
+}
+@media(max-width:540px){
+  .stats{grid-template-columns:1fr 1fr;gap:9px}
+  .stat{padding:14px}
+  .stat-v{font-size:22px}
+  .row{grid-template-columns:1fr}
+  .row-thumb{height:80px;flex-direction:row;justify-content:flex-start;padding:14px}
+  .topbar,.content{padding:14px 16px}
+}
+</style>
+
+<h2 class="sr-only">Houznext Admin — Invoices listing page mockup matching the Cost Estimation design</h2>
+
+<div class="app">
+  <div class="topbar">
+    <div class="tb-l">
+      <h1>Invoices</h1>
+      <p>14 invoices found · ₹26.4L outstanding</p>
+    </div>
+    <div class="tb-r">
+      <button class="btn btn-typetab"><i class="ti ti-receipt" aria-hidden="true"></i>Interiors</button>
+      <button class="btn"><i class="ti ti-download" aria-hidden="true"></i>Export CSV</button>
+      <button class="btn btn-pri"><i class="ti ti-plus" aria-hidden="true"></i>New Invoice</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-l">Total</div>
+        <div class="stat-v">14</div>
+        <div class="stat-s">invoices</div>
+      </div>
+      <div class="stat">
+        <div class="stat-l">Total Billed</div>
+        <div class="stat-v blue">₹48.6L</div>
+        <div class="stat-s">across all invoices</div>
+      </div>
+      <div class="stat">
+        <div class="stat-l">Collected</div>
+        <div class="stat-v teal">₹22.2L</div>
+        <div class="stat-s">45.7% of billed</div>
+      </div>
+      <div class="stat">
+        <div class="stat-l">Outstanding</div>
+        <div class="stat-v am">₹26.4L</div>
+        <div class="stat-s">5 invoices pending</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input class="search" placeholder="Search by invoice no, name, GSTIN, phone, project…">
+      </div>
+      <button class="tab-pill on"><i class="ti ti-list" aria-hidden="true"></i>All (14)</button>
+      <button class="tab-pill"><i class="ti ti-pencil" aria-hidden="true"></i>Draft (3)</button>
+      <button class="tab-pill"><i class="ti ti-send" aria-hidden="true"></i>Sent (4)</button>
+      <button class="tab-pill"><i class="ti ti-cash" aria-hidden="true"></i>Paid (5)</button>
+      <button class="tab-pill"><i class="ti ti-alert-triangle" aria-hidden="true"></i>Overdue (2)</button>
+      <button class="tab-pill" style="border-style:dashed"><i class="ti ti-filter" aria-hidden="true"></i>Filters</button>
+    </div>
+
+    <div class="list">
+
+      <div class="row row-paid">
+        <div class="row-thumb">
+          <span class="row-status st-paid"><i class="ti ti-check" aria-hidden="true"></i>Paid</span>
+          <i class="ti ti-receipt" aria-hidden="true"></i>
+          <span class="lbl">Interiors</span>
+        </div>
+        <div class="row-mid">
+          <div>
+            <div class="row-name">Raju Sir</div>
+            <div class="row-sub">
+              <span><i class="ti ti-mail" style="font-size:12px;vertical-align:-2px"></i> raju@email.com</span>
+              <span class="sep">·</span>
+              <span><i class="ti ti-phone" style="font-size:12px;vertical-align:-2px"></i> 9010806806</span>
+              <span class="sep">·</span>
+              <span><i class="ti ti-calendar" style="font-size:12px;vertical-align:-2px"></i> 13 Jun 2026</span>
+            </div>
+          </div>
+          <div class="row-tags">
+            <span class="tag"><i class="ti ti-map-pin" aria-hidden="true"></i>Gajwel, Telangana</span>
+            <span class="tag"><i class="ti ti-home" aria-hidden="true"></i>3BHK · Independent</span>
+            <span class="tag tag-teal"><i class="ti ti-shield-check" aria-hidden="true"></i>GST 36AABCH1234E1Z5</span>
+            <span class="tag"><i class="ti ti-user" aria-hidden="true"></i>Rishwanth</span>
+          </div>
+        </div>
+        <div class="row-actions">
+          <div class="row-meta">
+            <span class="row-id">INV-0042</span>
+            <span class="row-pay">✓ Fully paid</span>
+          </div>
+          <div class="row-amount">₹10,76,569</div>
+          <div class="action-btns">
+            <button class="btn-mini blue"><i class="ti ti-eye" aria-hidden="true"></i>View</button>
+            <button class="btn-mini"><i class="ti ti-download" aria-hidden="true"></i>PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row row-partial">
+        <div class="row-thumb">
+          <span class="row-status st-partial"><i class="ti ti-clock" aria-hidden="true"></i>Partial</span>
+          <i class="ti ti-receipt" aria-hidden="true"></i>
+          <span class="lbl">Interiors</span>
+        </div>
+        <div class="row-mid">
+          <div>
+            <div class="row-name">Srisailam Anna</div>
+            <div class="row-sub">
+              <span><i class="ti ti-mail" style="font-size:12px;vertical-align:-2px"></i> srisailam@email.com</span>
+              <span class="sep">·</span>
+              <span><i class="ti ti-phone" style="font-size:12px;vertical-align:-2px"></i> 8008163242</span>
+              <span class="sep">·</span>
+              <span><i class="ti ti-calendar" style="font-size:12px;vertical-align:-2px"></i> 19 Jun 2026</span>
+            </div>
+          </div>
+          <div class="row-tags">
+            <span class="tag"><i class="ti ti-map-pin" aria-hidden="true"></i>Pargi, Telangana</span>
+            <span class="tag"><i class="ti ti-home" aria-hidden="true"></i>2BHK · Independent</span>
+            <span class="tag"><i class="ti ti-user" aria-hidden="true"></i>Rishwanth</span>
+          </div>
+        </div>
+        <div class="row-actions">
+          <div class="row-meta">
+            <span class="row-id">INV-0041</span>
+            <span class="row-pay" style="color:#d97706">60% paid</span>
+          </div>
+          <div class="row-amount">₹7,02,778</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);text-align:right;margin-bottom:5px">Balance ₹2,81,111</div>
+          <div class="action-btns">
+            <button class="btn-mini blue"><i class="ti ti-eye" aria-hidden="true"></i>View</button>
+            <button class="btn-mini"><i class="ti ti-cash" aria-hidden="true"></i>Record</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row row-sent">
+        <div class="row-thumb">
+          <span class="row-status st-sent"><i class="ti ti-send" aria-hidden="true"></i>Sent</span>
+          <i class="ti ti-receipt" aria-hidden="true"></i>
+          <span class="lbl">Furniture</span>
+        </div>
+        <div class="row-mid">
+          <div>
+            <div class="row-name">Eqbal Sir</div>
+            <div class="row-sub">
+              <span><i class="ti ti-mail" style="font-size:12px;vertical-align:-2px"></i> eqbal@email.com</span>
+              <span class="sep">·</span>
+              <span><i class="ti ti-phone" style="font-size:12px;vertical-align:-2px"></i> 9494857463</span>
+              <span class="sep">·</span>
+              <span><i class="ti ti-calendar" style="font-size:12px;vertical-align:-2px"></i> 15 Jun 2026</span>
+            </div>
+          </div>
+          <div class="row-tags">
+            <span class="tag"><i class="ti ti-map-pin" aria-hidden="true"></i>Hyderabad, Telangana</span>
+            <span class="tag"><i class="ti ti-armchair" aria-hidden="true"></i>Furniture · 6 items</span>
+            <span class="tag tag-teal"><i class="ti ti-shield-check" aria-hidden="true"></i>GSTIN provided</span>
+            <span class="tag"><i class="ti ti-user" aria-hidden="true"></i>Krishwanth</span>
+          </div>
+        </div>
+        <div class="row-actions">
+          <div class="row-meta">
+            <span class="row-id">INV-0040</span>
+            <span class="row-pay" style="color:#2f80ed">Due in 7 days</span>
+          </div>
+          <div class="row-amount">₹4,68,200</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);text-align:right;margin-bottom:5px">Due 30 Jun 2026</div>
+          <div class="action-btns">
+            <button class="btn-mini blue"><i class="ti ti-eye" aria-hidden="true"></i>View</button>
+            <button class="btn-mini"><i class="ti ti-bell" aria-hidden="true"></i>Remind</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row row-overdue">
+        <div class="row-thumb">
+          <span class="row-status st-overdue"><i class="ti ti-alert-circle" aria-hidden="true"></i>Overdue</span>
+          <i class="ti ti-receipt" aria-hidden="true"></i>
+          <span class="lbl">Interiors</span>
+        </div>
+        <div class="row-mid">
+          <div>
+            <div class="row-name">Praveen Kumar</div>
+            <div class="row-sub">
+              <span><i class="ti ti-mail" style="font-size:12px;vertical-align:-2px"></i> praveen@email.com</span>
+              <span class="sep">·</span>
+              <span><i class="ti ti-phone" style="font-size:12px;vertical-align:-2px"></i> 7799123456</span>
+              <span class="sep">·</span>
+              <span><i class="ti ti-calendar" style="font-size:12px;vertical-align:-2px"></i> 02 May 2026</span>
+            </div>
+          </div>
+          <div class="row-tags">
+            <span class="tag"><i class="ti ti-map-pin" aria-hidden="true"></i>Vikarabad, Telangana</span>
+            <span class="tag"><i class="ti ti-home" aria-hidden="true"></i>3BHK · Apartment</span>
+            <span class="tag"><i class="ti ti-user" aria-hidden="true"></i>Rishwanth</span>
+          </div>
+        </div>
+        <div class="row-actions">
+          <div class="row-meta">
+            <span class="row-id">INV-0038</span>
+            <span class="row-pay" style="color:#dc2626">23 days overdue</span>
+          </div>
+          <div class="row-amount" style="color:#dc2626">₹8,45,000</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);text-align:right;margin-bottom:5px">Was due 31 May</div>
+          <div class="action-btns">
+            <button class="btn-mini blue"><i class="ti ti-eye" aria-hidden="true"></i>View</button>
+            <button class="btn-mini" style="color:#dc2626;border-color:#fecaca"><i class="ti ti-bell" aria-hidden="true"></i>Escalate</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row row-draft">
+        <div class="row-thumb">
+          <span class="row-status st-draft"><i class="ti ti-pencil" aria-hidden="true"></i>Draft</span>
+          <i class="ti ti-receipt" aria-hidden="true"></i>
+          <span class="lbl">Mixed</span>
+        </div>
+        <div class="row-mid">
+          <div>
+            <div class="row-name">Ananth Reddy</div>
+            <div class="row-sub">
+              <span><i class="ti ti-mail" style="font-size:12px;vertical-align:-2px"></i> ananth@email.com</span>
+              <span class="sep">·</span>
+              <span><i class="ti ti-phone" style="font-size:12px;vertical-align:-2px"></i> 9876543210</span>
+              <span class="sep">·</span>
+              <span><i class="ti ti-calendar" style="font-size:12px;vertical-align:-2px"></i> 22 Jun 2026</span>
+            </div>
+          </div>
+          <div class="row-tags">
+            <span class="tag"><i class="ti ti-map-pin" aria-hidden="true"></i>Suryapet, Telangana</span>
+            <span class="tag"><i class="ti ti-home" aria-hidden="true"></i>4BHK Villa</span>
+            <span class="tag"><i class="ti ti-link" aria-hidden="true"></i>From QT-0023</span>
+            <span class="tag"><i class="ti ti-user" aria-hidden="true"></i>Rishwanth</span>
+          </div>
+        </div>
+        <div class="row-actions">
+          <div class="row-meta">
+            <span class="row-id">INV-0037</span>
+            <span class="row-pay" style="color:#94a3b8">Not sent yet</span>
+          </div>
+          <div class="row-amount" style="color:#94a3b8">₹14,82,500</div>
+          <div class="action-btns">
+            <button class="btn-mini blue"><i class="ti ti-pencil" aria-hidden="true"></i>Edit</button>
+            <button class="btn-mini"><i class="ti ti-send" aria-hidden="true"></i>Send</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -83,6 +83,54 @@ export class MailerService {
     });
   }
 
+  async sendInvoiceToCustomer(params: {
+    to: string;
+    subject: string;
+    bodyText: string;
+    pdfBuffer: Buffer;
+    pdfFilename: string;
+  }) {
+    const pass = process.env.SMTP_PASS?.trim();
+    if (!pass) {
+      console.warn(
+        `[Mailer] SMTP_PASS is not set; skipping invoice email to ${params.to}.`,
+      );
+      throw new Error(
+        'Email is not configured on the server (SMTP_PASS missing).',
+      );
+    }
+
+    const htmlBody = `<html><body style="font-family:system-ui,sans-serif;font-size:14px;color:#1f2933;line-height:1.6;">
+<div style="max-width:640px;margin:24px auto;padding:24px;">
+${params.bodyText
+  .split('\n')
+  .map((line) => this.escapeHtml(line))
+  .join('<br/>')}
+<p style="margin-top:24px;font-size:12px;color:#64748b;">— Houznext Interiors</p>
+</div></body></html>`;
+
+    const mailOptions = {
+      from: process.env.SMTP_USER || 'business@houznext.com',
+      to: params.to,
+      subject: params.subject,
+      text: params.bodyText,
+      html: htmlBody,
+      attachments: [
+        {
+          filename: params.pdfFilename,
+          content: params.pdfBuffer,
+          contentType: 'application/pdf',
+        },
+      ],
+    };
+
+    return this.transporter.sendMail(mailOptions).catch((err: unknown) => {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[Mailer] Failed to send invoice to ${params.to}:`, msg);
+      throw err;
+    });
+  }
+
   async sendUserConfirmationEmail(property: Property, user: User) {
     if (!user) {
       throw new Error('User is not defined');
