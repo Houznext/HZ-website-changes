@@ -10,6 +10,7 @@ import { interiorServiceSchema } from '@/lib/schemas'
 import Reveal from '@/components/ui/Reveal'
 import { getCmsContent } from '@/lib/cms'
 import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
+import { fetchWithTimeout, getPublicApiBase } from '@/lib/fetchWithTimeout'
 import HomeWhyHouznextSection from '@/components/HomeWhyHouznextSection'
 
 interface ApiPackage {
@@ -372,9 +373,7 @@ function PackagesSection({ packages }: { packages: ApiPackage[] }) {
 }
 
 export async function getStaticProps() {
-  const raw =
-    process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT
-  const base = raw ? String(raw).replace(/\/$/, '') : null
+  const base = getPublicApiBase()
   let cmsPackages: ApiPackage[] | null = null
   const cms: Record<string, any> | null = await getCmsContent('interiors_page')
   let pageSeo: PageSeoPublic | null = null
@@ -385,7 +384,7 @@ export async function getStaticProps() {
   }
   if (base) {
     try {
-      const pRes = await fetch(`${base}/interior-packages?activeOnly=true`)
+      const pRes = await fetchWithTimeout(`${base}/interior-packages?activeOnly=true`)
       if (pRes.ok) {
         cmsPackages = await pRes.json()
       }

@@ -3,6 +3,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
 import { articleSchema } from '@/lib/schemas'
+import { fetchWithTimeout, getPublicApiBase } from '@/lib/fetchWithTimeout'
 
 interface BlogPost {
   slug: string
@@ -145,12 +146,13 @@ export default function BlogPost({ post }: Props) {
 
 export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
   const slug = params?.slug as string
-  const apiBase =
-    process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT
+  const apiBase = getPublicApiBase()
 
   if (apiBase) {
     try {
-      const res = await fetch(`${apiBase.replace(/\/$/, '')}/blog/${encodeURIComponent(slug)}`)
+      const res = await fetchWithTimeout(
+        `${apiBase}/blog/${encodeURIComponent(slug)}`,
+      )
       if (res.ok) {
         const raw = (await res.json()) as Record<string, unknown>
         return {
@@ -178,12 +180,11 @@ export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const apiBase =
-    process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT
+  const apiBase = getPublicApiBase()
 
   if (apiBase) {
     try {
-      const res = await fetch(`${apiBase.replace(/\/$/, '')}/blog?take=100`)
+      const res = await fetchWithTimeout(`${apiBase}/blog?take=100`)
       if (res.ok) {
         const data = (await res.json()) as { blogs?: Array<{ slug?: string | null }> }
         const blogs = Array.isArray(data?.blogs) ? data.blogs : []

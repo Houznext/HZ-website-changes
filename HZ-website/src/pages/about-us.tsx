@@ -8,6 +8,7 @@ import Reveal from '@/components/ui/Reveal'
 import SeoHead from '@/components/SeoHead'
 import { useQuoteModal } from '@/components/QuoteModal'
 import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
+import { fetchWithTimeout, getPublicApiBase } from '@/lib/fetchWithTimeout'
 
 // ----- CMS types -----
 interface CmsTeamMember {
@@ -879,16 +880,17 @@ export const getStaticProps: GetStaticProps<{
   cms: AboutUsCms
   pageSeo: PageSeoPublic | null
 }> = async () => {
-  const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+  const base = getPublicApiBase()
   let cms: AboutUsCms = {}
-  try {
-    const base = String(API).replace(/\/$/, '')
-    const res = await fetch(`${base}/site-cms/about_us`)
-    if (!res.ok) throw new Error('CMS fetch failed')
-    const json = (await res.json()) as { data?: unknown }
-    cms = (json?.data as AboutUsCms) ?? {}
-  } catch {
-    cms = {}
+  if (base) {
+    try {
+      const res = await fetchWithTimeout(`${base}/site-cms/about_us`)
+      if (!res.ok) throw new Error('CMS fetch failed')
+      const json = (await res.json()) as { data?: unknown }
+      cms = (json?.data as AboutUsCms) ?? {}
+    } catch {
+      cms = {}
+    }
   }
   let pageSeo: PageSeoPublic | null = null
   try {

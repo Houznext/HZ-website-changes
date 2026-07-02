@@ -17,6 +17,7 @@ import Navbar from '@/components/Navbar'
 import SeoHead from '@/components/SeoHead'
 import type { InteriorProject } from '@/types/interior-project'
 import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
+import { fetchWithTimeout, getPublicApiBase } from '@/lib/fetchWithTimeout'
 
 function getCardHeight(id: string): number {
   let hash = 0
@@ -193,7 +194,7 @@ function cmsToDerived(c: InteriorProject): DerivedProject {
 }
 
 async function fetchCmsLiveProjects(apiBase: string): Promise<InteriorProject[]> {
-  const res = await fetch(
+  const res = await fetchWithTimeout(
     `${apiBase}/interior-projects/public?limit=200&page=1`,
     {
       method: 'GET',
@@ -212,7 +213,7 @@ async function fetchCmsLiveProjects(apiBase: string): Promise<InteriorProject[]>
 
 async function fetchProjectsDisplayTotal(apiBase: string): Promise<number | null> {
   try {
-    const res = await fetch(`${apiBase}/interior-projects/public/stats`, {
+    const res = await fetchWithTimeout(`${apiBase}/interior-projects/public/stats`, {
       method: 'GET',
       headers: { Accept: 'application/json' },
     })
@@ -507,16 +508,18 @@ export default function ProjectsPage({
 }
 
 export async function getStaticProps() {
-  const raw =
-    process.env.NEXT_PUBLIC_API_URL ||
-    process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT ||
-    'http://localhost:3001'
-  const API = String(raw).replace(/\/$/, '')
+  const API = getPublicApiBase()
   let pageSeo: PageSeoPublic | null = null
   try {
     pageSeo = await fetchPageSeo('/projects')
   } catch {
     pageSeo = null
+  }
+  if (!API) {
+    return {
+      props: { projects: [] as InteriorProject[], pageSeo, displayTotal: null },
+      revalidate: 60,
+    }
   }
   try {
     const [projects, displayTotal] = await Promise.all([

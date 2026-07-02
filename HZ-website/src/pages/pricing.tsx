@@ -7,6 +7,7 @@ import InteriorCalculator from '@/components/InteriorCalculator'
 import { useQuoteModal } from '@/components/QuoteModal'
 import { pricingFaqSchema } from '@/lib/schemas'
 import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
+import { fetchWithTimeout, getPublicApiBase } from '@/lib/fetchWithTimeout'
 
 import Reveal from '@/components/ui/Reveal'
 
@@ -331,8 +332,7 @@ function WaBar() {
 }
 
 export async function getStaticProps() {
-  const raw =
-    process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT
+  const base = getPublicApiBase()
   let cmsPackages: CmsInteriorPackage[] | null = null
   let pageSeo: PageSeoPublic | null = null
   try {
@@ -340,10 +340,9 @@ export async function getStaticProps() {
   } catch {
     pageSeo = null
   }
-  if (raw) {
-    const base = String(raw).replace(/\/$/, '')
+  if (base) {
     try {
-      const res = await fetch(`${base}/interior-packages?activeOnly=true`)
+      const res = await fetchWithTimeout(`${base}/interior-packages?activeOnly=true`)
       if (res.ok) {
         cmsPackages = await res.json()
       }

@@ -1,5 +1,7 @@
 /** Public SEO row from HZ-backend `GET page-seo/public/by-path`. */
 
+import { fetchWithTimeout, getPublicApiBase } from '@/lib/fetchWithTimeout'
+
 export type PageSeoPublic = {
   path: string
   label: string
@@ -11,13 +13,16 @@ export type PageSeoPublic = {
 }
 
 export async function fetchPageSeo(path: string): Promise<PageSeoPublic | null> {
-  const raw =
-    process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT
-  if (!raw) return null
-  const base = String(raw).replace(/\/$/, '')
-  const normalized = path.trim() === '' ? '/' : path.trim().startsWith('/') ? path.trim() : `/${path.trim()}`
+  const base = getPublicApiBase()
+  if (!base) return null
+  const normalized =
+    path.trim() === ''
+      ? '/'
+      : path.trim().startsWith('/')
+        ? path.trim()
+        : `/${path.trim()}`
   try {
-    const res = await fetch(
+    const res = await fetchWithTimeout(
       `${base}/page-seo/public/by-path?path=${encodeURIComponent(normalized)}`,
     )
     if (!res.ok) return null

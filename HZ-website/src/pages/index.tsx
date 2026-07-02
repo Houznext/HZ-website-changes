@@ -9,6 +9,7 @@ import InteriorCalculator from '@/components/InteriorCalculator'
 import { useQuoteModal } from '@/components/QuoteModal'
 import { localBusinessSchema, pricingFaqSchema } from '@/lib/schemas'
 import { fetchPageSeo, type PageSeoPublic } from '@/lib/fetchPageSeo'
+import { fetchWithTimeout, getPublicApiBase } from '@/lib/fetchWithTimeout'
 import {
   AnimatedIconBox,
   IconHome, IconStar, IconClock, IconTag, IconMapPin,
@@ -1400,9 +1401,7 @@ function PackagesSection({ packages }: { packages: ReturnType<typeof mergeDispla
 }
 
 export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
-  const raw =
-    process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_ENDPOINT
-  const base = raw ? String(raw).replace(/\/$/, '') : null
+  const base = getPublicApiBase()
   let cmsPackages: ApiPackage[] | null = null
   let homeReviews: HomeReview[] = DEFAULT_HOME_REVIEWS
   let homeOfferSlides: HomeOfferSlide[] = DEFAULT_HOME_OFFER_SLIDES
@@ -1410,13 +1409,13 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
 
   if (base) {
     try {
-      const res = await fetch(`${base}/interior-packages?activeOnly=true`)
+      const res = await fetchWithTimeout(`${base}/interior-packages?activeOnly=true`)
       if (res.ok) cmsPackages = await res.json()
     } catch {
       cmsPackages = null
     }
     try {
-      const res = await fetch(`${base}/site-cms/home_reviews`)
+      const res = await fetchWithTimeout(`${base}/site-cms/home_reviews`)
       if (res.ok) {
         const json = (await res.json()) as { data?: unknown }
         homeReviews = normalizeHomeReviews(json?.data)
@@ -1425,7 +1424,7 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
       homeReviews = DEFAULT_HOME_REVIEWS
     }
     try {
-      const resOffers = await fetch(`${base}/site-cms/home_interiors_offers`)
+      const resOffers = await fetchWithTimeout(`${base}/site-cms/home_interiors_offers`)
       if (resOffers.ok) {
         const jsonOffers = (await resOffers.json()) as { data?: unknown }
         homeOfferSlides = normalizeHomeOfferSlides(jsonOffers?.data)

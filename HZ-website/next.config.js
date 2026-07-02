@@ -10,6 +10,7 @@ const nextConfig = {
     ).trim(),
   },
   reactStrictMode: true,
+  staticPageGenerationTimeout: 120,
   ...(isVercel ? {} : { output: 'standalone' }),
   compress: true,
   eslint: { ignoreDuringBuilds: true },

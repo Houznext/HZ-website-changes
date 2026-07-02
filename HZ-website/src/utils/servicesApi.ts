@@ -1,3 +1,5 @@
+import { fetchWithTimeout, getPublicApiBase } from '@/lib/fetchWithTimeout'
+
 export interface ServiceContent {
   id: number
   slug: string
@@ -14,17 +16,11 @@ export interface ServiceContent {
   active: boolean
 }
 
-function getBase(): string {
-  const raw =
-    process.env.NEXT_PUBLIC_API_URL ||
-    process.env.NEXT_PUBLIC_BACKEND_URL ||
-    'http://localhost:4000'
-  return raw.replace(/\/+$/, '')
-}
-
 export async function fetchAllServices(): Promise<ServiceContent[]> {
+  const base = getPublicApiBase()
+  if (!base) return []
   try {
-    const res = await fetch(`${getBase()}/services-content/public`)
+    const res = await fetchWithTimeout(`${base}/services-content/public`)
     if (!res.ok) return []
     return res.json()
   } catch {
@@ -35,8 +31,10 @@ export async function fetchAllServices(): Promise<ServiceContent[]> {
 export async function fetchServiceBySlug(
   slug: string,
 ): Promise<ServiceContent | null> {
+  const base = getPublicApiBase()
+  if (!base) return null
   try {
-    const res = await fetch(`${getBase()}/services-content/public/${slug}`)
+    const res = await fetchWithTimeout(`${base}/services-content/public/${slug}`)
     if (!res.ok) return null
     return res.json()
   } catch {
