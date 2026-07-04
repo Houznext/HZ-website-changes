@@ -7,7 +7,7 @@ on:
 
 env:
   AWS_REGION: ap-south-1
-  ECR_REPOSITORY: onecasa-admin
+  ECR_REPOSITORY: houznext-admin
   ECS_CLUSTER: prod-cluster
   ECS_SERVICE: admin
   CONTAINER_NAME: admin

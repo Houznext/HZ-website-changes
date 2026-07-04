@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import apiClient from "@/src/utils/apiClient";
+import { GA4_ENABLED } from "@/src/lib/ga4Server";
 import { getOverdueFollowUps } from "@/src/components/NewCrmView/types";
 import type { Lead } from "@/src/components/NewCrmView/types";
 
@@ -47,13 +48,17 @@ export function useSidebarBadges(): SidebarBadges {
       })
       .catch(() => {});
 
-    // ── GA4 live: /api/ga4data returns an array when active, object when disabled
-    fetch("/api/ga4data")
-      .then((r) => r.json())
-      .then((data: unknown) => {
-        setGa4Live(Array.isArray(data) && (data as any[]).length > 0);
-      })
-      .catch(() => setGa4Live(false));
+    // ── GA4 live: disabled project-wide
+    if (!GA4_ENABLED) {
+      setGa4Live(false);
+    } else {
+      fetch("/api/ga4data")
+        .then((r) => r.json())
+        .then((data: unknown) => {
+          setGa4Live(Array.isArray(data) && (data as any[]).length > 0);
+        })
+        .catch(() => setGa4Live(false));
+    }
   }, []);
 
   useEffect(() => {

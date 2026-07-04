@@ -1,4 +1,4 @@
-import { SessionProvider, signOut, useSession } from "next-auth/react";
+import { SessionProvider } from "next-auth/react";
 import "@/src/styles/tailwind.css";
 import "../styles/globals.css";
 import "@/src/styles/livebuild-admin.css";
@@ -11,14 +11,10 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "dotenv/config";
 import "@/src/styles/text-editor-style.css";
 import { Toaster } from "react-hot-toast";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/router";
-import Script from "next/script";
+import { useCallback, useMemo, useState } from "react";
 import SocketInitializer from "../components/chat/SocketInitializer";
 import SessionSync from "@/src/components/SessionSync";
 import Head from "next/head";
-
-const GA4_ID = "G-MJ64LCY1PL";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement, props?: any) => ReactNode;
@@ -32,28 +28,11 @@ type AppPropsWithLayout = AppProps & {
   };
 };
 
-
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }: AppPropsWithLayout) => {
-  const router = useRouter();
   const [showAll, setShowAll] = useState(false);
-
-  useEffect(() => {
-    const handleRouteChange = (url: string) => {
-      if (typeof (window as any).gtag === "function") {
-        (window as any).gtag("config", GA4_ID, { page_path: url });
-      } else {
-        console.error("gtag is not a function");
-      }
-    };
-    router.events.on("routeChangeComplete", handleRouteChange);
-    return () => {
-      router.events.off("routeChangeComplete", handleRouteChange);
-    };
-  }, [router.events]);
-
 
   const setShowAllMemo = useCallback((val: boolean) => setShowAll(val), []);
   const layoutProps = useMemo(
@@ -63,7 +42,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
     }),
     [showAll, setShowAllMemo]
   );
-
 
   const getLayout = Component.getLayout
     ? (page: ReactElement) =>
@@ -85,24 +63,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
           href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
         />
       </Head>
-      <Script
-        strategy="afterInteractive"
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`}
-      />
-      <Script
-        id="google-analytics"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GA4_ID}', {
-              page_path: window.location.pathname,
-            });
-          `,
-        }}
-      />
 
       <SessionProvider
         session={session as Session}
@@ -114,7 +74,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
         <div>{getLayout(<Component {...pageProps} />)}</div>
         <SpeedInsights />
         <Toaster position="top-right" reverseOrder={false} containerClassName="text-[12px]" />
-
       </SessionProvider>
     </>
   );

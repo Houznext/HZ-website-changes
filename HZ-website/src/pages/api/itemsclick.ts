@@ -1,39 +1,40 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { BetaAnalyticsDataClient } from "@google-analytics/data";
-import path from "path";
+import { getGa4Client, getGa4PropertyId, isGa4Configured } from "@/lib/ga4Server";
 
-
-const analyticsDataClient = new BetaAnalyticsDataClient({
-  keyFilename: path.join(process.cwd(), "my-service-account-file.json"), 
-});
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (!isGa4Configured()) {
+    return res.status(200).json([]);
+  }
+
+  const analyticsDataClient = getGa4Client();
+  if (!analyticsDataClient) {
+    return res.status(200).json([]);
+  }
+
   try {
-    
     const [response] = await analyticsDataClient.runReport({
-      property: "properties/465093464", 
+      property: getGa4PropertyId(),
       dateRanges: [{ startDate: "90 daysAgo", endDate: "today" }],
       dimensions: [
         { name: "eventName" },
-        { name: "customEvent:item_id" }, 
-        { name: "customEvent:item_name" }, 
-        { name: "customEvent:category" }, 
+        { name: "customEvent:item_id" },
+        { name: "customEvent:item_name" },
+        { name: "customEvent:category" },
         { name: "customEvent:price" },
-          { name: "customEvent:type" },
-        
+        { name: "customEvent:type" },
       ],
-      metrics: [{ name: "eventCount" }], 
+      metrics: [{ name: "eventCount" }],
       dimensionFilter: {
         filter: {
           fieldName: "eventName",
-          stringFilter: { matchType: "EXACT", value: "item_click" }, 
+          stringFilter: { matchType: "EXACT", value: "item_click" },
         },
       },
     });
 
-    
     const data =
       response.rows?.map((row) => ({
         eventName: row.dimensionValues?.[0]?.value || "Unknown Event",
@@ -41,15 +42,13 @@ export default async function handler(
         itemName: row.dimensionValues?.[2]?.value || "N/A",
         category: row.dimensionValues?.[3]?.value || "N/A",
         price: row.dimensionValues?.[4]?.value || "N/A",
-         type: row.dimensionValues?.[5]?.value || "N/A",
-
-
+        type: row.dimensionValues?.[5]?.value || "N/A",
         eventCount: row.metricValues?.[0]?.value || "0",
       })) || [];
 
     res.status(200).json(data);
   } catch (error) {
     console.error("Error fetching GA4 data:", error);
-    res.status(500).json({ error: "Error fetching GA4 analytics data" });
+    res.status(200).json([]);
   }
 }

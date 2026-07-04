@@ -11,6 +11,7 @@ import ReferHeroSection from "./ReferHeroSection";
 import ReferPropertiesSlider from "./ReferPropertiesSlider";
 import Refersteps, { IReferStepProps } from "./Refersteps";
 import RefferingUs, { IReferringusProps } from "./RefferingUs";
+import { s3AssetUrl } from "@/lib/s3Assets";
 import HomeLoanFaqs, {
   IHomeLoanFaqsprops,
 } from "@/components/HomeLoanFaqs";
@@ -102,8 +103,7 @@ const ReferandEarnView = () => {
   };
   const refferingUsData: IReferringusProps = {
     heading: "Why You'll Love Referring Us",
-    image:
-      "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/approval_4d9fcc8a3b.webp",
+    image: s3AssetUrl("cms/legacy/approval_4d9fcc8a3b.webp"),
 
     listItems: [
       {

@@ -1028,7 +1028,7 @@ export default function BranchesView() {
             type="text"
             labelCls="font-medium text-[12px] text-gray-700"
             className="md:px-3 px-1 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g., OneCasa / Telangana / Madhapur"
+            placeholder="e.g., Houznext / Telangana / Madhapur"
             value={formData.name}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, name: e.target.value }))

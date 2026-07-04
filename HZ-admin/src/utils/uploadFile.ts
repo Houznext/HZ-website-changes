@@ -1,5 +1,6 @@
 import toast from "react-hot-toast";
 import apiClient from "./apiClient";
+import { S3_BUCKET_HOST } from "@/src/lib/s3Assets";
 
 const signedUrlCache = new Map<string, { url: string; expiresAt: number }>();
 
@@ -36,7 +37,7 @@ export async function getSignedImageUrl(
 ): Promise<string> {
   if (!publicUrl) return "";
 
-  const bucketHost = process.env.NEXT_PUBLIC_S3_BUCKET_HOST || "onecasa-dev-assets.s3";
+  const bucketHost = process.env.NEXT_PUBLIC_S3_BUCKET_HOST?.trim() || S3_BUCKET_HOST;
   if (!publicUrl.includes(bucketHost)) return publicUrl;
 
   const cached = signedUrlCache.get(publicUrl);

@@ -8,7 +8,6 @@ import { useRegisterUpStore } from "@/store/loginstore";
 import Loader from "../Loader";
 import Button from "@/common/Button";
 import toast from "react-hot-toast";
-import ReactGA from "react-ga4";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
@@ -52,14 +51,6 @@ export default function LoginComponent() {
     return true;
   };
 
-  const trackUserLogin = (loginValues: LoginFormValues) => {
-    if (typeof window !== "undefined") {
-      (window as any).gtag("set", {
-        user_id: loginValues.email || loginValues.phone, // Set user ID as email or phone
-        email: loginValues.email,
-      });
-    }
-  };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -79,7 +70,6 @@ export default function LoginComponent() {
       if (res.status === 201) {
         const normalizedCallbackUrl = typeof callbackurl === "string" ? callbackurl : "/";
         setRegisterState({ ...loginFormValues, callbackUrl: normalizedCallbackUrl });
-        trackUserLogin(loginFormValues);
         toast.success("OTP sent successfully!");
         router.push("/login");
       }
@@ -95,12 +85,6 @@ export default function LoginComponent() {
       }
       setLoading(false);
     }
-
-    ReactGA.event({
-      category: "User Interaction",
-      action: "login form",
-      label: "login button",
-    });
   };
 
   const sliderRef = useRef<any>(null);

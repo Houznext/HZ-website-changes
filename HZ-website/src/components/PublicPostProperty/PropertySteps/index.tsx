@@ -70,23 +70,6 @@ const PropertySteps = () => {
     }
   }, [status, session]);
 
-  // Track step completion in GA4
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      (window as any).gtag =
-        (window as any).gtag ||
-        function () {
-          (window as any).dataLayer = (window as any).dataLayer || [];
-          (window as any).dataLayer.push(arguments);
-        };
-
-      (window as any).gtag("event", "step_completion", {
-        step: currentStep + 1,
-        user_id: user?.id || "guest",
-      });
-    }
-  }, [currentStep]);
-
   useEffect(() => {
     const fetchProgress = async () => {
       try {

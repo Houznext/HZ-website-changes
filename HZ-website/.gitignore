@@ -49,3 +49,7 @@ next-env.d.ts
 
 # Contentlayer
 .contentlayer
+
+# Google Analytics service account keys
+my-service-account-file.json
+*-service-account*.json

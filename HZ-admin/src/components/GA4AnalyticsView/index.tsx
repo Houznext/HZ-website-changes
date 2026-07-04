@@ -4,6 +4,7 @@
  * Zero logic changes, zero API changes.
  */
 import { useEffect, useState, useMemo } from "react";
+import { GA4_ENABLED } from "@/src/lib/ga4Server";
 import {
   LineChart,
   Line,
@@ -194,6 +195,13 @@ export default function GA4AnalyticsView() {
   // ── Fetch ─────────────────────────────────────────────────────────────────
 
   const fetchData = async () => {
+    if (!GA4_ENABLED) {
+      setGa4Live(false);
+      setAnalyticsData([]);
+      setAnalysisdata([]);
+      return;
+    }
+
     setIsLoading(true);
     try {
       const [ga4DataRes, ga4Res] = await Promise.all([
@@ -376,7 +384,7 @@ export default function GA4AnalyticsView() {
           <p className="text-[12px] text-gray-400 mt-0.5">
             Property:{" "}
             <code className="bg-gray-100 px-1.5 py-0.5 rounded text-[11px] font-mono">
-              465093464
+              Disabled
             </code>
             &nbsp;·&nbsp;Last{" "}
             {dateRange === "7d" ? "7" : dateRange === "30d" ? "30" : "90"} days
@@ -500,7 +508,7 @@ export default function GA4AnalyticsView() {
         ) : (
           <div className="h-[200px] flex items-center justify-center text-[13px] text-gray-400">
             {ga4Live === false
-              ? "GA4 is not configured. Set GA4_ENABLED in your environment."
+              ? "GA4 is disabled."
               : "No session data available for this range"}
           </div>
         )}

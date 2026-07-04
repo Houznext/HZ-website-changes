@@ -8,6 +8,7 @@ import SimilarItems from "./SimilarItems";
 import FAQSComp from "../../../Components/FAQSComp";
 import apiClient from "@/utils/apiClient";
 import Loader from "@/components/Loader";
+import { pushDataLayer } from "@/lib/analytics";
 import ReviewSection from "./ReviewSection";
 import { useRouter } from "next/router";
 import Button from "@/common/Button";
@@ -463,9 +464,7 @@ const ProductItemDetails = () => {
       return;
     }
     const success = await addItemToCart(itemData, userId);
-    (window as any).dataLayer = (window as any).dataLayer || [];
-    (window as any).dataLayer.push({
-    
+    pushDataLayer({
       event: "add_to_cart",
       item_id: itemData.id,
       item_name: itemData.name,

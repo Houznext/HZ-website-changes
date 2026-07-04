@@ -1117,7 +1117,7 @@ const CreateBranch: React.FC<CreateBranchProps> = ({
               <CustomInput
                 label="Branch Email"
                 name="branchEmail"
-                placeholder="e.g. branch@onecasa.com"
+                placeholder="e.g. branch@houznext.com"
                 value={branchForm.branchEmail}
                 onChange={(e) => handleBranchChange("branchEmail", e.target.value)}
                 type="email"
@@ -1154,7 +1154,7 @@ const CreateBranch: React.FC<CreateBranchProps> = ({
               label="Branch Name"
               type="text"
               name="branchName"
-              placeholder="e.g., OneCasa Delhi / Hyderabad State Office"
+              placeholder="e.g., Houznext Delhi / Hyderabad State Office"
               value={branchForm.branchName}
               onChange={(e) => handleBranchChange("branchName", e.target.value)}
               required

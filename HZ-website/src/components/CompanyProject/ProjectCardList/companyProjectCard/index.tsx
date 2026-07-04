@@ -16,6 +16,7 @@ import { CiBookmark, CiMapPin, CiMaximize2 } from "react-icons/ci";
 import Button from "@/common/Button";
 import Modal from "@/common/Modal";
 import ContactSellerForm from "@/components/PropertyDetailsComponent/ContactSellerForm";
+import { pushDataLayer } from "@/lib/analytics";
 import { PiShareFat } from "react-icons/pi";
 import toast from "react-hot-toast";
 import { getPropertyIcon } from "@/components/PropertiesListComponent/SingleProperty/helper";
@@ -94,8 +95,7 @@ export const CompanyProjectCard = ({
       `/properties/${activeTab}/${city}/details/${slug}?id=${data?.id}&type=project`,
     );
     if (user) {
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({
+      pushDataLayer({
         event: "View_property",
         item_id: data.id,
         propertyname: data.company?.name || null,
@@ -151,8 +151,7 @@ export const CompanyProjectCard = ({
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            window.dataLayer = window.dataLayer || [];
-            window.dataLayer.push({
+            pushDataLayer({
               event: "Property_Impression",
               item_id: data.id,
               propertyname: data.company?.name || null,

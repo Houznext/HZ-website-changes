@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { SearchIcon } from "../../icons";
 import SingleSelect from "@/common/FormElements/SingleSelect";
 import PriceBreakdownTooltip from "../CostEstimator/PriceBreakdownTooltip";
-import ReactGA from "react-ga4";
 import Button from "@/common/Button";
 
 interface ICalculatorInputsProps {
@@ -139,11 +138,6 @@ const CalculatorInputs = ({
     if (validateInputs(isPackage)) {
       handleEstimateCost(activeTab);
     }
-    ReactGA.event({
-      category: "User Interaction", // General category (e.g., User Interaction)
-      action: "Get Estimated Cost", // Action (e.g., button clicked)
-      label: "Estimate Button", // Optional label for more context
-    });
   };
 
   return (

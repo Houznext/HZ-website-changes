@@ -19,11 +19,8 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'houznext.com' },
       { protocol: 'https', hostname: 'your-railway-backend.up.railway.app' },
-      // Legacy S3 buckets (keep for existing portal/property images)
       { protocol: 'https', hostname: 'houznext-prod-assets.s3.ap-south-1.amazonaws.com' },
-      { protocol: 'https', hostname: 'dreamcasaimages.s3.ap-south-1.amazonaws.com' },
-      { protocol: 'https', hostname: 'onecasa-dev-assets.s3.ap-south-1.amazonaws.com' },
-      { protocol: 'https', hostname: 'onecasa-prod-assets.s3.ap-south-1.amazonaws.com' },
+      { protocol: 'https', hostname: 'houznext-dev-assets.s3.ap-south-1.amazonaws.com' },
       { protocol: 'https', hostname: 'via.placeholder.com' },
       { protocol: 'https', hostname: 'cdn.pixabay.com' },
       { protocol: 'https', hostname: 'maps.googleapis.com' },

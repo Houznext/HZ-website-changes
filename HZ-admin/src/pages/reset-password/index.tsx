@@ -357,7 +357,7 @@ export default function ResetPasswordPage() {
 
         {/* Footer */}
         <p className="mt-8 text-center text-sm text-gray-400">
-          &copy; {new Date().getFullYear()} OneCasa. All rights reserved.
+          &copy; {new Date().getFullYear()} Houznext. All rights reserved.
         </p>
       </div>
     </div>

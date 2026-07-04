@@ -247,7 +247,7 @@ export default function ReferralDetailComponent() {
       <div className="mx-auto max-w-[1200px] p-4 md:p-6">
         <BackRoute />
 
-        {/* OneCasa-style page title */}
+        {/* Page title */}
         <div className="mt-4 flex flex-col gap-1">
           <h1 className="text-xl font-bold tracking-tight text-gray-900 md:text-2xl">
             Referral #{code}

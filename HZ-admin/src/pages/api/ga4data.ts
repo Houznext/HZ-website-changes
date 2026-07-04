@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { GA4_PROPERTY_ID, getGa4Client, isGa4Configured } from '@/src/lib/ga4Server';
+import { getGa4Client, getGa4PropertyId, isGa4Configured } from '@/src/lib/ga4Server';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!isGa4Configured()) {
@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const [response] = await analyticsDataClient.runReport({
-      property: GA4_PROPERTY_ID,
+      property: getGa4PropertyId(),
       dateRanges: [{ startDate: '30 daysAgo', endDate: 'today' }],
       dimensions: [
         { name: 'pageTitle' },

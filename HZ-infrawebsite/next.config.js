@@ -47,8 +47,6 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'houznext-prod-assets.s3.ap-south-1.amazonaws.com', pathname: '/**' },
       { protocol: 'https', hostname: 'houznext-dev-assets.s3.ap-south-1.amazonaws.com', pathname: '/**' },
-      { protocol: 'https', hostname: 'onecasa-prod-assets.s3.ap-south-1.amazonaws.com', pathname: '/**' },
-      { protocol: 'https', hostname: 'onecasa-dev-assets.s3.ap-south-1.amazonaws.com', pathname: '/**' },
       { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
       { protocol: 'https', hostname: 'placehold.co', pathname: '/**' },
       apiImagePattern,

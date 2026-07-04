@@ -7,8 +7,7 @@ import { type Session } from "next-auth";
 import type { AppProps, AppType } from "next/app";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/router";
+import { useCallback, useMemo, useState } from "react";
 import Script from "next/script";
 import dynamic from "next/dynamic";
 import AuthProvider, { AuthGate } from "@/common/auth/AuthProvider";
@@ -17,8 +16,6 @@ import SocketInitializer from "../common/InitializeSocket";
 import SessionSync from "@/components/SessionSync";
 import { QuoteModalProvider } from "@/components/QuoteModal";
 import { CustomerAuthProvider } from "@/context/CustomerAuthContext";
-
-const NEXT_PUBLIC_GA4_ID = "G-MJ64LCY1PL";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement, props?: any) => ReactNode;
@@ -32,10 +29,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }: AppPropsWithLayout) => {
-  const router = useRouter();
-
   const [showAll, setShowAll] = useState(false);
-
 
   const setShowAllMemo = useCallback((val: boolean) => setShowAll(val), []);
   const layoutProps = useMemo(
@@ -45,22 +39,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
     }),
     [showAll, setShowAllMemo]
   );
-
-
-  useEffect(() => {
-    const handleRouteChange = (url: string) => {
-      const g = (window as unknown as { gtag?: (...a: unknown[]) => void }).gtag;
-      if (typeof g === "function") {
-        g("config", NEXT_PUBLIC_GA4_ID, { page_path: url });
-      }
-    };
-
-    router.events.on("routeChangeComplete", handleRouteChange);
-
-    return () => {
-      router.events.off("routeChangeComplete", handleRouteChange);
-    };
-  }, [router.events]);
 
   const Chatbot = dynamic(() => import("@/common/Chatbot/index"), {
     ssr: false,
@@ -83,31 +61,13 @@ const MyApp: AppType<{ session: Session | null }> = ({
 
   return (
     <>
-      <>
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${NEXT_PUBLIC_GA4_ID}`}
-        />
-        <Script
-          id="google-analytics"
-          dangerouslySetInnerHTML={{
-            __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${NEXT_PUBLIC_GA4_ID}', {
-              page_path: window.location.pathname,
-            });
-          `,
-          }}
-        />
-        <Script
-          id="adsense-script"
-          strategy="lazyOnload"
-          async
-          src={process.env.NEXT_PUBLIC_GOOGLE_AD_SRC}
-          crossOrigin="anonymous"
-        />
-      </>
+      <Script
+        id="adsense-script"
+        strategy="lazyOnload"
+        async
+        src={process.env.NEXT_PUBLIC_GOOGLE_AD_SRC}
+        crossOrigin="anonymous"
+      />
       <SessionProvider
         session={session as Session}
         refetchInterval={5 * 60}

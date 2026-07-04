@@ -8,6 +8,7 @@ import type { CityLandingContent } from '@/lib/cityLandingCms'
 import type { CitySlug } from '@/lib/cityLandingRegistry'
 import type { InteriorProject } from '@/types/interior-project'
 import { getCityMeta, buildCitySchema } from '@/lib/cityLandingRegistry'
+import { pushDataLayer } from '@/lib/analytics'
 import {
   CITY_LINKS,
   MOB_NAV_LINKS,
@@ -117,9 +118,7 @@ function PinIcon() {
 }
 
 function pushLeadEvent(leadSource: string, cityName: string) {
-  if (typeof window === 'undefined') return
-  window.dataLayer = window.dataLayer || []
-  window.dataLayer.push({
+  pushDataLayer({
     event: 'lead_submission',
     form_source: leadSource,
     city: cityName,

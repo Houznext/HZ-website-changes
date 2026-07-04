@@ -58,8 +58,8 @@ export const DesignIdeas = {
         imageUrl: {
           id: 7,
           documentId: "lmutdmw3mhtcpzihcwxto0ze",
-          // url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5528_2fee625935.JPG",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5526_ccb438c049.JPG",
+          // url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5528_2fee625935.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5526_ccb438c049.JPG",
         },
       },
       spaceItemField2: {
@@ -68,7 +68,7 @@ export const DesignIdeas = {
         imageUrl: {
           // "id": 6,
           documentId: "nedocqafbl7jce9z95w5eig2",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5529_8cc9880350.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5529_8cc9880350.JPG",
         },
       },
       spaceItemField3: {
@@ -77,8 +77,8 @@ export const DesignIdeas = {
         imageUrl: {
           // "id": 5,
           documentId: "ia4s0g0j7ro9qtz1ngypplkb",
-          // url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5526_ccb438c049.JPG",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5528_2fee625935.JPG",
+          // url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5526_ccb438c049.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5528_2fee625935.JPG",
         },
       },
       spaceItemField4: {
@@ -87,7 +87,7 @@ export const DesignIdeas = {
         imageUrl: {
           // "id": 4,
           documentId: "tyxmv9by76jqcljdgw1a5jdx",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5527_fa4395e6ec.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5527_fa4395e6ec.JPG",
         },
       },
     },
@@ -99,7 +99,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 38,
           documentId: "yypc3syy72olsxh2t4b5kvvp",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5535_0dc87b8f58.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5535_0dc87b8f58.JPG",
         },
       },
       spaceItemField2: {
@@ -108,7 +108,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 37,
           documentId: "pdib0zcu0y2swn5txftov9ai",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5537_6354f2498a.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5537_6354f2498a.JPG",
         },
       },
       spaceItemField3: {
@@ -117,7 +117,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 36,
           documentId: "wd2enpomd8lkr7glwyg2vmzl",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5536_4d37f82e95.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5536_4d37f82e95.JPG",
         },
       },
       spaceItemField4: {
@@ -126,7 +126,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 35,
           documentId: "xo6dmawe0n039bz6eqcfp2kr",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5538_0c2b49def3.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5538_0c2b49def3.JPG",
         },
       },
     },
@@ -138,7 +138,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 56,
           documentId: "tlnddjstpn9adqt5ylkn5gnv",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5547_085c7c5967.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5547_085c7c5967.JPG",
         },
       },
       spaceItemField2: {
@@ -147,7 +147,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 55,
           documentId: "nqwtmkmmwj5i6tlwmha9vlpg",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5548_4a41c3776c.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5548_4a41c3776c.JPG",
         },
       },
       spaceItemField3: {
@@ -156,7 +156,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 54,
           documentId: "m2io3ohmr0jv5fsqg92vkcd7",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5549_719ca0507a.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5549_719ca0507a.JPG",
         },
       },
       spaceItemField4: {
@@ -165,7 +165,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 11,
           documentId: "yi95dapd3ibb8sfk2va09d32",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5545_71384c1c04.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5545_71384c1c04.JPG",
         },
       },
     },
@@ -177,7 +177,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 61,
           documentId: "eb0r7vkhvzpw9f3vz76rmmxe",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5564_351b7f1d89.jpg",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5564_351b7f1d89.jpg",
         },
       },
       spaceItemField2: {
@@ -186,7 +186,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 60,
           documentId: "x89pegey1s9jecy4hia8z5fm",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5560_2299799147.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5560_2299799147.JPG",
         },
       },
       spaceItemField3: {
@@ -195,7 +195,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 59,
           documentId: "j1qmknnxvlsoyl405avotn0x",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5562_13832b8e49.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5562_13832b8e49.JPG",
         },
       },
       spaceItemField4: {
@@ -204,7 +204,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 58,
           documentId: "j2c7v761xzb28cy7mkmh7c29",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5563_9d522dca6c.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5563_9d522dca6c.JPG",
         },
       },
     },
@@ -216,7 +216,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 66,
           documentId: "ee3coorq7stmrlrm9mg2padn",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1112_f2417c71bf.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1112_f2417c71bf.JPG",
         },
       },
       spaceItemField2: {
@@ -225,7 +225,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 65,
           documentId: "lsl1gtlgbadtmpgkxjmfns31",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1111_9dbd7e51da.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1111_9dbd7e51da.JPG",
         },
       },
       spaceItemField3: {
@@ -234,7 +234,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 64,
           documentId: "zs7mo58rtml5xib6jsqu3y5z",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1109_f1910c9583.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1109_f1910c9583.JPG",
         },
       },
       spaceItemField4: {
@@ -243,7 +243,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 32,
           documentId: "m7qqaio3kiyxictt2o69f2rs",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1110_3bc8255e2b.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1110_3bc8255e2b.JPG",
         },
       },
     },
@@ -255,7 +255,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 52,
           documentId: "cunnxpsslk1pf5gztdsg81n7",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img2_8971aaa762.jpg",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img2_8971aaa762.jpg",
         },
       },
       spaceItemField2: {
@@ -264,7 +264,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 51,
           documentId: "cyoldaqwg2pifxdmxrc338ii",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img3_93a335fe5b.jpg",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img3_93a335fe5b.jpg",
         },
       },
       spaceItemField3: {
@@ -273,7 +273,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 50,
           documentId: "van2agso9bwpgj6p6bxkftwb",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img1_24149bccdf.jpg",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img1_24149bccdf.jpg",
         },
       },
       spaceItemField4: {
@@ -282,7 +282,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 49,
           documentId: "nzk6crzthof41yvsvtg1n5z3",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5566_f37c8263b8.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5566_f37c8263b8.JPG",
         },
       },
     },
@@ -294,7 +294,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 47,
           documentId: "bfp96c9gy6lun5gf3inii56a",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img6_002b991e96.jpg",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img6_002b991e96.jpg",
         },
       },
       spaceItemField2: {
@@ -303,7 +303,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 46,
           documentId: "jzyu4ymj2lmp8dgn99g2jyh9",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img4_9bc7bb77a2.jpg",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img4_9bc7bb77a2.jpg",
         },
       },
       spaceItemField3: {
@@ -312,7 +312,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 45,
           documentId: "h3zxxa1avyuakx9pz26h0mda",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img5_7e3ed1fe1d.jpg",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img5_7e3ed1fe1d.jpg",
         },
       },
       spaceItemField4: {
@@ -321,7 +321,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 23,
           documentId: "cps8rs6dykez1yvcq1jrj912",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img2_a0fc098116.jpg",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img2_a0fc098116.jpg",
         },
       },
     },
@@ -333,7 +333,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 44,
           documentId: "vrnljaff2pyv9zc096w2bzii",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1123_8a300fe47a.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1123_8a300fe47a.JPG",
         },
       },
       spaceItemField2: {
@@ -342,7 +342,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 43,
           documentId: "kzjib2m9qqv0t4oxy6ajrr8u",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1122_b95d1f1007.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1122_b95d1f1007.JPG",
         },
       },
       spaceItemField3: {
@@ -351,7 +351,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 42,
           documentId: "h3b0hthr9avjelog2h3ele2a",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1121_6beb901d06.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1121_6beb901d06.JPG",
         },
       },
       spaceItemField4: {
@@ -360,7 +360,7 @@ export const DesignIdeas = {
         imageUrl: {
           id: 41,
           documentId: "bxx32govnsjtx5n9lx6lhmqv",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1120_fe7f20899d.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1120_fe7f20899d.JPG",
         },
       },
     },
@@ -379,7 +379,7 @@ export const wayWeWork = {
       imageUrl: {
         id: 17,
         documentId: "r4twvh7wx7s1krfmey4tcjj6",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/meetus_3b40d2ebfc.webp",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/meetus_3b40d2ebfc.webp",
       },
     },
     stepItem2: {
@@ -388,7 +388,7 @@ export const wayWeWork = {
       imageUrl: {
         id: 16,
         documentId: "d6pb02lh834e67rv52onyblw",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/scopeofwork_56fa2347df.webp",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/scopeofwork_56fa2347df.webp",
       },
     },
     stepItem3: {
@@ -397,7 +397,7 @@ export const wayWeWork = {
       imageUrl: {
         id: 18,
         documentId: "g599oo42e3q2d7enrhr2xyju",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/cost_5bc9b9fb20.webp",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/cost_5bc9b9fb20.webp",
       },
     },
     stepItem4: {
@@ -406,7 +406,7 @@ export const wayWeWork = {
       imageUrl: {
         id: 20,
         documentId: "nrttnpbsji5tu8qk3eli4oh5",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/execution_5d21cccb62.webp",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/execution_5d21cccb62.webp",
       },
     },
     stepItem5: {
@@ -415,7 +415,7 @@ export const wayWeWork = {
       imageUrl: {
         id: 19,
         documentId: "qudzohl7n57nf91123ivvpmr",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/approval_4d9fcc8a3b.webp",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/approval_4d9fcc8a3b.webp",
       },
     },
   },
@@ -495,7 +495,7 @@ export const listItems = {
     mainImageUrl: {
       id: 7,
       documentId: "lmutdmw3mhtcpzihcwxto0ze",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5528_2fee625935.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5528_2fee625935.JPG",
     },
      ImageList : [
   {
@@ -508,7 +508,7 @@ export const listItems = {
     imageUrl: {
       id: 6,
       documentId: "nedocqafbl7jce9z95w5eig2",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5529_8cc9880350.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5529_8cc9880350.JPG",
     },
     furnitureHighlights: [
       "Handle-less modular base and wall cabinets with matte finish",
@@ -542,7 +542,7 @@ export const listItems = {
     imageUrl: {
       id: 5,
       documentId: "ia4s0g0j7ro9qtz1ngypplkb",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5526_ccb438c049.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5526_ccb438c049.JPG",
     },
     furnitureHighlights: [
       "Butcher block island with storage underneath",
@@ -576,7 +576,7 @@ export const listItems = {
     imageUrl: {
       id: 4,
       documentId: "tyxmv9by76jqcljdgw1a5jdx",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5527_fa4395e6ec.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5527_fa4395e6ec.JPG",
     },
     furnitureHighlights: [
       "High-gloss colored cabinets with push-to-open doors",
@@ -610,7 +610,7 @@ export const listItems = {
     imageUrl: {
       id: 3,
       documentId: "eacah7e7iml4a3xm5xsxv2dc",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5524_84a873bf1a.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5524_84a873bf1a.JPG",
     },
     furnitureHighlights: [
       "Multi-functional island with breakfast seating",
@@ -644,7 +644,7 @@ export const listItems = {
     imageUrl: {
       id: 2,
       documentId: "jymxebgfqsjbbh27n8ykidgw",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5525_6acd4774f6.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5525_6acd4774f6.JPG",
     },
     furnitureHighlights: [
       "Bamboo cabinets with renewable, non-toxic materials",
@@ -678,7 +678,7 @@ export const listItems = {
     imageUrl: {
       id: 7,
       documentId: "lmutdmw3mhtcpzihcwxto0ze",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5528_2fee625935.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5528_2fee625935.JPG",
     },
     furnitureHighlights: [
       "White shaker-style cabinets with soft-close drawers",
@@ -740,7 +740,7 @@ export const listItems = {
     mainImageUrl: {
       id: 56,
       documentId: "tlnddjstpn9adqt5ylkn5gnv",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5547_085c7c5967.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5547_085c7c5967.JPG",
     },
    imageList :[
   {
@@ -774,7 +774,7 @@ export const listItems = {
     imageUrl: {
       id: 55,
       documentId: "nqwtmkmmwj5i6tlwmha9vlpg",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5548_4a41c3776c.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5548_4a41c3776c.JPG",
     },
   },
   {
@@ -808,7 +808,7 @@ export const listItems = {
     imageUrl: {
       id: 56,
       documentId: "some_doc_2",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/minimalist_room.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/minimalist_room.jpg",
     },
   },
   {
@@ -842,7 +842,7 @@ export const listItems = {
     imageUrl: {
       id: 57,
       documentId: "some_doc_3",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/industrial_room.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/industrial_room.jpg",
     },
   },
   {
@@ -876,7 +876,7 @@ export const listItems = {
     imageUrl: {
       id: 58,
       documentId: "some_doc_4",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/bohemian_room.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/bohemian_room.jpg",
     },
   },
   {
@@ -910,7 +910,7 @@ export const listItems = {
     imageUrl: {
       id: 59,
       documentId: "some_doc_5",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/classic_room.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/classic_room.jpg",
     },
   },
   {
@@ -944,7 +944,7 @@ export const listItems = {
     imageUrl: {
       id: 60,
       documentId: "some_doc_6",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/scandinavian_room.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/scandinavian_room.jpg",
     },
   },
 ],
@@ -985,7 +985,7 @@ export const listItems = {
     mainImageUrl: {
       id: 38,
       documentId: "yypc3syy72olsxh2t4b5kvvp",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5535_0dc87b8f58.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5535_0dc87b8f58.JPG",
     },
     ImageList: [
   {
@@ -996,7 +996,7 @@ export const listItems = {
     imageUrl: {
       id: 37,
       documentId: "pdib0zcu0y2swn5txftov9ai",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5537_6354f2498a.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5537_6354f2498a.JPG",
     },
     furnitureHighlights: [
       "Upholstered king bed with neutral-toned headboard",
@@ -1028,7 +1028,7 @@ export const listItems = {
     imageUrl: {
       id: 36,
       documentId: "wd2enpomd8lkr7glwyg2vmzl",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5536_4d37f82e95.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5536_4d37f82e95.JPG",
     },
     furnitureHighlights: [
       "Queen bed with tall padded velvet headboard",
@@ -1060,7 +1060,7 @@ export const listItems = {
     imageUrl: {
       id: 35,
       documentId: "xo6dmawe0n039bz6eqcfp2kr",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5538_0c2b49def3.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5538_0c2b49def3.JPG",
     },
     furnitureHighlights: [
       "Theme-based bunk or loft bed",
@@ -1092,7 +1092,7 @@ export const listItems = {
     imageUrl: {
       id: 34,
       documentId: "jjbjmlek0kuk1bt8ais5nfuk",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5534_bc42b955be.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5534_bc42b955be.JPG",
     },
     furnitureHighlights: [
       "Solid wood bed frame with natural grain",
@@ -1124,7 +1124,7 @@ export const listItems = {
     imageUrl: {
       id: 28,
       documentId: "dk21u5seth7orjbt4g2b92hk",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5535_fd9a781ffa.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5535_fd9a781ffa.JPG",
     },
     furnitureHighlights: [
       "Floating platform bed with LED base",
@@ -1156,7 +1156,7 @@ export const listItems = {
     imageUrl: {
       id: 38,
       documentId: "yypc3syy72olsxh2t4b5kvvp",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5535_0dc87b8f58.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5535_0dc87b8f58.JPG",
     },
     furnitureHighlights: [
       "Curved white bed with vintage design",
@@ -1218,7 +1218,7 @@ export const listItems = {
     mainImageUrl: {
       id: 44,
       documentId: "vrnljaff2pyv9zc096w2bzii",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1123_8a300fe47a.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1123_8a300fe47a.JPG",
     },
     ImageList: [
   {
@@ -1229,7 +1229,7 @@ export const listItems = {
     imageUrl: {
       id: 43,
       documentId: "kzjib2m9qqv0t4oxy6ajrr8u",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1122_b95d1f1007.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1122_b95d1f1007.JPG",
     },
     furnitureHighlights: [
       "Large 10-seater mahogany dining table",
@@ -1261,7 +1261,7 @@ export const listItems = {
     imageUrl: {
       id: 42,
       documentId: "h3b0hthr9avjelog2h3ele2a",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1121_6beb901d06.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1121_6beb901d06.JPG",
     },
     furnitureHighlights: [
       "Built-in corner banquette with custom upholstery",
@@ -1293,7 +1293,7 @@ export const listItems = {
     imageUrl: {
       id: 41,
       documentId: "bxx32govnsjtx5n9lx6lhmqv",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1120_fe7f20899d.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1120_fe7f20899d.JPG",
     },
     furnitureHighlights: [
       "Sleek rectangular dining table",
@@ -1325,7 +1325,7 @@ export const listItems = {
     imageUrl: {
       id: 40,
       documentId: "deaw6n8a6edzq8tfh5my3l19",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1125_7489749a28.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1125_7489749a28.jpg",
     },
     furnitureHighlights: [
       "Glass-top dining table with steel base",
@@ -1357,7 +1357,7 @@ export const listItems = {
     imageUrl: {
       id: 41,
       documentId: "bxx32govnsjtx5n9lx6lhmqv",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1120_fe7f20899d.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1120_fe7f20899d.JPG",
     },
     furnitureHighlights: [
       "Reclaimed wood dining table",
@@ -1389,7 +1389,7 @@ export const listItems = {
     imageUrl: {
       id: 39,
       documentId: "xyt398o4kw7e5p7qb14z23p8",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1124_8fc9400769.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1124_8fc9400769.jpg",
     },
     furnitureHighlights: [
       "Low-profile solid wood dining table",
@@ -1451,7 +1451,7 @@ export const listItems = {
     mainImageUrl: {
       id: 52,
       documentId: "cunnxpsslk1pf5gztdsg81n7",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img2_8971aaa762.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img2_8971aaa762.jpg",
     },
     ImageList: [
   {
@@ -1462,7 +1462,7 @@ export const listItems = {
     imageUrl: {
       id: 51,
       documentId: "cyoldaqwg2pifxdmxrc338ii",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img3_93a335fe5b.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img3_93a335fe5b.jpg",
     },
     furnitureHighlights: [
       "Reclined lounge chair with waterproof cushions",
@@ -1494,7 +1494,7 @@ export const listItems = {
     imageUrl: {
       id: 50,
       documentId: "van2agso9bwpgj6p6bxkftwb",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img1_24149bccdf.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img1_24149bccdf.jpg",
     },
     furnitureHighlights: [
       "Foldable metal bistro table and chairs",
@@ -1526,7 +1526,7 @@ export const listItems = {
     imageUrl: {
       id: 49,
       documentId: "nzk6crzthof41yvsvtg1n5z3",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5566_f37c8263b8.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5566_f37c8263b8.JPG",
     },
     furnitureHighlights: [
       "Rattan armchairs with colorful cushions",
@@ -1558,7 +1558,7 @@ export const listItems = {
     imageUrl: {
       id: 48,
       documentId: "q199t8toc63z243qr5zndhmr",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5565_a1ad3dd901.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5565_a1ad3dd901.JPG",
     },
     furnitureHighlights: [
       "Foldable wall-mounted table",
@@ -1590,7 +1590,7 @@ export const listItems = {
     imageUrl: {
       id: 30,
       documentId: "ufeip0wwz7sduee5zc4xiaej",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5564_3bd29d1965.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5564_3bd29d1965.JPG",
     },
     furnitureHighlights: [
       "Tatami-style floor cushions",
@@ -1622,7 +1622,7 @@ export const listItems = {
     imageUrl: {
       id: 52,
       documentId: "cunnxpsslk1pf5gztdsg81n7",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img2_8971aaa762.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img2_8971aaa762.jpg",
     },
     furnitureHighlights: [
       "Bamboo rocking chair",
@@ -1684,7 +1684,7 @@ export const listItems = {
     mainImageUrl: {
       id: 66,
       documentId: "ee3coorq7stmrlrm9mg2padn",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1112_f2417c71bf.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1112_f2417c71bf.JPG",
     },
     ImageList: [
   {
@@ -1695,7 +1695,7 @@ export const listItems = {
     imageUrl: {
       id: 65,
       documentId: "lsl1gtlgbadtmpgkxjmfns31",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1111_9dbd7e51da.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1111_9dbd7e51da.JPG",
     },
     furnitureHighlights: [
       "Floating wooden vanity with vessel sink",
@@ -1727,7 +1727,7 @@ export const listItems = {
     imageUrl: {
       id: 64,
       documentId: "zs7mo58rtml5xib6jsqu3y5z",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1109_f1910c9583.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1109_f1910c9583.JPG",
     },
     furnitureHighlights: [
       "Classic clawfoot tub",
@@ -1759,7 +1759,7 @@ export const listItems = {
     imageUrl: {
       id: 63,
       documentId: "bamq14lj0lwe6ftu3cjdxjgk",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img1_cb1deb92eb.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img1_cb1deb92eb.jpg",
     },
     furnitureHighlights: [
       "Matte black floating vanity",
@@ -1791,7 +1791,7 @@ export const listItems = {
     imageUrl: {
       id: 62,
       documentId: "p3mm3zbq5uzxayadqyorzv57",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img2_260bf255dd.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img2_260bf255dd.jpg",
     },
     furnitureHighlights: [
       "Reclaimed wood vanity",
@@ -1823,7 +1823,7 @@ export const listItems = {
     imageUrl: {
       id: 32,
       documentId: "m7qqaio3kiyxictt2o69f2rs",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1110_3bc8255e2b.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1110_3bc8255e2b.JPG",
     },
     furnitureHighlights: [
       "Freestanding oval soaking tub",
@@ -1855,7 +1855,7 @@ export const listItems = {
     imageUrl: {
       id: 66,
       documentId: "ee3coorq7stmrlrm9mg2padn",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1112_f2417c71bf.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1112_f2417c71bf.JPG",
     },
     furnitureHighlights: [
       "Cedar wood stool",
@@ -1917,7 +1917,7 @@ export const listItems = {
     mainImageUrl: {
       id: 84,
       documentId: "a0ypifnzjhebdklsm6u5v25r",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/image6_91b2500a49.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/image6_91b2500a49.jpg",
     },
    ImageList: [
   {
@@ -1928,7 +1928,7 @@ export const listItems = {
     imageUrl: {
       id: 83,
       documentId: "rst7gk2i1h9pn5xuxktdq5fm",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/image5_45550f0553.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/image5_45550f0553.jpg",
     },
     furnitureHighlights: [
       "Modular low-profile sectional sofa",
@@ -1960,7 +1960,7 @@ export const listItems = {
     imageUrl: {
       id: 82,
       documentId: "u6371nqs8esajq1s2mlww5ry",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/image4_639ef9114e.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/image4_639ef9114e.jpg",
     },
     furnitureHighlights: [
       "Hand-carved rosewood swing (jhoola)",
@@ -1992,7 +1992,7 @@ export const listItems = {
     imageUrl: {
       id: 81,
       documentId: "ulrrccl2yca4vt6vb2eyutdb",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/image3_701a87d5a5.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/image3_701a87d5a5.jpg",
     },
     furnitureHighlights: [
       "Tufted velvet chesterfield sofas",
@@ -2024,7 +2024,7 @@ export const listItems = {
     imageUrl: {
       id: 80,
       documentId: "fddnvzvtqmlcvsntre7n0iy0",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/image2_005e716f4e.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/image2_005e716f4e.jpg",
     },
     furnitureHighlights: [
       "Convertible sofa-cum-bed",
@@ -2056,7 +2056,7 @@ export const listItems = {
     imageUrl: {
       id: 79,
       documentId: "odhglwm3qd1bm2x1zb451s5a",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/image1_f1ee11f7c6.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/image1_f1ee11f7c6.jpg",
     },
     furnitureHighlights: [
       "Live-edge wood coffee tables",
@@ -2088,7 +2088,7 @@ export const listItems = {
     imageUrl: {
       id: 79,
       documentId: "odhglwm3qd1bm2x1zb451s5a",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/image1_f1ee11f7c6.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/image1_f1ee11f7c6.jpg",
     },
     furnitureHighlights: [
       "Mismatched vintage armchairs",
@@ -2150,7 +2150,7 @@ export const listItems = {
     mainImageUrl: {
       id: 105,
       documentId: "zzhpnm16wvlizuycomr5anl2",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5571_e4e5e28df4.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5571_e4e5e28df4.JPG",
     },
     ImageList: [
   {
@@ -2161,7 +2161,7 @@ export const listItems = {
     imageUrl: {
       id: 104,
       documentId: "ectwp4gy7ul4n63cy3qnz56q",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5570_29addb98d2.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5570_29addb98d2.JPG",
     },
     furnitureHighlights: [
       "Carved wooden mandir unit",
@@ -2193,7 +2193,7 @@ export const listItems = {
     imageUrl: {
       id: 103,
       documentId: "lj97v8iei34o1muyisrv1ayp",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5568_72eb2ed35a.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5568_72eb2ed35a.JPG",
     },
     furnitureHighlights: [
       "Floating wooden shelves",
@@ -2225,7 +2225,7 @@ export const listItems = {
     imageUrl: {
       id: 27,
       documentId: "q2es5atoks3embl1iqurwgks",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5568_97034b7310.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5568_97034b7310.JPG",
     },
     furnitureHighlights: [
       "Wall-mounted mandir box",
@@ -2257,7 +2257,7 @@ export const listItems = {
     imageUrl: {
       id: 105,
       documentId: "zzhpnm16wvlizuycomr5anl2",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5571_e4e5e28df4.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5571_e4e5e28df4.JPG",
     },
     furnitureHighlights: [
       "Marble pedestal altar",
@@ -2289,7 +2289,7 @@ export const listItems = {
     imageUrl: {
       id: 104,
       documentId: "ectwp4gy7ul4n63cy3qnz56q",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5570_29addb98d2.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5570_29addb98d2.JPG",
     },
     furnitureHighlights: [
       "Floating altar platform",
@@ -2321,7 +2321,7 @@ export const listItems = {
     imageUrl: {
       id: 103,
       documentId: "lj97v8iei34o1muyisrv1ayp",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5568_72eb2ed35a.JPG",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5568_72eb2ed35a.JPG",
     },
     furnitureHighlights: [
       "Pillar-style mandir base unit",
@@ -2383,7 +2383,7 @@ export const listItems = {
     mainImageUrl: {
       id: 73,
       documentId: "w4n3a68sb2zijwlhmlk6ojvp",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img3_ad457cca46.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img3_ad457cca46.jpg",
     },
    ImageList: [
   {
@@ -2394,7 +2394,7 @@ export const listItems = {
     imageUrl: {
       id: 72,
       documentId: "sewj1ex3rvnesx5yw07c8w16",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img2_a9a8a60da9.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img2_a9a8a60da9.jpg",
     },
   },
   {
@@ -2405,7 +2405,7 @@ export const listItems = {
     imageUrl: {
       id: 69,
       documentId: "altkd6bpgy8u11wrzyee8krn",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img6_273bd15512.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img6_273bd15512.jpg",
     },
   },
   {
@@ -2416,7 +2416,7 @@ export const listItems = {
     imageUrl: {
       id: 71,
       documentId: "uuo39vkl0qrua03ulzcy9ejb",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img4_d28c0bda56.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img4_d28c0bda56.jpg",
     },
   },
   {
@@ -2427,7 +2427,7 @@ export const listItems = {
     imageUrl: {
       id: 70,
       documentId: "jx7rhm6bwlrv0oct7qig38dw",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img5_b5900f2b07.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img5_b5900f2b07.jpg",
     },
   },
   {
@@ -2438,7 +2438,7 @@ export const listItems = {
     imageUrl: {
       id: 26,
       documentId: "jz5sq4h0t72d4ox29cwapewl",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img1_71676beefc.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img1_71676beefc.jpg",
     },
   },
   {
@@ -2449,7 +2449,7 @@ export const listItems = {
     imageUrl: {
       id: 73,
       documentId: "w4n3a68sb2zijwlhmlk6ojvp",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img3_ad457cca46.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img3_ad457cca46.jpg",
     },
   },
 ],
@@ -2490,7 +2490,7 @@ export const listItems = {
     mainImageUrl: {
       id: 78,
       documentId: "yhbm5kceolsm63x66xcdod6p",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img6_3206e07087.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img6_3206e07087.jpg",
     },
     ImageList: [
   {
@@ -2501,7 +2501,7 @@ export const listItems = {
     imageUrl: {
       id: 77,
       documentId: "pu8v8ylchnzinalv42rmudh7",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img2_6646b263af.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img2_6646b263af.jpg",
     },
   },
   {
@@ -2512,7 +2512,7 @@ export const listItems = {
     imageUrl: {
       id: 76,
       documentId: "uryj5g2xvkbagjy8jj8smj3n",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img4_a960884d4e.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img4_a960884d4e.jpg",
     },
   },
   {
@@ -2523,7 +2523,7 @@ export const listItems = {
     imageUrl: {
       id: 75,
       documentId: "ng9dcw5cbzdvhupgifn23zw0",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img5_da8ff7f0e8.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img5_da8ff7f0e8.jpg",
     },
   },
   {
@@ -2534,7 +2534,7 @@ export const listItems = {
     imageUrl: {
       id: 74,
       documentId: "x9y8n0n31efitwcv6zty9wi7",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img3_27b1f98c7c.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img3_27b1f98c7c.jpg",
     },
   },
   {
@@ -2545,7 +2545,7 @@ export const listItems = {
     imageUrl: {
       id: 25,
       documentId: "q9bqfz0hl7udx8bcudnmurhd",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img1_fcb058f3f4.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img1_fcb058f3f4.jpg",
     },
   },
   {
@@ -2556,7 +2556,7 @@ export const listItems = {
     imageUrl: {
       id: 78,
       documentId: "yhbm5kceolsm63x66xcdod6p",
-      url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img6_3206e07087.jpg",
+      url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img6_3206e07087.jpg",
     },
   },
 ],
@@ -2597,7 +2597,7 @@ export const listItems = {
   mainImageUrl: {
     id: 61,
     documentId: "eb0r7vkhvzpw9f3vz76rmmxe",
-    url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5564_351b7f1d89.jpg",
+    url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5564_351b7f1d89.jpg",
   },
   ImageList: [
     {
@@ -2631,7 +2631,7 @@ export const listItems = {
       imageUrl: {
         id: 60,
         documentId: "x89pegey1s9jecy4hia8z5fm",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5560_2299799147.JPG",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5560_2299799147.JPG",
       },
     },
     {
@@ -2665,7 +2665,7 @@ export const listItems = {
       imageUrl: {
         id: 59,
         documentId: "j1qmknnxvlsoyl405avotn0x",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5562_13832b8e49.JPG",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5562_13832b8e49.JPG",
       },
     },
     {
@@ -2699,7 +2699,7 @@ export const listItems = {
       imageUrl: {
         id: 59,
         documentId: "j1qmknnxvlsoyl405avotn0x",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5562_13832b8e49.JPG",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5562_13832b8e49.JPG",
       },
     },
     {
@@ -2733,7 +2733,7 @@ export const listItems = {
       imageUrl: {
         id: 57,
         documentId: "cs2knhmjoerrye4o5zubu2rq",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5561_b96ac27277.JPG",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5561_b96ac27277.JPG",
       },
     },
     {
@@ -2767,7 +2767,7 @@ export const listItems = {
       imageUrl: {
         id: 24,
         documentId: "anppvngau8cjxvi93uhmwm31",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5559_e07b65c1ca.JPG",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5559_e07b65c1ca.JPG",
       },
     },
     {
@@ -2801,7 +2801,7 @@ export const listItems = {
       imageUrl: {
         id: 61,
         documentId: "eb0r7vkhvzpw9f3vz76rmmxe",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5564_351b7f1d89.jpg",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5564_351b7f1d89.jpg",
       },
     },
   ],
@@ -2842,7 +2842,7 @@ export const listItems = {
   mainImageUrl: {
     id: 47,
     documentId: "bfp96c9gy6lun5gf3inii56a",
-    url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img6_002b991e96.jpg",
+    url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img6_002b991e96.jpg",
   },
   ImageList: [
     {
@@ -2876,7 +2876,7 @@ export const listItems = {
       imageUrl: {
         id: 46,
         documentId: "jzyu4ymj2lmp8dgn99g2jyh9",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img4_9bc7bb77a2.jpg",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img4_9bc7bb77a2.jpg",
       },
     },
     {
@@ -2910,7 +2910,7 @@ export const listItems = {
       imageUrl: {
         id: 45,
         documentId: "h3zxxa1avyuakx9pz26h0mda",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img5_7e3ed1fe1d.jpg",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img5_7e3ed1fe1d.jpg",
       },
     },
     {
@@ -2944,7 +2944,7 @@ export const listItems = {
       imageUrl: {
         id: 23,
         documentId: "cps8rs6dykez1yvcq1jrj912",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img2_a0fc098116.jpg",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img2_a0fc098116.jpg",
       },
     },
     {
@@ -2978,7 +2978,7 @@ export const listItems = {
       imageUrl: {
         id: 22,
         documentId: "t565w235r4a2pancx4thlvfc",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img1_ee5369054b.jpg",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img1_ee5369054b.jpg",
       },
     },
     {
@@ -3012,7 +3012,7 @@ export const listItems = {
       imageUrl: {
         id: 21,
         documentId: "ckgozi0unwz1kv6ml4b4ay8i",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img3_1497b00507.jpg",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img3_1497b00507.jpg",
       },
     },
     {
@@ -3046,7 +3046,7 @@ export const listItems = {
       imageUrl: {
         id: 47,
         documentId: "bfp96c9gy6lun5gf3inii56a",
-        url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img6_002b991e96.jpg",
+        url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img6_002b991e96.jpg",
       },
     },
   ],
@@ -3102,7 +3102,7 @@ export const budgetDetails = [
         image: {
           id: 82,
           documentId: "u6371nqs8esajq1s2mlww5ry",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/image4_639ef9114e.jpg",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/image4_639ef9114e.jpg",
         },
       },
       {
@@ -3154,7 +3154,7 @@ export const budgetDetails = [
         image: {
           id: 81,
           documentId: "ulrrccl2yca4vt6vb2eyutdb",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/image3_701a87d5a5.jpg",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/image3_701a87d5a5.jpg",
         },
       },
       {
@@ -3211,7 +3211,7 @@ export const budgetDetails = [
         image: {
           id: 40,
           documentId: "deaw6n8a6edzq8tfh5my3l19",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1125_7489749a28.jpg",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1125_7489749a28.jpg",
         },
       },
     ],
@@ -3264,7 +3264,7 @@ export const budgetDetails = [
         image: {
           id: 38,
           documentId: "yypc3syy72olsxh2t4b5kvvp",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5535_0dc87b8f58.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5535_0dc87b8f58.JPG",
         },
       },
       {
@@ -3316,7 +3316,7 @@ export const budgetDetails = [
         image: {
           id: 11,
           documentId: "yi95dapd3ibb8sfk2va09d32",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5545_71384c1c04.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5545_71384c1c04.JPG",
         },
       },
       {
@@ -3373,7 +3373,7 @@ export const budgetDetails = [
         image: {
           id: 35,
           documentId: "xo6dmawe0n039bz6eqcfp2kr",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_5538_0c2b49def3.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_5538_0c2b49def3.JPG",
         },
       },
     ],
@@ -3426,7 +3426,7 @@ export const budgetDetails = [
         image: {
           id: 73,
           documentId: "w4n3a68sb2zijwlhmlk6ojvp",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img3_ad457cca46.jpg",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img3_ad457cca46.jpg",
         },
       },
       {
@@ -3478,7 +3478,7 @@ export const budgetDetails = [
         image: {
           id: 69,
           documentId: "altkd6bpgy8u11wrzyee8krn",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img6_273bd15512.jpg",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img6_273bd15512.jpg",
         },
       },
       {
@@ -3535,7 +3535,7 @@ export const budgetDetails = [
         image: {
           id: 26,
           documentId: "jz5sq4h0t72d4ox29cwapewl",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/img1_71676beefc.jpg",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/img1_71676beefc.jpg",
         },
       },
     ],
@@ -3588,7 +3588,7 @@ export const budgetDetails = [
         image: {
           id: 43,
           documentId: "kzjib2m9qqv0t4oxy6ajrr8u",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1122_b95d1f1007.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1122_b95d1f1007.JPG",
         },
       },
       {
@@ -3640,7 +3640,7 @@ export const budgetDetails = [
         image: {
           id: 41,
           documentId: "bxx32govnsjtx5n9lx6lhmqv",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1120_fe7f20899d.JPG",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1120_fe7f20899d.JPG",
         },
       },
       {
@@ -3697,7 +3697,7 @@ export const budgetDetails = [
         image: {
           id: 39,
           documentId: "xyt398o4kw7e5p7qb14z23p8",
-          url: "https://dreamcasaimages.s3.ap-south-1.amazonaws.com/IMG_1124_8fc9400769.jpg",
+          url: "https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/cms/legacy/IMG_1124_8fc9400769.jpg",
         },
       },
     ],

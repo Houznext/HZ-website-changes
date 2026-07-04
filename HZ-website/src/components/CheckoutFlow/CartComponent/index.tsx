@@ -8,6 +8,7 @@ import {
   IoShieldCheckmarkOutline,
 } from "react-icons/io5";
 import QuantitySelector from "@/common/QuantitySelector";
+import { pushDataLayer } from "@/lib/analytics";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -122,8 +123,7 @@ export const CartComponent = ({ handleNext }: CartComponentProps) => {
   const serviceOnly = useMemo(() => isServiceOnlyCart(items), [items]);
 
   const handleRemoveItemAnalytics = (removedItem: CartItem) => {
-    (window as any).dataLayer = (window as any).dataLayer || [];
-    (window as any).dataLayer.push({
+    pushDataLayer({
       event: "remove_from_cart",
       items: [
         {

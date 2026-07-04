@@ -8,6 +8,7 @@ import { PiShareFat } from "react-icons/pi";
 import { useSession } from "next-auth/react";
 import { CartItem, useCartStore } from "@/store/cart";
 import { useWishlistStore } from "@/store/wishlist";
+import { pushDataLayer } from "@/lib/analytics";
 import toast from "react-hot-toast";
 import { useCompareStore } from "@/store/useCompareStore";
 import CheckboxInput from "@/common/FormElements/CheckBoxInput";
@@ -122,8 +123,7 @@ const Item = ({ item, category, eventCount }: IItemProps) => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            (window as any).dataLayer = (window as any).dataLayer || [];
-            (window as any).dataLayer.push({
+            pushDataLayer({
               event: "Item_Impression",
               item_id: item.id,
               item_name: item.name,
@@ -147,15 +147,14 @@ const Item = ({ item, category, eventCount }: IItemProps) => {
   const handleRoute = () => {
     const queryCategory = router.query.category as string | undefined;
 
-    (window as any).dataLayer = (window as any).dataLayer || [];
-    (window as any).dataLayer.push({
+    pushDataLayer({
       event: "item_click",
       item_id: item.id,
       item_name: item.name,
       category: category,
       price: sellingPrice,
       discount: discountPercent,
-     type: path,
+      type: path,
     });
 
     const query = router.query.category;
@@ -205,8 +204,7 @@ const Item = ({ item, category, eventCount }: IItemProps) => {
 
     setAddedToCart(true);
 
-    (window as any).dataLayer = (window as any).dataLayer || [];
-    (window as any).dataLayer.push({
+    pushDataLayer({
       event: "add_to_cart",
       item_id: itemData.id,
       item_name: itemData.name,

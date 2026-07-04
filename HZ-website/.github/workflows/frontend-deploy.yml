@@ -7,7 +7,7 @@ on:
 
 env:
   AWS_REGION: ap-south-1
-  ECR_REPOSITORY: onecasa-frontend
+  ECR_REPOSITORY: houznext-frontend
   ECS_CLUSTER: prod-cluster
   ECS_SERVICE: frontend
   CONTAINER_NAME: frontend

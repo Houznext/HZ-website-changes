@@ -1,19 +1,22 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { BetaAnalyticsDataClient } from "@google-analytics/data";
-import path from "path";
+import { getGa4Client, getGa4PropertyId, isGa4Configured } from "@/lib/ga4Server";
 
-
-const analyticsDataClient = new BetaAnalyticsDataClient({
-  keyFilename: path.join(process.cwd(), "my-service-account-file.json"), 
-});
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (!isGa4Configured()) {
+    return res.status(200).json([]);
+  }
+
+  const analyticsDataClient = getGa4Client();
+  if (!analyticsDataClient) {
+    return res.status(200).json([]);
+  }
+
   try {
-    
     const [response] = await analyticsDataClient.runReport({
-      property: "properties/465093464", 
+      property: getGa4PropertyId(), 
       dateRanges: [{ startDate: "150 daysAgo", endDate: "today" }],
       dimensions: [
         { name: "eventName" },
@@ -49,6 +52,6 @@ export default async function handler(
     res.status(200).json(data);
   } catch (error) {
     console.error("Error fetching GA4 data:", error);
-    res.status(500).json({ error: "Error fetching GA4 analytics data" });
+    res.status(200).json([]);
   }
 }

@@ -8,6 +8,7 @@ import { LuBike } from "react-icons/lu";
 import Modal from "@/common/Modal";
 import { twMerge } from "tailwind-merge";
 import ContactSellerForm from "@/components/PropertyDetailsComponent/ContactSellerForm";
+import { pushDataLayer } from "@/lib/analytics";
 import {
   CarCrash,
   ConstructionSharp,
@@ -146,8 +147,7 @@ function SingleProperty({
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            window.dataLayer = window.dataLayer || [];
-            window.dataLayer.push({
+            pushDataLayer({
               event: "Property_Impression",
               item_id: property.propertyId,
               propertyname: property.propertyDetails?.propertyName || null,
@@ -175,8 +175,7 @@ function SingleProperty({
     );
 
     if (user) {
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({
+      pushDataLayer({
         event: "View_property",
         item_id: property.propertyId,
         propertyname: property.propertyDetails?.propertyName || null,
