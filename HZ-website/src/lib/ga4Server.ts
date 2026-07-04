@@ -1,3 +1,5 @@
+import type { BetaAnalyticsDataClient } from "@google-analytics/data";
+
 /** Project-wide GA4 kill switch — set to true and configure env to re-enable. */
 export const GA4_ENABLED = false;
 
@@ -10,6 +12,6 @@ export function getGa4PropertyId(): string {
   return "";
 }
 
-export function getGa4Client(): null {
+export function getGa4Client(): BetaAnalyticsDataClient | null {
   return null;
 }
