@@ -11,6 +11,7 @@ import { estimateEMI, formatPriceInr, formatPSF, num, showEmiBlock } from '@/lib
 import { EMIWidget } from '@/components/property/EMIWidget';
 import { infraWhatsAppMeUrl } from '@/lib/infra-public-contact';
 import { EnquirySuccessModal } from '@/components/property/EnquirySuccessModal';
+import { QuickInsightCard } from '@/components/property/detail/QuickInsightCard';
 
 const schema = yup.object({
   name: yup.string().trim().required('Name is required').max(120),
@@ -85,6 +86,8 @@ export function EnquiryPanel({ property }: { property: PublicProperty }) {
           </p>
         )}
       </div>
+
+      <QuickInsightCard insights={property.insights} locality={property.locality || property.city || ''} />
 
       {showEmiBlock(property.propertyType) && principal > 0 && (
         <div className="hidden rounded-xl border border-[#dde8f5] bg-white p-4 md:block">

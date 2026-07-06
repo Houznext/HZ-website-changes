@@ -2,24 +2,26 @@
 
 type Accent = 'blue' | 'rose' | 'amber' | 'teal';
 
-const labels = ['Basic & Owner', 'Property specifics', 'Pricing & Docs', 'Photos & Publish'];
+const labels = ['Basic & Owner', 'Property specifics', 'Pricing & Docs', 'Insights', 'Photos & Publish'];
 
 export function ListingStepProgress({
   step,
   accent = 'blue',
 }: {
-  step: 1 | 2 | 3 | 4;
+  step: 1 | 2 | 3 | 4 | 5;
   accent?: Accent;
 }) {
-  const pct = step === 1 ? 25 : step === 2 ? 50 : step === 3 ? 75 : 90;
+  const pct = step === 1 ? 20 : step === 2 ? 40 : step === 3 ? 60 : step === 4 ? 80 : 95;
   const label =
     step === 1
-      ? 'Step 1 of 4 — Basic details'
+      ? 'Step 1 of 5 — Basic details'
       : step === 2
-        ? 'Step 2 of 4 — Property specifics'
+        ? 'Step 2 of 5 — Property specifics'
         : step === 3
-          ? 'Step 3 of 4 — Pricing & documents'
-          : 'Step 4 of 4 — Photos & publish';
+          ? 'Step 3 of 5 — Pricing & documents'
+          : step === 4
+            ? 'Step 4 of 5 — Property insights'
+            : 'Step 5 of 5 — Photos & publish';
 
   return (
     <div className={`acard listing-step-flow`} data-accent={accent === 'blue' ? undefined : accent} style={{ padding: '16px 20px', marginBottom: 18 }}>

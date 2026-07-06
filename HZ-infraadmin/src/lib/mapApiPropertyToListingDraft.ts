@@ -1,6 +1,7 @@
 import type { ListingDraft } from '@/context/ListingFormContext';
 import { LISTING_FORM_DEFAULTS } from '@/context/ListingFormContext';
 import { needsConstructionStatus } from '@/lib/propertyListingHelpers';
+import { apiInsightsToForm } from '@/lib/insightsHelpers';
 
 function num(v: unknown): number | undefined {
   if (v === null || v === undefined || v === '') return undefined;
@@ -137,5 +138,8 @@ export function mapApiPropertyToListingDraft(api: Record<string, unknown>): List
     hasGarden: Boolean(api.hasGarden),
     hasSmartHome: Boolean(api.hasSmartHome),
     hasEVCharging: Boolean(api.hasEVCharging),
+    insights: api.insights
+      ? apiInsightsToForm(api.insights as Record<string, unknown>, propertyType)
+      : null,
   };
 }

@@ -40,8 +40,6 @@
     "@react-three/drei": "^9.92.7",
     "@react-three/fiber": "^8.15.19",
     "@tanstack/react-table": "^8.20.5",
-    "@vercel/analytics": "^1.4.1",
-    "@vercel/speed-insights": "^1.2.0",
     "ai": "^3.4.33",
     "autoprefixer": "^10.4.19",
     "aws-sdk": "^2.1692.0",

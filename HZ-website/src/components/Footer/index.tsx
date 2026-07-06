@@ -62,7 +62,7 @@ const Footer = () => {
                 <span className="">
                   <EmailIcon /> Email us at :
                 </span>
-                <p className={styles.bold}>sales@gmail.com</p>
+                <p className={styles.bold}>business@houznext.com</p>
               </div>
             </div>
             <div>
@@ -95,7 +95,7 @@ const Footer = () => {
                   <span className="">
                     <EmailIcon /> Email us at :
                   </span>
-                  <p className={styles.bold}>sales@gmail.com</p>
+                  <p className={styles.bold}>business@houznext.com</p>
                 </div>
               </div>
               <div>

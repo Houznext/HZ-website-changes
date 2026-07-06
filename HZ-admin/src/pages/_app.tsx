@@ -7,7 +7,6 @@ import type { ReactElement, ReactNode } from "react";
 import type { NextPage } from "next";
 import type { Session } from "next-auth";
 import type { AppProps, AppType } from "next/app";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import "dotenv/config";
 import "@/src/styles/text-editor-style.css";
 import { Toaster } from "react-hot-toast";
@@ -72,7 +71,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
         <SessionSync />
         <SocketInitializer />
         <div>{getLayout(<Component {...pageProps} />)}</div>
-        <SpeedInsights />
         <Toaster position="top-right" reverseOrder={false} containerClassName="text-[12px]" />
       </SessionProvider>
     </>

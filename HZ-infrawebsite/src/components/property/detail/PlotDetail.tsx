@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { PublicProperty } from '@/types/property.types';
 import { formatPriceInr, formatPSF, num } from '@/lib/property-utils';
 import { DocumentRow, KeyStatsBar } from './pdp-blocks';
+import { PropertyInsights } from './PropertyInsights';
 
 export function PlotDetail({ property }: { property: PublicProperty }) {
   const area = property.plotArea;
@@ -58,6 +59,13 @@ export function PlotDetail({ property }: { property: PublicProperty }) {
         <DocumentRow url={property.ecCertUrl} label="EC / Title certificate" />
         <DocumentRow url={property.reraCertUrl} label="RERA certificate" sub={property.reraNumber || undefined} />
       </div>
+      <PropertyInsights
+        insights={property.insights}
+        propertyType={property.propertyType}
+        locality={property.locality || property.city || ''}
+        city={property.city || ''}
+        propertyId={property.propertyId}
+      />
     </>
   );
 }

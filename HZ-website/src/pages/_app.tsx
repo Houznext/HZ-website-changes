@@ -8,7 +8,6 @@ import type { AppProps, AppType } from "next/app";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { useCallback, useMemo, useState } from "react";
-import Script from "next/script";
 import dynamic from "next/dynamic";
 import AuthProvider, { AuthGate } from "@/common/auth/AuthProvider";
 import { TourProvider } from "@/common/FeatureTour";
@@ -47,10 +46,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
     () => import("react-hot-toast").then((mod) => mod.Toaster),
     { ssr: false }
   );
-  const Analytics = dynamic(
-    () => import("@vercel/analytics/react").then((mod) => mod.Analytics),
-    { ssr: false }
-  );
 
   const getLayout = Component.getLayout
     ? (page: ReactElement) =>
@@ -61,13 +56,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
 
   return (
     <>
-      <Script
-        id="adsense-script"
-        strategy="lazyOnload"
-        async
-        src={process.env.NEXT_PUBLIC_GOOGLE_AD_SRC}
-        crossOrigin="anonymous"
-      />
       <SessionProvider
         session={session as Session}
         refetchInterval={5 * 60}
@@ -81,7 +69,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
               <CustomerAuthProvider>
                 <AuthGate />
                 <div>{getLayout(<Component {...pageProps} />)}</div>
-                <Analytics />
                 <Toaster position="top-right" reverseOrder={false} containerClassName="text-[12px]" />
               </CustomerAuthProvider>
             </QuoteModalProvider>

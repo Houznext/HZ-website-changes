@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { ConstructionStatus, ListingFor, PropertyType } from '../../common/enums/infra.enums';
+import type { PropertyInsights } from '../insights/property-insights.types';
 import { InfraPropertyMedia } from './infra-property-media.entity';
 import { InfraPropertyDetails } from './infra-property-details.entity';
 
@@ -299,6 +300,10 @@ export class InfraProperty {
 
   @Column('text', { nullable: true })
   description: string | null;
+
+  /** Optional market insights JSON for public PDP — null hides insights section. */
+  @Column('simple-json', { nullable: true })
+  insights: PropertyInsights | null;
 
   @CreateDateColumn()
   createdAt: Date;

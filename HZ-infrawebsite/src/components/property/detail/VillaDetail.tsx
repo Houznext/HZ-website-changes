@@ -1,6 +1,7 @@
 import type { PublicProperty } from '@/types/property.types';
 import { formatPriceInr, formatPSF, num, showsConstructionStatus } from '@/lib/property-utils';
 import { AmenitiesGrid, KeyStatsBar, LegalSection, PriceBreakdownCard } from './pdp-blocks';
+import { PropertyInsights } from './PropertyInsights';
 
 export function VillaDetail({ property }: { property: PublicProperty }) {
   const ready = property.constructionStatus === 'Ready to Move';
@@ -47,6 +48,13 @@ export function VillaDetail({ property }: { property: PublicProperty }) {
         </ul>
       </div>
       {property.amenities && property.amenities.length > 0 && <AmenitiesGrid amenities={property.amenities} />}
+      <PropertyInsights
+        insights={property.insights}
+        propertyType={property.propertyType}
+        locality={property.locality || property.city || ''}
+        city={property.city || ''}
+        propertyId={property.propertyId}
+      />
       <LegalSection property={property} />
     </>
   );

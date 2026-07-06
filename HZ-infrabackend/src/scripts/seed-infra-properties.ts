@@ -5,6 +5,7 @@ import { DataSource } from 'typeorm';
 import { InfraProperty } from '../property/entities/infra-property.entity';
 import { InfraPropertyDetails } from '../property/entities/infra-property-details.entity';
 import { ConstructionStatus, ListingFor, PropertyType } from '../common/enums/infra.enums';
+import { seedInsightsFor } from '../property/insights/seed-insights.constants';
 
 dotenv.config({
   path: path.resolve(__dirname, '..', '..', `.env.${process.env.NODE_ENV || 'development'}`),
@@ -225,6 +226,35 @@ const rows: SeedRow[] = [
     isCornerPlot: true,
   },
   {
+    title: `${SEED_TAG} Bachupally HMDA approved plot`,
+    propertyType: PropertyType.Plot,
+    listingFor: ListingFor.Buy,
+    constructionStatus: ConstructionStatus.ReadyToMove,
+    city: 'Hyderabad',
+    locality: 'Bachupally',
+    basePrice: '4700000',
+    plotArea: '150',
+    areaUnit: 'sqyd',
+    highlights: ['HMDA', 'ORR access'],
+    approvalType: 'HMDA',
+    isGatedLayout: true,
+    hasEBConnection: true,
+  },
+  {
+    title: `${SEED_TAG} HITEC City commercial office`,
+    propertyType: PropertyType.Commercial,
+    listingFor: ListingFor.Buy,
+    constructionStatus: ConstructionStatus.ReadyToMove,
+    city: 'Hyderabad',
+    locality: 'HITEC City',
+    basePrice: '22000000',
+    builtUpArea: '2000',
+    carpetArea: '2000',
+    areaUnit: 'sqft',
+    highlights: ['IT corridor', 'High yield'],
+    isReraVerified: true,
+  },
+  {
     title: `${SEED_TAG} OMR Chennai growth plot`,
     propertyType: PropertyType.Plot,
     listingFor: ListingFor.Buy,
@@ -264,7 +294,21 @@ async function seed() {
     .where('p.title LIKE :tag', { tag: `%${SEED_TAG}%` })
     .getCount();
   if (existing > 0) {
-    console.log(`Seed properties already present (${existing}) — skipping.`);
+    const existingRows = await repo
+      .createQueryBuilder('p')
+      .where('p.title LIKE :tag', { tag: `%${SEED_TAG}%` })
+      .getMany();
+    let patched = 0;
+    for (const p of existingRows) {
+      if (p.insights) continue;
+      const ins = seedInsightsFor(String(p.propertyType), p.locality || '');
+      if (!ins) continue;
+      p.insights = ins;
+      await repo.save(p);
+      patched += 1;
+      console.log(`↻ insights ${p.propertyCode} ${p.locality}`);
+    }
+    console.log(`Seed properties already present (${existing}) — insights backfill: ${patched}.`);
     await ds.destroy();
     return;
   }
@@ -295,6 +339,7 @@ async function seed() {
       propertyCode: code,
       propertySeq: seq,
       slug: null,
+      insights: seedInsightsFor(r.propertyType, r.locality),
       isApproved: true,
       isActive: true,
       isFeatured: true,

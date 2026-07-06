@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Head from 'next/head';
+import { Eye, EyeOff } from 'lucide-react';
 import { saveSession } from '@/lib/session';
 import { useInfraPermissionStore } from '@/stores/useInfraPermissionStore';
 
@@ -56,9 +57,7 @@ export default function LoginPage() {
       };
 
       saveSession(data.access_token, user);
-
       initFromSession(user.branchMemberships, user.role, user.email, user.kind);
-
       window.location.href = '/listings';
     } catch {
       setError('Cannot connect to server. Make sure the backend is running.');
@@ -71,193 +70,252 @@ export default function LoginPage() {
       <Head>
         <title>Admin Login — Houznext Infra</title>
       </Head>
-      <div
-        style={{
-          minHeight: '100vh',
-          background: '#0f2a44',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 20,
-        }}
-      >
-        <div
-          style={{
-            background: '#fff',
-            borderRadius: 20,
-            padding: '40px 36px',
-            width: '100%',
-            maxWidth: 440,
-            boxShadow: '0 32px 80px rgba(0,0,0,0.25)',
-          }}
-        >
-          <div style={{ textAlign: 'center', marginBottom: 28 }}>
-            <h1
-              style={{
-                fontFamily: 'Montserrat, sans-serif',
-                fontSize: 26,
-                fontWeight: 800,
-                color: '#1f2933',
-                margin: 0,
-              }}
-            >
-              Houznext <span style={{ color: '#f2994a' }}>Infra</span>
-            </h1>
+      <style jsx global>{`
+        .admin-login-page {
+          min-height: 100vh;
+          background: #f5f7fa;
+          display: flex;
+          align-items: stretch;
+          justify-content: center;
+          padding: 0;
+        }
+        .admin-login-inner {
+          width: 100%;
+          max-width: 420px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+        .admin-login-card {
+          width: 100%;
+          overflow: hidden;
+          background: #fff;
+          border-radius: 0;
+          box-shadow: none;
+        }
+        .admin-login-footer {
+          margin-top: 20px;
+          padding: 0 16px;
+          text-align: center;
+          font-size: 13px;
+          color: #5a6a7e;
+        }
+        @media (min-width: 640px) {
+          .admin-login-page {
+            align-items: center;
+            padding: 40px 16px;
+          }
+          .admin-login-card {
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(15, 42, 68, 0.1), 0 8px 10px -6px rgba(15, 42, 68, 0.08);
+          }
+          .admin-login-footer {
+            padding: 0;
+          }
+        }
+      `}</style>
+
+      <div className="admin-login-page">
+        <div className="admin-login-inner">
+          <div className="admin-login-card">
             <div
               style={{
-                display: 'inline-block',
-                background: '#e8f1fd',
-                color: '#2f80ed',
-                fontSize: 10,
-                fontWeight: 700,
-                padding: '3px 12px',
-                borderRadius: 20,
-                letterSpacing: '0.1em',
-                marginTop: 8,
-                fontFamily: 'Montserrat, sans-serif',
-                textTransform: 'uppercase',
+                position: 'relative',
+                padding: '26px 26px 22px',
+                background: '#0f2a44',
               }}
             >
-              Admin Portal
-            </div>
-            <p style={{ fontSize: 13, color: '#5a6a7e', marginTop: 10, lineHeight: 1.5 }}>
-              Sign in with your Infra admin account
-            </p>
-          </div>
-
-          {error && (
-            <div
-              style={{
-                background: '#fee2e2',
-                border: '1px solid #fca5a5',
-                borderRadius: 10,
-                padding: '10px 14px',
-                marginBottom: 16,
-                fontSize: 13,
-                color: '#dc2626',
-              }}
-            >
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: 14 }}>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: '#5a6a7e',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.07em',
-                  marginBottom: 5,
-                  fontFamily: 'Montserrat, sans-serif',
-                }}
-              >
-                Email address
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@infra.houznext.com"
-                style={{
-                  width: '100%',
-                  padding: '10px 13px',
-                  border: '1.5px solid #dde8f5',
-                  borderRadius: 9,
-                  fontSize: 13,
-                  outline: 'none',
-                  fontFamily: 'Inter, sans-serif',
-                  color: '#1f2933',
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#2f80ed';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#dde8f5';
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: 22, position: 'relative' }}>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: '#5a6a7e',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.07em',
-                  marginBottom: 5,
-                  fontFamily: 'Montserrat, sans-serif',
-                }}
-              >
-                Password
-              </label>
-              <input
-                type={showPwd ? 'text' : 'password'}
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                style={{
-                  width: '100%',
-                  padding: '10px 40px 10px 13px',
-                  border: '1.5px solid #dde8f5',
-                  borderRadius: 9,
-                  fontSize: 13,
-                  outline: 'none',
-                  fontFamily: 'Inter, sans-serif',
-                  color: '#1f2933',
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#2f80ed';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#dde8f5';
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPwd(!showPwd)}
+              <div
                 style={{
                   position: 'absolute',
-                  right: 12,
-                  top: 34,
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: '#94a3b8',
-                  padding: 2,
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: 3,
+                  background: 'linear-gradient(90deg, #2f80ed, #f2994a, #2f80ed)',
+                }}
+              />
+              <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 17, fontWeight: 800 }}>
+                <span style={{ color: '#fff' }}>Houz</span>
+                <span style={{ color: '#f2994a' }}>next</span>
+                <span style={{ marginLeft: 4, fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Infra</span>
+              </div>
+              <h1
+                style={{
+                  marginTop: 8,
+                  fontFamily: 'Montserrat, sans-serif',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: '#fff',
                 }}
               >
-                {showPwd ? '🙈' : '👁'}
-              </button>
+                Admin login
+              </h1>
+              <p style={{ fontSize: 12, lineHeight: 1.5, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+                Sign in with your Houznext Infra admin account.
+              </p>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                width: '100%',
-                padding: 12,
-                background: loading ? '#93c5fd' : '#2f80ed',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 10,
-                fontSize: 14,
-                fontWeight: 700,
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontFamily: 'Montserrat, sans-serif',
-                transition: 'background 150ms',
-              }}
+            <div style={{ padding: '22px 26px 26px' }}>
+              <div
+                style={{
+                  display: 'inline-block',
+                  marginBottom: 18,
+                  background: '#e8f1fd',
+                  color: '#2f80ed',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  padding: '3px 12px',
+                  borderRadius: 20,
+                  letterSpacing: '0.1em',
+                  fontFamily: 'Montserrat, sans-serif',
+                  textTransform: 'uppercase',
+                }}
+              >
+                Admin portal
+              </div>
+
+              {error ? (
+                <div
+                  style={{
+                    marginBottom: 12,
+                    borderRadius: 8,
+                    border: '1px solid #fca5a5',
+                    background: '#fff1f2',
+                    padding: '9px 12px',
+                    fontSize: 12,
+                    color: '#dc2626',
+                  }}
+                >
+                  {error}
+                </div>
+              ) : null}
+
+              <form onSubmit={handleSubmit}>
+                <label
+                  style={{
+                    display: 'block',
+                    marginBottom: 5,
+                    fontFamily: 'Montserrat, sans-serif',
+                    fontSize: 10,
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    color: '#5a6a7e',
+                  }}
+                >
+                  Email address
+                </label>
+                <input
+                  type="email"
+                  required
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@infra.houznext.com"
+                  style={{
+                    width: '100%',
+                    marginBottom: 12,
+                    borderRadius: 9,
+                    border: '1px solid #dde8f5',
+                    padding: '10px 12px',
+                    fontSize: 14,
+                    color: '#1f2933',
+                    outline: 'none',
+                    fontFamily: 'Inter, sans-serif',
+                  }}
+                />
+
+                <label
+                  style={{
+                    display: 'block',
+                    marginBottom: 5,
+                    fontFamily: 'Montserrat, sans-serif',
+                    fontSize: 10,
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    color: '#5a6a7e',
+                  }}
+                >
+                  Password
+                </label>
+                <div style={{ position: 'relative', marginBottom: 8 }}>
+                  <input
+                    type={showPwd ? 'text' : 'password'}
+                    required
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    style={{
+                      width: '100%',
+                      borderRadius: 9,
+                      border: '1px solid #dde8f5',
+                      padding: '10px 40px 10px 12px',
+                      fontSize: 14,
+                      color: '#1f2933',
+                      outline: 'none',
+                      fontFamily: 'Inter, sans-serif',
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPwd(!showPwd)}
+                    aria-label={showPwd ? 'Hide password' : 'Show password'}
+                    style={{
+                      position: 'absolute',
+                      right: 10,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: '#94a3b8',
+                      display: 'flex',
+                      padding: 4,
+                    }}
+                  >
+                    {showPwd ? <EyeOff size={16} strokeWidth={1.8} /> : <Eye size={16} strokeWidth={1.8} />}
+                  </button>
+                </div>
+                <p style={{ marginBottom: 16, fontSize: 11, color: '#5a6a7e' }}>
+                  Use the credentials issued by your Houznext Infra administrator.
+                </p>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    borderRadius: 10,
+                    border: 'none',
+                    padding: '12px 16px',
+                    fontFamily: 'Montserrat, sans-serif',
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: '#fff',
+                    background: loading ? '#93c5fd' : '#2f80ed',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.85 : 1,
+                  }}
+                >
+                  {loading ? 'Signing in…' : 'Sign in →'}
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <p className="admin-login-footer">
+            <a
+              href="https://infra.houznext.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontWeight: 600, color: '#2f80ed', textDecoration: 'none' }}
             >
-              {loading ? 'Signing in…' : 'Sign in →'}
-            </button>
-          </form>
+              Back to Houznext Infra
+            </a>
+          </p>
         </div>
       </div>
     </>

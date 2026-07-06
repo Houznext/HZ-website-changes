@@ -19,13 +19,6 @@ export default function Document() {
         <link rel="apple-touch-icon" href="/web-app-manifest-192x192.png" />
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#0f2a44" />
-
-        {/* Google AdSense */}
-        <script
-          async
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_GOOGLE_DATA_ADD_CLIENT}`}
-          crossOrigin="anonymous"
-        />
       </Head>
       <body>
         <Main />

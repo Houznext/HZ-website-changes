@@ -470,7 +470,7 @@ export class LivebuildSeedService implements OnModuleInit {
       ]);
 
       const seedDocUrl = (name: string) =>
-        `https://houznext-assets.s3.ap-south-1.amazonaws.com/livebuild/seed/${encodeURIComponent(name)}.pdf`;
+        `https://houznext-prod-assets.s3.ap-south-1.amazonaws.com/livebuild/seed/${encodeURIComponent(name)}.pdf`;
 
       await docRepo.save([
         {

@@ -1,3 +1,5 @@
+import type { PropertyInsights } from '@/types/property-insights.types';
+
 export type PropertyType =
   | 'Apartment'
   | 'Villa'
@@ -99,6 +101,8 @@ export interface PublicProperty {
   isActive?: boolean;
   linkedProjectId?: string | null;
   media?: { mediaId: string; url: string; kind: string; sortOrder: number }[];
+  /** Market insights for PDP — omitted when null or show_insights is false. */
+  insights?: PropertyInsights | null;
   createdAt?: string;
   updatedAt?: string;
 }

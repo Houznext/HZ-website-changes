@@ -71,8 +71,8 @@ export default function NewPropertyStep3() {
           backHref="/new-property/step2"
           centerTitle="Pricing & documents"
           onSaveDraft={() => toast.success('Draft saved')}
-          primaryLabel="Next: Photos & Publish →"
-          onPrimary={() => void router.push('/new-property/step4')}
+          primaryLabel="Next: Property insights →"
+          onPrimary={() => void router.push('/new-property/insights')}
         />
       }
     >
@@ -221,8 +221,8 @@ export default function NewPropertyStep3() {
           <button type="button" className="btn btn-ghost btn-sm" onClick={() => toast.success('Draft saved')}>
             Save draft
           </button>
-          <button type="button" className="btn btn-blue btn-sm" onClick={() => void router.push('/new-property/step4')}>
-            Next: Photos & Publish →
+          <button type="button" className="btn btn-blue btn-sm" onClick={() => void router.push('/new-property/insights')}>
+            Next: Property insights →
           </button>
         </div>
       </div>

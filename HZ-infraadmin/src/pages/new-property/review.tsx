@@ -10,6 +10,7 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { PropertyCard } from '@/components/listing/PropertyCard';
 import { useListingForm } from '@/context/ListingFormContext';
 import { buildCreatePropertyPayload } from '@/lib/buildListingPayload';
+import { isInsightsFormEmpty } from '@/lib/insightsHelpers';
 import { formatPrice } from '@/lib/utils';
 import { parseYoutubeVideoId } from '@/lib/youtubeUrl';
 import { needsConstructionStatus } from '@/lib/propertyListingHelpers';
@@ -23,9 +24,19 @@ function Cell({ label, value }: { label: string; value: string }) {
   );
 }
 
+function apiErrorMessage(e: unknown, fallback: string): string {
+  if (typeof e === 'object' && e !== null && 'response' in e) {
+    const res = (e as { response?: { data?: { message?: string | string[] } } }).response;
+    const raw = res?.data?.message;
+    if (Array.isArray(raw)) return raw.join(', ');
+    if (typeof raw === 'string' && raw.trim()) return raw;
+  }
+  return fallback;
+}
+
 export default function NewPropertyReview() {
   const router = useRouter();
-  const { form, resetForm, editingPropertyId } = useListingForm();
+  const { form, resetForm, editingPropertyId, insights } = useListingForm();
   const [busy, setBusy] = useState(false);
 
   const base = Number(form.basePrice) || 0;
@@ -63,7 +74,7 @@ export default function NewPropertyReview() {
       void router.push(`/new-property/success?code=${encodeURIComponent(String(code))}&title=${titleEnc}`);
     } catch (e: unknown) {
       console.error(e);
-      toast.error('Submit failed — check required fields');
+      toast.error(apiErrorMessage(e, 'Submit failed — check required fields'));
     } finally {
       setBusy(false);
     }
@@ -74,7 +85,7 @@ export default function NewPropertyReview() {
       hideSearch
       header={
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', width: '100%' }}>
-          <Link href="/new-property/step4" className="btn btn-ghost btn-sm" style={{ gap: 5 }}>
+          <Link href="/new-property/step5" className="btn btn-ghost btn-sm" style={{ gap: 5 }}>
             <ChevronLeft size={15} strokeWidth={1.8} />
             Back to edit
           </Link>
@@ -171,8 +182,27 @@ export default function NewPropertyReview() {
 
           <div className="acard">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f0f4f8', marginBottom: 14, paddingBottom: 12 }}>
-              <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 13.5, fontWeight: 700 }}>Photos</span>
-              <Link href="/new-property/step4" className="btn btn-ghost btn-sm">
+              <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 13.5, fontWeight: 700 }}>Property insights</span>
+              <Link href="/new-property/insights" className="btn btn-ghost btn-sm">
+                <Pencil size={14} strokeWidth={1.8} />
+                {insights && !isInsightsFormEmpty(insights) ? 'Edit' : 'Add'}
+              </Link>
+            </div>
+            {insights && !isInsightsFormEmpty(insights) && insights.price_current > 0 ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                <Cell label="Current price" value={`₹${insights.price_current.toLocaleString('en-IN')}/${insights.price_unit}`} />
+                <Cell label="Demand score" value={`${insights.demand_score}/100`} />
+                <Cell label="Show on PDP" value={insights.show_insights ? 'Yes' : 'No'} />
+              </div>
+            ) : (
+              <span style={{ fontSize: 13, color: 'var(--mu)' }}>Insights not added — buyers won&apos;t see the insights section</span>
+            )}
+          </div>
+
+          <div className="acard">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f0f4f8', marginBottom: 14, paddingBottom: 12 }}>
+              <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 13.5, fontWeight: 700 }}>Photos & publish</span>
+              <Link href="/new-property/step5" className="btn btn-ghost btn-sm">
                 <Pencil size={14} strokeWidth={1.8} />
                 Edit
               </Link>
@@ -192,7 +222,7 @@ export default function NewPropertyReview() {
             </div>
             {yt ? (
               <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid #f0f4f8' }}>
-                <Cell label="YouTube video" value={ytOk ? yt : `${yt} (invalid — fix on step 4)`} />
+                <Cell label="YouTube video" value={ytOk ? yt : `${yt} (invalid — fix on step 5)`} />
               </div>
             ) : null}
           </div>

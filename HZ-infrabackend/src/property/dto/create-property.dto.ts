@@ -7,9 +7,11 @@ import {
   IsString,
   MaxLength,
   ValidateIf,
+  ValidateNested,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { ConstructionStatus, ListingFor, PropertyType } from '../../common/enums/infra.enums';
+import { PropertyInsightsDto } from './property-insights.dto';
 
 const bool = () =>
   Transform(({ value }) => value === true || value === 'true' || value === '1' || value === 1);
@@ -408,4 +410,10 @@ export class CreatePropertyDto {
   @IsOptional()
   @IsString()
   internalNotes?: string;
+
+  @IsOptional()
+  @ValidateIf((_, v) => v != null)
+  @ValidateNested()
+  @Type(() => PropertyInsightsDto)
+  insights?: PropertyInsightsDto | null;
 }

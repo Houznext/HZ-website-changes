@@ -1,5 +1,10 @@
 import type { ListingDraft } from '@/context/ListingFormContext';
 import { needsConstructionStatus } from '@/lib/propertyListingHelpers';
+import {
+  isInsightsFormEmpty,
+  sanitizeInsightsForPayload,
+  type PropertyInsightsForm,
+} from '@/lib/insightsHelpers';
 
 /** Maps listing wizard draft to HZ-infrabackend CreatePropertyDto shape. */
 export function buildCreatePropertyPayload(form: ListingDraft): Record<string, unknown> {
@@ -10,6 +15,12 @@ export function buildCreatePropertyPayload(form: ListingDraft): Record<string, u
   const maintenance = Number(form.maintenanceDeposit) || 0;
   const other = Number(form.otherCharges) || 0;
   const totalCost = basePrice + (basePrice * gst) / 100 + (basePrice * reg) / 100 + maintenance + other;
+
+  const insights = form.insights as PropertyInsightsForm | null | undefined;
+  const insightsPayload =
+    insights && !isInsightsFormEmpty(insights) && insights.price_current > 0
+      ? sanitizeInsightsForPayload(insights)
+      : null;
 
   return {
     title: form.title,
@@ -102,5 +113,6 @@ export function buildCreatePropertyPayload(form: ListingDraft): Record<string, u
     leadSource: form.leadSource,
     branch: form.branch,
     internalNotes: form.internalNotes,
+    insights: insightsPayload,
   };
 }

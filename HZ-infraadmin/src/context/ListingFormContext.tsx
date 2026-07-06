@@ -9,11 +9,10 @@ import React, {
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
+import { createDefaultInsights, type PropertyInsightsForm } from '@/lib/insightsHelpers';
 
 const STORAGE_KEY = 'infra_listing_draft';
 const EDIT_ID_KEY = 'infra_listing_edit_id';
-
-export type ListingDraft = Record<string, unknown>;
 
 export const LISTING_FORM_DEFAULTS: ListingDraft = {
   title: '',
@@ -84,7 +83,10 @@ export const LISTING_FORM_DEFAULTS: ListingDraft = {
   isFeatured: false,
   isZeroBrokerage: false,
   enableWhatsappEnquiry: true,
+  insights: null,
 };
+
+export type ListingDraft = Record<string, unknown>;
 
 type Ctx = {
   form: ListingDraft;
@@ -93,6 +95,9 @@ type Ctx = {
   resetForm: () => void;
   editingPropertyId: string | null;
   setEditingPropertyId: (id: string | null) => void;
+  insights: PropertyInsightsForm | null;
+  updateInsights: (partial: Partial<PropertyInsightsForm>) => void;
+  resetInsights: () => void;
 };
 
 const ListingFormContext = createContext<Ctx | null>(null);
@@ -156,11 +161,36 @@ export function ListingFormProvider({ children }: { children: React.ReactNode })
     setEditingPropertyIdState(null);
     sessionStorage.removeItem(STORAGE_KEY);
     sessionStorage.removeItem(EDIT_ID_KEY);
+    sessionStorage.removeItem('infra_insights_prefill_done');
+  }, []);
+
+  const insights = (form.insights as PropertyInsightsForm | null) ?? null;
+
+  const updateInsights = useCallback((partial: Partial<PropertyInsightsForm>) => {
+    setForm((f) => {
+      const current = (f.insights as PropertyInsightsForm | null) ?? null;
+      const base = current ?? createDefaultInsights(f.propertyType);
+      return { ...f, insights: { ...base, ...partial } };
+    });
+  }, []);
+
+  const resetInsights = useCallback(() => {
+    setForm((f) => ({ ...f, insights: null }));
   }, []);
 
   const value = useMemo(
-    () => ({ form, setField, setFields, resetForm, editingPropertyId, setEditingPropertyId }),
-    [form, setField, setFields, resetForm, editingPropertyId, setEditingPropertyId],
+    () => ({
+      form,
+      setField,
+      setFields,
+      resetForm,
+      editingPropertyId,
+      setEditingPropertyId,
+      insights,
+      updateInsights,
+      resetInsights,
+    }),
+    [form, setField, setFields, resetForm, editingPropertyId, setEditingPropertyId, insights, updateInsights, resetInsights],
   );
 
   return <ListingFormContext.Provider value={value}>{children}</ListingFormContext.Provider>;

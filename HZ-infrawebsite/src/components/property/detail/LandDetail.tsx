@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { PublicProperty } from '@/types/property.types';
 import { formatArea, formatPriceInr, formatPSF, num } from '@/lib/property-utils';
 import { DocumentRow, KeyStatsBar } from './pdp-blocks';
+import { PropertyInsights } from './PropertyInsights';
 
 export function LandDetail({ property }: { property: PublicProperty }) {
   const area = property.landArea || property.plotArea;
@@ -42,6 +43,13 @@ export function LandDetail({ property }: { property: PublicProperty }) {
           <Detail label="Electricity" value={property.electricity || '—'} />
         </div>
       </div>
+      <PropertyInsights
+        insights={property.insights}
+        propertyType={property.propertyType}
+        locality={property.locality || property.city || ''}
+        city={property.city || ''}
+        propertyId={property.propertyId}
+      />
       <div className="mt-4 rounded-xl border border-[#dde8f5] bg-white p-5">
         <div className="font-montserrat text-sm font-bold text-charcoal">Verification</div>
         <div className="mt-2 flex flex-wrap gap-2">

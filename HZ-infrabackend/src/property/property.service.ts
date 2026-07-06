@@ -18,6 +18,8 @@ import { ConstructionStatus, ListingFor } from '../common/enums/infra.enums';
 import { InfraMailService, PropertyAlertAction } from '../common/mail/infra-mail.service';
 import { infraBusinessWhatsappE164 } from '../common/infra-public-contact';
 import { sanitizeYoutubeVideoUrl } from '../common/youtube-url';
+import type { PropertyInsights } from './insights/property-insights.types';
+import { PropertyInsightsDto } from './dto/property-insights.dto';
 import {
   buildPropertySearchBlob,
   fuzzyTokenVariants,
@@ -217,6 +219,7 @@ export class PropertyService {
       businessWhatsappE164: infraBusinessWhatsappE164(),
       linkedProjectId: p.linkedProjectId,
       description: p.description,
+      insights: p.insights,
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
       media,
@@ -648,6 +651,22 @@ export class PropertyService {
     if (dto.listedBy) entity.listedBy = dto.listedBy;
     entity.propertyCode = opts.propertyCode;
     entity.propertySeq = opts.propertySeq;
+    if (dto.insights !== undefined) {
+      entity.insights = dto.insights as PropertyInsights | null;
+    }
+  }
+
+  private finalizeInsights(
+    insights: PropertyInsightsDto | null | undefined,
+    adminId?: string,
+  ): PropertyInsights | null | undefined {
+    if (insights === undefined) return undefined;
+    if (insights === null) return null;
+    return {
+      ...(insights as PropertyInsights),
+      last_updated: new Date().toISOString(),
+      updated_by: adminId ?? undefined,
+    };
   }
 
   private setApprovalFromStatus(entity: InfraProperty, approvalStatus?: string) {
@@ -678,6 +697,8 @@ export class PropertyService {
       listedByUserId,
     });
     this.applyDtoToEntity(dto, entity, { propertyCode: code, propertySeq: seq });
+    const finalized = this.finalizeInsights(dto.insights, user?.sub);
+    if (finalized !== undefined) entity.insights = finalized;
     this.setApprovalFromStatus(entity, dto.approvalStatus ?? 'pending');
     if (entity.isApproved && user?.sub) entity.approvedBy = user.sub;
 
@@ -706,6 +727,8 @@ export class PropertyService {
       listedByUserId: null,
     });
     this.applyDtoToEntity(dto, entity, { propertyCode: code, propertySeq: seq });
+    const finalized = this.finalizeInsights(dto.insights, adminId);
+    if (finalized !== undefined) entity.insights = finalized;
     this.setApprovalFromStatus(entity, dto.approvalStatus);
     if (entity.isApproved) {
       entity.approvedBy = adminId;
@@ -777,6 +800,10 @@ export class PropertyService {
     });
     if (dto.youtubeVideoUrl !== undefined) {
       p.youtubeVideoUrl = sanitizeYoutubeVideoUrl(dto.youtubeVideoUrl);
+    }
+    if (dto.insights !== undefined) {
+      const finalized = this.finalizeInsights(dto.insights, user.sub);
+      p.insights = finalized ?? null;
     }
     if (dto.title) p.slug = this.generateSlug(dto.title, p.propertyId);
     if (dto.approvalStatus) this.setApprovalFromStatus(p, dto.approvalStatus);
