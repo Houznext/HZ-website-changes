@@ -166,7 +166,7 @@ export function HeroSection() {
               height={1080}
               loading={i === 0 ? 'eager' : 'lazy'}
               decoding="async"
-              fetchpriority={i === 0 ? 'high' : 'low'}
+              fetchPriority={i === 0 ? 'high' : 'low'}
               className="absolute inset-0 h-full w-full min-h-full object-cover transition-opacity duration-[1200ms] ease-in-out"
               style={{ opacity: active ? 1 : 0 }}
               onError={() => setBrokenSlides((prev) => new Set(prev).add(i))}
