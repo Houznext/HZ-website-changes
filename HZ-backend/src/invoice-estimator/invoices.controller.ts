@@ -93,6 +93,41 @@ export class InvoicesController {
     res.send(buf);
   }
 
+  @Get(':id/restore')
+  @ApiOperation({ summary: 'Restore a soft-deleted invoice via email token' })
+  async restore(
+    @Param('id') id: string,
+    @Query('token') token: string,
+    @Res() res: Response,
+  ) {
+    try {
+      const inv = await this.invoicesService.restoreWithToken(id, token);
+      res
+        .status(200)
+        .type('html')
+        .send(`<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Invoice restored</title></head>
+<body style="font-family:Inter,system-ui,sans-serif;background:#f5f7fa;padding:40px;">
+  <div style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #dde8f5;border-radius:12px;padding:28px;">
+    <h1 style="font-family:Montserrat,sans-serif;font-size:20px;margin:0 0 10px;">Invoice restored</h1>
+    <p style="color:#5a6a7e;margin:0 0 8px;">Invoice <strong>${inv.invoiceNumber || id}</strong> has been restored successfully.</p>
+    <p style="color:#94a3b8;font-size:12px;margin:16px 0 0;">You can close this tab and refresh the admin Invoices list.</p>
+  </div>
+</body></html>`);
+    } catch (err: any) {
+      const message = err?.message || 'Unable to restore invoice';
+      res
+        .status(err?.status || 400)
+        .type('html')
+        .send(`<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Restore failed</title></head>
+<body style="font-family:Inter,system-ui,sans-serif;background:#f5f7fa;padding:40px;">
+  <div style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #fecaca;border-radius:12px;padding:28px;">
+    <h1 style="font-family:Montserrat,sans-serif;font-size:20px;margin:0 0 10px;color:#b91c1c;">Restore failed</h1>
+    <p style="color:#5a6a7e;margin:0;">${String(message).replace(/</g, '&lt;')}</p>
+  </div>
+</body></html>`);
+    }
+  }
+
   @Post()
   @UseGuards(ControllerAuthGuard)
   create(
@@ -137,6 +172,13 @@ export class InvoicesController {
   @HttpCode(200)
   reopen(@Param('id') id: string, @Req() req: { user: RequestUser }) {
     return this.invoicesService.reopen(id, req.user);
+  }
+
+  @Post(':id/revise')
+  @UseGuards(ControllerAuthGuard)
+  @HttpCode(200)
+  revise(@Param('id') id: string, @Req() req: { user: RequestUser }) {
+    return this.invoicesService.revise(id, req.user);
   }
 
   @Post(':id/cancel')

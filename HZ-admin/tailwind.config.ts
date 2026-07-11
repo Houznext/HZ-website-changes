@@ -31,7 +31,10 @@ const config: Config = {
         "custom-card": "10px 10px 20px 10px #AEBBC940",
       },
       fontFamily: {
-        sans: ["Gordita", ...defaultTheme.fontFamily.sans],
+        sans: ["Inter", "system-ui", ...defaultTheme.fontFamily.sans],
+        inter: ["Inter", "system-ui", "sans-serif"],
+        heading: ["Montserrat", "system-ui", "sans-serif"],
+        montserrat: ["Montserrat", "system-ui", "sans-serif"],
       },
       keyframes: {
         spinner_y0fdc1: {

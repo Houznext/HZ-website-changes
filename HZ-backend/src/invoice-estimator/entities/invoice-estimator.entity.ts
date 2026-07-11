@@ -7,6 +7,7 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
@@ -17,6 +18,7 @@ import { InvoiceAuditLog } from './invoice-audit-log.entity';
 export type InvoiceStatus =
   | 'draft'
   | 'sent'
+  | 'revised'
   | 'partially_paid'
   | 'paid'
   | 'overdue'
@@ -71,6 +73,18 @@ export class InvoiceEstimator {
 
   @Column({ name: 'sent_at', type: 'timestamp', nullable: true })
   sentAt: Date | null;
+
+  /** Original sent invoice this revision was created from (null for non-revised). */
+  @Column({ name: 'revised_from_id', type: 'uuid', nullable: true })
+  revisedFromId: string | null;
+
+  /** Snapshot of when the parent invoice was emailed (for revised card copy). */
+  @Column({ name: 'original_sent_at', type: 'timestamp', nullable: true })
+  originalSentAt: Date | null;
+
+  /** Snapshot of the email the parent invoice was sent to. */
+  @Column({ name: 'original_sent_email', type: 'varchar', length: 120, nullable: true })
+  originalSentEmail: string | null;
 
   @Column({ name: 'last_viewed_at', type: 'timestamp', nullable: true })
   lastViewedAt: Date | null;
@@ -292,4 +306,13 @@ export class InvoiceEstimator {
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true })
   updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
+  deletedAt: Date | null;
+
+  @Column({ name: 'restore_token', type: 'varchar', length: 64, nullable: true })
+  restoreToken: string | null;
+
+  @Column({ name: 'deleted_by_id', type: 'uuid', nullable: true })
+  deletedById: string | null;
 }

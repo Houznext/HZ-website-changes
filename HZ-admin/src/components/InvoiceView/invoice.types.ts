@@ -27,7 +27,18 @@ export const GSTIN_REGEX =
   /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 
 export function formatINR(n: number) {
-  return `₹${Number(n).toLocaleString("en-IN")}`;
+  const v = Number(n);
+  if (!Number.isFinite(v)) return "₹0";
+  return `₹${v.toLocaleString("en-IN")}`;
+}
+
+/** Parse amounts typed with Indian commas / currency symbols (e.g. "2,13,808" or "₹213808"). */
+export function parseAmountInput(raw: string | number | null | undefined): number {
+  if (typeof raw === "number") return Number.isFinite(raw) ? raw : NaN;
+  if (raw == null) return NaN;
+  const cleaned = String(raw).replace(/[₹,\s]/g, "").trim();
+  if (!cleaned) return NaN;
+  return Number(cleaned);
 }
 
 export function formatINRShort(n: number) {
@@ -39,6 +50,7 @@ export function formatINRShort(n: number) {
 export type InvoiceStatus =
   | "draft"
   | "sent"
+  | "revised"
   | "partially_paid"
   | "paid"
   | "overdue"

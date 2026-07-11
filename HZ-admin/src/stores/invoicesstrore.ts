@@ -43,6 +43,7 @@ interface InvoiceStore {
   updateInvoice: (id: string, payload: unknown) => Promise<any>;
   sendInvoice: (id: string, payload: SendInvoicePayload) => Promise<any>;
   reopenInvoice: (id: string) => Promise<any>;
+  reviseInvoice: (id: string) => Promise<any>;
   cancelInvoice: (id: string, reason: string) => Promise<any>;
   recordPayment: (id: string, payload: unknown) => Promise<any>;
   deleteInvoice: (id: string) => Promise<void>;
@@ -169,6 +170,21 @@ export const useInvoiceStore = create<InvoiceStore>((set) => ({
     throw new Error("Reopen failed");
   },
 
+  reviseInvoice: async (id) => {
+    try {
+      const res = await apiClient.post(`${apiClient.URLS.invoices}/${id}/revise`, {}, true);
+      if (res.status === 200) {
+        toast.success("Revised invoice created");
+        return res.body;
+      }
+      throw new Error("Revise failed");
+    } catch (err) {
+      const message = invoiceErrorMessage(err, "Failed to create revised invoice");
+      toast.error(message);
+      throw err;
+    }
+  },
+
   cancelInvoice: async (id, reason) => {
     const res = await apiClient.post(
       `${apiClient.URLS.invoices}/${id}/cancel`,
@@ -183,16 +199,22 @@ export const useInvoiceStore = create<InvoiceStore>((set) => ({
   },
 
   recordPayment: async (id, payload) => {
-    const res = await apiClient.post(
-      `${apiClient.URLS.invoices}/${id}/payments`,
-      payload,
-      true,
-    );
-    if (res.status === 201 || res.status === 200) {
-      toast.success("Payment recorded");
-      return res.body;
+    try {
+      const res = await apiClient.post(
+        `${apiClient.URLS.invoices}/${id}/payments`,
+        payload,
+        true,
+      );
+      if (res.status === 201 || res.status === 200) {
+        toast.success("Payment recorded");
+        return res.body;
+      }
+      throw new Error("Payment failed");
+    } catch (err) {
+      const message = invoiceErrorMessage(err, "Failed to record payment");
+      toast.error(message);
+      throw err;
     }
-    throw new Error("Payment failed");
   },
 
   deleteInvoice: async (id) => {

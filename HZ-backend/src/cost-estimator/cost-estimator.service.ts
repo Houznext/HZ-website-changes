@@ -4,9 +4,11 @@ import {
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { randomBytes } from 'crypto';
 import {
   CreateCostEstimatorDto,
   UpdateCostEstimatorDto,
@@ -83,6 +85,10 @@ export class CostEstimatorService {
           id: savedEstimator.id,
           quotationNumber: savedEstimator.quotationNumber,
           customerFirstName: savedEstimator.firstname,
+          customerLastName: savedEstimator.lastname,
+          customerEmail: savedEstimator.email,
+          customerPhone: savedEstimator.customerMobile || savedEstimator.phone,
+          subTotal: Number(savedEstimator.subTotal),
           postedByName: user.fullName || user.username,
         });
       } catch (e) {
@@ -317,6 +323,27 @@ export class CostEstimatorService {
     const savedEstimator =
       await this.costEstimatorRepository.save(existingEstimator);
 
+    try {
+      await this.mailerService.notifyAdminsQuotationUpdated({
+        id: savedEstimator.id,
+        quotationNumber: savedEstimator.quotationNumber,
+        customerFirstName: savedEstimator.firstname,
+        customerLastName: savedEstimator.lastname,
+        customerEmail: savedEstimator.email,
+        customerPhone: savedEstimator.customerMobile || savedEstimator.phone,
+        subTotal: Number(savedEstimator.subTotal),
+        postedByName:
+          existingEstimator.postedBy?.fullName ||
+          existingEstimator.postedBy?.username ||
+          null,
+      });
+    } catch (e) {
+      console.error(
+        'CostEstimator update: admin quotation email failed (record saved):',
+        e instanceof Error ? e.message : e,
+      );
+    }
+
     const { itemGroups, ...rest } = savedEstimator;
     return {
       ...rest,
@@ -338,43 +365,19 @@ export class CostEstimatorService {
         where: { id: userId },
       });
 
-      const user = await this.userRepository.findOne({
-        where: { id: costEstimator.postedBy.id },
-        relations: ['costEstimators'],
+      const token = randomBytes(24).toString('hex');
+      await this.costEstimatorRepository.update(id, {
+        restoreToken: token,
+        deletedById: userId || null,
       });
+      await this.costEstimatorRepository.softDelete(id);
 
-      if (!user) {
-        throw new BadRequestException(
-          `User not found with id: ${costEstimator.postedBy.id}`,
-        );
-      }
+      const restoreUrl = this.mailerService.buildQuotationRestoreUrl(id, token);
+      const formattedDate = new Date().toLocaleString();
 
-      user.costEstimators = user.costEstimators.filter(
-        (item) => item.id !== id,
-      );
-
-      await this.userRepository.save(user);
-
-      if (costEstimator.property_image) {
-        try {
-          await this.s3Service.deleteFileByUrl(costEstimator.property_image);
-        } catch (err) {
-          console.warn('Failed to delete cost-estimator property_image from S3:', err);
-        }
-      }
-      if (costEstimator.floor_plan) {
-        try {
-          await this.s3Service.deleteFileByUrl(costEstimator.floor_plan);
-        } catch (err) {
-          console.warn('Failed to delete cost-estimator floor_plan from S3:', err);
-        }
-      }
-
-      await this.costEstimatorRepository.delete(id);
       const superAdmins = await this.userRepository.find({
         where: { role: UserRole.ADMIN },
       });
-      const formattedDate = new Date().toLocaleString();
 
       await Promise.all(
         superAdmins.map((admin) =>
@@ -387,15 +390,54 @@ export class CostEstimatorService {
 
       await this.mailerService.notifyAdminsAboutDeletion({
         deletedEstimatorId: id,
-        deletedBy,
-        estimatorFirstName: costEstimator.firstname,
+        deletedBy: {
+          id: deletedBy?.id || userId,
+          username: deletedBy?.username || deletedBy?.email || 'admin',
+        },
+        estimatorFirstName: [costEstimator.firstname, costEstimator.lastname]
+          .filter(Boolean)
+          .join(' '),
+        restoreUrl,
+        details: {
+          'Quotation #':
+            costEstimator.quotationNumber != null
+              ? `QT-${String(costEstimator.quotationNumber).padStart(4, '0')}`
+              : '—',
+          Email: costEstimator.email,
+          Phone: costEstimator.customerMobile || costEstimator.phone || '—',
+          Subtotal: `₹${Number(costEstimator.subTotal || 0).toLocaleString('en-IN')}`,
+        },
       });
 
-      console.log(`CostEstimator with ID ${id} deleted successfully`);
+      console.log(`CostEstimator with ID ${id} soft-deleted successfully`);
     } catch (error) {
       console.error(`Error deleting CostEstimator with ID ${id}:`, error);
       throw error;
     }
+  }
+
+  async restoreWithToken(id: string, token: string): Promise<CostEstimator> {
+    if (!token?.trim()) {
+      throw new BadRequestException('Restore token is required');
+    }
+    const row = await this.costEstimatorRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
+    if (!row || !row.deletedAt) {
+      throw new NotFoundException('Deleted quotation not found');
+    }
+    if (!row.restoreToken || row.restoreToken !== token.trim()) {
+      throw new ForbiddenException('Invalid restore token');
+    }
+    await this.costEstimatorRepository.restore(id);
+    await this.costEstimatorRepository.update(id, {
+      restoreToken: null,
+      deletedById: null,
+    });
+    const restored = await this.costEstimatorRepository.findOne({ where: { id } });
+    if (!restored) throw new NotFoundException('Quotation not found after restore');
+    return restored;
   }
 
   async sendEmail(email: string) {

@@ -27,8 +27,10 @@ interface GenericLead {
 }
 interface DeletionNotification {
   deletedEstimatorId: string;
-  deletedBy: { id: string;  username: string };
-  estimatorFirstName?: string;
+  deletedBy: { id: string; username: string };
+  estimatorFirstName: string;
+  restoreUrl?: string;
+  details?: Record<string, string | number | null | undefined>;
 }
 
 @Injectable()
@@ -382,73 +384,244 @@ ${params.bodyText
     }
   }
 
+  private financeNotifyRecipients(): string[] {
+    const raw =
+      process.env.FINANCE_NOTIFY_EMAIL?.trim() ||
+      process.env.SMTP_USER?.trim() ||
+      'business@houznext.com';
+    return Array.from(
+      new Set(
+        raw
+          .split(/[,;]+/)
+          .map((e) => e.trim())
+          .filter(Boolean),
+      ),
+    );
+  }
+
+  private publicApiBase(): string {
+    return (
+      process.env.PUBLIC_API_URL?.trim() ||
+      process.env.API_PUBLIC_URL?.trim() ||
+      process.env.BACKEND_PUBLIC_URL?.trim() ||
+      'http://localhost:4000'
+    ).replace(/\/$/, '');
+  }
+
+  buildInvoiceRestoreUrl(id: string, token: string): string {
+    return `${this.publicApiBase()}/invoices/${id}/restore?token=${encodeURIComponent(token)}`;
+  }
+
+  buildQuotationRestoreUrl(id: string, token: string): string {
+    return `${this.publicApiBase()}/cost-estimator/${id}/restore?token=${encodeURIComponent(token)}`;
+  }
+
+  /**
+   * Notify business@houznext.com (or FINANCE_NOTIFY_EMAIL) about invoice/quotation
+   * create, update, or delete. Delete emails include a restore button when restoreUrl is set.
+   */
+  async notifyFinanceAdminEvent(params: {
+    kind: 'invoice' | 'quotation';
+    action: 'created' | 'updated' | 'deleted';
+    title: string;
+    rows: [string, string][];
+    restoreUrl?: string;
+    actorName?: string;
+  }): Promise<void> {
+    const when = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+    const kindLabel = params.kind === 'invoice' ? 'Invoice' : 'Quotation';
+    const actionLabel =
+      params.action === 'created'
+        ? 'created'
+        : params.action === 'updated'
+          ? 'updated'
+          : 'deleted';
+
+    const tableHtml = params.rows
+      .map(
+        ([k, v]) =>
+          `<tr><td style="padding:8px;border-bottom:1px solid #f1f5f9;font-weight:600;width:160px;color:#475569;">${this.escapeHtml(k)}</td><td style="padding:8px;border-bottom:1px solid #f1f5f9;color:#1f2933;">${this.escapeHtml(v || '—')}</td></tr>`,
+      )
+      .join('');
+
+    const restoreBlock = params.restoreUrl
+      ? `<div style="margin:20px 0 8px;padding:16px;background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;">
+           <p style="margin:0 0 12px;font-size:13px;color:#92400e;"><strong>This ${kindLabel.toLowerCase()} was soft-deleted.</strong> Click below to restore it.</p>
+           <a href="${this.escapeHtml(params.restoreUrl)}" style="display:inline-block;padding:10px 18px;background:#2f80ed;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:13px;">Restore ${kindLabel}</a>
+           <p style="margin:12px 0 0;font-size:11px;color:#78716c;word-break:break-all;">Or open: ${this.escapeHtml(params.restoreUrl)}</p>
+         </div>`
+      : '';
+
+    const html = `<html><body style="font-family:Inter,system-ui,sans-serif;font-size:14px;color:#1f2933;background:#f5f7fa;">
+<div style="max-width:640px;margin:24px auto;padding:24px;background:#fff;border:1px solid #dde8f5;border-radius:12px;">
+  <h2 style="margin:0 0 8px;font-family:Montserrat,sans-serif;font-size:18px;">${this.escapeHtml(params.title)}</h2>
+  <p style="margin:0 0 16px;color:#5a6a7e;">A ${kindLabel.toLowerCase()} was <strong>${actionLabel}</strong>${
+      params.actorName ? ` by <strong>${this.escapeHtml(params.actorName)}</strong>` : ''
+    }.</p>
+  <table style="border-collapse:collapse;width:100%;">${tableHtml}</table>
+  ${restoreBlock}
+  <p style="margin:16px 0 0;font-size:12px;color:#94a3b8;">${this.escapeHtml(when)} (IST)</p>
+</div></body></html>`;
+
+    const subject = params.title;
+    const text = `${kindLabel} ${actionLabel}: ${params.rows
+      .map(([k, v]) => `${k}: ${v}`)
+      .join(' | ')}${params.restoreUrl ? ` Restore: ${params.restoreUrl}` : ''}`;
+
+    for (const email of this.financeNotifyRecipients()) {
+      await this.sendMail(email, subject, text, html);
+    }
+  }
+
   async notifyAdminsAboutDeletion({
     deletedEstimatorId,
     deletedBy,
     estimatorFirstName,
+    restoreUrl,
+    details,
   }: DeletionNotification): Promise<void> {
-    const formattedDate = new Date().toLocaleDateString();
-
-    const populatedTemplate = `
-    <html>
-      <body style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #333; background-color: #e9edf8;">
-        <div style="max-width: 680px; margin: 40px auto; padding: 40px; background-color: #bfdbfe; border-radius: 8px;">
-          <h2>🗑️ Cost Estimator Deleted</h2>
-          <p>Quotation / cost estimate <strong>${estimatorFirstName}</strong> with ID <strong>${deletedEstimatorId}</strong> was deleted by <strong>${deletedBy.username}</strong> on ${formattedDate}.</p>
-        </div>
-      </body>
-    </html>
-  `;
-
-    const adminEmails = [
-      'business@houznext.com',
+    const rows: [string, string][] = [
+      ['Customer', estimatorFirstName || '—'],
+      ['Record ID', deletedEstimatorId],
+      ['Deleted by', deletedBy?.username || '—'],
+      ...Object.entries(details || {}).map(
+        ([k, v]) => [k, v == null ? '—' : String(v)] as [string, string],
+      ),
     ];
-    for (const email of adminEmails) {
-      await this.sendMail(
-        email,
-        'Quotation deleted (admin)',
-        `Quotation ${estimatorFirstName} ID ${deletedEstimatorId} deleted by ${deletedBy.username}`,
-        populatedTemplate,
-      );
-    }
+    await this.notifyFinanceAdminEvent({
+      kind: 'quotation',
+      action: 'deleted',
+      title: `Quotation deleted: ${estimatorFirstName || deletedEstimatorId}`,
+      rows,
+      restoreUrl,
+      actorName: deletedBy?.username,
+    });
   }
 
   async notifyAdminsQuotationCreated(params: {
     id: string;
     quotationNumber: number | null | undefined;
     customerFirstName?: string | null;
+    customerLastName?: string | null;
+    customerEmail?: string | null;
+    customerPhone?: string | number | null;
+    subTotal?: number | null;
     postedByName?: string | null;
   }): Promise<void> {
     const qn =
       params.quotationNumber != null
         ? `QT-${String(params.quotationNumber).padStart(4, '0')}`
         : '—';
-    const when = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-    const html = `
-    <html>
-      <body style="font-family: system-ui, sans-serif; font-size: 14px; color: #1f2933;">
-        <div style="max-width: 640px; margin: 24px auto; padding: 24px; border: 1px solid #dbe4f1; border-radius: 10px;">
-          <h2 style="margin: 0 0 12px;">New quotation (admin)</h2>
-          <p style="margin: 0 0 8px;">A new cost estimate / quotation was created from the admin panel.</p>
-          <ul style="margin: 0; padding-left: 18px;">
-            <li><strong>Quotation #:</strong> ${qn}</li>
-            <li><strong>Record ID:</strong> ${params.id}</li>
-            <li><strong>Customer (first name):</strong> ${params.customerFirstName ?? '—'}</li>
-            <li><strong>Created by:</strong> ${params.postedByName ?? '—'}</li>
-            <li><strong>Time:</strong> ${when} (IST)</li>
-          </ul>
-        </div>
-      </body>
-    </html>`;
-    const adminEmails = ['business@houznext.com'];
-    for (const email of adminEmails) {
-      await this.sendMail(
-        email,
-        `New quotation ${qn} — admin`,
-        `New quotation ${qn} (id ${params.id}) created in admin.`,
-        html,
-      );
-    }
+    await this.notifyFinanceAdminEvent({
+      kind: 'quotation',
+      action: 'created',
+      title: `New quotation ${qn}`,
+      actorName: params.postedByName || undefined,
+      rows: [
+        ['Quotation #', qn],
+        ['Record ID', params.id],
+        [
+          'Customer',
+          [params.customerFirstName, params.customerLastName].filter(Boolean).join(' ') ||
+            '—',
+        ],
+        ['Email', params.customerEmail || '—'],
+        ['Phone', params.customerPhone != null ? String(params.customerPhone) : '—'],
+        [
+          'Subtotal',
+          params.subTotal != null
+            ? `₹${Number(params.subTotal).toLocaleString('en-IN')}`
+            : '—',
+        ],
+        ['Created by', params.postedByName || '—'],
+      ],
+    });
+  }
+
+  async notifyAdminsQuotationUpdated(params: {
+    id: string;
+    quotationNumber: number | null | undefined;
+    customerFirstName?: string | null;
+    customerLastName?: string | null;
+    customerEmail?: string | null;
+    customerPhone?: string | number | null;
+    subTotal?: number | null;
+    postedByName?: string | null;
+  }): Promise<void> {
+    const qn =
+      params.quotationNumber != null
+        ? `QT-${String(params.quotationNumber).padStart(4, '0')}`
+        : '—';
+    await this.notifyFinanceAdminEvent({
+      kind: 'quotation',
+      action: 'updated',
+      title: `Quotation updated ${qn}`,
+      actorName: params.postedByName || undefined,
+      rows: [
+        ['Quotation #', qn],
+        ['Record ID', params.id],
+        [
+          'Customer',
+          [params.customerFirstName, params.customerLastName].filter(Boolean).join(' ') ||
+            '—',
+        ],
+        ['Email', params.customerEmail || '—'],
+        ['Phone', params.customerPhone != null ? String(params.customerPhone) : '—'],
+        [
+          'Subtotal',
+          params.subTotal != null
+            ? `₹${Number(params.subTotal).toLocaleString('en-IN')}`
+            : '—',
+        ],
+        ['Updated by', params.postedByName || '—'],
+      ],
+    });
+  }
+
+  async notifyAdminsInvoiceEvent(params: {
+    action: 'created' | 'updated' | 'deleted';
+    id: string;
+    invoiceNumber?: string | null;
+    billToName?: string | null;
+    billToEmail?: string | null;
+    billToMobile?: string | null;
+    status?: string | null;
+    grandTotal?: number | null;
+    actorName?: string | null;
+    restoreUrl?: string;
+  }): Promise<void> {
+    const invNo = params.invoiceNumber || '—';
+    const titleVerb =
+      params.action === 'created'
+        ? 'New invoice'
+        : params.action === 'updated'
+          ? 'Invoice updated'
+          : 'Invoice deleted';
+    await this.notifyFinanceAdminEvent({
+      kind: 'invoice',
+      action: params.action,
+      title: `${titleVerb}: ${invNo}`,
+      actorName: params.actorName || undefined,
+      restoreUrl: params.restoreUrl,
+      rows: [
+        ['Invoice #', invNo],
+        ['Record ID', params.id],
+        ['Customer', params.billToName || '—'],
+        ['Email', params.billToEmail || '—'],
+        ['Phone', params.billToMobile || '—'],
+        ['Status', params.status || '—'],
+        [
+          'Grand total',
+          params.grandTotal != null
+            ? `₹${Number(params.grandTotal).toLocaleString('en-IN')}`
+            : '—',
+        ],
+        [
+          params.action === 'deleted' ? 'Deleted by' : params.action === 'updated' ? 'Updated by' : 'Created by',
+          params.actorName || '—',
+        ],
+      ],
+    });
   }
 
   async notifyLivebuildRoomRemoved(params: {

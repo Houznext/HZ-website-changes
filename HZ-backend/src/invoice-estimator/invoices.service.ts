@@ -7,6 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Brackets } from 'typeorm';
 import { Cron } from '@nestjs/schedule';
+import { randomBytes } from 'crypto';
 import { InvoiceEstimator, InvoiceStatus } from './entities/invoice-estimator.entity';
 import { InvoiceItem } from './entities/invoice-item.entity';
 import { InvoicePayment } from './entities/invoice-payment.entity';
@@ -448,6 +449,9 @@ export class InvoicesService {
       prepared_by_name: inv.preparedByName,
       prepared_by_role: inv.preparedByRole,
       sent_at: inv.sentAt,
+      revised_from_id: inv.revisedFromId,
+      original_sent_at: inv.originalSentAt,
+      original_sent_email: inv.originalSentEmail,
       cancelled_at: inv.cancelledAt,
       cancellation_reason: inv.cancellationReason,
       items: (inv.lineItems || []).map((it) => ({
@@ -654,6 +658,26 @@ export class InvoicesService {
       invoice_number: saved.invoiceNumber,
     });
 
+    try {
+      const full = await this.findOne(saved.id);
+      await this.mailerService.notifyAdminsInvoiceEvent({
+        action: 'created',
+        id: saved.id,
+        invoiceNumber: full.invoice_number,
+        billToName: full.bill_to_name,
+        billToEmail: full.bill_to_email,
+        billToMobile: full.bill_to_mobile,
+        status: full.status,
+        grandTotal: full.grand_total,
+        actorName: admin.fullName || admin.username || admin.email,
+      });
+    } catch (e) {
+      console.error(
+        'Invoice create: admin email failed (record saved):',
+        e instanceof Error ? e.message : e,
+      );
+    }
+
     return this.findOne(saved.id);
   }
 
@@ -664,8 +688,8 @@ export class InvoicesService {
       relations: ['lineItems'],
     });
     if (!inv) throw new NotFoundException('Invoice not found');
-    if (inv.status !== 'draft') {
-      throw new ForbiddenException('Only draft invoices can be edited');
+    if (inv.status !== 'draft' && inv.status !== 'revised') {
+      throw new ForbiddenException('Only draft or revised invoices can be edited');
     }
 
     this.validateCreateDto(dto);
@@ -735,7 +759,33 @@ export class InvoicesService {
     await this.itemRepo.save(this.mapItemsToEntities(id, dto.items, calc));
 
     await this.audit(id, actor?.id || dto.userId, 'edited', before, await this.findOne(id));
-    return this.findOne(id);
+    const updated = await this.findOne(id);
+    try {
+      const actorUser = actor?.id
+        ? await this.userRepo.findOne({ where: { id: actor.id } })
+        : null;
+      await this.mailerService.notifyAdminsInvoiceEvent({
+        action: 'updated',
+        id,
+        invoiceNumber: updated.invoice_number,
+        billToName: updated.bill_to_name,
+        billToEmail: updated.bill_to_email,
+        billToMobile: updated.bill_to_mobile,
+        status: updated.status,
+        grandTotal: updated.grand_total,
+        actorName:
+          actorUser?.fullName ||
+          actorUser?.username ||
+          actorUser?.email ||
+          actor?.email,
+      });
+    } catch (e) {
+      console.error(
+        'Invoice update: admin email failed (record saved):',
+        e instanceof Error ? e.message : e,
+      );
+    }
+    return updated;
   }
 
   async updateStatusFromPayments(invoiceId: string) {
@@ -746,7 +796,7 @@ export class InvoicesService {
     const balanceDue = round2(Number(inv.grandTotal) - totalPaid);
 
     let status: InvoiceStatus = inv.status;
-    if (status === 'draft' || status === 'cancelled') {
+    if (status === 'draft' || status === 'revised' || status === 'cancelled') {
       // no auto change
     } else if (totalPaid >= Number(inv.grandTotal)) {
       status = 'paid';
@@ -774,8 +824,8 @@ export class InvoicesService {
   async send(id: string, dto: SendInvoiceDto, actor?: RequestUser) {
     const inv = await this.invoiceRepo.findOne({ where: { id } });
     if (!inv) throw new NotFoundException('Invoice not found');
-    if (inv.status !== 'draft') {
-      throw new BadRequestException('Only draft invoices can be sent');
+    if (inv.status !== 'draft' && inv.status !== 'revised') {
+      throw new BadRequestException('Only draft or revised invoices can be sent');
     }
 
     const email = dto.customer_email?.trim();
@@ -908,6 +958,87 @@ export class InvoicesService {
     return this.findOne(id);
   }
 
+  /**
+   * Create a revised copy of a sent invoice. Original stays `sent`;
+   * the new invoice is `revised` and editable.
+   */
+  async revise(id: string, actor?: RequestUser) {
+    const sourceInv = await this.invoiceRepo.findOne({
+      where: { id },
+      relations: ['lineItems'],
+    });
+    if (!sourceInv) throw new NotFoundException('Invoice not found');
+    if (sourceInv.status !== 'sent') {
+      throw new BadRequestException('Only sent invoices can be revised');
+    }
+
+    const source = await this.findOne(id, true);
+    const ownerId = actor?.id || sourceInv.userId;
+    const dto: CreateInvoiceDto = {
+      userId: ownerId,
+      branchId: sourceInv.branchId || undefined,
+      bill_to_name: source.bill_to_name,
+      bill_to_gstin: source.bill_to_gstin || undefined,
+      bill_to_address: source.bill_to_address || undefined,
+      bill_to_city: source.bill_to_city || undefined,
+      bill_to_state: source.bill_to_state || undefined,
+      bill_to_state_code: source.bill_to_state_code || undefined,
+      bill_to_pincode: source.bill_to_pincode || undefined,
+      bill_to_mobile: source.bill_to_mobile || undefined,
+      bill_to_email: source.bill_to_email || undefined,
+      ship_to_same_as_bill: source.ship_to_same_as_bill,
+      ship_to_name: source.ship_to_name || undefined,
+      ship_to_address: source.ship_to_address || undefined,
+      ship_to_city: source.ship_to_city || undefined,
+      ship_to_state: source.ship_to_state || undefined,
+      ship_to_state_code: source.ship_to_state_code || undefined,
+      ship_to_pincode: source.ship_to_pincode || undefined,
+      ship_to_email: source.ship_to_email || undefined,
+      invoice_type: source.invoice_type,
+      invoice_date: new Date().toISOString().slice(0, 10),
+      invoice_due: source.invoice_due,
+      invoice_discount_type: source.invoice_discount_type || undefined,
+      invoice_discount_value: source.invoice_discount_value ?? undefined,
+      notes: source.notes || undefined,
+      internal_notes: source.internal_notes || undefined,
+      terms_and_conditions: source.terms_and_conditions || undefined,
+      additional_work_details: source.additional_work_details || undefined,
+      prepared_by_name: source.prepared_by_name || undefined,
+      prepared_by_role: source.prepared_by_role || undefined,
+      items: (source.items || []).map((it: any) => ({
+        item_name: it.item_name,
+        group_name: it.group_name,
+        description: it.description,
+        hsn_sac_code: it.hsn_sac_code,
+        pricing_mode: it.pricing_mode,
+        quantity: it.quantity,
+        unit_label: it.unit_label,
+        unit_price: it.unit_price,
+        area_value: it.area_value,
+        area_unit: it.area_unit,
+        rate_per_unit: it.rate_per_unit,
+        item_discount_type: it.item_discount_type,
+        item_discount_value: it.item_discount_value,
+        gst_rate: it.gst_rate,
+      })),
+    };
+
+    const created = await this.create(dto, actor);
+    await this.invoiceRepo.update(created.id, {
+      status: 'revised',
+      revisedFromId: id,
+      originalSentAt: sourceInv.sentAt,
+      originalSentEmail: sourceInv.billToEmail,
+    });
+
+    await this.audit(created.id, ownerId, 'revised', null, {
+      revised_from_id: id,
+      original_invoice_number: source.invoice_number,
+    });
+
+    return this.findOne(created.id);
+  }
+
   async duplicate(id: string, actor?: RequestUser) {
     const source = await this.findOne(id);
     const { id: _id, payments, created_at, updated_at, sent_at, ...rest } = source as any;
@@ -961,15 +1092,24 @@ export class InvoicesService {
   async addPayment(id: string, dto: RecordPaymentDto, actor?: RequestUser) {
     const inv = await this.invoiceRepo.findOne({ where: { id } });
     if (!inv) throw new NotFoundException('Invoice not found');
-    if (inv.status === 'draft' || inv.status === 'cancelled') {
-      throw new BadRequestException('Cannot record payment on draft/cancelled invoice');
+    if (inv.status === 'draft' || inv.status === 'revised' || inv.status === 'cancelled') {
+      throw new BadRequestException('Cannot record payment on draft/revised/cancelled invoice');
     }
-    if (dto.amount > Number(inv.balanceDue) + 0.01) {
+    const amount = round2(Number(dto.amount));
+    if (!Number.isFinite(amount) || amount <= 0) {
+      throw new BadRequestException('Enter a valid payment amount');
+    }
+    const balanceDue = round2(
+      Number.isFinite(Number(inv.balanceDue))
+        ? Number(inv.balanceDue)
+        : Number(inv.grandTotal || 0) - Number(inv.totalPaid || 0),
+    );
+    if (amount > balanceDue + 0.01) {
       throw new BadRequestException('Payment exceeds balance due');
     }
     const payment = this.paymentRepo.create({
       invoiceId: id,
-      amount: dto.amount,
+      amount,
       paymentDate: dto.payment_date,
       paymentMethod: dto.payment_method as InvoicePayment['paymentMethod'],
       referenceNo: dto.reference_no || null,
@@ -978,7 +1118,10 @@ export class InvoicesService {
     });
     await this.paymentRepo.save(payment);
     await this.updateStatusFromPayments(id);
-    await this.audit(id, actor?.id || inv.userId, 'payment_added', null, dto);
+    await this.audit(id, actor?.id || inv.userId, 'payment_added', null, {
+      ...dto,
+      amount,
+    });
     return this.findOne(id);
   }
 
@@ -1017,10 +1160,74 @@ export class InvoicesService {
     return this.findOne(invoiceId);
   }
 
-  async delete(id: string, _actor?: RequestUser): Promise<void> {
+  async delete(id: string, actor?: RequestUser): Promise<void> {
     const inv = await this.invoiceRepo.findOne({ where: { id } });
     if (!inv) throw new NotFoundException('Invoice not found');
-    await this.invoiceRepo.delete(id);
+
+    const token = randomBytes(24).toString('hex');
+    await this.invoiceRepo.update(id, {
+      restoreToken: token,
+      deletedById: actor?.id || null,
+    });
+    await this.invoiceRepo.softDelete(id);
+
+    const actorUser = actor?.id
+      ? await this.userRepo.findOne({ where: { id: actor.id } })
+      : null;
+    const restoreUrl = this.mailerService.buildInvoiceRestoreUrl(id, token);
+
+    try {
+      await this.mailerService.notifyAdminsInvoiceEvent({
+        action: 'deleted',
+        id,
+        invoiceNumber: inv.invoiceNumber,
+        billToName: inv.billToName,
+        billToEmail: inv.billToEmail,
+        billToMobile: inv.billToMobile || inv.customerMobile,
+        status: inv.status,
+        grandTotal: Number(inv.grandTotal),
+        actorName:
+          actorUser?.fullName ||
+          actorUser?.username ||
+          actorUser?.email ||
+          actor?.email,
+        restoreUrl,
+      });
+    } catch (e) {
+      console.error(
+        'Invoice delete: admin email failed (record soft-deleted):',
+        e instanceof Error ? e.message : e,
+      );
+    }
+
+    await this.audit(id, actor?.id || inv.userId, 'deleted', { status: inv.status }, {
+      soft_deleted: true,
+    });
+  }
+
+  async restoreWithToken(id: string, token: string): Promise<InvoiceEstimator> {
+    if (!token?.trim()) {
+      throw new BadRequestException('Restore token is required');
+    }
+    const inv = await this.invoiceRepo.findOne({
+      where: { id },
+      withDeleted: true,
+    });
+    if (!inv || !inv.deletedAt) {
+      throw new NotFoundException('Deleted invoice not found');
+    }
+    if (!inv.restoreToken || inv.restoreToken !== token.trim()) {
+      throw new ForbiddenException('Invalid restore token');
+    }
+    await this.invoiceRepo.restore(id);
+    await this.invoiceRepo.update(id, {
+      restoreToken: null,
+      deletedById: null,
+    });
+    await this.audit(id, inv.userId, 'restored', null, { restored: true });
+    const restored = await this.invoiceRepo.findOne({ where: { id } });
+    if (!restored) throw new NotFoundException('Invoice not found after restore');
+    return restored;
   }
 
   async findByMobile(mobile: string) {
@@ -1060,7 +1267,7 @@ export class InvoicesService {
     if (suffix.length !== 10 || invMobile !== suffix) {
       throw new ForbiddenException('Not authorized to download this invoice');
     }
-    if (inv.status === 'draft') {
+    if (inv.status === 'draft' || inv.status === 'revised') {
       throw new BadRequestException('Invoice not available');
     }
     return this.pdfService.generate(inv);

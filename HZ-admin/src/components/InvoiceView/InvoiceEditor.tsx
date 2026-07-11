@@ -10,6 +10,7 @@ import {
   GSTIN_REGEX,
   INDIAN_STATES,
   formatINR,
+  parseAmountInput,
   type InvoiceFormState,
   type InvoiceItemForm,
 } from "./invoice.types";
@@ -296,8 +297,9 @@ export default function InvoiceEditor({ invoiceId }: { invoiceId?: string }) {
     reference_no: "",
     notes: "",
   });
+  const [recordingPayment, setRecordingPayment] = useState(false);
 
-  const locked = form.status && form.status !== "draft";
+  const locked = Boolean(form.status && form.status !== "draft" && form.status !== "revised");
   const supplierCode = "36";
 
   const totals = useMemo(
@@ -311,6 +313,19 @@ export default function InvoiceEditor({ invoiceId }: { invoiceId?: string }) {
       ),
     [form],
   );
+
+  const balanceDue = useMemo(() => {
+    const fromForm = Number(form.balance_due);
+    if (Number.isFinite(fromForm)) return fromForm;
+    const grand = Number(form.grand_total ?? totals.grandTotal ?? 0);
+    const paid = Number(form.total_paid ?? 0);
+    return Math.max(0, grand - paid);
+  }, [form.balance_due, form.grand_total, form.total_paid, totals.grandTotal]);
+
+  const payAmount = parseAmountInput(payForm.amount);
+  const balanceAfter = Number.isFinite(payAmount)
+    ? Math.max(0, balanceDue - payAmount)
+    : balanceDue;
 
   const gstinValid = useMemo(() => {
     const g = str(form.bill_to_gstin).trim().toUpperCase();
@@ -910,6 +925,158 @@ export default function InvoiceEditor({ invoiceId }: { invoiceId?: string }) {
 
           <div className={styles.card}>
             <div className={styles.secHead}>
+              <div className={styles.secIc}><i className="ti ti-list-details" /></div>
+              <div className={styles.secT}>Items</div>
+              <div className={styles.secLine} />
+              <span className="text-[11px] text-[#5a6a7e]">{form.items.length} items</span>
+            </div>
+
+            {form.items.length === 0 && (
+              <div className={styles.itemsEmpty}>
+                No item groups yet. Click &quot;+ Add group&quot; to create your first group.
+              </div>
+            )}
+
+            {[...groups.entries()].map(([groupName, groupItemsList]) => (
+              <div key={groupName} className={styles.groupBlk}>
+                <div className={styles.groupHead}>
+                  <input
+                    className={styles.groupNameInput}
+                    defaultValue={groupName}
+                    key={groupName}
+                    disabled={locked}
+                    placeholder="Group name"
+                    onBlur={(e) => renameGroup(groupName, e.target.value)}
+                  />
+                  {!locked && (
+                    <button
+                      type="button"
+                      className="text-red-600 text-xs font-semibold whitespace-nowrap"
+                      onClick={() => removeGroup(groupName)}
+                    >
+                      Remove group
+                    </button>
+                  )}
+                </div>
+                {groupItemsList.map((item) => {
+                  const idx = form.items.indexOf(item);
+                  const line = previewLine(item, supplierCode, form.bill_to_state_code);
+                  return (
+                    <div key={idx} className={styles.itemCard}>
+                      <input
+                        className="w-full border-none font-semibold mb-2 outline-none"
+                        disabled={locked}
+                        value={item.item_name}
+                        placeholder="Item name"
+                        onChange={(e) => updateItem(idx, { item_name: e.target.value })}
+                      />
+                      <div className={styles.modeToggle}>
+                        <button type="button" className={`${styles.modeOpt} ${item.pricing_mode === "unit" ? styles.modeOptOn : ""}`} disabled={locked} onClick={() => updateItem(idx, { pricing_mode: "unit", area_value: undefined, rate_per_unit: undefined })}>Unit-based</button>
+                        <button type="button" className={`${styles.modeOpt} ${item.pricing_mode === "area" ? styles.modeOptOn : ""}`} disabled={locked} onClick={() => updateItem(idx, { pricing_mode: "area", quantity: undefined, unit_price: undefined })}>Area-based</button>
+                      </div>
+                      {item.pricing_mode === "unit" ? (
+                        <div className={styles.g4}>
+                          <div className={styles.field}><label className={styles.lbl}>Qty</label><input className={styles.fi} type="number" disabled={locked} value={item.quantity} onChange={(e) => updateItem(idx, { quantity: e.target.value })} /></div>
+                          <div className={styles.field}><label className={styles.lbl}>Unit</label><select className={styles.fi} disabled={locked} value={item.unit_label} onChange={(e) => updateItem(idx, { unit_label: e.target.value })}><option>nos</option><option>set</option><option>piece</option></select></div>
+                          <div className={styles.field}><label className={styles.lbl}>Unit price</label><input className={styles.fi} type="number" disabled={locked} value={item.unit_price} onChange={(e) => updateItem(idx, { unit_price: e.target.value })} /></div>
+                          <div className={styles.field}><label className={styles.lbl}>GST %</label><select className={styles.fi} disabled={locked} value={item.gst_rate} onChange={(e) => updateItem(idx, { gst_rate: Number(e.target.value) })}>{[0, 5, 12, 18, 28].map((r) => <option key={r} value={r}>{r}%</option>)}</select></div>
+                        </div>
+                      ) : (
+                        <div className={styles.g4}>
+                          <div className={styles.field}><label className={styles.lbl}>Area</label><input className={styles.fi} type="number" disabled={locked} value={item.area_value} onChange={(e) => updateItem(idx, { area_value: e.target.value })} /></div>
+                          <div className={styles.field}><label className={styles.lbl}>Unit</label><select className={styles.fi} disabled={locked} value={item.area_unit} onChange={(e) => updateItem(idx, { area_unit: e.target.value })}><option>sqft</option><option>sqyd</option><option>rft</option></select></div>
+                          <div className={styles.field}><label className={styles.lbl}>Rate (₹)</label><input className={styles.fi} type="number" disabled={locked} value={item.rate_per_unit} onChange={(e) => updateItem(idx, { rate_per_unit: e.target.value })} /></div>
+                          <div className={styles.field}><label className={styles.lbl}>GST %</label><select className={styles.fi} disabled={locked} value={item.gst_rate} onChange={(e) => updateItem(idx, { gst_rate: Number(e.target.value) })}>{[0, 5, 12, 18, 28].map((r) => <option key={r} value={r}>{r}%</option>)}</select></div>
+                        </div>
+                      )}
+                      <div className="flex justify-between mt-2 pt-2 border-t border-dashed text-sm">
+                        <span className="text-[#5a6a7e]">Taxable {formatINR(line.taxable)} · GST {formatINR(line.gst)}</span>
+                        <span className="font-extrabold text-[#2f80ed] mf">{formatINR(line.lineTotal)}</span>
+                      </div>
+                      {!locked && (
+                        <button type="button" className="text-red-600 text-xs mt-2" onClick={() => setForm((f) => ({ ...f, items: f.items.filter((_, i) => i !== idx) }))}>Remove</button>
+                      )}
+                    </div>
+                  );
+                })}
+                {!locked && (
+                  <button
+                    type="button"
+                    className={`${styles.btn} w-full justify-center mt-2`}
+                    onClick={() =>
+                      setForm((f) => ({ ...f, items: [...f.items, emptyItem(groupName)] }))
+                    }
+                  >
+                    + Add item to {groupName}
+                  </button>
+                )}
+              </div>
+            ))}
+            {!locked && (
+              <button
+                type="button"
+                className={`${styles.btn} ${styles.btnPri} w-full justify-center mt-3`}
+                onClick={addGroup}
+              >
+                + Add group
+              </button>
+            )}
+          </div>
+
+          <div className={styles.card}>
+            <div className={styles.secHead}>
+              <div className={styles.secIc}><i className="ti ti-discount-2" /></div>
+              <div className={styles.secT}>Discount &amp; Notes</div>
+            </div>
+            <div className={styles.g2}>
+              <div className={styles.field}>
+                <label className={styles.lbl}>Invoice-level discount</label>
+                <div className="flex gap-2">
+                  <input
+                    className={styles.fi}
+                    disabled={locked}
+                    type="number"
+                    min={0}
+                    placeholder="0"
+                    value={form.invoice_discount_value || ""}
+                    onChange={(e) =>
+                      setForm((f) => ({
+                        ...f,
+                        invoice_discount_value: e.target.value,
+                        invoice_discount_type: f.invoice_discount_type || "amount",
+                      }))
+                    }
+                  />
+                  <select
+                    className={styles.fi}
+                    style={{ width: 80 }}
+                    disabled={locked}
+                    value={form.invoice_discount_type || "amount"}
+                    onChange={(e) =>
+                      setField("invoice_discount_type", e.target.value as "amount" | "percent")
+                    }
+                  >
+                    <option value="amount">₹</option>
+                    <option value="percent">%</option>
+                  </select>
+                </div>
+                <p className="text-[11px] text-[#5a6a7e] mt-1">
+                  Updates invoice totals instantly. Use Save draft to keep changes.
+                </p>
+              </div>
+            </div>
+            <div className={styles.field}>
+              <label className={styles.lbl}>Customer notes (visible on PDF)</label>
+              <textarea className={styles.fi} rows={2} disabled={locked} value={form.additional_work_details || form.notes} onChange={(e) => setField("additional_work_details", e.target.value)} />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.lbl}>Internal notes</label>
+              <textarea className={styles.fi} rows={2} disabled={locked} value={form.internal_notes} onChange={(e) => setField("internal_notes", e.target.value)} />
+            </div>
+          </div>
+
+          <div className={styles.card}>
+            <div className={styles.secHead}>
               <div className={styles.secIc}><i className="ti ti-cash" /></div>
               <div className={styles.secT}>Payment Status</div>
               <div className={styles.secLine} />
@@ -1141,158 +1308,6 @@ export default function InvoiceEditor({ invoiceId }: { invoiceId?: string }) {
               </div>
             )}
           </div>
-
-          <div className={styles.card}>
-            <div className={styles.secHead}>
-              <div className={styles.secIc}><i className="ti ti-list-details" /></div>
-              <div className={styles.secT}>Items</div>
-              <div className={styles.secLine} />
-              <span className="text-[11px] text-[#5a6a7e]">{form.items.length} items</span>
-            </div>
-
-            {form.items.length === 0 && (
-              <div className={styles.itemsEmpty}>
-                No item groups yet. Click &quot;+ Add group&quot; to create your first group.
-              </div>
-            )}
-
-            {[...groups.entries()].map(([groupName, groupItemsList]) => (
-              <div key={groupName} className={styles.groupBlk}>
-                <div className={styles.groupHead}>
-                  <input
-                    className={styles.groupNameInput}
-                    defaultValue={groupName}
-                    key={groupName}
-                    disabled={locked}
-                    placeholder="Group name"
-                    onBlur={(e) => renameGroup(groupName, e.target.value)}
-                  />
-                  {!locked && (
-                    <button
-                      type="button"
-                      className="text-red-600 text-xs font-semibold whitespace-nowrap"
-                      onClick={() => removeGroup(groupName)}
-                    >
-                      Remove group
-                    </button>
-                  )}
-                </div>
-                {groupItemsList.map((item) => {
-                  const idx = form.items.indexOf(item);
-                  const line = previewLine(item, supplierCode, form.bill_to_state_code);
-                  return (
-                    <div key={idx} className={styles.itemCard}>
-                      <input
-                        className="w-full border-none font-semibold mb-2 outline-none"
-                        disabled={locked}
-                        value={item.item_name}
-                        placeholder="Item name"
-                        onChange={(e) => updateItem(idx, { item_name: e.target.value })}
-                      />
-                      <div className={styles.modeToggle}>
-                        <button type="button" className={`${styles.modeOpt} ${item.pricing_mode === "unit" ? styles.modeOptOn : ""}`} disabled={locked} onClick={() => updateItem(idx, { pricing_mode: "unit", area_value: undefined, rate_per_unit: undefined })}>Unit-based</button>
-                        <button type="button" className={`${styles.modeOpt} ${item.pricing_mode === "area" ? styles.modeOptOn : ""}`} disabled={locked} onClick={() => updateItem(idx, { pricing_mode: "area", quantity: undefined, unit_price: undefined })}>Area-based</button>
-                      </div>
-                      {item.pricing_mode === "unit" ? (
-                        <div className={styles.g4}>
-                          <div className={styles.field}><label className={styles.lbl}>Qty</label><input className={styles.fi} type="number" disabled={locked} value={item.quantity} onChange={(e) => updateItem(idx, { quantity: e.target.value })} /></div>
-                          <div className={styles.field}><label className={styles.lbl}>Unit</label><select className={styles.fi} disabled={locked} value={item.unit_label} onChange={(e) => updateItem(idx, { unit_label: e.target.value })}><option>nos</option><option>set</option><option>piece</option></select></div>
-                          <div className={styles.field}><label className={styles.lbl}>Unit price</label><input className={styles.fi} type="number" disabled={locked} value={item.unit_price} onChange={(e) => updateItem(idx, { unit_price: e.target.value })} /></div>
-                          <div className={styles.field}><label className={styles.lbl}>GST %</label><select className={styles.fi} disabled={locked} value={item.gst_rate} onChange={(e) => updateItem(idx, { gst_rate: Number(e.target.value) })}>{[0, 5, 12, 18, 28].map((r) => <option key={r} value={r}>{r}%</option>)}</select></div>
-                        </div>
-                      ) : (
-                        <div className={styles.g4}>
-                          <div className={styles.field}><label className={styles.lbl}>Area</label><input className={styles.fi} type="number" disabled={locked} value={item.area_value} onChange={(e) => updateItem(idx, { area_value: e.target.value })} /></div>
-                          <div className={styles.field}><label className={styles.lbl}>Unit</label><select className={styles.fi} disabled={locked} value={item.area_unit} onChange={(e) => updateItem(idx, { area_unit: e.target.value })}><option>sqft</option><option>sqyd</option><option>rft</option></select></div>
-                          <div className={styles.field}><label className={styles.lbl}>Rate (₹)</label><input className={styles.fi} type="number" disabled={locked} value={item.rate_per_unit} onChange={(e) => updateItem(idx, { rate_per_unit: e.target.value })} /></div>
-                          <div className={styles.field}><label className={styles.lbl}>GST %</label><select className={styles.fi} disabled={locked} value={item.gst_rate} onChange={(e) => updateItem(idx, { gst_rate: Number(e.target.value) })}>{[0, 5, 12, 18, 28].map((r) => <option key={r} value={r}>{r}%</option>)}</select></div>
-                        </div>
-                      )}
-                      <div className="flex justify-between mt-2 pt-2 border-t border-dashed text-sm">
-                        <span className="text-[#5a6a7e]">Taxable {formatINR(line.taxable)} · GST {formatINR(line.gst)}</span>
-                        <span className="font-extrabold text-[#2f80ed] mf">{formatINR(line.lineTotal)}</span>
-                      </div>
-                      {!locked && (
-                        <button type="button" className="text-red-600 text-xs mt-2" onClick={() => setForm((f) => ({ ...f, items: f.items.filter((_, i) => i !== idx) }))}>Remove</button>
-                      )}
-                    </div>
-                  );
-                })}
-                {!locked && (
-                  <button
-                    type="button"
-                    className={`${styles.btn} w-full justify-center mt-2`}
-                    onClick={() =>
-                      setForm((f) => ({ ...f, items: [...f.items, emptyItem(groupName)] }))
-                    }
-                  >
-                    + Add item to {groupName}
-                  </button>
-                )}
-              </div>
-            ))}
-            {!locked && (
-              <button
-                type="button"
-                className={`${styles.btn} ${styles.btnPri} w-full justify-center mt-3`}
-                onClick={addGroup}
-              >
-                + Add group
-              </button>
-            )}
-          </div>
-
-          <div className={styles.card}>
-            <div className={styles.secHead}>
-              <div className={styles.secIc}><i className="ti ti-discount-2" /></div>
-              <div className={styles.secT}>Discount &amp; Notes</div>
-            </div>
-            <div className={styles.g2}>
-              <div className={styles.field}>
-                <label className={styles.lbl}>Invoice-level discount</label>
-                <div className="flex gap-2">
-                  <input
-                    className={styles.fi}
-                    disabled={locked}
-                    type="number"
-                    min={0}
-                    placeholder="0"
-                    value={form.invoice_discount_value || ""}
-                    onChange={(e) =>
-                      setForm((f) => ({
-                        ...f,
-                        invoice_discount_value: e.target.value,
-                        invoice_discount_type: f.invoice_discount_type || "amount",
-                      }))
-                    }
-                  />
-                  <select
-                    className={styles.fi}
-                    style={{ width: 80 }}
-                    disabled={locked}
-                    value={form.invoice_discount_type || "amount"}
-                    onChange={(e) =>
-                      setField("invoice_discount_type", e.target.value as "amount" | "percent")
-                    }
-                  >
-                    <option value="amount">₹</option>
-                    <option value="percent">%</option>
-                  </select>
-                </div>
-                <p className="text-[11px] text-[#5a6a7e] mt-1">
-                  Updates invoice totals instantly. Use Save draft to keep changes.
-                </p>
-              </div>
-            </div>
-            <div className={styles.field}>
-              <label className={styles.lbl}>Customer notes (visible on PDF)</label>
-              <textarea className={styles.fi} rows={2} disabled={locked} value={form.additional_work_details || form.notes} onChange={(e) => setField("additional_work_details", e.target.value)} />
-            </div>
-            <div className={styles.field}>
-              <label className={styles.lbl}>Internal notes</label>
-              <textarea className={styles.fi} rows={2} disabled={locked} value={form.internal_notes} onChange={(e) => setField("internal_notes", e.target.value)} />
-            </div>
-          </div>
         </div>
 
         <div>
@@ -1318,7 +1333,7 @@ export default function InvoiceEditor({ invoiceId }: { invoiceId?: string }) {
             </div>
           </div>
 
-          {invoiceId && form.status !== "draft" && (
+          {invoiceId && form.status !== "draft" && form.status !== "revised" && (
             <div className={`${styles.card} mt-3`}>
               <div className={styles.secHead}><div className={styles.secIc}><i className="ti ti-cash" /></div><div className={styles.secT}>Payment Tracking</div></div>
               <div className="flex justify-between text-sm"><span>Total paid</span><span className="text-[#0d9488] font-bold">{formatINR(form.total_paid ?? 0)}</span></div>
@@ -1326,7 +1341,26 @@ export default function InvoiceEditor({ invoiceId }: { invoiceId?: string }) {
                 <span className="text-xs font-bold text-[#92400e]">BALANCE DUE</span>
                 <span className="text-[#d97706] font-extrabold mf text-lg">{formatINR(form.balance_due ?? totals.grandTotal)}</span>
               </div>
-              <button type="button" className={`${styles.btn} ${styles.btnPri} w-full justify-center mt-3`} onClick={() => setPayOpen(true)}>+ Record Payment</button>
+              <button
+                type="button"
+                className={`${styles.btn} ${styles.btnPri} w-full justify-center mt-3`}
+                onClick={() => {
+                  const due = Number.isFinite(Number(form.balance_due))
+                    ? Number(form.balance_due)
+                    : Number(form.grand_total ?? totals.grandTotal ?? 0) -
+                      Number(form.total_paid ?? 0);
+                  setPayForm({
+                    amount: String(Math.max(0, Number(due.toFixed(2)))),
+                    payment_date: new Date().toISOString().slice(0, 10),
+                    payment_method: "upi",
+                    reference_no: "",
+                    notes: "",
+                  });
+                  setPayOpen(true);
+                }}
+              >
+                + Record Payment
+              </button>
             </div>
           )}
         </div>
@@ -1456,37 +1490,114 @@ export default function InvoiceEditor({ invoiceId }: { invoiceId?: string }) {
         </div>
       </Modal>
 
-      <Modal isOpen={payOpen} closeModal={() => setPayOpen(false)} title="Record Payment" className="max-w-md">
+      <Modal
+        isOpen={payOpen}
+        closeModal={() => !recordingPayment && setPayOpen(false)}
+        title="Record Payment"
+        className="max-w-md"
+      >
         <div className="space-y-3 p-2">
-          <input className={styles.fi} placeholder="Amount" value={payForm.amount} onChange={(e) => setPayForm((p) => ({ ...p, amount: e.target.value }))} />
-          <input className={styles.fi} type="date" value={payForm.payment_date} onChange={(e) => setPayForm((p) => ({ ...p, payment_date: e.target.value }))} />
-          <select className={styles.fi} value={payForm.payment_method} onChange={(e) => setPayForm((p) => ({ ...p, payment_method: e.target.value }))}>
-            <option value="upi">UPI</option>
-            <option value="bank_transfer">Bank transfer</option>
-            <option value="cash">Cash</option>
-            <option value="cheque">Cheque</option>
-            <option value="card">Card</option>
-          </select>
-          <input className={styles.fi} placeholder="Reference no" value={payForm.reference_no} onChange={(e) => setPayForm((p) => ({ ...p, reference_no: e.target.value }))} />
-          <p className="text-sm">Balance after: {formatINR((form.balance_due ?? totals.grandTotal) - Number(payForm.amount || 0))}</p>
-          <button
-            type="button"
-            className={`${styles.btn} ${styles.btnPri}`}
-            onClick={async () => {
-              if (!invoiceId) return;
-              await recordPayment(invoiceId, {
-                amount: Number(payForm.amount),
-                payment_date: payForm.payment_date,
-                payment_method: payForm.payment_method,
-                reference_no: payForm.reference_no,
-                notes: payForm.notes,
-              });
-              setPayOpen(false);
-              load();
-            }}
-          >
-            Record Payment
-          </button>
+          <div>
+            <label className={styles.lbl}>Amount</label>
+            <input
+              className={styles.fi}
+              type="text"
+              inputMode="decimal"
+              placeholder="Amount"
+              value={payForm.amount}
+              onChange={(e) =>
+                setPayForm((p) => ({
+                  ...p,
+                  amount: e.target.value.replace(/[^\d.,]/g, ""),
+                }))
+              }
+            />
+          </div>
+          <div>
+            <label className={styles.lbl}>Date</label>
+            <input
+              className={styles.fi}
+              type="date"
+              value={payForm.payment_date}
+              onChange={(e) => setPayForm((p) => ({ ...p, payment_date: e.target.value }))}
+            />
+          </div>
+          <div>
+            <label className={styles.lbl}>Payment method</label>
+            <select
+              className={styles.fi}
+              value={payForm.payment_method}
+              onChange={(e) => setPayForm((p) => ({ ...p, payment_method: e.target.value }))}
+            >
+              <option value="upi">UPI</option>
+              <option value="bank_transfer">Bank transfer</option>
+              <option value="cash">Cash</option>
+              <option value="cheque">Cheque</option>
+              <option value="card">Card</option>
+            </select>
+          </div>
+          <div>
+            <label className={styles.lbl}>Reference no</label>
+            <input
+              className={styles.fi}
+              placeholder="Reference no"
+              value={payForm.reference_no}
+              onChange={(e) => setPayForm((p) => ({ ...p, reference_no: e.target.value }))}
+            />
+          </div>
+          <p className="text-sm text-[#57606a]">
+            Balance after:{" "}
+            <span className="font-semibold text-[#1f2933]">{formatINR(balanceAfter)}</span>
+          </p>
+          <div className="flex gap-2 justify-end pt-1">
+            <button
+              type="button"
+              className={styles.btn}
+              disabled={recordingPayment}
+              onClick={() => setPayOpen(false)}
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              className={`${styles.btn} ${styles.btnPri}`}
+              disabled={recordingPayment}
+              onClick={async () => {
+                if (!invoiceId) return;
+                const amount = parseAmountInput(payForm.amount);
+                if (!Number.isFinite(amount) || amount <= 0) {
+                  toast.error("Enter a valid payment amount");
+                  return;
+                }
+                if (amount > balanceDue + 0.01) {
+                  toast.error("Payment exceeds balance due");
+                  return;
+                }
+                if (!payForm.payment_date) {
+                  toast.error("Payment date is required");
+                  return;
+                }
+                setRecordingPayment(true);
+                try {
+                  await recordPayment(invoiceId, {
+                    amount,
+                    payment_date: payForm.payment_date,
+                    payment_method: payForm.payment_method,
+                    reference_no: payForm.reference_no || undefined,
+                    notes: payForm.notes || undefined,
+                  });
+                  setPayOpen(false);
+                  await load();
+                } catch {
+                  /* toast handled in store */
+                } finally {
+                  setRecordingPayment(false);
+                }
+              }}
+            >
+              {recordingPayment ? "Saving…" : "Record Payment"}
+            </button>
+          </div>
         </div>
       </Modal>
     </div>

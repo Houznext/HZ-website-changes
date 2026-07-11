@@ -12,8 +12,11 @@ import {
   Delete,
   ParseIntPipe,
   Query,
-  UseGuards,Req
+  UseGuards,
+  Req,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import {
   CreateCostEstimatorDto,
   UpdateCostEstimatorDto,
@@ -98,6 +101,45 @@ export class CostEstimatorController {
       (limit = 10),
       category,
     );
+  }
+
+  @Get(':id/restore')
+  @ApiOperation({ summary: 'Restore a soft-deleted quotation via email token' })
+  async restore(
+    @Param('id') id: string,
+    @Query('token') token: string,
+    @Res() res: Response,
+  ) {
+    try {
+      const row = await this.costEstimatorService.restoreWithToken(id, token);
+      const qn =
+        row.quotationNumber != null
+          ? `QT-${String(row.quotationNumber).padStart(4, '0')}`
+          : id;
+      res
+        .status(200)
+        .type('html')
+        .send(`<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Quotation restored</title></head>
+<body style="font-family:Inter,system-ui,sans-serif;background:#f5f7fa;padding:40px;">
+  <div style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #dde8f5;border-radius:12px;padding:28px;">
+    <h1 style="font-family:Montserrat,sans-serif;font-size:20px;margin:0 0 10px;">Quotation restored</h1>
+    <p style="color:#5a6a7e;margin:0 0 8px;">Quotation <strong>${qn}</strong> has been restored successfully.</p>
+    <p style="color:#94a3b8;font-size:12px;margin:16px 0 0;">You can close this tab and refresh the admin Quotations list.</p>
+  </div>
+</body></html>`);
+    } catch (err: any) {
+      const message = err?.message || 'Unable to restore quotation';
+      res
+        .status(err?.status || 400)
+        .type('html')
+        .send(`<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Restore failed</title></head>
+<body style="font-family:Inter,system-ui,sans-serif;background:#f5f7fa;padding:40px;">
+  <div style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #fecaca;border-radius:12px;padding:28px;">
+    <h1 style="font-family:Montserrat,sans-serif;font-size:20px;margin:0 0 10px;color:#b91c1c;">Restore failed</h1>
+    <p style="color:#5a6a7e;margin:0;">${String(message).replace(/</g, '&lt;')}</p>
+  </div>
+</body></html>`);
+    }
   }
 
   @Get(':id')

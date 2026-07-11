@@ -7,7 +7,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
-  JoinColumn
+  JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { PropertyType } from 'src/common/enums/cb-property.enum';
 import { User } from 'src/user/entities/user.entity';
@@ -110,4 +111,13 @@ export class CostEstimator {
 
   @UpdateDateColumn({ type: 'timestamp with time zone' })
   updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp with time zone', nullable: true })
+  deletedAt: Date | null;
+
+  @Column({ name: 'restore_token', type: 'varchar', length: 64, nullable: true })
+  restoreToken: string | null;
+
+  @Column({ name: 'deleted_by_id', type: 'uuid', nullable: true })
+  deletedById: string | null;
 }

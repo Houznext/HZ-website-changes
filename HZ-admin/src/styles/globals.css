@@ -8,16 +8,57 @@
 @import "tailwindcss/utilities";
 @import "./fontface/font-family.css";
 
+:root {
+  --font-heading: "Montserrat", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}
+
 html,
 body {
-  font-family: Gordita, -apple-system, BlinkMacSystemFont, Segoe UI,
-    Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-    sans-serif;
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
 }
 
 strong,
 b {
   font-weight: bold !important;
+}
+
+input,
+textarea,
+select,
+button,
+p,
+span,
+label,
+li,
+td,
+th,
+small,
+figcaption {
+  font-family: inherit;
+}
+
+/* Explicit heading utility — use for page titles that are not semantic headings */
+.font-heading,
+.heading-text,
+.page-title,
+.section-title {
+  font-family: var(--font-heading) !important;
+}
+
+.font-body,
+.body-text,
+.description-text {
+  font-family: var(--font-body) !important;
 }
 
 input:-webkit-autofill,
@@ -70,24 +111,24 @@ select:-webkit-autofill:focus {
 
 @layer components {
   .label-text {
-    @apply text-[12px] md:text-[14px] text-black font-medium;
+    @apply text-[12px] md:text-[14px] text-black font-medium font-inter;
   }
   .key-text {
-    @apply text-[12px] md:text-[14px] font-medium;
+    @apply text-[12px] md:text-[14px] font-medium font-inter;
   }
   .sub-heading {
-    @apply text-[14px] md:text-[16px] font-medium;
+    @apply text-[14px] md:text-[16px] font-medium font-heading;
   }
   .btn-text {
-    @apply text-[12px] md:text-[14px] font-medium;
+    @apply text-[12px] md:text-[14px] font-medium font-inter;
   }
   .heading-text {
-    @apply text-[16px] md:text-[22px] font-bold text-[#3586FF]  transform uppercase;
+    @apply text-[16px] md:text-[22px] font-bold text-[#3586FF] font-heading uppercase;
   }
   .text-medium {
-    @apply text-[14px] md:text-[16px] font-medium;
+    @apply text-[14px] md:text-[16px] font-medium font-inter;
   }
   .sublabel-text {
-    @apply text-[10px] md:text-[12px];
+    @apply text-[10px] md:text-[12px] font-inter;
   }
 }
