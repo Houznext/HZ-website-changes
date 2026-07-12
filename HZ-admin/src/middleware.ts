@@ -147,14 +147,6 @@ export default withAuth(
         staffOnly: true,
       },
 
-      // Property
-      {
-        match: /^\/property(\/.*)?$/,
-        resource: "property",
-        action: "view",
-        staffOnly: true,
-      },
-
       // Projects
       {
         match: /^\/projects(\/.*)?$/,
@@ -328,7 +320,6 @@ export const config = {
     "/packages",
     "/packages/:path*",
     "/user-management",
-    "/property",
     "/user-profile",
     "/access-control",
     "/livebuild/:path*",

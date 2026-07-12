@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AddressController } from './companyaddress.controller';
 import { AddressService } from './companyaddress.service';
 import { Company } from '../entities/company.entity';
-import { LocationDetails } from 'src/property/entities/location.entity';
+import { LocationDetails } from 'src/common/location/location.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([LocationDetails, Company])],

@@ -26,10 +26,9 @@ import { MailerService } from 'src/sendEmail.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, In, Not, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { Property } from 'src/property/entities/property.entity';
 import { AuthService } from 'src/authSession/auth.service';
 import * as bcrypt from 'bcrypt';
-import { LocationDetails } from 'src/property/entities/location.entity';
+import { LocationDetails } from 'src/common/location/location.entity';
 import { isAdmin } from 'src/common/utils/role..utils';
 import { Branch } from 'src/branch/entities/branch.entity';
 import { UserBranchMembership } from 'src/branch/entities/user-branch-membership.entity';
@@ -56,8 +55,6 @@ export class UserService {
     @InjectRepository(LocationDetails)
     private addressRepository: Repository<LocationDetails>,
 
-    @InjectRepository(Property)
-    private readonly propertyRepository: Repository<Property>,
     private readonly notificationService: NotificationService,
     private readonly mailerService: MailerService,
     private readonly s3Service: S3Service,
@@ -120,12 +117,10 @@ async getAdminUsersOverview(
     .leftJoinAndSelect('user.branchMemberships', 'branchMemberships')
     .leftJoinAndSelect('branchMemberships.branch', 'branch')
     .leftJoinAndSelect('branchMemberships.branchRoles', 'branchRoles')
-    .leftJoin('user.properties', 'properties')
     .leftJoin('user.orders', 'orders')
     .leftJoin('user.wishlist', 'wishlist')
     // 🔧 FIX: correct relation name on Wishlist -> wishlistItems (NOT items)
     .leftJoin('wishlist.wishlistItems', 'wishlistItems')
-    .leftJoin('user.customBuilders', 'customBuilders')
     .leftJoin('user.crmLeads', 'crmLeads')
     .select([
       'user.id',
@@ -151,11 +146,9 @@ async getAdminUsersOverview(
       'branchRoles.id',
       'branchRoles.roleName',
     ])
-    .addSelect('COUNT(DISTINCT properties.propertyId)', 'totalProperties')
     .addSelect('COUNT(DISTINCT orders.id)', 'totalOrders')
     .addSelect('COALESCE(SUM(orders.grandTotal), 0)', 'totalSpent')
     .addSelect('COUNT(DISTINCT wishlistItems.id)', 'wishlistCount')
-    .addSelect('COUNT(DISTINCT customBuilders.id)', 'customBuilderCount')
     .addSelect('COUNT(DISTINCT crmLeads.id)', 'crmLeadCount')
     .groupBy('user.id')
     .addGroupBy('currentBranch.id')
@@ -230,11 +223,11 @@ async getAdminUsersOverview(
         user.currentBranch?.id || primaryMembership?.branch?.id || null,
       branchRoles:
         primaryMembership?.branchRoles?.map((r) => r.roleName) || [],
-      totalProperties: parseInt(raw.totalProperties, 10) || 0,
+      totalProperties: 0,
       totalOrders: parseInt(raw.totalOrders, 10) || 0,
       totalSpent: parseFloat(raw.totalSpent) || 0,
       wishlistCount: parseInt(raw.wishlistCount, 10) || 0,
-      customBuilderCount: parseInt(raw.customBuilderCount, 10) || 0,
+      customBuilderCount: 0,
       crmLeadCount: parseInt(raw.crmLeadCount, 10) || 0,
     };
   });
@@ -1006,13 +999,6 @@ async getAdminUsersOverview(
         isPrimary: membership.isPrimary,
       },
     };
-  }
-
-  async getPostedPropertyCount(userId: string): Promise<{ count: number }> {
-    const count = await this.propertyRepository.count({
-      where: { postedByUser: { id: userId }, isPosted: true },
-    });
-    return { count };
   }
 
   async updateAdminUserWithBranch(

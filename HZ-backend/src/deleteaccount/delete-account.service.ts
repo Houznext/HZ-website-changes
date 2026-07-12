@@ -1,7 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
-import { Property } from 'src/property/entities/property.entity';
 import { Blog } from 'src/blog/entities/blog.entity';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Testimonials } from 'src/testimonials/entity/testimonials.entity';
@@ -9,16 +8,18 @@ import { Testimonials } from 'src/testimonials/entity/testimonials.entity';
 export class DeleteAccountService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
-    @InjectRepository(Property) private propertyRepo: Repository<Property>,
     @InjectRepository(Blog) private blogRepo: Repository<Blog>,
     @InjectRepository(Testimonials)
     private testimonialRepo: Repository<Testimonials>,
   ) {}
-  async deleteUserAccount(userId: string, deleteAccountDto: { reason: string; description?: string }): Promise<string> {
+
+  async deleteUserAccount(
+    userId: string,
+    deleteAccountDto: { reason: string; description?: string },
+  ): Promise<string> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: [
-        'properties',
         'createdBlogs',
         'updatedBlogs',
         'testimonials',
@@ -29,18 +30,19 @@ export class DeleteAccountService {
         'addresses',
         'costEstimators',
         'project',
-        'company'
+        'company',
       ],
     });
-  
+
     if (!user) throw new NotFoundException('User not found');
-  
-    console.log(`Deleting user ${userId} for reason: ${deleteAccountDto.reason}, description: ${deleteAccountDto.description}`);
-  
+
+    console.log(
+      `Deleting user ${userId} for reason: ${deleteAccountDto.reason}, description: ${deleteAccountDto.description}`,
+    );
+
     await this.userRepository.remove(user);
     return `User account with ID ${userId} deleted successfully.`;
   }
-  
 
   async getAccountSummary(userId: string) {
     if (!userId) {
@@ -49,7 +51,6 @@ export class DeleteAccountService {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: [
-        'properties',
         'createdBlogs',
         'updatedBlogs',
         'testimonials',
@@ -60,21 +61,19 @@ export class DeleteAccountService {
         'costEstimators',
         'project',
         'company',
+        'locations',
       ],
     });
 
-    
-
     if (!user) {
       throw new NotFoundException('User not found');
-    }    
+    }
 
     return {
       id: user.id,
       username: user.username,
       email: user.email,
       associatedData: {
-        properties: user?.properties?.length,
         blogsCreated: user?.createdBlogs?.length,
         testimonials: user?.testimonials?.length,
         orders: user?.orders?.length,

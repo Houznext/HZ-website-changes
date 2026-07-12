@@ -28,9 +28,9 @@ export class WishlistController {
     @Param('type') type: string,
     @Param('id') id: string,
   ) {
-    if (!['property', 'homeDecor', 'furniture'].includes(type)) {
+    if (!['furniture', 'homeDecor'].includes(type)) {
       throw new BadRequestException(
-        `Invalid type: ${type}. Allowed values are 'property', 'homeDecor', or 'furniture'.`,
+        `Invalid type: ${type}. Allowed values are 'furniture' or 'homeDecor'.`,
       );
     }
     return this.wishlistService.addToWishlist(userId, type, id);

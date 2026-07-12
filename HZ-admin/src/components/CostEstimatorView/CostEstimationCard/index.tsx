@@ -101,10 +101,31 @@ const CostEstimationCard = ({ key, data, onDuplicate, onEdit, onDelete, activeTa
 
           {/* Status badge top-right of image */}
           <div className="absolute top-2 right-2">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#dcfce7] text-[#166534]">
-              <span className="w-[5px] h-[5px] rounded-full bg-[#16a34a] animate-pulse" />
-              Active
-            </span>
+            {(() => {
+              const s = (data as any)?.status || "confirmed";
+              if (s === "draft") {
+                return (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                    <span className="w-[5px] h-[5px] rounded-full bg-amber-500" />
+                    Draft
+                  </span>
+                );
+              }
+              if (s === "revised") {
+                return (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-violet-50 text-violet-700 border border-violet-200">
+                    <span className="w-[5px] h-[5px] rounded-full bg-violet-500" />
+                    Revised
+                  </span>
+                );
+              }
+              return (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#dcfce7] text-[#166534]">
+                  <span className="w-[5px] h-[5px] rounded-full bg-[#16a34a]" />
+                  Confirmed
+                </span>
+              );
+            })()}
           </div>
         </div>
 
@@ -299,14 +320,22 @@ const CostEstimationCard = ({ key, data, onDuplicate, onEdit, onDelete, activeTa
             {/* Right: download + delete — fade in on hover */}
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
               <button
-                onClick={() =>
+                onClick={() => {
+                  if ((data as any)?.status === "draft") {
+                    toast.error("Confirm quote first to download the PDF.");
+                    return;
+                  }
                   router.push(
                     `/cost-estimator/${activeTab}/${data.id}?download=1`,
-                  )
-                }
+                  );
+                }}
                 className="w-[30px] h-[30px] rounded-lg border border-[#d0d7de] bg-white hover:bg-[#f6f8fa]
                            flex items-center justify-center text-[#57606a] hover:text-[#24292f] transition-all"
-                title="Download PDF"
+                title={
+                  (data as any)?.status === "draft"
+                    ? "Confirm quote first to download"
+                    : "Download PDF"
+                }
               >
                 <svg
                   width="13"

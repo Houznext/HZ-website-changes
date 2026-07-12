@@ -200,10 +200,8 @@ const NAV_GROUPS: NavGroup[] = [
     id: "content",
     title: "Content",
     links: [
-      { href: "/interiors/templates", label: "Trade templates", icon: LayoutTemplate },
       { href: "/packages", label: "Int. Packages", icon: LayoutGrid },
       { href: "/blogs", label: "Blog", icon: FileText, badgeKey: "blog" },
-      { href: "/property", label: "Properties", icon: Building2 },
       { href: "/projects", label: "Projects", icon: NavProjectsIcon },
       { href: "/services-cms", label: "Services CMS", icon: NavServicesCmsIcon },
       { href: "/interiors-cms", label: "Interiors CMS", icon: LayoutTemplate },

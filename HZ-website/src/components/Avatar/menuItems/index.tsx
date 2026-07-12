@@ -13,7 +13,6 @@ import {
     Scale,
     Gavel,
     Truck,
-    Gift,
     ShieldCheck,
     MoveRight,
 } from "lucide-react";
@@ -44,12 +43,6 @@ const SERVICE_GROUPS: ServiceGroup[] = [
                 href: "/design-ideas",
                 icon: Home,
                 description: "Browse looks, layouts & inspiration",
-            },
-            {
-                label: "Houznext Rewards",
-                href: "/houznext-rewards",
-                icon: Gift,
-                description: "Invite friends & earn rewards",
             },
             {
                 label: "Policies",

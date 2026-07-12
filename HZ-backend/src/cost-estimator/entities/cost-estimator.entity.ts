@@ -13,6 +13,7 @@ import {
 import { PropertyType } from 'src/common/enums/cb-property.enum';
 import { User } from 'src/user/entities/user.entity';
 import { ItemGroup } from './itemgroup.entity';
+import { QuotationStatus } from '../Enum/cost-estimator.enum';
 
 @Entity()
 export class CostEstimator {
@@ -26,6 +27,14 @@ export class CostEstimator {
     unique: true,
   })
   quotationNumber: number | null;
+
+  /** Existing rows default to confirmed; new drafts set status explicitly. */
+  @Column({
+    type: 'varchar',
+    length: 20,
+    default: QuotationStatus.CONFIRMED,
+  })
+  status: QuotationStatus;
 
   @Column('text')
   firstname: string;

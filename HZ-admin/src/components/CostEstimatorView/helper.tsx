@@ -17,10 +17,11 @@ export interface CEformValues {
   designerName: string;
   details?: string;
   itemGroups: {
+    id?: number;
     title: string;
     order: number;
     items: {
-      id: null;
+      id: null | number;
       item_name: string;
       description: string;
       quantity: number | null;
@@ -41,11 +42,13 @@ export interface CEformValues {
   discount: number;
   gstEnabled?: boolean;
   gstPercentage?: number;
+  status?: "draft" | "confirmed" | "revised";
 }
 
 export interface CostEstimator extends CEformValues {
-  id?: number;
+  id?: string | number;
   postedBy?: any;
+  quotationNumber?: number | null;
 }
 
 export interface CEformProps {

@@ -19,10 +19,7 @@ import {
   PaymentVerificationDto,
 } from './dto/payment.dto';
 import { PaymentProvider, PaymentStatus, PaymentAuditEvent } from './enums/payment.enum';
-import { OrderStatusEnum, OrderItemType, OrderType } from 'src/orders/enum/order.enum';
-import { PropertyService } from 'src/property/property.service';
-import { PropertyPremiumPlansService } from 'src/property-premium-plans/property-premium-plans.service';
-import { PromotionTypeEnum } from 'src/company-onboarding/Enum/company.enum';
+import { OrderStatusEnum } from 'src/orders/enum/order.enum';
 
 @Injectable()
 export class PaymentsService {
@@ -44,9 +41,6 @@ export class PaymentsService {
 
     @InjectRepository(CartItem)
     private readonly cartItemRepo: Repository<CartItem>,
-
-    private readonly propertyService: PropertyService,
-    private readonly plansService: PropertyPremiumPlansService,
   ) {
     const key = process.env.RAZORPAY_KEY_ID?.trim();
     const secret = process.env.RAZORPAY_KEY_SECRET?.trim();
@@ -279,7 +273,7 @@ export class PaymentsService {
     await this.auditRepo.save(audit);
   }
 
-  // APPLY PAYMENT TO ORDER + PROPERTY PREMIUM (when order contains PROPERTY_PREMIUM_PLAN items)
+  // APPLY PAYMENT TO ORDER
   private async applySuccessfulPayment(orderId: string, paidAmount: number) {
     const order = await this.orderRepo.findOne({
       where: { id: orderId },
@@ -300,36 +294,6 @@ export class PaymentsService {
     }
 
     await this.orderRepo.save(order);
-
-    // Order now CONFIRMED – user has access via getOrdersForUser / getOrderById.
-    // LEGAL_PACKAGE and other service items are already in order.items; no extra apply needed.
-    // Apply property premium plans to properties (for listers who bought Featured/Sponsored/Analytics)
-    const userId = (order as any).userId ?? order.user?.id;
-    const actorId = userId ?? 'system';
-    for (const item of order.items ?? []) {
-      if (item.productType !== OrderItemType.PROPERTY_PREMIUM_PLAN) continue;
-      const propertyId = item.meta?.propertyId as string | undefined;
-      if (!propertyId) continue;
-
-      try {
-        const plan = await this.plansService.findOne(item.productId);
-        if (!plan) continue;
-
-        const expiry = new Date();
-        expiry.setDate(expiry.getDate() + plan.durationDays);
-
-        const promotionType = plan.promotionType as PromotionTypeEnum;
-        await this.propertyService.updatePromotionType(
-          propertyId,
-          [promotionType],
-          expiry,
-          actorId,
-          actorId,
-        );
-      } catch {
-        // Log and skip; do not fail payment flow
-      }
-    }
   }
 
   // GET PAYMENT BY ID

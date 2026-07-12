@@ -217,7 +217,6 @@ const Item = ({ item, category, eventCount }: IItemProps) => {
     const inWishlist = wishListItems?.some(
       (wishlistItem) =>
         wishlistItem.furniture?.id === item.id ||
-        wishlistItem.property?.id === item.id ||
         wishlistItem.homeDecors?.id === item.id,
     );
     setIsWishlisted(inWishlist);
@@ -235,9 +234,7 @@ const Item = ({ item, category, eventCount }: IItemProps) => {
         const wishlistItem = wishListItems.find((wItem) =>
           type === "furniture"
             ? wItem.furniture?.id === item.id
-            : type === "property"
-              ? wItem.property?.id === item.id
-              : wItem.homeDecors?.id === item.id,
+            : wItem.homeDecors?.id === item.id,
         );
         if (wishlistItem) {
           await removeFromWishlist(wishlistItem.id);

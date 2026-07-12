@@ -35,6 +35,7 @@
 
     /* Strict Type-Checking Options */
     "skipLibCheck": true,
+    "ignoreDeprecations": "5.0",
     "strict": false /* Enable all strict type-checking options. */,
     // "noImplicitAny": true,                 /* Raise error on expressions and declarations with an implied 'any' type. */
     "strictNullChecks": false /* Enable strict null checks. */,

@@ -37,9 +37,9 @@ import {
 } from './dto/company-onboarding.dto';
 import { Project } from './entities/company-projects.entity';
 import { User } from 'src/user/entities/user.entity';
-import { normalizeQueryParam } from 'src/property/utils/normalizeQueryParam';
-import { PromotionUpdateDto } from 'src/property/dto/property.dto';
+import { normalizeQueryParam } from 'src/common/location/normalizeQueryParam';
 import {
+  PromotionUpdateDto,
   CompanyPromotionUpdateDto,
   ProjectFilterDto,
 } from './dto/project.filter.dto';

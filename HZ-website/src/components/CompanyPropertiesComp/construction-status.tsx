@@ -4,7 +4,7 @@ import React from "react";
 import {
   ConstructionStatusEnum,
   ConstructionStatusOptions,
-} from "../Property/PropertyDetails/PropertyHelpers";
+} from "@/utils/propertyHelpers";
 import { useCompanyPropertyStore } from "@/store/companyproperty";
 import { FaCalendarAlt } from "react-icons/fa";
 import CustomInput from "@/common/FormElements/CustomInput";

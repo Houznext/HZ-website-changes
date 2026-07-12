@@ -13,8 +13,6 @@ import * as bcrypt from 'bcrypt';
 import { Customer } from './entities/customer.entity';
 import { Rep } from './entities/rep.entity';
 import { InteriorProject } from './entities/interior-project.entity';
-import { TradeTemplate } from './entities/trade-template.entity';
-import { QcCheckpointTemplate } from './entities/qc-checkpoint-template.entity';
 import { ProjectTrade } from './entities/project-trade.entity';
 import { DailyUpdate } from './entities/daily-update.entity';
 import { LabourEntry } from './entities/labour-entry.entity';
@@ -31,8 +29,8 @@ import {
   CreateCustomerDto,
   UpdateCustomerDto,
   CreateProjectDto,
-  CreateTradeTemplateDto,
   UpdateTradeDto,
+  AddTradeToProjectDto,
   AddDailyUpdateDto,
   AddDesignDto,
   AddDocumentDto,
@@ -58,8 +56,6 @@ export class InteriorService {
     @InjectRepository(Customer) private readonly customerRepo: Repository<Customer>,
     @InjectRepository(Rep) private readonly repRepo: Repository<Rep>,
     @InjectRepository(InteriorProject) private readonly projectRepo: Repository<InteriorProject>,
-    @InjectRepository(TradeTemplate) private readonly tradeTemplateRepo: Repository<TradeTemplate>,
-    @InjectRepository(QcCheckpointTemplate) private readonly checkpointTemplateRepo: Repository<QcCheckpointTemplate>,
     @InjectRepository(ProjectTrade) private readonly projectTradeRepo: Repository<ProjectTrade>,
     @InjectRepository(DailyUpdate) private readonly dailyUpdateRepo: Repository<DailyUpdate>,
     @InjectRepository(LabourEntry) private readonly labourEntryRepo: Repository<LabourEntry>,
@@ -506,7 +502,6 @@ export class InteriorService {
       .leftJoinAndSelect('p.customer', 'customer')
       .leftJoinAndSelect('p.rep', 'rep')
       .leftJoinAndSelect('p.trades', 'trades')
-      .leftJoinAndSelect('trades.template', 'template')
       .leftJoinAndSelect('p.paymentMilestones', 'milestones')
       .leftJoinAndSelect('p.documents', 'documents')
       .where('p.id = :id', { id })
@@ -558,8 +553,7 @@ export class InteriorService {
       .leftJoinAndSelect('p.customer', 'customer')
       .leftJoinAndSelect('p.rep', 'rep')
       .leftJoinAndSelect('p.trades', 'trades')
-      .leftJoinAndSelect('trades.template', 'template')
-      .where('(p.isHandedOver = :ho OR p.handoverDate IS NOT NULL)', { ho: true })
+            .where('(p.isHandedOver = :ho OR p.handoverDate IS NOT NULL)', { ho: true })
       .orderBy('p.actualEndDate', 'DESC', 'NULLS LAST')
       .addOrderBy('p.handoverDate', 'DESC', 'NULLS LAST')
       .getMany();
@@ -635,80 +629,32 @@ export class InteriorService {
     await this.projectRepo.delete(id);
   }
 
-  async getTradeTemplates(): Promise<TradeTemplate[]> {
-    return this.tradeTemplateRepo.find({
-      where: { isActive: true },
-      order: { sortOrder: 'ASC' },
-      relations: ['checkpoints'],
-    });
-  }
-
-  async createTradeTemplate(dto: CreateTradeTemplateDto): Promise<TradeTemplate> {
-    const slug = dto.slug ?? dto.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-    const template = this.tradeTemplateRepo.create({
-      name: dto.name,
-      slug,
-      iconName: dto.iconName ?? 'Wrench',
-      unit: dto.unit ?? 'nos',
-      defaultWeightage: dto.defaultWeightage ?? 10,
-      sortOrder: dto.sortOrder ?? 0,
-      isCustom: true,
-    });
-    const saved = await this.tradeTemplateRepo.save(template);
-    const checkpoints = (dto.checkpoints ?? []).map((c, idx) =>
-      this.checkpointTemplateRepo.create({
-        tradeTemplateId: saved.id,
-        checkpointName: c.checkpointName,
-        isMandatory: c.isMandatory ?? true,
-        sequence: c.sequence ?? idx,
-      }),
-    );
-    await this.checkpointTemplateRepo.save(checkpoints);
-    return this.tradeTemplateRepo.findOne({ where: { id: saved.id }, relations: ['checkpoints'] }) as Promise<TradeTemplate>;
-  }
-
   async addTradeToProject(
     projectId: string,
-    templateId: string,
-    overrides?: Partial<UpdateTradeDto>,
+    dto: AddTradeToProjectDto,
   ): Promise<ProjectTrade> {
-    const template = await this.tradeTemplateRepo.findOne({
-      where: { id: templateId },
-      relations: ['checkpoints'],
-    });
-    if (!template) throw new UnauthorizedException('Template not found');
+    const name = dto.customName?.trim();
+    if (!name) {
+      throw new BadRequestException('Trade name is required');
+    }
+    const project = await this.projectRepo.findOne({ where: { id: projectId } });
+    if (!project) throw new NotFoundException('Project not found');
+
     const trade = this.projectTradeRepo.create({
       projectId,
-      templateId,
-      weightage: Number(template.defaultWeightage),
+      customName: name,
+      assignedVendorName: dto.assignedVendorName ?? null,
+      assignedVendorPhone: dto.assignedVendorPhone ?? null,
+      weightage: dto.weightage != null ? Number(dto.weightage) : 10,
+      plannedStartDate: dto.plannedStartDate
+        ? parseISO(dto.plannedStartDate)
+        : null,
+      plannedEndDate: dto.plannedEndDate ? parseISO(dto.plannedEndDate) : null,
+      status: 'not_started',
+      overallProgress: 0,
     });
-    if (overrides) {
-      if (overrides.customName !== undefined) trade.customName = overrides.customName;
-      if (overrides.assignedVendorName !== undefined) trade.assignedVendorName = overrides.assignedVendorName;
-      if (overrides.assignedVendorPhone !== undefined) trade.assignedVendorPhone = overrides.assignedVendorPhone;
-      if (overrides.weightage !== undefined) trade.weightage = overrides.weightage;
-      if (overrides.plannedStartDate !== undefined) trade.plannedStartDate = parseISO(overrides.plannedStartDate);
-      if (overrides.plannedEndDate !== undefined) trade.plannedEndDate = parseISO(overrides.plannedEndDate);
-      if (overrides.actualStartDate !== undefined) trade.actualStartDate = parseISO(overrides.actualStartDate);
-      if (overrides.actualEndDate !== undefined) trade.actualEndDate = parseISO(overrides.actualEndDate);
-    }
     const saved = await this.projectTradeRepo.save(trade);
-    const items = (template.checkpoints ?? [])
-      .filter((cp) => cp.checkpointName != null)
-      .map((cp, idx) =>
-        this.qcItemRepo.create({
-          tradeId: saved.id,
-          checkpointName: cp.checkpointName!,
-          isMandatory: cp.isMandatory,
-          sequence: cp.sequence ?? idx,
-          status: 'pending',
-        }),
-      );
-    await this.qcItemRepo.save(items);
-    return this.projectTradeRepo.findOne({
-      where: { id: saved.id },
-      relations: ['template'],
-    }) as Promise<ProjectTrade>;
+    return this.projectTradeRepo.findOne({ where: { id: saved.id } }) as Promise<ProjectTrade>;
   }
 
   async updateTrade(id: string, dto: UpdateTradeDto): Promise<ProjectTrade> {
@@ -989,7 +935,7 @@ export class InteriorService {
     const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
     const trades = await this.projectTradeRepo.find({
       where: { projectId },
-      relations: ['template'],
+      relations: [],
     });
     return trades.filter((t) => {
       const plannedEndPast = t.plannedEndDate && t.plannedEndDate < new Date(today) && t.status !== 'completed';
@@ -1001,17 +947,17 @@ export class InteriorService {
   async getProjectActivity(projectId: string): Promise<Record<string, unknown>[]> {
     const updates = await this.dailyUpdateRepo.find({
       where: { projectId },
-      relations: ['trade', 'trade.template'],
+      relations: ['trade'],
       order: { createdAt: 'DESC' },
       take: 20,
     });
     return updates.map((u) => ({
       type: u.blockerNote ? 'blocker' : u.stageLabel ? 'progress' : 'update',
       text: u.stageLabel
-        ? `${(u.trade as any)?.template?.name ?? 'Trade'} updated to ${u.cumulativeProgress}%`
-        : `Daily update added for ${(u.trade as any)?.template?.name ?? 'Trade'}`,
+        ? `${(u.trade as any)?.customName ?? 'Trade'} updated to ${u.cumulativeProgress}%`
+        : `Daily update added for ${(u.trade as any)?.customName ?? 'Trade'}`,
       subtext: u.stageLabel ?? u.workDoneToday ?? '',
-      tradeSlug: (u.trade as any)?.template?.slug ?? '',
+      tradeSlug: '',
       date: u.createdAt,
     }));
   }
@@ -1128,7 +1074,6 @@ export class InteriorService {
         'customer',
         'rep',
         'trades',
-        'trades.template',
         'paymentMilestones',
         'documents',
         'designUploads',
@@ -1176,7 +1121,7 @@ export class InteriorService {
       where: { projectId },
       order: { createdAt: 'DESC' },
       take: 20,
-      relations: ['trade', 'trade.template'],
+      relations: ['trade'],
     });
 
     const since = subDays(new Date(), 7);
@@ -1206,7 +1151,7 @@ export class InteriorService {
     }> = [];
 
     for (const u of updates) {
-      const tradeName = (u.trade as ProjectTrade | null)?.template?.name ?? 'Site update';
+      const tradeName = (u.trade as ProjectTrade | null)?.customName ?? 'Site update';
       rows.push({
         id: `upd-${u.id}`,
         type: 'update',

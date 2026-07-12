@@ -13,9 +13,8 @@ import {
   FiLogOut,
   FiChevronDown,
 } from "react-icons/fi";
-import { FaHome, FaBuilding } from "react-icons/fa";
+import { FaBuilding } from "react-icons/fa";
 import { MdBorderAll, MdReviews } from "react-icons/md";
-import { LuCheckCircle } from "react-icons/lu";
 import { signOut, useSession } from "next-auth/react";
 import Button from "@/common/Button";
 import { useCartStore } from "@/store/cart";
@@ -86,11 +85,6 @@ const Avatar: React.FC<AvatarProps> = ({ showAbove = true }) => {
     { icon: <FiGrid size={14} />, label: "Dashboard", href: "/user/dashboard" },
     { icon: <FiUser size={14} />, label: "My Profile", href: "/user/profile" },
     {
-      icon: <FaHome size={14} />,
-      label: "Properties",
-      href: "/user/properties",
-    },
-    {
       icon: <FaBuilding size={14} />,
       label: "Company Property",
       href: "/user/company-property",
@@ -112,11 +106,6 @@ const Avatar: React.FC<AvatarProps> = ({ showAbove = true }) => {
       label: "Orders",
       href: "/user/orders"
 
-    },
-    {
-      icon: <LuCheckCircle size={14} />,
-      label: "Houznext Rewards Progress",
-      href: "/user/houznext-rewards-progress",
     },
 
     { icon: <FiSettings size={14} />, label: "Settings", href: "#" },

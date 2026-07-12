@@ -1,5 +1,4 @@
 import { Furniture } from 'src/furnitures/entities/furniture.entity';
-import { Property } from 'src/property/entities/property.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -55,9 +54,6 @@ export class Reviews {
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  @ManyToOne(() => Property, (property) => property.reviews, { nullable: true })
-  property: Property;
 
   @ManyToOne(() => Furniture, (furniture) => furniture.reviews, {
     nullable: true,

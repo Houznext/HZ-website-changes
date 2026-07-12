@@ -28,8 +28,8 @@ import {
   SendMobileLinkOtpDto,
   CreateCustomerDto,
   CreateProjectDto,
-  CreateTradeTemplateDto,
   UpdateTradeDto,
+  AddTradeToProjectDto,
   AddDailyUpdateDto,
   AddDesignDto,
   AddDocumentDto,
@@ -39,7 +39,6 @@ import {
   ResolveSnagDto,
   UpdateMilestoneDto,
   CreateReferralDto,
-  AddTradeToProjectDto,
   GenerateDprDto,
   UpdateReferralStatusDto,
   UpdatePortfolioDto,
@@ -315,20 +314,10 @@ export class InteriorController {
     return this.interiorService.generateDpr(id, body.date);
   }
 
-  @Get('trade-templates')
-  getTradeTemplates() {
-    return this.interiorService.getTradeTemplates();
-  }
-
   @UseGuards(InteriorJwtGuard)
-  @Post('trade-templates')
-  createTradeTemplate(@Body() dto: CreateTradeTemplateDto) {
-    return this.interiorService.createTradeTemplate(dto);
-  }
-
   @Post('projects/:id/trades')
   addTrade(@Param('id') projectId: string, @Body() body: AddTradeToProjectDto) {
-    return this.interiorService.addTradeToProject(projectId, body.templateId, body.overrides);
+    return this.interiorService.addTradeToProject(projectId, body);
   }
 
   @UseGuards(InteriorJwtGuard)

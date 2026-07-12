@@ -7,7 +7,6 @@ import {
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { InteriorProject } from './interior-project.entity';
-import { TradeTemplate } from './trade-template.entity';
 import { DailyUpdate } from './daily-update.entity';
 import { QcItem } from './qc-item.entity';
 import { SnagItem } from './snag-item.entity';
@@ -51,16 +50,9 @@ export class ProjectTrade extends BaseEntity {
   @Column({ type: 'uuid', nullable: true })
   projectId: string | null;
 
-  @Column({ type: 'uuid', nullable: true })
-  templateId: string | null;
-
   @ManyToOne(() => InteriorProject, (p) => p.trades, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'projectId' })
   project: InteriorProject | null;
-
-  @ManyToOne(() => TradeTemplate, { eager: true, nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'templateId' })
-  template: TradeTemplate | null;
 
   @OneToMany(() => DailyUpdate, (u) => u.trade)
   dailyUpdates: DailyUpdate[];

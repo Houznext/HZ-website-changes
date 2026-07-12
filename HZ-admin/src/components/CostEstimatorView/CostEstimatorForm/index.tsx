@@ -5,14 +5,26 @@ import RichTextEditor from "@/src/common/FormElements/RichTextEditor";
 import Modal from "@/src/common/Modal";
 import SelectBtnGrp from "@/src/common/SelectBtnGrp";
 import apiClient from "@/src/utils/apiClient";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { MdEdit } from "react-icons/md";
 import { ConstEstimationTable } from "../../CostEstimatorDetailsView/ConstEstimationTable";
-import { bhkArray } from "../../Property/PropertyDetails/PropertyHelpers";
+import { bhkArray } from "@/src/utils/propertyHelpers";
 import { CgSpinner } from "react-icons/cg";
 import { useRouter } from "next/router";
-import { FiUser, FiHome, FiMapPin, FiPlus, FiX, FiSave, FiFileText, FiPercent, FiLayers } from "react-icons/fi";
+import {
+  FiUser,
+  FiHome,
+  FiMapPin,
+  FiPlus,
+  FiX,
+  FiSave,
+  FiFileText,
+  FiPercent,
+  FiLayers,
+  FiDownload,
+  FiCheck,
+} from "react-icons/fi";
 
 import {
   CEformProps,
@@ -107,7 +119,18 @@ const CostEstimatorForm = ({
   const [addInfoModal, setAddInfoModal] = useState(false);
   const [OpenAddsectionModal, setOpenAddsectionModal] = useState(false);
   const [openDiscountModal, setOpenDiscountModal] = useState(false);
+  const [openClosePrompt, setOpenClosePrompt] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [quotationStatus, setQuotationStatus] = useState<
+    "draft" | "confirmed" | "revised"
+  >("draft");
+  const skipDirtyRef = useRef(true);
+  const estimationIdRef = useRef<string | number | null>(null);
+  const hydratedIdRef = useRef<string | number | null>(null);
+  const formValuesRef = useRef(formValues);
+  const draftSaveInFlightRef = useRef(false);
+  const autoDraftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // GST state — default 18%, off by default
   const [gstEnabled, setGstEnabled] = useState(false);
@@ -115,8 +138,31 @@ const CostEstimatorForm = ({
   const toDecimalString = (value: any) =>
     value === null || value === undefined ? "0" : String(value);
 
+  const markDirty = () => {
+    if (!skipDirtyRef.current) setIsDirty(true);
+  };
+
+  formValuesRef.current = formValues;
+
 useEffect(() => {
-    if (editingEstimation) {
+    const incomingId = editingEstimation?.id ?? null;
+
+    // Already hydrated this quotation — don't wipe local edits after silent draft saves.
+    if (incomingId && hydratedIdRef.current === incomingId) {
+      estimationIdRef.current = incomingId;
+      if ((editingEstimation as any)?.status) {
+        const s = (editingEstimation as any).status;
+        setQuotationStatus(
+          s === "draft" ? "draft" : s === "revised" ? "revised" : "confirmed"
+        );
+      }
+      return;
+    }
+
+    skipDirtyRef.current = true;
+    if (editingEstimation?.id) {
+      hydratedIdRef.current = editingEstimation.id;
+      estimationIdRef.current = editingEstimation.id;
       const itemGroups = editingEstimation.itemGroups?.length
         ? editingEstimation.itemGroups.map((group, index) => ({
             ...group,
@@ -143,14 +189,42 @@ useEffect(() => {
         subTotal: editingEstimation?.subTotal || 0,
         details: editingEstimation?.details,
         itemGroups,
-        location: editingEstimation.location,
+        location: editingEstimation.location || {
+          city: "",
+          locality: "",
+          sub_locality: "",
+          landmark: "",
+          pincode: "",
+          state: "",
+          address_line_1: "",
+        },
         discount: editingEstimation.discount,
       });
-      setLocationDetails({ ...editingEstimation.location });
+      setLocationDetails({
+        ...(editingEstimation.location || {
+          city: "",
+          locality: "",
+          sub_locality: "",
+          landmark: "",
+          pincode: "",
+          state: "",
+          address_line_1: "",
+        }),
+      });
       setDetails(editingEstimation?.details);
       setGstEnabled((editingEstimation as any).gstEnabled ?? false);
       setGstPercentage((editingEstimation as any).gstPercentage ?? 18);
+      setQuotationStatus(
+        (editingEstimation as any).status === "draft"
+          ? "draft"
+          : (editingEstimation as any).status === "revised"
+            ? "revised"
+            : "confirmed"
+      );
+      setIsDirty(false);
     } else if (userId) {
+      hydratedIdRef.current = null;
+      estimationIdRef.current = null;
       // Reset form when opening for new estimation
       const emptyLocation = {
         city: "",
@@ -186,7 +260,13 @@ useEffect(() => {
       setDetails(undefined);
       setGstEnabled(false);
       setGstPercentage(18);
+      setQuotationStatus("draft");
+      setIsDirty(false);
     }
+    const t = setTimeout(() => {
+      skipDirtyRef.current = false;
+    }, 300);
+    return () => clearTimeout(t);
   }, [editingEstimation, userId]);
 
   useEffect(() => {
@@ -195,6 +275,12 @@ useEffect(() => {
       location: { ...locationDetails },
     }));
   }, [locationDetails]);
+
+  useEffect(() => {
+    return () => {
+      if (autoDraftTimerRef.current) clearTimeout(autoDraftTimerRef.current);
+    };
+  }, []);
 
   // ---------------Validation functions-------------
   const validate = () => {
@@ -211,6 +297,7 @@ useEffect(() => {
   // --------------------On change functions -------------------
 
   const handleFormChange = (name: string, value: string | number) => {
+    markDirty();
     setFormValues((prev) => ({
       ...prev,
       [name]: value,
@@ -218,6 +305,7 @@ useEffect(() => {
   };
 
   const handleLocationChange = (name: string, value: string) => {
+    markDirty();
     setLocationDetails((prev) => ({
       ...prev,
       [name]: value,
@@ -245,25 +333,14 @@ useEffect(() => {
     });
   };
   const addSection = async () => {
-    console.log("Section Title", formValues.itemGroups.length);
     if (!sectionTitle.trim()) {
       toast.error("Please enter a valid section title");
-      return;
-    }
-
-    if (!editingEstimation) {
-      toast.error("Please save the estimation details first to add sections");
       return;
     }
 
     let updatedFormData;
 
     if (isEditingSection && editingSectionIndex !== null) {
-      console.log(
-        "Adding new section with order:",
-        formValues.itemGroups.length
-      );
-
       updatedFormData = {
         ...formValues,
         itemGroups: formValues.itemGroups?.map((group, index) =>
@@ -273,7 +350,6 @@ useEffect(() => {
         ),
       };
     } else {
-      console.log("Section ", formValues.itemGroups.length);
       const newSection = {
         title: sectionTitle,
         items: [],
@@ -291,15 +367,16 @@ useEffect(() => {
         group.items.reduce((sum, item) => sum + Number(item.amount || 0), 0),
       0
     );
-    console.log("updatedFormData", updatedFormData);
 
+    markDirty();
     setFormValues(updatedFormData);
 
-    if (setCostEstimators) {
+    const estId = estimationIdRef.current || editingEstimation?.id;
+    if (setCostEstimators && estId) {
       setCostEstimators((prev) =>
         prev.map((estimation) =>
-          estimation.id === editingEstimation.id
-            ? { id: editingEstimation.id, ...updatedFormData }
+          estimation.id === estId
+            ? { id: estId, ...updatedFormData }
             : estimation
         )
       );
@@ -310,36 +387,9 @@ useEffect(() => {
     setIsEditingSection(false);
     setEditingSectionIndex(null);
     setOpenAddsectionModal(false);
-
-    const payload = {
-      ...updatedFormData,
-      phone: Number(updatedFormData.phone),
-      customerMobile: String(updatedFormData.customerMobile || ""),
-      discount: toDecimalString(updatedFormData.discount),
-    };
-
-    try {
-      const response = await apiClient.put(
-        `${apiClient.URLS.cost_estimator}/${editingEstimation.id}`,
-        payload,
-        true
-      );
-      if (response.status === 200) {
-        toast.success(
-          isEditingSection
-            ? "Section updated successfully"
-            : "Section added successfully"
-        );
-      }
-      if (fetchDetails) {
-        fetchDetails();
-      }
-    } catch (error) {
-      console.error("Error saving section:", error);
-      toast.error(
-        `Failed to ${isEditingSection ? "update" : "save"} the section`
-      );
-    }
+    toast.success(
+      isEditingSection ? "Section updated" : "Section added"
+    );
   };
 
   // -------Add, remove and edit item functions------------------
@@ -347,11 +397,6 @@ useEffect(() => {
 
   const addItem = async () => {
     if (!validateItem()) return;
-
-    if (!editingEstimation) {
-      toast.error("Please save the estimation details first to add items");
-      return;
-    }
 
     if (!formValues.itemGroups || formValues?.itemGroups?.length === 0) {
       toast.error("Please add a section first before adding items");
@@ -406,66 +451,37 @@ useEffect(() => {
       subTotal: newSubTotal,
     };
 
+    markDirty();
     setFormValues(updatedFormData);
 
-    if (setCostEstimators) {
+    const estId = estimationIdRef.current || editingEstimation?.id;
+    if (setCostEstimators && estId) {
       setCostEstimators((prev) =>
         prev.map((estimation) =>
-          estimation.id === editingEstimation.id
-            ? { id: editingEstimation.id, ...updatedFormData }
+          estimation.id === estId
+            ? { id: estId, ...updatedFormData }
             : estimation
         )
       );
     }
 
-    const payLoad = {
-      ...updatedFormData,
-      phone: Number(updatedFormData.phone),
-      customerMobile: String(updatedFormData.customerMobile || ""),
-      itemGroups: updatedFormData.itemGroups.map((group) => ({
-        ...group,
-        items: group.items.map((item) => ({
-          ...item,
-          id: item.id || Date.now(),
-        })),
-      })),
-      discount: toDecimalString(updatedFormData.discount),
-    };
-
-    try {
-      const response = await apiClient.put(
-        `${apiClient.URLS.cost_estimator}/${editingEstimation.id}`,
-        payLoad,
-        true
-      );
-
-      if (response.status === 200) {
-        toast.success(
-          isEditing ? "Item updated successfully" : "Item added successfully"
-        );
-        setItemInformation({
-          id: null,
-          item_name: "",
-          description: "",
-          quantity: null,
-          unit_price: null,
-          amount: null,
-          area: null,
-        });
-        setIsEditing(false);
-
-        if (fetchDetails) fetchDetails();
-        closeAddItemModal();
-      }
-    } catch (error) {
-      console.error("Error adding item:", error);
-      toast.error("Failed to save the item details");
-    } finally {
-      setLoading(false);
-    }
+    toast.success(isEditing ? "Item updated" : "Item added");
+    setItemInformation({
+      id: null,
+      item_name: "",
+      description: "",
+      quantity: null,
+      unit_price: null,
+      amount: null,
+      area: null,
+    });
+    setIsEditing(false);
+    closeAddItemModal();
+    setLoading(false);
   };
 
   const removeItem = (id: number) => {
+    markDirty();
     const updatedItemGroups = formValues.itemGroups.map((group) => {
       const updatedItems = group.items.filter((item) => item.id !== id);
       return {
@@ -488,6 +504,7 @@ useEffect(() => {
   };
 
   const removeSection = (index: number) => {
+    markDirty();
     const updatedItemGroups = [...formValues.itemGroups];
     updatedItemGroups.splice(index, 1);
 
@@ -561,32 +578,105 @@ useEffect(() => {
 
   const formatted = convertToOrderedList(details);
 
-  // ---------------- Submit functions ----------------
+  // ---------------- Submit / draft / confirm ----------------
 
-  const handleSubmit = async () => {
-    if (!validate()) return;
-    if (loading) return;
-    setLoading(true);
+  const buildPayload = (
+    status: "draft" | "confirmed" | "revised",
+    values: typeof formValues = formValues
+  ) => {
+    const pct = Number(gstPercentage);
+    const rawPhone =
+      values.phone !== null &&
+      values.phone !== undefined &&
+      String(values.phone).trim() !== ""
+        ? Number(values.phone)
+        : undefined;
+    const phoneVal = Number.isFinite(rawPhone as number)
+      ? (rawPhone as number)
+      : undefined;
+    return {
+      ...values,
+      phone: phoneVal,
+      property_type: values.property_type || undefined,
+      bhk: values.bhk || undefined,
+      customerMobile: String(values.customerMobile || ""),
+      email: values.email || undefined,
+      firstname: values.firstname || "",
+      lastname: values.lastname || "",
+      subTotal: Number(values.subTotal) || 0,
+      details: details ?? values.details,
+      discount: toDecimalString(values.discount),
+      category: categoryProp ?? (activetab?.category as string) ?? "Interior",
+      gstEnabled: Boolean(gstEnabled),
+      gstPercentage: Number.isFinite(pct) ? pct : 18,
+      status,
+      location: {
+        city: "",
+        locality: "",
+        sub_locality: "",
+        landmark: "",
+        state: "",
+        pincode: "",
+        address_line_1: "",
+        ...(values.location || {}),
+      },
+      itemGroups: (values.itemGroups || []).map((group, index) => ({
+        id: group.id,
+        title: group.title,
+        order: group.order ?? index,
+        items: (group.items || []).map((item) => ({
+          id: item.id || undefined,
+          quantity: Number(item.quantity) || 0,
+          unit_price: Number(item.unit_price) || 0,
+          amount: Number(item.amount) || 0,
+          area: Number(item.area) || 0,
+          item_name: item.item_name || "",
+          description: item.description || "",
+        })),
+      })),
+    };
+  };
+
+  const hasDraftableContent = (values: typeof formValues) => {
+    const loc = values.location || locationDetails;
+    return Boolean(
+      values.firstname?.trim() ||
+        values.lastname?.trim() ||
+        values.email?.trim() ||
+        values.customerMobile?.trim() ||
+        values.phone ||
+        values.designerName?.trim() ||
+        values.property_name?.trim() ||
+        values.bhk ||
+        values.property_type ||
+        (values.itemGroups && values.itemGroups.length > 0) ||
+        loc?.city?.trim() ||
+        loc?.locality?.trim() ||
+        loc?.address_line_1?.trim() ||
+        loc?.pincode?.trim() ||
+        (typeof details === "string" && details.trim()) ||
+        Number(values.discount) > 0
+    );
+  };
+
+  const persistQuotation = async (
+    status: "draft" | "confirmed" | "revised",
+    options?: { silent?: boolean; requireFullValidation?: boolean }
+  ): Promise<any | null> => {
+    if (options?.requireFullValidation && !validate()) return null;
+    if (draftSaveInFlightRef.current && options?.silent) return null;
+
+    draftSaveInFlightRef.current = true;
+    if (!options?.silent) setLoading(true);
 
     try {
+      const payLoad = buildPayload(status);
+      const estId = estimationIdRef.current || editingEstimation?.id;
       let response: any = null;
 
-      const pct = Number(gstPercentage);
-      const payLoad = {
-        ...formValues,
-        phone: Number(formValues.phone),
-        customerMobile: String(formValues.customerMobile || ""),
-        subTotal: Number(formValues.subTotal),
-        details,
-        discount: toDecimalString(formValues.discount),
-        category: categoryProp ?? (activetab?.category as string) ?? "Interior",
-        gstEnabled: Boolean(gstEnabled),
-        gstPercentage: Number.isFinite(pct) ? pct : 18,
-      };
-
-      if (editingEstimation) {
+      if (estId) {
         response = await apiClient.put(
-          `${apiClient.URLS.cost_estimator}/${editingEstimation.id}`,
+          `${apiClient.URLS.cost_estimator}/${estId}`,
           payLoad,
           true
         );
@@ -598,75 +688,216 @@ useEffect(() => {
         );
       }
 
-      if (response.status === 201) {
-        setEditingEstimation?.(response.body);
-        onSuccessRefetch?.();
-        toast.success("Quotation saved.");
-      } else if (response.status === 200) {
-        toast.success("Updates saved.");
-        if (fetchDetails) {
-          fetchDetails();
+      if (response.status === 201 || response.status === 200) {
+        const body = response.body;
+        if (body?.id) {
+          estimationIdRef.current = body.id;
+          hydratedIdRef.current = body.id;
+          if (options?.silent) {
+            setEditingEstimation?.((prev: any) => ({
+              ...(prev || {}),
+              ...formValuesRef.current,
+              id: body.id,
+              quotationNumber: body.quotationNumber,
+              status: body.status || status,
+              gstEnabled,
+              gstPercentage,
+              details: details ?? formValuesRef.current.details,
+            }));
+          } else {
+            setEditingEstimation?.(body);
+          }
+          if (setCostEstimators) {
+            setCostEstimators((prev: any[]) => {
+              const exists = prev.some((e) => e.id === body.id);
+              if (exists) {
+                return prev.map((e) =>
+                  e.id === body.id ? { ...e, ...body } : e
+                );
+              }
+              return [body, ...prev];
+            });
+          }
         }
+        setQuotationStatus(status);
+        setIsDirty(false);
+        if (!options?.silent) {
+          onSuccessRefetch?.();
+          fetchDetails?.();
+        }
+        return body;
       }
+      return null;
     } catch (error: any) {
       console.error("Error saving estimation:", error);
-      const message =
-        error?.body?.message ||
-        error?.message ||
-        "Failed to save the details";
-      toast.error(message);
+      if (!options?.silent) {
+        const message =
+          error?.body?.message ||
+          error?.message ||
+          "Failed to save the details";
+        toast.error(
+          Array.isArray(message) ? message.join(", ") : String(message)
+        );
+      }
+      return null;
     } finally {
-      setLoading(false);
+      draftSaveInFlightRef.current = false;
+      if (!options?.silent) setLoading(false);
     }
   };
 
+  const saveAsDraft = async (options?: { silent?: boolean; closeAfter?: boolean }) => {
+    const saved = await persistQuotation("draft", {
+      silent: options?.silent,
+      requireFullValidation: false,
+    });
+    if (saved && !options?.silent) {
+      toast.success("Draft saved.");
+    }
+    if (saved && options?.closeAfter) {
+      setOpenClosePrompt(false);
+      closeDrawer();
+    }
+    return Boolean(saved);
+  };
+
+  const confirmQuote = async () => {
+    if (!validate()) {
+      toast.error("Please fill all required fields before confirming.");
+      return;
+    }
+    if (!formValues.itemGroups?.length) {
+      toast.error("Add at least one section before confirming.");
+      return;
+    }
+    // Re-confirming an already issued quote marks it as revised.
+    const nextStatus =
+      quotationStatus === "confirmed" || quotationStatus === "revised"
+        ? "revised"
+        : "confirmed";
+    const saved = await persistQuotation(nextStatus, {
+      requireFullValidation: true,
+    });
+    if (saved) {
+      toast.success(
+        nextStatus === "revised"
+          ? "Quotation revised and saved."
+          : "Quotation confirmed. Finance has been notified."
+      );
+    }
+  };
+
+  const handleDownload = async () => {
+    if (quotationStatus === "draft") {
+      toast.error("Confirm quote first to download the PDF.");
+      return;
+    }
+    const estId = estimationIdRef.current || editingEstimation?.id;
+    if (!estId) {
+      toast.error("Save and confirm the quote before downloading.");
+      return;
+    }
+    if (isDirty) {
+      const nextStatus =
+        quotationStatus === "revised" ? "revised" : "confirmed";
+      const saved = await persistQuotation(nextStatus, {
+        requireFullValidation: true,
+      });
+      if (!saved) return;
+    }
+    const category =
+      categoryProp ?? (activetab?.category as string) ?? "Interior";
+    router.push(`/cost-estimator/${category}/${estId}?download=1`);
+  };
+
+  const requestClose = () => {
+    if (isDirty || (!estimationIdRef.current && hasDraftableContent(formValues))) {
+      setOpenClosePrompt(true);
+      return;
+    }
+    closeDrawer();
+  };
+
+  // Auto-save draft when any field has content (mirrors invoice draft flow).
+  useEffect(() => {
+    if (skipDirtyRef.current) return;
+    if (!isDirty) return;
+    if (quotationStatus === "confirmed" || quotationStatus === "revised")
+      return;
+    if (!hasDraftableContent(formValues)) return;
+    if (!userId) return;
+
+    if (autoDraftTimerRef.current) clearTimeout(autoDraftTimerRef.current);
+    autoDraftTimerRef.current = setTimeout(() => {
+      void saveAsDraft({ silent: true });
+    }, 900);
+
+    return () => {
+      if (autoDraftTimerRef.current) clearTimeout(autoDraftTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    formValues,
+    details,
+    gstEnabled,
+    gstPercentage,
+    quotationStatus,
+    userId,
+    isDirty,
+  ]);
+
   const saveDetails = async () => {
-    if (details?.length === 0 || !editingEstimation?.id) return;
+    const formattedDetails = convertToOrderedList(details);
+    setAddInfoModal(false);
+    markDirty();
+    setFormValues((prev) => ({
+      ...prev,
+      details: formattedDetails,
+    }));
+    setDetails(formattedDetails);
+
+    const estId = estimationIdRef.current || editingEstimation?.id;
+    if (!estId) {
+      toast.success("Details added — will save with draft");
+      return;
+    }
 
     try {
-      const formatted = convertToOrderedList(details);
-      setAddInfoModal(false);
-      setFormValues((prev) => {
-        return {
-          ...prev,
-          details: formatted,
-        };
-      });
-
       await apiClient.put(
-        `${apiClient.URLS.cost_estimator}/${editingEstimation.id}`,
-        { details: formatted },
+        `${apiClient.URLS.cost_estimator}/${estId}`,
+        { details: formattedDetails, status: quotationStatus },
         true
       );
-
       toast.success("Successfully saved details");
-
-      if (fetchDetails) {
-        fetchDetails();
-      }
+      fetchDetails?.();
     } catch (error) {
       console.error("Error saving details:", error);
       toast.error("Failed to save the details");
     }
   };
+
   const saveDiscount = async () => {
-    const estimationId = editingEstimation?.id;
-    if (!estimationId) return;
+    const numericDiscount = Number(discountInput) || 0;
+    markDirty();
+    setFormValues((prev) => ({ ...prev, discount: numericDiscount }));
+    setOpenDiscountModal(false);
+
+    const estimationId = estimationIdRef.current || editingEstimation?.id;
+    if (!estimationId) {
+      toast.success("Discount applied — will save with draft");
+      return;
+    }
 
     try {
-      const numericDiscount = Number(discountInput) || 0;
       await apiClient.put(
         `${apiClient.URLS.cost_estimator}/${estimationId}`,
         {
           discount: numericDiscount.toString(),
+          status: quotationStatus,
         },
         true
       );
-
-      setFormValues((prev) => ({ ...prev, discount: numericDiscount }));
-      setOpenDiscountModal(false);
       toast.success("Successfully saved discount");
-
       fetchDetails?.();
     } catch (error) {
       console.error("Error saving discount:", error);
@@ -717,7 +948,22 @@ useEffect(() => {
               className="text-[15px] font-bold text-gray-800 tracking-tight"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              {editingEstimation ? "Edit Quotation" : "New Quotation"}
+              {editingEstimation?.id ? "Edit Quotation" : "New Quotation"}
+              <span
+                className={`ml-2 text-[10px] px-2 py-0.5 rounded-full font-semibold align-middle ${
+                  quotationStatus === "confirmed"
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                    : quotationStatus === "revised"
+                      ? "bg-violet-50 text-violet-700 border border-violet-200"
+                      : "bg-amber-50 text-amber-700 border border-amber-200"
+                }`}
+              >
+                {quotationStatus === "confirmed"
+                  ? "Confirmed"
+                  : quotationStatus === "revised"
+                    ? "Revised"
+                    : "Draft"}
+              </span>
             </h1>
             {editingEstimation && (
               <p className="text-[11.5px] text-gray-400 mt-0.5" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -729,7 +975,7 @@ useEffect(() => {
           </div>
         </div>
         <button
-          onClick={closeDrawer}
+          onClick={requestClose}
           className="w-8 h-8 rounded-[8px] flex items-center justify-center
                      bg-gray-50 hover:bg-red-50 border border-gray-200
                      hover:border-red-200 text-gray-400 hover:text-red-500
@@ -1091,7 +1337,7 @@ useEffect(() => {
                 editItem={editItem}
                 deleteItem={removeItem}
                 removeSection={removeSection}
-                handleSubmit={handleSubmit}
+                handleSubmit={() => void saveAsDraft()}
                 openModal={openItemModal}
                 openSectionModal={AddsectionModal}
                 editSection={editSection}
@@ -1103,7 +1349,7 @@ useEffect(() => {
                 </div>
                 <p className="text-[13px] font-medium text-[#57606a]">No sections yet</p>
                 <p className="text-[11.5px] text-[#8c959f] mt-0.5">
-                  Save the quotation first, then add sections
+                  Click + Add Section to start building this quote
                 </p>
               </div>
             )}
@@ -1157,7 +1403,10 @@ useEffect(() => {
                     <input
                       type="checkbox"
                       checked={gstEnabled}
-                      onChange={(e) => setGstEnabled(e.target.checked)}
+                      onChange={(e) => {
+                        markDirty();
+                        setGstEnabled(e.target.checked);
+                      }}
                       className="w-4 h-4 rounded border-gray-300 text-[#2f80ed] accent-[#2f80ed] cursor-pointer"
                     />
                     <span className="text-[13px] font-semibold text-[#24292f]" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -1171,7 +1420,10 @@ useEffect(() => {
                       max={100}
                       step={0.1}
                       value={gstPercentage}
-                      onChange={(e) => setGstPercentage(Number(e.target.value) || 0)}
+                      onChange={(e) => {
+                        markDirty();
+                        setGstPercentage(Number(e.target.value) || 0);
+                      }}
                       className="w-16 px-2 py-1 text-[13px] font-semibold text-[#24292f] border border-[#d0d7de] rounded-[6px] text-right focus:outline-none focus:border-[#2f80ed] focus:ring-1 focus:ring-[#2f80ed]"
                       style={{ fontFamily: "'Inter', sans-serif" }}
                     />
@@ -1281,34 +1533,119 @@ useEffect(() => {
           </div>
         )}
 
-        {/* Save button */}
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[8px]
-                     font-bold text-white text-[13px]
-                     shadow-[0_1px_3px_rgba(47,128,237,0.3)]
-                     hover:shadow-[0_4px_14px_rgba(47,128,237,0.4)]
-                     hover:-translate-y-px active:translate-y-0
-                     transition-all duration-150
-                     disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
-          style={{ background: '#2f80ed', fontFamily: "'Montserrat', sans-serif" }}
-          onMouseEnter={(e) => !loading && (e.currentTarget.style.background = '#1a6dd6')}
-          onMouseLeave={(e) => !loading && (e.currentTarget.style.background = '#2f80ed')}
-        >
-          {loading ? (
-            <>
+        {/* Action buttons */}
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          <button
+            type="button"
+            onClick={() => void saveAsDraft()}
+            disabled={loading}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[8px]
+                       border border-gray-200 bg-white hover:bg-gray-50
+                       font-semibold text-gray-700 text-[13px]
+                       transition-all duration-150
+                       disabled:opacity-60 disabled:cursor-not-allowed"
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+          >
+            {loading ? (
               <CgSpinner className="w-4 h-4 animate-spin" />
-              Saving...
-            </>
-          ) : (
-            <>
+            ) : (
               <FiSave className="w-4 h-4" />
-              {editingEstimation ? "Update Quotation" : "Save Quotation"}
-            </>
-          )}
-        </button>
+            )}
+            Save as draft
+          </button>
+          <button
+            type="button"
+            onClick={() => void confirmQuote()}
+            disabled={loading}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[8px]
+                       font-bold text-white text-[13px]
+                       shadow-[0_1px_3px_rgba(47,128,237,0.3)]
+                       hover:shadow-[0_4px_14px_rgba(47,128,237,0.4)]
+                       hover:-translate-y-px active:translate-y-0
+                       transition-all duration-150
+                       disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+            style={{ background: '#2f80ed', fontFamily: "'Montserrat', sans-serif" }}
+          >
+            {loading ? (
+              <CgSpinner className="w-4 h-4 animate-spin" />
+            ) : (
+              <FiCheck className="w-4 h-4" />
+            )}
+            Confirm quote
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleDownload()}
+            disabled={loading}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[8px]
+                       border border-[#d0d7de] bg-[#f6f8fa] hover:bg-white
+                       font-semibold text-[#24292f] text-[13px]
+                       transition-all duration-150
+                       disabled:opacity-60 disabled:cursor-not-allowed"
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+            title={
+              quotationStatus === "draft"
+                ? "Confirm quote first to download"
+                : "Download PDF"
+            }
+          >
+            <FiDownload className="w-4 h-4" />
+            Download
+          </button>
+        </div>
       </div>
+
+      {/* ── Close prompt: save as draft ── */}
+      <Modal
+        isOpen={openClosePrompt}
+        closeModal={() => setOpenClosePrompt(false)}
+        title=""
+        isCloseRequired={false}
+        className="md:w-[420px] w-[340px] rounded-[16px] shadow-[0_24px_80px_rgba(0,0,0,0.18)]"
+        rootCls="z-[99999]"
+      >
+        <div className="flex flex-col gap-4 w-full p-1">
+          <div>
+            <h3
+              className="text-[15px] font-bold text-gray-800"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              Save as draft?
+            </h3>
+            <p className="text-[13px] text-gray-500 mt-1.5" style={{ fontFamily: "'Inter', sans-serif" }}>
+              You have unsaved changes. Save this quotation as a draft, discard changes, or keep editing.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+            <button
+              type="button"
+              onClick={() => setOpenClosePrompt(false)}
+              className="px-3 py-2 rounded-[8px] border border-gray-200 text-[13px] font-medium text-gray-600 hover:bg-gray-50"
+            >
+              Keep editing
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setOpenClosePrompt(false);
+                setIsDirty(false);
+                closeDrawer();
+              }}
+              className="px-3 py-2 rounded-[8px] border border-red-200 bg-red-50 text-[13px] font-medium text-red-600 hover:bg-red-100"
+            >
+              Discard
+            </button>
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => void saveAsDraft({ closeAfter: true })}
+              className="px-3 py-2 rounded-[8px] bg-[#2f80ed] text-white text-[13px] font-semibold hover:bg-[#1a6dd6] disabled:opacity-60"
+            >
+              Save as draft
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* ── Add Section Modal ── */}
       <Modal

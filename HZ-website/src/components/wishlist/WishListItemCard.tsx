@@ -12,7 +12,7 @@ type WishlistItemCardProps = {
 }
 
 export default function WishlistItemCard({ item, onRemove, onAddToCart }: WishlistItemCardProps) {
-    const itemData = item.property || item.furniture || item.homeDecors
+    const itemData = item.furniture || item.homeDecors
 
     if (!itemData) return null
 
@@ -44,7 +44,7 @@ export default function WishlistItemCard({ item, onRemove, onAddToCart }: Wishli
 
                     <div className="absolute bottom-3 left-3">
                         <Badge variant="secondary" className="text-xs bg-white/80 backdrop-blur-sm">
-                            {item.property ? "Property" : item.furniture ? "Furniture" : "Home Decor"}
+                            {item.furniture ? "Furniture" : "Home Decor"}
                         </Badge>
                     </div>
                 </div>

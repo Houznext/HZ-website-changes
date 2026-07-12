@@ -1,4 +1,4 @@
-import { MediaDetails } from 'src/property/entities/mediaDetails.entity';
+import { MediaDetails } from 'src/common/location/media-details.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -11,12 +11,12 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 import { Company } from './company.entity';
-import { ConstructionStatus } from 'src/property/entities/property-details/constructionStatus.entity';
+import { ConstructionStatus } from 'src/common/location/construction-status.entity';
 import { PropertyType } from './project-property-type.entity';
-import { LocationDetails } from 'src/property/entities/location.entity';
+import { LocationDetails } from 'src/common/location/location.entity';
 import { User } from 'src/user/entities/user.entity';
 import { SizeWithUnit } from '../Interfaces/size.interface';
-import { PropertyLead } from '../../property/propertyLead/property-lead.entity';
+import { PropertyLead } from '../../property-lead/property-lead.entity';
 
 @Entity()
 export class Project {

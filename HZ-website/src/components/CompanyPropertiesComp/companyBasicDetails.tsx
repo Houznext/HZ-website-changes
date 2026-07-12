@@ -2,7 +2,7 @@ import CustomInput from "@/common/FormElements/CustomInput";
 import SelectBtnGrp from "@/common/SelectBtnGrp";
 import { useCompanyPropertyStore } from "@/store/companyproperty";
 import React, { useState, useEffect } from "react";
-import { rentPropertyType } from "../Property/PropertyDetails/PropertyHelpers";
+import { rentPropertyType } from "@/utils/propertyHelpers";
 import { companyPropertyType } from "./projecthelper";
 import Modal from "@/common/Modal";
 import Button from "@/common/Button";

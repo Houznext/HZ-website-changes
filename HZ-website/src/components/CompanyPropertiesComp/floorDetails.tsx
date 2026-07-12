@@ -7,11 +7,11 @@ import SelectBtnGrp from "@/common/SelectBtnGrp";
 import FloatingDatePicker from "@/common/FormElements/FloatingDateInput";
 import { FaCalendarAlt } from "react-icons/fa";
 import { useCompanyPropertyStore } from "@/store/companyproperty";
-import { bhkArray } from "../Property/PropertyDetails/PropertyHelpers";
+import { bhkArray } from "@/utils/propertyHelpers";
 
 import toast from "react-hot-toast";
 import ImageUploader from "@/common/FormElements/DragImageInput";
-import { propertyTypeEnum } from "../Property/PropertyDetails/PropertyHelpers";
+import { propertyTypeEnum } from "@/utils/propertyHelpers";
 import {
 
   validateUnitData,

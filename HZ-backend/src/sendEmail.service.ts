@@ -3,13 +3,10 @@ import * as nodemailer from 'nodemailer';
 import { Resend } from 'resend';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Property } from './property/entities/property.entity';
 import { User } from './user/entities/user.entity';
 import { CRMLead } from './crm/entities/crm.entity';
 import { ContactUs } from './contactus/entities/contact-us.entity';
 import {
-  USER_CONFIRMATION_TEMPLATE,
-  ADMIN_NOTIFICATION_TEMPLATE,
   USER_NOTIFICATION_TEMPLATE,
   OWNER_LEAD_NOTIFICATION_TEMPLATE,
   ADMIN_LEAD_NOTIFICATION_TEMPLATE,
@@ -18,7 +15,7 @@ import {
 } from './emailTemplates';
 import { Referral } from './houznext-rewards/entities/referral.entity';
 
-import { PropertyLead } from './property/propertyLead/property-lead.entity';
+import { PropertyLead } from './property-lead/property-lead.entity';
 interface GenericLead {
   id: number;
   name?: string;
@@ -295,42 +292,16 @@ ${params.bodyText
     }
   }
 
-  async sendUserConfirmationEmail(property: Property, user: User) {
-    if (!user) {
-      throw new Error('User is not defined');
-    }
-
-    const userName = user.firstName || user.fullName || user.email || 'User';
-
-    const populatedTemplate = this.populateTemplate(
-      USER_CONFIRMATION_TEMPLATE,
-      {
-        userName,
-        propertyTitle: property.propertyDetails.propertyName,
-        currentDate: new Date().toLocaleDateString(),
-      },
-    );
-
-    await this.sendMail(
-      property.basicDetails.email,
-      'Property Posted Successfully!',
-      'Your property has been posted successfully.',
-      populatedTemplate,
-    );
-  }
-
-  //mail service for property leads
-
   async sendLeadNotificationToOwner(
     lead: PropertyLead,
-    property: Property,
-    owner: User,
+    listingTitle: string,
+    owner: { email: string; fullName?: string },
   ) {
     const populatedTemplate = this.populateTemplate(
       OWNER_LEAD_NOTIFICATION_TEMPLATE,
       {
         ownerName: owner.fullName || 'Owner',
-        propertyTitle: property.propertyDetails?.propertyName || 'Property',
+        propertyTitle: listingTitle || 'Listing',
         leadName: lead.name,
         leadEmail: lead.email,
         leadPhone: lead.phoneNumber,
@@ -341,8 +312,8 @@ ${params.bodyText
 
     await this.sendMail(
       owner.email,
-      `New Enquiry on your Property: ${property.propertyDetails?.propertyName}`,
-      `You have received a new lead for your property.`,
+      `New Enquiry on your Listing: ${listingTitle}`,
+      `You have received a new lead for your listing.`,
       populatedTemplate,
     );
   }
@@ -368,32 +339,6 @@ ${params.bodyText
     );
   }
 
-  async notifyAdmins(property: Property) {
-    const user = property.postedByUser;
-    console.log(user); // Add this to check if the user object exists and is as expected
-    const populatedTemplate = this.populateTemplate(
-      ADMIN_NOTIFICATION_TEMPLATE,
-      {
-        propertyTitle: property.propertyDetails.propertyName,
-        postedBy: property.postedByUser.fullName,
-        propertyId: property.propertyId.toString(),
-        currentDate: new Date().toLocaleDateString(),
-      },
-    );
-
-    const adminEmails = [
-      'business@houznext.com',
-    ];
-
-    for (const email of adminEmails) {
-      await this.sendMail(
-        email,
-        'New Property Posted Notification',
-        'A new property has been posted.',
-        populatedTemplate,
-      );
-    }
-  }
   async notifyAdminsAboutLead(lead: CRMLead): Promise<void> {
     const populatedTemplate = this.populateTemplate(
       ADMIN_LEAD_NOTIFICATION_TEMPLATE,

@@ -144,6 +144,55 @@ export class CompanyPromotionUpdateDto {
   updatedBy?: string;
 }
 
+/** Project promotion update (admin) */
+export class PromotionUpdateDto {
+  @ApiProperty({
+    enum: PromotionTypeEnum,
+    isArray: true,
+    description: 'Type of promotion to apply',
+    example: [PromotionTypeEnum.Featured, PromotionTypeEnum.Premium],
+  })
+  @IsEnum(PromotionTypeEnum, { each: true })
+  @IsArray()
+  promotionType: PromotionTypeEnum[];
+
+  @ApiPropertyOptional({
+    type: Date,
+    format: 'date-time',
+    description: 'Optional expiry date for promotion',
+    example: '2025-04-10T00:00:00.000Z',
+  })
+  @IsOptional()
+  @IsDateString()
+  promotionExpiry?: Date;
+
+  @ApiProperty({
+    type: String,
+    description: 'Admin username or ID who approved this',
+    example: 'adminUser1',
+  })
+  @IsString()
+  approvedBy: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Admin username or ID who updated this',
+    example: 'adminUser1',
+  })
+  @IsString()
+  updatedBy: string;
+
+  @ApiPropertyOptional({
+    type: [String],
+    description: 'Optional tags for display/filtering',
+    example: ['Collab', 'Partner'],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  promotionTags?: string[];
+}
+
 export interface PopularBuilderDto {
   id: string;
   slug: string;

@@ -4,8 +4,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { Customer } from './entities/customer.entity';
 import { Rep } from './entities/rep.entity';
 import { InteriorProject } from './entities/interior-project.entity';
-import { TradeTemplate } from './entities/trade-template.entity';
-import { QcCheckpointTemplate } from './entities/qc-checkpoint-template.entity';
 import { ProjectTrade } from './entities/project-trade.entity';
 import { DailyUpdate } from './entities/daily-update.entity';
 import { LabourEntry } from './entities/labour-entry.entity';
@@ -31,8 +29,6 @@ import { InteriorSeedService } from './interior-seed.service';
       Customer,
       Rep,
       InteriorProject,
-      TradeTemplate,
-      QcCheckpointTemplate,
       ProjectTrade,
       DailyUpdate,
       LabourEntry,

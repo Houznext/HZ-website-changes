@@ -15,11 +15,11 @@ import { FiShield } from "react-icons/fi";
 import { CiBookmark, CiMapPin, CiMaximize2 } from "react-icons/ci";
 import Button from "@/common/Button";
 import Modal from "@/common/Modal";
-import ContactSellerForm from "@/components/PropertyDetailsComponent/ContactSellerForm";
+import ContactSellerForm from "@/components/shared/ContactSellerForm";
 import { pushDataLayer } from "@/lib/analytics";
 import { PiShareFat } from "react-icons/pi";
 import toast from "react-hot-toast";
-import { getPropertyIcon } from "@/components/PropertiesListComponent/SingleProperty/helper";
+import { getPropertyIcon } from "@/components/shared/propertyListHelpers/helper";
 import { Directions, Home } from "@mui/icons-material";
 import { AreaIcon } from "@/components/Products/icons";
 import { LuBike } from "react-icons/lu";
@@ -27,7 +27,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { generateSlug } from "@/utils/helpers";
 import { useSession } from "next-auth/react";
-import { iconMap } from "@/components/PropertiesListComponent/SingleProperty/helper";
+import { iconMap } from "@/components/shared/propertyListHelpers/helper";
 
 interface PropertyCardProps {
   data: any;

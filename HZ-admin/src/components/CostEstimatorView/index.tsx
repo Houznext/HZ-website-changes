@@ -64,6 +64,8 @@ const CostEstimatorView: React.FC = () => {
     activeTab,
     setActiveTab,
     total,
+    statusFilter,
+    setStatusFilter,
   } = useCostEstimatorStore();
 
   console.log("costEstimators", costEstimators);
@@ -73,6 +75,24 @@ const CostEstimatorView: React.FC = () => {
   const [query, setQuery] = useState("");
   const searchTimer = useRef<number | null>(null);
   const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  const STATUS_FILTER_CARDS = [
+    {
+      key: "all" as const,
+      label: "All",
+      activeCls: "border-[#2f80ed] bg-[#eaf1fd] text-[#2f80ed]",
+    },
+    {
+      key: "draft" as const,
+      label: "Drafts",
+      activeCls: "border-amber-400 bg-amber-50 text-amber-700",
+    },
+    {
+      key: "revised" as const,
+      label: "Revised",
+      activeCls: "border-violet-400 bg-violet-50 text-violet-700",
+    },
+  ];
 
   const [selectedFilters, setSelectedFilters] = useState<FiltersState>({
     bhkTypeData: {},
@@ -103,12 +123,18 @@ const CostEstimatorView: React.FC = () => {
     }
   }, [router.query?.category]);
 
-  // Fetch on auth / tab / pagination change
+  // Fetch on auth / tab / pagination / status filter change
   useEffect(() => {
     if (status === "authenticated" && userId) {
-      fetchCostEstimators(userId, activeTab, currentPage, pageSize);
+      fetchCostEstimators(
+        userId,
+        activeTab,
+        currentPage,
+        pageSize,
+        statusFilter,
+      );
     }
-  }, [status, userId, activeTab, currentPage, pageSize]);
+  }, [status, userId, activeTab, currentPage, pageSize, statusFilter]);
 
   // Build filter option sets whenever data changes
   useEffect(() => {
@@ -245,12 +271,19 @@ const CostEstimatorView: React.FC = () => {
 
   const paginatedData = useMemo(() => filtered, [filtered]);
   const refetchList = () => {
-    if (userId) fetchCostEstimators(userId, activeTab, currentPage, pageSize);
+    if (userId)
+      fetchCostEstimators(
+        userId,
+        activeTab,
+        currentPage,
+        pageSize,
+        statusFilter,
+      );
   };
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedQuery, selectedFilters, activeTab]);
+  }, [debouncedQuery, selectedFilters, activeTab, statusFilter]);
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -363,7 +396,13 @@ const CostEstimatorView: React.FC = () => {
         if (nextPage !== currentPage) {
           setCurrentPage(nextPage);
         } else if (userId) {
-          await fetchCostEstimators(userId, activeTab, currentPage, pageSize);
+          await fetchCostEstimators(
+            userId,
+            activeTab,
+            currentPage,
+            pageSize,
+            statusFilter,
+          );
         }
       }
     } catch (error) {
@@ -516,12 +555,12 @@ const CostEstimatorView: React.FC = () => {
       </div>
 
       {/* ── Toolbar ── */}
-      <div className="mx-5 mb-4 bg-white border border-[#eaeef2] rounded-[10px] px-4 py-3">
-        <div className="flex flex-col lg:flex-row lg:items-center gap-3">
-          <div className="flex-1">
+      <div className="mx-5 mb-4 bg-white border border-[#eaeef2] rounded-[10px] px-4 py-3 overflow-visible relative z-20">
+        <div className="flex flex-nowrap items-center gap-2 overflow-visible w-full">
+          <div className="flex-1 min-w-[200px]">
             <ReusableSearchFilter
               searchText={query}
-              placeholder="Search by name, email, phone, property or location..."
+              placeholder="Search quotations..."
               onSearchChange={setQuery}
               filters={[
                 {
@@ -543,16 +582,36 @@ const CostEstimatorView: React.FC = () => {
               ]}
               selectedFilters={selectedFilters}
               onFilterChange={setSelectedFilters}
-              rootCls="md:mb-0"
+              rootCls="md:mb-0 relative z-30 !w-full"
             />
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-none">
+            {STATUS_FILTER_CARDS.map((card) => {
+              const active = statusFilter === card.key;
+              return (
+                <button
+                  key={card.key}
+                  type="button"
+                  onClick={() => setStatusFilter(card.key)}
+                  className={`h-9 px-3 rounded-[8px] border text-[12.5px] font-semibold
+                    transition-all duration-150 whitespace-nowrap
+                    ${
+                      active
+                        ? card.activeCls
+                        : "border-[#d0d7de] bg-white text-[#57606a] hover:bg-[#f6f8fa] hover:text-[#24292f]"
+                    }`}
+                >
+                  {card.label}
+                </button>
+              );
+            })}
+
             {/* Sort */}
             <button
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-[#d0d7de]
+              className="flex items-center gap-1.5 h-9 px-3 rounded-[8px] border border-[#d0d7de]
                          bg-white hover:bg-[#f6f8fa] text-[12px] font-medium text-[#57606a]
-                         hover:text-[#24292f] transition-all"
+                         hover:text-[#24292f] transition-all whitespace-nowrap"
               onClick={() =>
                 setSort((s) =>
                   s === "recent" ? "name" : s === "name" ? "total" : "recent",
@@ -568,10 +627,10 @@ const CostEstimatorView: React.FC = () => {
             </button>
 
             {/* View toggle */}
-            <div className="flex border border-[#d0d7de] rounded-lg overflow-hidden">
+            <div className="flex h-9 border border-[#d0d7de] rounded-lg overflow-hidden">
               <button
                 onClick={() => setView("cards")}
-                className={`px-2.5 py-1.5 flex items-center justify-center transition-colors ${
+                className={`px-2.5 flex items-center justify-center transition-colors ${
                   view === "cards"
                     ? "bg-[#2f80ed] text-white"
                     : "bg-white text-[#8c959f] hover:bg-[#f6f8fa]"
@@ -582,7 +641,7 @@ const CostEstimatorView: React.FC = () => {
               </button>
               <button
                 onClick={() => setView("compact")}
-                className={`px-2.5 py-1.5 flex items-center justify-center transition-colors ${
+                className={`px-2.5 flex items-center justify-center transition-colors ${
                   view === "compact"
                     ? "bg-[#2f80ed] text-white"
                     : "bg-white text-[#8c959f] hover:bg-[#f6f8fa]"
@@ -595,9 +654,9 @@ const CostEstimatorView: React.FC = () => {
 
             {/* Export */}
             <button
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-[#2f80ed] hover:bg-[#1a6dd6]
+              className="flex items-center gap-1.5 h-9 px-3 rounded-[8px] bg-[#2f80ed] hover:bg-[#1a6dd6]
                          text-white text-[12px] font-semibold
-                         shadow-[0_1px_3px_rgba(47,128,237,0.3)] transition-all"
+                         shadow-[0_1px_3px_rgba(47,128,237,0.3)] transition-all whitespace-nowrap"
               onClick={exportCSV}
               title="Export filtered list"
             >
@@ -618,7 +677,13 @@ const CostEstimatorView: React.FC = () => {
             No quotations found
           </h3>
           <p className="text-[12px] text-[#8c959f]">
-            No {activeTab} quotations match your search criteria
+            No{" "}
+            {statusFilter === "draft"
+              ? "draft"
+              : statusFilter === "revised"
+                ? "revised"
+                : activeTab}{" "}
+            quotations match your search criteria
           </p>
         </div>
       )}
@@ -636,7 +701,13 @@ const CostEstimatorView: React.FC = () => {
                   onDuplicate={async (d) => {
                     try {
                       await handleDuplicateProxy(d);
-                      await fetchCostEstimators(userId!, activeTab, currentPage, pageSize);
+                      await fetchCostEstimators(
+                        userId!,
+                        activeTab,
+                        currentPage,
+                        pageSize,
+                        statusFilter,
+                      );
                     } catch {}
                   }}
                   onEdit={handleEditProxy}
@@ -655,7 +726,13 @@ const CostEstimatorView: React.FC = () => {
                 onDuplicate={async (d) => {
                   try {
                     await handleDuplicateProxy(d);
-                    await fetchCostEstimators(userId!, activeTab, currentPage, pageSize);
+                    await fetchCostEstimators(
+                      userId!,
+                      activeTab,
+                      currentPage,
+                      pageSize,
+                      statusFilter,
+                    );
                   } catch {}
                 }}
                 onEdit={handleEditProxy}
@@ -714,7 +791,8 @@ const CostEstimatorView: React.FC = () => {
           : (await apiClient.get(`${apiClient.URLS.cost_estimator}/${data.id}`))
               .body;
 
-      const { id, postedBy, itemGroups = [], discount, ...rest } = fullData;
+      const { id, postedBy, itemGroups = [], discount, quotationNumber, ...rest } =
+        fullData;
 
       const phone =
         typeof fullData.phone === "string" || typeof fullData.phone === "number"
@@ -752,6 +830,7 @@ const CostEstimatorView: React.FC = () => {
         subTotal,
         category: activeTab,
         date: new Date().toISOString(),
+        status: "draft",
       };
 
       const response = await apiClient.post(
@@ -846,6 +925,21 @@ const CompactRow = ({
                 {displayQN}
               </span>
             )}
+            <span
+              className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border ${
+                (item as any)?.status === "draft"
+                  ? "bg-amber-50 text-amber-700 border-amber-200"
+                  : (item as any)?.status === "revised"
+                    ? "bg-violet-50 text-violet-700 border-violet-200"
+                    : "bg-emerald-50 text-emerald-700 border-emerald-200"
+              }`}
+            >
+              {(item as any)?.status === "draft"
+                ? "Draft"
+                : (item as any)?.status === "revised"
+                  ? "Revised"
+                  : "Confirmed"}
+            </span>
             <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#f6f8fa] border border-[#eaeef2] text-[#57606a]">
               {new Date(item.date).toLocaleDateString("en-IN", {
                 year: "numeric",

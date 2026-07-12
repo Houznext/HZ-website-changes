@@ -5,7 +5,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { dataSourceOptions } from 'db/datasource';
-import { PropertyModule } from './property/property.module';
 import { BlogModule } from './blog/blog.module';
 import { OtpModule } from './otp/otp.module';
 import { MailerService } from './sendEmail.service';
@@ -26,13 +25,13 @@ import { WishlistModule } from './wishlist/wishlist.module';
 import { CRMLeadModule } from './crm/crm.module';
 import { AwardModule } from './company-onboarding/Awards/awards.module';
 import { CompanyAddressModule } from './company-onboarding/CompanyAddress/companyaddress.module';
+import { CompanyOnboardingModule } from './company-onboarding/company-onboarding.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './tasks/tasks.module';
 import { DeleteAccountModule } from './deleteaccount/delete-account.module';
-import { PropertyLeadModule } from './property/propertyLead/property-lead.module';
+import { PropertyLeadModule } from './property-lead/property-lead.module';
 import { InvoiceEstimatorModule } from './invoice-estimator/invoice-estimator.module';
 import { WhatsAppModule } from './whatsappSend/whatsapp.module';
-import { UnifiedPropertyListingModule } from './unified-property-listing/unified-property-listing.module';
 import { S3Module } from './common/s3/s3.module';
 import { ContactUsModule } from './contactus/contact-us.module';
 import { ResourceModule } from './ResourceName/resource.module';
@@ -41,10 +40,9 @@ import { StateModule } from './geography/state/state.module';
 import { OrdersModule } from './orders/order.module';
 import { PaymentsModule } from './payment/payment.module';
 import { HouznextRewardsModule } from './houznext-rewards/houznext-rewards.module';
-import { PropertyPremiumPlansModule } from './property-premium-plans/property-premium-plans.module';
 import { ChatModule } from './chat/chat.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
-import { RealtimeModule } from "./realtime/realtime.module";
+import { RealtimeModule } from './realtime/realtime.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { FloorplansModule } from './floorplans/floorplans.module';
 import { ShiprocketModule } from './shiprocket/shiprocket.module';
@@ -90,15 +88,12 @@ import { LivebuildModule } from './livebuild/livebuild.module';
     UserModule,
     S3Module,
     NotificationModule,
-
     TasksModule,
-    PropertyModule,
     BlogModule,
     OtpModule,
     TestimonialModule,
     AddressModule,
     BuilderLeadsModule,
-    UnifiedPropertyListingModule,
     FurnitureModule,
     CartModule,
     OrdersModule,
@@ -112,9 +107,9 @@ import { LivebuildModule } from './livebuild/livebuild.module';
     CRMLeadModule,
     AwardModule,
     CompanyAddressModule,
+    CompanyOnboardingModule,
     DeleteAccountModule,
     PropertyLeadModule,
-    PropertyPremiumPlansModule,
     InvoiceEstimatorModule,
     StateModule,
     ResourceModule,
@@ -149,4 +144,4 @@ import { LivebuildModule } from './livebuild/livebuild.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

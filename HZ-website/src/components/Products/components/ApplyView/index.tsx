@@ -1,7 +1,7 @@
 import Button from '@/common/Button';
 import CustomInput from '@/common/FormElements/CustomInput';
 import Modal from '@/common/Modal';
-import { BackArrow } from '@/components/PublicPostProperty/PropIcons';
+import { BackArrow } from '@/components/shared/icons/PropIcons';
 import { duration } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { set } from 'zod';

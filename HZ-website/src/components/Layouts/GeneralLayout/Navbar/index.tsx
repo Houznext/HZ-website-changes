@@ -17,7 +17,6 @@ import { useCartStore } from "@/store/cart";
 import { useWishlistStore } from "@/store/wishlist";
 import { CheckCircle2 } from "lucide-react";
 import { fetchHomePageCity } from "@/utils/locationDetails/datafetchingFunctions";
-import { getLookingTypePath } from "@/components/Property/PropertyDetails/PropertyHelpers";
 import { useAuthModal } from "@/common/auth/AuthProvider";
 import { Disclosure } from "@headlessui/react";
 import { ChevronDown } from "lucide-react";
@@ -136,16 +135,6 @@ const NavDropDown = ({ item, subLink }: any) => {
   const handleGetEstimate = () => {
     router.push("/interiors/cost-calculator");
   };
-  const handlePostProperty = handleGetEstimate;
-  const [hoveredPropertyType, setHoveredPropertyType] = useState<string>("Buy");
-  const [activeType, setActiveType] = useState<string | null>(null);
-
-  const propertyTypeMapping: Record<string, string[]> = {
-    Buy: ["Apartment", "Villa", "Independent House", "Plot"],
-    Rent: ["Apartment", "Villa", "Independent House"],
-    "Flat Share": ["Apartment", "Villa", "Independent House"],
-    Plot: ["Residential Plot", "Commercial Plot"],
-  };
 
   return (
     <Popover
@@ -227,20 +216,7 @@ const NavDropDown = ({ item, subLink }: any) => {
                                 <Link
                                   key={i}
                                   href={linkItem.link}
-                                  className={`block text-sm cursor-pointer transition-colors duration-200 ease-in-out ${hoveredPropertyType === linkItem.name
-                                    ? "text-[#3586FF]"
-                                    : "text-black"
-                                    } hover:text-[#3586FF]`}
-                                  onMouseEnter={() =>
-                                    [
-                                      "Buy",
-                                      "Rent",
-                                      "Flat Share",
-                                      "Plot",
-                                    ].includes(linkItem.name)
-                                      ? setHoveredPropertyType(linkItem.name)
-                                      : null
-                                  }
+                                  className="block text-sm cursor-pointer transition-colors duration-200 ease-in-out text-black hover:text-[#3586FF]"
                                 >
                                   {linkItem.name}{" "}
                                 </Link>
@@ -254,44 +230,6 @@ const NavDropDown = ({ item, subLink }: any) => {
                             </div>
 
                             <div className=" text-gray-700 leading-6 py-3 px-4 flex flex-col justify-between">
-                              {item.name === "Properties" ? (
-                                <div className="py-2">
-                                  {hoveredPropertyType &&
-                                    propertyTypeMapping[
-                                    hoveredPropertyType
-                                    ] && (
-                                      <div className="flex flex-col gap-2 ">
-                                        <p className="md:text-[16px] text-[12px] text-[#3586FF] font-bold">
-                                          Properties In {city}
-                                        </p>
-                                        <div className=" pl-5 text-[12px] text-gray-700">
-                                          {propertyTypeMapping[
-                                            hoveredPropertyType
-                                          ].map((type) => (
-                                            <h1
-                                              key={type}
-                                              onClick={() => {
-                                                const lookingTypePath =
-                                                  getLookingTypePath(
-                                                    hoveredPropertyType
-                                                  );
-
-                                                router.push(
-                                                  `/properties/${lookingTypePath}/${city}?propertyType=${encodeURIComponent(
-                                                    type
-                                                  )}&page=1`
-                                                );
-                                              }}
-                                              className="cursor-pointer hover:text-[#3586FF]"
-                                            >
-                                              {type}
-                                            </h1>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    )}
-                                </div>
-                              ) : (
                                 <div>
                                   <p className="font-bold mb-2 md:text-[16px] text-[12px]">
                                     Why choose our services?
@@ -302,7 +240,6 @@ const NavDropDown = ({ item, subLink }: any) => {
                                     <li>End-to-end support</li>
                                   </ul>
                                 </div>
-                              )}
 
                               <div>
                                 <h1 className=" font-regular md:text-[10px] text-[8px]">
@@ -314,36 +251,7 @@ const NavDropDown = ({ item, subLink }: any) => {
                               </div>
                             </div>
 
-                            {item.name === "Properties" ? (
-                              <div className="bg-white p-4 max-w-[120px] flex items-center justify-center">
-                                <div className="flex flex-col items-center gap-3 bg-gradient-to-tr from-white to-blue-100  rounded-[10px] p-3">
-                                  <p className="md:text-[16px] text-[12px] text-[#3586FF] font-bold text-center mb-5">
-                                    Sell or Rent faster at the Right price!
-                                  </p>
-
-                                  <Button
-                                    onClick={handlePostProperty}
-                                    className="py-[4px] px-[10px] bg-[#3586FF] text-white  font-medium rounded  "
-                                  >
-                                    <div className="flex flex-row gap-2">
-                                      <p className="text-nowrap text-[14px]">
-                                        Post Property
-                                      </p>
-                                      <p
-                                        style={{
-                                          background:
-                                            "linear-gradient(90deg, #ffffff 0%, #f0f0f0 100%)",
-                                        }}
-                                        className="text-xs mt-0.5 w-[50px] max-h-[25px] rounded px-2 py-0.5 leading-[17px] text-[#3586FF] font-semibold text-center"
-                                      >
-                                        Free
-                                      </p>
-                                    </div>
-                                  </Button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="bg-white p-3 flex items-center justify-center">
+                            <div className="bg-white p-3 flex items-center justify-center">
                                 <div className="flex flex-col items-center gap-3 bg-[#f3f9ff]  rounded-[10px] px-5 py-8">
                                   <div className="flex items-center gap-2">
                                     <div className="relative w-[30px] h-[30px] ">
@@ -399,7 +307,6 @@ const NavDropDown = ({ item, subLink }: any) => {
                                   </div>
                                 </div>
                               </div>
-                            )}
                           </div>
                         </Popover.Panel>
                         <Popover.Panel
@@ -692,11 +599,6 @@ const Navbar = ({ isVisibleItems }: ShowItems) => {
       },
     },
     {
-      name: "Houznext Rewards",
-      link: "/houznext-rewards",
-      isActive: router.pathname.startsWith("/houznext-rewards"),
-    },
-    {
       name: "Login",
       link: "/login",
       isActive: router.pathname.startsWith("/login"),
@@ -973,8 +875,6 @@ const MobileMenu = ({
             return <LinkRow key={idx} name={it.name} link={it.link || "/"} />;
           }
 
-          const isProperties = it.name === "Properties";
-
           return (
             <Disclosure as="div" key={idx} className="w-full relative">
               {({ open }) => (
@@ -1004,18 +904,7 @@ const MobileMenu = ({
                           it.subLink.map((s, i) => {
                             const sName = toStr(s.name);
                             const sLink = toStr(s.link, "/");
-
-                            let finalLink = sLink;
-                            if (isProperties) {
-                              const m = sLink.match(
-                                /^\/properties\/(buy|rent|flatshare|plot)(?:\/[^/?#]*)?(.*)$/i
-                              );
-                              if (m) {
-                                const type = m[1].toLowerCase();
-                                const rest = m[2] || "";
-                                finalLink = `/properties/${type}/${normalizedCity}${rest}`;
-                              }
-                            }
+                            const finalLink = sLink;
 
                             return (
                               <Button

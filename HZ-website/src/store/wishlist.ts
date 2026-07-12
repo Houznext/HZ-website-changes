@@ -6,7 +6,6 @@ import { persist } from "zustand/middleware";
 export type WishlistItem = {
   id: string;
   createdAt: string;
-  property?: any;
   furniture?: any;
   homeDecors?: any;
 };

@@ -17,12 +17,10 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
 import withAdminLayout from '@/src/common/AdminLayout';
 import apiClient from '@/src/utils/apiClient';
-interface ITradeTemplate { name: string; iconName: string; slug: string; }
 interface ITrade {
-  id: string; customName: string | null; template: ITradeTemplate;
+  id: string; customName: string | null;
   overallProgress: number; status: string;
   lastUpdatedAt: string | null; weightage: number;
 }
@@ -68,8 +66,6 @@ function ProjectDetailPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const [tradeDialogOpen, setTradeDialogOpen] = useState(false);
-  const [templates, setTemplates] = useState<ITradeTemplate[]>([]);
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [customTradeName, setCustomTradeName] = useState('');
   const [addTradeLoading, setAddTradeLoading] = useState(false);
   const [addTradeError, setAddTradeError] = useState('');
@@ -125,43 +121,24 @@ function ProjectDetailPage() {
     }
   };
 
-  const openAddTradeDialog = async () => {
+  const openAddTradeDialog = () => {
     if (!project) return;
     setAddTradeError('');
+    setCustomTradeName('');
     setTradeDialogOpen(true);
-    try {
-      if (templates.length === 0) {
-        const { body } = await apiClient.get(
-          `${apiClient.URLS.interiors}/trade-templates`,
-          {},
-          false,
-        );
-        setTemplates(Array.isArray(body) ? (body as ITradeTemplate[]) : []);
-      }
-    } catch (e) {
-      setAddTradeError(
-        e instanceof Error ? e.message : 'Failed to load trade templates',
-      );
-    }
   };
 
   const handleAddTrade = async () => {
-    if (!project || !selectedTemplate) {
-      setAddTradeError('Please select a trade');
+    if (!project || !customTradeName.trim()) {
+      setAddTradeError('Please enter a trade name');
       return;
     }
     setAddTradeLoading(true);
     setAddTradeError('');
     try {
-      const payload: any = {
-        templateId: selectedTemplate,
-      };
-      if (customTradeName.trim()) {
-        payload.overrides = { customName: customTradeName.trim() };
-      }
       const { body } = await apiClient.post(
         `${apiClient.URLS.interiors}/projects/${project.id}/trades`,
-        payload,
+        { customName: customTradeName.trim() },
         true,
       );
       const newTrade = (body as any)?.trade ?? body;
@@ -175,7 +152,6 @@ function ProjectDetailPage() {
       );
       setAddTradeLoading(false);
       setTradeDialogOpen(false);
-      setSelectedTemplate('');
       setCustomTradeName('');
     } catch (e) {
       setAddTradeError(
@@ -389,8 +365,8 @@ function ProjectDetailPage() {
                 <Grid container spacing={1}>
                   {trades.map(t => {
                     const ts = STATUS_STYLE[t.status] ?? STATUS_STYLE.not_started;
-                    const name = t.customName ?? t.template?.name ?? 'Trade';
-                    const slug = t.template?.slug ?? '';
+                    const name = t.customName ?? 'Trade';
+                    const slug = '';
                     const emoji = TRADE_EMOJI[slug] ?? '🔧';
                     return (
                       <Grid item xs={12} sm={6} key={t.id}>
@@ -568,25 +544,13 @@ function ProjectDetailPage() {
         <DialogContent>
           <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 320 }}>
             <TextField
-              select
               size="small"
-              label="Select trade template"
-              value={selectedTemplate}
-              onChange={(e) => setSelectedTemplate(e.target.value)}
-              fullWidth
-            >
-              {templates.map((t) => (
-                <MenuItem key={t.slug} value={t.slug}>
-                  {t.name}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              size="small"
-              label="Custom trade name (optional)"
+              label="Trade name"
               value={customTradeName}
               onChange={(e) => setCustomTradeName(e.target.value)}
               fullWidth
+              required
+              autoFocus
             />
             {addTradeError && (
               <Alert

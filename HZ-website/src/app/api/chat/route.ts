@@ -5,28 +5,15 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { streamText } from "ai";
 import { NextRequest, NextResponse } from "next/server";
 import {
-  buildPropertyLink,
   buildFurnitureLink,
   buildElectronicsLink,
   getBaseUrl,
-  parsePropertySearchIntent,
   parseFurnitureIntent,
   parseElectronicsIntent,
 } from "./helper";
 
 export const maxDuration = 30;
 export const runtime = "edge";
-
-interface PropertyQueryFilters {
-  city?: string;
-  locality?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  lookingType?: string;
-  purpose?: string;
-  propertyType?: string;
-  bhkType?: string;
-}
 
 const GENERAL_KNOWLEDGE = `
 ### General Guidance (Use when relevant)
@@ -51,45 +38,6 @@ const getFurnitureContext = async () => {
   return { ...response, body: data };
 };
 
-const getPropertyContext = async (
-  filters?: PropertyQueryFilters,
-  baseUrl?: string
-) => {
-  const params: any = {};
-  if (filters?.city) params.city = [filters.city];
-  if (filters?.locality) params.locality = [filters.locality];
-  if (filters?.minPrice && filters?.maxPrice)
-    params.priceRange = [`${filters.minPrice}-${filters.maxPrice}`];
-
-  const response = await apiClient.get(apiClient.URLS.unified_listing, {
-    params,
-  });
-
-  const link = buildPropertyLink(
-    {
-      lookingType: (filters?.lookingType as "buy" | "rent") || "buy",
-      city: filters?.city || "Hyderabad",
-      purpose: filters?.purpose || "Residential",
-      propertyType: filters?.propertyType,
-      bhkType: filters?.bhkType,
-      locality: filters?.locality,
-      page: 1,
-    },
-    baseUrl
-  );
-
-  return {
-    ...response,
-    link,
-    message:
-      !response?.body || response.body.length === 0
-        ? `Note: No properties found${
-            filters?.city ? ` in ${filters.city}` : ""
-          }.`
-        : undefined,
-  };
-};
-
 const furnitureKeywords = [
   "furniture",
   "sofa",
@@ -102,16 +50,6 @@ const furnitureKeywords = [
   "Study & Office",
   "Custom Furniture",
 ];
-const propertyKeywords = [
-  "property",
-  "buy",
-  "rent",
-  "flat",
-  "villa",
-  "plot",
-  "commercial",
-];
-
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
 });
@@ -142,59 +80,6 @@ export async function POST(req: NextRequest) {
 
     const context: any = { baseUrl };
 
-    // Property search intent: call API for count + preview, build URL, inject once
-    const propertyIntent = parsePropertySearchIntent(lastMessageRaw);
-    if (propertyIntent) {
-      context.property_search_url = buildPropertyLink(propertyIntent, baseUrl);
-      try {
-        const listingPayload: Record<string, string | string[] | number> = {
-          city: [(propertyIntent.city || "Hyderabad").toLowerCase()],
-          lookingtype: [propertyIntent.lookingType === "rent" ? "Rent" : "Sell"],
-          purpose: ["Residential"],
-          page: 1,
-          limit: 6,
-        };
-        if (propertyIntent.locality)
-          listingPayload.locality = [propertyIntent.locality];
-        if (propertyIntent.bhkType)
-          listingPayload.bhkType = [propertyIntent.bhkType.replace(/\s+/g, "")];
-        if (propertyIntent.propertyType)
-          listingPayload.propertytype = [propertyIntent.propertyType];
-
-        const listRes = await apiClient.get(
-          apiClient.URLS.unified_listing,
-          listingPayload,
-          false
-        );
-        const body = listRes?.body as any;
-        const company = body?.companyProjects ?? [];
-        const individual = body?.individualProperties ?? [];
-        const pagination = body?.pagination ?? {};
-        const companyTotal = pagination?.company?.total ?? 0;
-        const individualTotal = pagination?.individual?.total ?? 0;
-        const totalCount = companyTotal + individualTotal;
-        const previewList = [...company, ...individual].slice(0, 4);
-        context.property_search_count = totalCount;
-        context.property_search_summary =
-          previewList.length > 0
-            ? previewList
-                .map((p: any) => {
-                  const name =
-                    p.propertyName ?? p.Name ?? p.propertyDetails?.propertyName ?? "Property";
-                  const city =
-                    p.location?.city ?? p.locationDetails?.city ?? "";
-                  const price =
-                    p.pricing?.minPrice ?? p.minPrice ?? p.pricing?.expectedPrice;
-                  return `${name}${city ? `, ${city}` : ""}${price ? ` (₹${Number(price).toLocaleString()})` : ""}`;
-                })
-                .join("; ")
-            : null;
-      } catch {
-        context.property_search_count = null;
-        context.property_search_summary = null;
-      }
-    }
-
     // Furniture intent: "show sofas" / "furniture for living room" -> dynamic URL
     const furnitureIntent = parseFurnitureIntent(lastMessageRaw);
     if (furnitureIntent) {
@@ -218,35 +103,6 @@ export async function POST(req: NextRequest) {
       context.furniture_data = data?.body
         ?.map((item: any) => productToParagraph(item))
         .join(", ");
-    }
-
-    // Only fetch listing data when no property-search URL was generated (generic property chat)
-    if (
-      !context.property_search_url &&
-      propertyKeywords.some((k) => lastMessage.includes(k))
-    ) {
-      const data = await getPropertyContext(
-        {
-          city: "Hyderabad",
-          lookingType: lastMessage.includes("rent") ? "rent" : "buy",
-          purpose: "Residential",
-        },
-        baseUrl
-      );
-
-      if (data.body?.length > 0) {
-        context.property_data = `
-${data.body
-  .map(
-    (p: any) =>
-      `Property: ${p.propertyName}, Location: ${p.location?.city}, Price Range: ${p.pricing?.minPrice} - ${p.pricing?.maxPrice}`,
-  )
-  .join(", ")}
-You can explore more here: ${data.link}
-`;
-      } else {
-        context.property_data = data.message;
-      }
     }
 
     const result = await streamText({

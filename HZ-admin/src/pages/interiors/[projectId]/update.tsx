@@ -19,7 +19,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Slider from '@mui/material/Slider';
 import withAdminLayout from '@/src/common/AdminLayout';
 
-interface ITrade { id: string; customName: string | null; overallProgress: number; template: { name: string } }
+interface ITrade { id: string; customName: string | null; overallProgress: number }
 interface ILabour { tradeType: string; count: string; hoursWorked: string; wagePerDay: string; }
 interface IMaterial { materialName: string; brandName: string; quantity: string; unit: string; unitCost: string; }
 
@@ -149,7 +149,7 @@ function UpdatePage() {
           >
             {trades.map(t => (
               <MenuItem key={t.id} value={t.id} sx={{ fontSize: 13 }}>
-                {t.customName ?? t.template?.name ?? 'Trade'}
+                {t.customName ?? 'Trade'}
               </MenuItem>
             ))}
           </TextField>

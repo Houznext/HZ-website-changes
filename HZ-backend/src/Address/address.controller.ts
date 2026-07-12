@@ -10,7 +10,7 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AddressService } from './address.service';
 import { CreateAddressDto, UpdateAddressDto } from './dto/address.dto';
-import { LocationDetails } from 'src/property/entities/location.entity';
+import { LocationDetails } from 'src/common/location/location.entity';
 import { ControllerAuthGuard, } from 'src/guard';
 
 

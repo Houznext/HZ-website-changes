@@ -1,6 +1,4 @@
 import withAdminLayout from "@/src/common/AdminLayout";
-
-import ViewAnalyticsComponent from "@/src/components/ViewAnalyticsComponent";
 import ViewLeadsComponent from "@/src/components/ViewLeadsComponent";
 import React from "react";
 import AccessDenied from "@/src/common/AccessDenied";

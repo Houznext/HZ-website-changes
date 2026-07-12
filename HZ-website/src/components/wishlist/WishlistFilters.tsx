@@ -13,7 +13,6 @@ export default function WishlistFilters({ selectedCategory, setSelectedCategory 
             </SelectTrigger>
             <SelectContent className="bg-white">
                 <SelectItem className="cursor-pointer hover:bg-red-900 " value="All">All Categories</SelectItem>
-                <SelectItem className="cursor-pointer hover:bg-red-900" value="Property">Property</SelectItem>
                 <SelectItem className="cursor-pointer hover:bg-red-900" value="Furniture">Furniture</SelectItem>
                 <SelectItem className="cursor-pointer hover:bg-red-900" value="Home Decors">Home Decors</SelectItem>
             </SelectContent>

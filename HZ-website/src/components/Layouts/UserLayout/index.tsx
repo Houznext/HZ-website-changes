@@ -7,7 +7,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { RxCross2 } from "react-icons/rx";
-import { LuCheckCircle } from "react-icons/lu";
 import { MdReviews } from "react-icons/md";
 import clsx from "clsx";
 import { Popover, Portal, Transition } from "@headlessui/react";
@@ -92,12 +91,6 @@ function UserLayout({
       link: "/livebuild/dashboard",
       icon: <FaHome className="text-[18px]" />,
       isActive: router.asPath.startsWith("/livebuild"),
-    },
-    {
-      name: "Houznext Rewards Progress",
-      link: "/user/houznext-rewards-progress",
-      icon: <LuCheckCircle className="text-[18px]" />,
-      isActive: router.pathname === "/user/houznext-rewards-progress",
     },
     {
       name: "User Profile",
@@ -306,8 +299,6 @@ function UserLayout({
                     ? "Dashboard"
                     : router.pathname === "/user/profile"
                     ? "User Profile"
-                    : router.pathname === "/user/properties"
-                    ? "My Properties"
                     : router.pathname === "/user/wishlist"
                     ? "Wishlist"
                     : router.pathname.startsWith("/livebuild")
@@ -316,8 +307,6 @@ function UserLayout({
                     ? "Company Property"
                     : router.pathname === "/user/testimonials"
                     ? "Testimonials"
-                    : router.pathname === "/user/houznext-rewards-progress"
-                    ? "Houznext Rewards Progress"
                     : router.pathname === "/user/support"
                     ? "Support"
                     : "Client Dashboard"}

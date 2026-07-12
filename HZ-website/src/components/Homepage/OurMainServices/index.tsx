@@ -1,4 +1,3 @@
-import PropertyHeader from '@/components/PropertiesListComponent/PropertyHeader'
 import { Tab } from '@headlessui/react'
 import clsx from 'clsx'
 import React from 'react'

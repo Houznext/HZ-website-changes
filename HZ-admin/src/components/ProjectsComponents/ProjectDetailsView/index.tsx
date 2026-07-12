@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import Loader from "@/src/common/Loader";
 import toast from "react-hot-toast";
 import { FiArrowLeft } from "react-icons/fi";
-import { iconMap } from "@/src/components/Property/PropertyDetails/PropertyHelpers";
+import { iconMap } from "@/src/utils/propertyHelpers";
 import { ProjectDetails } from "@/src/stores/companyproperty";
 
 import { MdInfoOutline, MdQuestionAnswer } from "react-icons/md";

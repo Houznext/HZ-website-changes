@@ -51,6 +51,29 @@ const CostEstimatorDetailsView = () => {
     }
   }, [session?.status, router.query.id]);
 
+  // Auto-download when opened with ?download=1 (confirmed quotes only)
+  useEffect(() => {
+    if (isLoading || !details) return;
+    if (router.query.download !== "1") return;
+    if ((details as any)?.status === "draft") {
+      toast.error("Confirm quote first to download the PDF.");
+      const { download, ...rest } = router.query;
+      router.replace({ pathname: router.pathname, query: rest }, undefined, {
+        shallow: true,
+      });
+      return;
+    }
+    const t = setTimeout(() => {
+      void generateReport(details.firstname, details.lastname);
+      const { download, ...rest } = router.query;
+      router.replace({ pathname: router.pathname, query: rest }, undefined, {
+        shallow: true,
+      });
+    }, 400);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, details, router.query.download]);
+
   // Fetch estimation details
 
   const fetchCostEstimationById = async () => {
@@ -234,11 +257,22 @@ const CostEstimatorDetailsView = () => {
                 <div className="flex items-center gap-2">
                   {/* Download PDF */}
                   <button
-                    onClick={() => generateReport(details.firstname, details.lastname)}
+                    onClick={() => {
+                      if ((details as any)?.status === "draft") {
+                        toast.error("Confirm quote first to download the PDF.");
+                        return;
+                      }
+                      void generateReport(details.firstname, details.lastname);
+                    }}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px]
                                bg-white border border-gray-200 hover:bg-gray-50
                                text-gray-700 text-[12.5px] font-medium transition-all"
                     style={{ fontFamily: "'Inter', sans-serif" }}
+                    title={
+                      (details as any)?.status === "draft"
+                        ? "Confirm quote first to download"
+                        : "Download PDF"
+                    }
                   >
                     <Download className="w-3.5 h-3.5" /> Download PDF
                   </button>

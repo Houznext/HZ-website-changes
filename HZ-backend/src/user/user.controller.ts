@@ -271,10 +271,6 @@ export class UserController {
     return this.addressService.findAllForUser(userId);
   }
 
-  @Get(':userId/property-count')
-  getUserPostedPropertyCount(@Param('userId') userId: string) {
-    return this.userService.getPostedPropertyCount(userId);
-  }
   // =============== UPDATE ADMIN USER WITH BRANCH BY BRANCH ID =================
   @UseGuards(ControllerAuthGuard)
   @AdminPortal()

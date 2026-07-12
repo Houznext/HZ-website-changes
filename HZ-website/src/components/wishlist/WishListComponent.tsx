@@ -22,7 +22,6 @@ export default function WishlistComponent() {
         if (searchTerm) {
             result = result.filter(
                 (item) =>
-                    item.property?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     item.furniture?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     item.homeDecors?.name.toLowerCase().includes(searchTerm.toLowerCase()),
             )
@@ -30,7 +29,6 @@ export default function WishlistComponent() {
         if (selectedCategory !== "All") {
             result = result.filter(
                 (item) =>
-                    (item.property && selectedCategory === "Property") ||
                     (item.furniture && selectedCategory === "Furniture") ||
                     (item.homeDecors && selectedCategory === "Home Decors"),
             )

@@ -6,7 +6,8 @@ import debounce from "lodash/debounce";
 import apiClient from "@/utils/apiClient";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
-import { PropertyTab } from "@/store/usePropertyFilterStore";
+
+export type PropertyTab = "buy" | "rent" | "flatshare" | "plot";
 
 interface SuggestionItem {
   label: string;

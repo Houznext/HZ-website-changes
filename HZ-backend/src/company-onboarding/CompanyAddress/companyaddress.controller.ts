@@ -10,7 +10,7 @@ import {
 import { AddressDto } from '../dto/company-onboarding.dto';
 import { AddressService } from './companyaddress.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { LocationDetails } from 'src/property/entities/location.entity';
+import { LocationDetails } from 'src/common/location/location.entity';
 
 @ApiTags('company-address')
 @Controller('company-address/:companyId')

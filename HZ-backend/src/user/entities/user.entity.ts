@@ -2,7 +2,6 @@ import { Blog } from 'src/blog/entities/blog.entity';
 import { Cart } from 'src/cart/entities/cart.entity';
 import { CostEstimator } from 'src/cost-estimator/entities/cost-estimator.entity';
 import { InvoiceEstimator } from 'src/invoice-estimator/entities/invoice-estimator.entity';
-import { Property } from 'src/property/entities/property.entity';
 import { Reviews } from 'src/reviews/entities/reviews.entity';
 import { Testimonials } from 'src/testimonials/entity/testimonials.entity';
 import { Wishlist } from 'src/wishlist/entities/wishlist.entity';
@@ -20,9 +19,8 @@ import {
 } from 'typeorm';
 import { Project } from 'src/company-onboarding/entities/company-projects.entity';
 import { Company } from 'src/company-onboarding/entities/company.entity';
-import { BasicDetails } from 'src/property/entities/basicDetails.entity';
 import { IndianState, UserKind, UserRole } from '../enum/user.enum';
-import { LocationDetails } from 'src/property/entities/location.entity';
+import { LocationDetails } from 'src/common/location/location.entity';
 import { Exclude } from 'class-transformer';
 import { Referral } from 'src/houznext-rewards/entities/referral.entity';
 import { ContactUs } from 'src/contactus/entities/contact-us.entity';
@@ -74,7 +72,7 @@ export class User {
   whatsappNumber: string;
 
   @Column({ nullable: true, type: 'uuid' })
-    createdById: string | null;
+  createdById: string | null;
 
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'createdById' })
@@ -94,9 +92,6 @@ export class User {
     nullable: true,
   })
   states: IndianState[];
-
-  @OneToMany(() => Property, (property) => property.postedByUser)
-  properties: Property[];
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
@@ -169,9 +164,6 @@ export class User {
     nullable: true,
   })
   company: Company;
-
-  @OneToMany(() => BasicDetails, (basicDetails) => basicDetails.postedByUser)
-  basicDetailsList: BasicDetails[];
 
   @ManyToOne(() => Branch, { nullable: true, onDelete: 'SET NULL' })
   currentBranch?: Branch | null;

@@ -44,6 +44,8 @@ interface ReusableSearchFilterProps {
   onBranchChange?: (val: any) => void; // called from SearchComponent
 
   showBranchFilter?: boolean;
+  /** Cap search input width so toolbars can stay on one line */
+  searchMaxWidth?: string;
 }
 
 const ReusableSearchFilter = ({
@@ -59,6 +61,7 @@ const ReusableSearchFilter = ({
   selectedBranch,
   onBranchChange,
   showBranchFilter = false,
+  searchMaxWidth,
 }: ReusableSearchFilterProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
@@ -122,12 +125,19 @@ const ReusableSearchFilter = ({
   return (
     <div
       className={twMerge(
-        "flex items-center justify-center gap-3 w-full",
+        "flex items-center justify-center gap-3",
+        searchMaxWidth ? "w-auto" : "w-full",
         rootCls
       )}
     >
       {/* Search Input */}
-      <div className="relative flex-1">
+      <div
+        className={twMerge(
+          "relative min-w-0",
+          searchMaxWidth ? "flex-none" : "flex-1",
+        )}
+        style={searchMaxWidth ? { width: searchMaxWidth, maxWidth: searchMaxWidth } : undefined}
+      >
         <CustomInput
           name="search"
           className={twMerge(className)}

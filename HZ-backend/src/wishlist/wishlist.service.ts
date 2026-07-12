@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { WishlistItems } from './entities/wishlistItems.entity';
 import { User } from 'src/user/entities/user.entity';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { Property } from 'src/property/entities/property.entity';
 import { Furniture } from 'src/furnitures/entities/furniture.entity';
 
 export class WishlistService {
@@ -15,8 +14,6 @@ export class WishlistService {
     private readonly wishlistItemsRepository: Repository<WishlistItems>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(Property)
-    private readonly propertyRepository: Repository<Property>,
     @InjectRepository(Furniture)
     private readonly furnituresRepository: Repository<Furniture>,
   ) {}
@@ -28,17 +25,9 @@ export class WishlistService {
     if (!user) {
       throw new NotFoundException(`User with ${userId} not found`);
     }
-    let entity: any;
+    let entity: Furniture;
 
     switch (type) {
-      case 'property':
-        entity = await this.propertyRepository.findOne({
-          where: { propertyId: id },
-        });
-        if (!entity)
-          throw new NotFoundException(`No property found with id: ${id}`);
-        break;
-
       case 'furniture':
         entity = await this.furnituresRepository.findOne({ where: { id } });
         if (!entity)
@@ -47,7 +36,7 @@ export class WishlistService {
 
       default:
         throw new BadRequestException(
-          `Invalid type: ${type}. Expected 'property' or 'furniture'.`,
+          `Invalid type: ${type}. Expected 'furniture'.`,
         );
     }
 
@@ -64,12 +53,9 @@ export class WishlistService {
     const existingItem = await this.wishlistItemsRepository.findOne({
       where: {
         wishlist: { id: wishlist.id },
-        ...(type === 'property' && {
-          property: { propertyId: entity.propertyId },
-        }),
-        ...(type === 'furniture' && { furniture: { id: entity.id } }),
+        furniture: { id: entity.id },
       },
-      relations: ['property', 'furniture'],
+      relations: ['furniture'],
     });
 
     if (existingItem) {
@@ -78,26 +64,14 @@ export class WishlistService {
 
     const wishlistItem = this.wishlistItemsRepository.create({
       wishlist,
+      furniture: entity,
     });
-
-    switch (type) {
-      case 'property':
-        wishlistItem.property = entity;
-        break;
-      case 'furniture':
-        wishlistItem.furniture = entity;
-        break;
-    }
 
     await this.wishlistItemsRepository.save(wishlistItem);
 
     return this.wishlistRepository.findOne({
       where: { id: wishlist.id },
-      relations: [
-        'wishlistItems',
-        'wishlistItems.property',
-        'wishlistItems.furniture',
-      ],
+      relations: ['wishlistItems', 'wishlistItems.furniture'],
     });
   }
 
@@ -126,11 +100,7 @@ export class WishlistService {
 
     const wishlist = await this.wishlistRepository.findOne({
       where: { id: user?.wishlist?.id },
-      relations: [
-        'wishlistItems',
-        'wishlistItems.property',
-        'wishlistItems.furniture',
-      ],
+      relations: ['wishlistItems', 'wishlistItems.furniture'],
     });
 
     if (!wishlist) {

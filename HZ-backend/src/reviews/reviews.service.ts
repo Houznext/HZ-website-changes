@@ -10,7 +10,6 @@ import { Repository } from 'typeorm';
 import { Reviews } from './entities/reviews.entity';
 import { CreateReviewDto } from './dtos/reviews.dto';
 
-import { Property } from 'src/property/entities/property.entity';
 import { Furniture } from 'src/furnitures/entities/furniture.entity';
 import { OrderItem } from 'src/orders/entities/order-item.entity';
 import { OrderItemType } from 'src/orders/enum/order.enum';
@@ -20,9 +19,6 @@ export class ReviewService {
   constructor(
     @InjectRepository(Reviews)
     private readonly reviewsRepository: Repository<Reviews>,
-
-    @InjectRepository(Property)
-    private readonly propertyRepository: Repository<Property>,
 
     @InjectRepository(Furniture)
     private readonly furnitureRepository: Repository<Furniture>,
@@ -41,15 +37,6 @@ export class ReviewService {
     let entity: any;
 
     switch (normalizedType) {
-      case 'property':
-        entity = await this.propertyRepository.findOne({
-          where: { propertyId: id },
-        });
-        if (!entity) {
-          throw new NotFoundException(`No property found with id: ${id}`);
-        }
-        break;
-
       case 'furniture':
         entity = await this.furnitureRepository.findOne({ where: { id } });
         if (!entity) {
@@ -64,7 +51,7 @@ export class ReviewService {
 
       default:
         throw new BadRequestException(
-          `Invalid type: ${type}. Expected 'property', 'furniture', 'interiors', or 'custombuilder'.`,
+          `Invalid type: ${type}. Expected 'furniture', 'interiors', or 'custombuilder'.`,
         );
     }
 
@@ -99,9 +86,6 @@ export class ReviewService {
     });
 
     switch (normalizedType) {
-      case 'property':
-        review.property = entity;
-        break;
       case 'furniture':
         review.furniture = entity;
         break;
@@ -135,20 +119,6 @@ export class ReviewService {
     let reviews: any[];
 
     switch (normalizedType) {
-      case 'property': {
-        const property = await this.propertyRepository.findOne({
-          where: { propertyId: id },
-        });
-        if (!property) {
-          throw new NotFoundException(`No property found with id: ${id}`);
-        }
-        reviews = await this.reviewsRepository.find({
-          where: { property: { propertyId: id } },
-          relations: ['property', 'user'],
-        });
-        break;
-      }
-
       case 'furniture': {
         const furniture = await this.furnitureRepository.findOne({
           where: { id },
@@ -178,7 +148,7 @@ export class ReviewService {
 
       default:
         throw new BadRequestException(
-          `Invalid type: ${type}. Expected 'property', 'furniture', 'interiors', or 'custombuilder'.`,
+          `Invalid type: ${type}. Expected 'furniture', 'interiors', or 'custombuilder'.`,
         );
     }
 
@@ -236,8 +206,6 @@ export class ReviewService {
 
   private mapTypeToOrderItemType(normalizedType: string): OrderItemType | null {
     switch (normalizedType) {
-      case 'property':
-        return OrderItemType.PROPERTY_BOOKING_TOKEN;
       case 'furniture':
         return OrderItemType.FURNITURE_PRODUCT;
       case 'interiors':

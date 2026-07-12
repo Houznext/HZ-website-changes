@@ -3,17 +3,20 @@ import {
   IsNumber,
   IsArray,
   ValidateNested,
-  IsDecimal,
   IsOptional,
   IsEmail,
   IsEnum,
   IsUUID,
   IsBoolean,
+  ValidateIf,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { PropertyType } from 'src/common/enums/cb-property.enum';
-import { EstimationCategory } from '../Enum/cost-estimator.enum';
+import {
+  EstimationCategory,
+  QuotationStatus,
+} from '../Enum/cost-estimator.enum';
 
 class ItemDto {
   @ApiProperty({ required: false })
@@ -75,34 +78,40 @@ export class ItemGroupDto {
 }
 
 class LocationDto {
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  city: string;
+  city?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
   state?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  locality: string;
+  locality?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
   sub_locality?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  landmark: string;
+  landmark?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  pincode: string;
+  pincode?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  address_line_1: string;
+  address_line_1?: string;
 }
 
 export class CreateCostEstimatorDto {
@@ -110,21 +119,34 @@ export class CreateCostEstimatorDto {
   @IsUUID()
   userId: string;
 
-  @ApiProperty()
-  @IsString()
-  firstname: string;
+  @ApiProperty({ required: false, enum: QuotationStatus })
+  @IsOptional()
+  @IsEnum(QuotationStatus)
+  status?: QuotationStatus;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  lastname: string;
-  @ApiProperty()
+  firstname?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  lastname?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsEnum(EstimationCategory)
-  category: EstimationCategory;
- 
+  category?: EstimationCategory;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @Transform(({ value }) =>
+    value === '' || value === null ? undefined : value,
+  )
+  @ValidateIf((_, v) => v !== undefined && v !== null && v !== '')
   @IsEmail()
-  email: string;
+  email?: string;
 
   @ApiProperty()
   @IsOptional()
@@ -132,13 +154,15 @@ export class CreateCostEstimatorDto {
   @IsNumber({ allowNaN: false })
   phone?: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  customerMobile: string;
+  customerMobile?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  date: string;
+  date?: string;
 
   @ApiProperty()
   @IsString()
@@ -173,26 +197,29 @@ export class CreateCostEstimatorDto {
   @IsOptional()
   property_type: PropertyType;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @Type(() => Number)
   @IsNumber({ allowNaN: false })
-  subTotal: number;
+  subTotal?: number;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
   details?: string;
 
-  @ApiProperty({ type: LocationDto })
+  @ApiProperty({ type: LocationDto, required: false })
+  @IsOptional()
   @ValidateNested()
   @Type(() => LocationDto)
-  location: LocationDto;
+  location?: LocationDto;
 
-  @ApiProperty({ type: [ItemGroupDto] })
+  @ApiProperty({ type: [ItemGroupDto], required: false })
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ItemGroupDto)
-  itemGroups: ItemGroupDto[];
+  itemGroups?: ItemGroupDto[];
 
   @ApiProperty()
   @IsString()
@@ -219,6 +246,11 @@ export class CreateCostEstimatorDto {
 }
 
 export class UpdateCostEstimatorDto {
+  @ApiProperty({ required: false, enum: QuotationStatus })
+  @IsOptional()
+  @IsEnum(QuotationStatus)
+  status?: QuotationStatus;
+
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
@@ -244,8 +276,12 @@ export class UpdateCostEstimatorDto {
   @IsString()
   date?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
+  @Transform(({ value }) =>
+    value === '' || value === null ? undefined : value,
+  )
+  @ValidateIf((_, v) => v !== undefined && v !== null && v !== '')
   @IsEmail()
   email?: string;
 

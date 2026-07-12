@@ -10,7 +10,7 @@ import { useCompanyPropertyStore } from "@/src/stores/companyproperty";
 import {
   bhkArray,
   propertyTypeEnum,
-} from "../Property/PropertyDetails/PropertyHelpers";
+} from "@/src/utils/propertyHelpers";
 import { validateUnitData, unitIconMap, labelMap } from "./projecthelper";
 import toast from "react-hot-toast";
 import CustomDate from "@/src/common/FormElements/CustomDate";

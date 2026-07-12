@@ -33,7 +33,7 @@ import { MdArrowForwardIos } from "react-icons/md";
 import Link from "next/link";
 import sliderSettings from "@/utils/sliderSettings";
 import FAQSection from "./projectfaqs";
-import ContactSellerForm from "@/components/PropertyDetailsComponent/ContactSellerForm";
+import ContactSellerForm from "@/components/shared/ContactSellerForm";
 import {
   IoArrowForward,
   IoClose,
@@ -46,7 +46,7 @@ import { generateSlug } from "@/utils/helpers";
 import Modal from "@/common/Modal";
 import MoreProjectCard from "./ProjectCard";
 import AmenitiesList from "./amenitiesList";
-import LocalityTrends from "../PropertyDetailsComponent/LocalityTrends";
+import LocalityTrends from "../shared/LocalityTrends";
 
 const CompanyDetailsPropertyView = ({ data }: any) => {
   const [showHighlights, setShowHighlights] = useState(false);

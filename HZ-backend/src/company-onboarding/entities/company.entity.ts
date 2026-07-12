@@ -9,7 +9,7 @@ import {
 import { Project } from './company-projects.entity';
 import { Award } from '../Awards/entity/company-awards.entity';
 import { User } from 'src/user/entities/user.entity';
-import { LocationDetails } from 'src/property/entities/location.entity';
+import { LocationDetails } from 'src/common/location/location.entity';
 
 @Entity()
 export class Company {

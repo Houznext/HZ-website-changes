@@ -1,5 +1,4 @@
 import withUserLayout from "@/components/Layouts/UserLayout";
-import ViewAnalyticsComponent from "@/components/ViewAnalyticsComponent";
 import React from "react";
 import SEO from '@/components/SEO';
 

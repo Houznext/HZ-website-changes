@@ -405,7 +405,6 @@ const Chatbot = () => {
 
   const getLinkLabel = (url: string): string => {
     const u = url.toLowerCase();
-    if (u.includes("/properties/")) return "View properties";
     if (u.includes("/services/furnitures") || u.includes("/furnitures-shop")) return "Browse furniture";
     if (u.includes("/services/electronics") || u.includes("/electronics-shop")) return "Browse electronics";
     if (u.includes("/interiors/cost-calculator")) return "Interiors cost estimator";
@@ -416,7 +415,6 @@ const Chatbot = () => {
   };
 
   const isCtaLink = (url: string): boolean =>
-    /\/properties\//i.test(url) ||
     /\/services\/furnitures|\/furnitures-shop/i.test(url) ||
     /\/services\/electronics|\/electronics-shop/i.test(url) ||
     /\/interiors\/cost-calculator/i.test(url) ||

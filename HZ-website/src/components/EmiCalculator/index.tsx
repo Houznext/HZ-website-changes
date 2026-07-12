@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import CustomInput from "@/common/FormElements/CustomInput";
-import { RupeesIcon, MonthEmi, TotalIcon } from "../PropertyComp/Icons";
+import { RupeesIcon, MonthEmi, TotalIcon } from "../shared/icons/PropertyCompIcons";
 import SingleSelect from "@/common/FormElements/SingleSelect";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";

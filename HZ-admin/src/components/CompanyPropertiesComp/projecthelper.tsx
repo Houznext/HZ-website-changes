@@ -81,7 +81,7 @@ import { IoMdCafe } from "react-icons/io";
 import { HiOutlineLightBulb } from "react-icons/hi";
 import { RiBikeLine, RiFootprintLine, RiRoadMapLine } from "react-icons/ri";
 import { useCompanyPropertyStore } from "@/src/stores/companyproperty";
-import { propertyTypeEnum } from "../Property/PropertyDetails/PropertyHelpers";
+import { propertyTypeEnum } from "@/src/utils/propertyHelpers";
 
 export enum PurposeType {
   Apartment = "Apartment",

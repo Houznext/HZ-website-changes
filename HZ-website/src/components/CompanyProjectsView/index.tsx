@@ -20,7 +20,7 @@ import {
 import { HiMail, HiChatAlt2, HiOfficeBuilding } from "react-icons/hi";
 import Modal from "@/common/Modal";
 
-import ContactSellerForm from "@/components/PropertyDetailsComponent/ContactSellerForm";
+import ContactSellerForm from "@/components/shared/ContactSellerForm";
 
 interface ProjectData {
   Highlights: string;

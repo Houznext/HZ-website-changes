@@ -19,7 +19,7 @@ import { User } from 'src/user/entities/user.entity';
 import { instanceToPlain } from 'class-transformer';
 import { ItemGroup } from './entities/itemgroup.entity';
 import { UserRole } from 'src/user/enum/user.enum';
-import { EstimationCategory } from './Enum/cost-estimator.enum';
+import { EstimationCategory, QuotationStatus } from './Enum/cost-estimator.enum';
 import { MailerService } from 'src/sendEmail.service';
 import { RequestUser } from 'src/guard';
 import { S3Service } from 'src/common/s3/s3.service';
@@ -56,11 +56,36 @@ export class CostEstimatorService {
 
       const category =
         createCostEstimatorDto.category || EstimationCategory.INTERIOR;
+      const status =
+        createCostEstimatorDto.status || QuotationStatus.DRAFT;
+
+      const emptyLocation = {
+        city: '',
+        locality: '',
+        sub_locality: '',
+        landmark: '',
+        state: '',
+        pincode: '',
+        address_line_1: '',
+      };
 
       const costEstimator = this.costEstimatorRepository.create({
         ...createCostEstimatorDto,
+        firstname: createCostEstimatorDto.firstname || '',
+        lastname: createCostEstimatorDto.lastname || '',
+        email: createCostEstimatorDto.email || '',
+        customerMobile: createCostEstimatorDto.customerMobile || null,
+        date:
+          createCostEstimatorDto.date ||
+          new Date().toISOString().split('T')[0],
+        subTotal: Number(createCostEstimatorDto.subTotal) || 0,
+        location: {
+          ...emptyLocation,
+          ...(createCostEstimatorDto.location || {}),
+        },
         postedBy: user,
         category,
+        status,
       });
 
       if (
@@ -72,28 +97,34 @@ export class CostEstimatorService {
             const itemGroup = new ItemGroup();
             itemGroup.title = groupDto.title;
             itemGroup.items = groupDto.items;
+            itemGroup.order = groupDto.order ?? 0;
             return itemGroup;
           },
         );
+      } else {
+        costEstimator.itemGroups = [];
       }
 
       const savedEstimator =
         await this.costEstimatorRepository.save(costEstimator);
 
-      // Do not await — SMTP timeouts on Railway were blocking duplicate/save for ~20s+.
-      this.mailerService.enqueue(
-        this.mailerService.notifyAdminsQuotationCreated({
-          id: savedEstimator.id,
-          quotationNumber: savedEstimator.quotationNumber,
-          customerFirstName: savedEstimator.firstname,
-          customerLastName: savedEstimator.lastname,
-          customerEmail: savedEstimator.email,
-          customerPhone: savedEstimator.customerMobile || savedEstimator.phone,
-          subTotal: Number(savedEstimator.subTotal),
-          postedByName: user.fullName || user.username,
-        }),
-        'quotation created notify',
-      );
+      // Finance email only when confirming (same as a newly created quote).
+      if (status === QuotationStatus.CONFIRMED) {
+        this.mailerService.enqueue(
+          this.mailerService.notifyAdminsQuotationCreated({
+            id: savedEstimator.id,
+            quotationNumber: savedEstimator.quotationNumber,
+            customerFirstName: savedEstimator.firstname,
+            customerLastName: savedEstimator.lastname,
+            customerEmail: savedEstimator.email,
+            customerPhone:
+              savedEstimator.customerMobile || savedEstimator.phone,
+            subTotal: Number(savedEstimator.subTotal),
+            postedByName: user.fullName || user.username,
+          }),
+          'quotation created notify',
+        );
+      }
 
       // ✅ This removes all circular refs before returning
       return instanceToPlain(savedEstimator);
@@ -119,6 +150,7 @@ export class CostEstimatorService {
     page: number = 1,
     limit: number = 10,
     category?: EstimationCategory,
+    status?: QuotationStatus | 'all',
   ) {
     try {
       const queryBuilder = this.costEstimatorRepository
@@ -211,6 +243,11 @@ export class CostEstimatorService {
           },
         );
       }
+
+      if (status && status !== 'all') {
+        queryBuilder.andWhere('costEstimator.status = :status', { status });
+      }
+
       const [costEstimators, total] = await queryBuilder
         .orderBy('costEstimator.createdAt', 'DESC')
         .skip((page - 1) * limit)
@@ -268,6 +305,9 @@ export class CostEstimatorService {
       throw new NotFoundException(`Estimator with ID ${id} not found.`);
     }
 
+    const previousStatus =
+      existingEstimator.status || QuotationStatus.CONFIRMED;
+
     // When file URLs are changed, delete old files from S3
     if (updateDto.property_image !== undefined && existingEstimator.property_image && updateDto.property_image !== existingEstimator.property_image) {
       try {
@@ -320,22 +360,34 @@ export class CostEstimatorService {
     const savedEstimator =
       await this.costEstimatorRepository.save(existingEstimator);
 
-    this.mailerService.enqueue(
-      this.mailerService.notifyAdminsQuotationUpdated({
-        id: savedEstimator.id,
-        quotationNumber: savedEstimator.quotationNumber,
-        customerFirstName: savedEstimator.firstname,
-        customerLastName: savedEstimator.lastname,
-        customerEmail: savedEstimator.email,
-        customerPhone: savedEstimator.customerMobile || savedEstimator.phone,
-        subTotal: Number(savedEstimator.subTotal),
-        postedByName:
-          existingEstimator.postedBy?.fullName ||
-          existingEstimator.postedBy?.username ||
-          null,
-      }),
-      'quotation updated notify',
-    );
+    const nextStatus = savedEstimator.status || QuotationStatus.CONFIRMED;
+    const becomingIssued =
+      (previousStatus === QuotationStatus.DRAFT &&
+        (nextStatus === QuotationStatus.CONFIRMED ||
+          nextStatus === QuotationStatus.REVISED)) ||
+      (previousStatus === QuotationStatus.CONFIRMED &&
+        nextStatus === QuotationStatus.REVISED);
+
+    // Finance email on first confirm, or when confirming changes on a confirmed quote (revised).
+    if (becomingIssued) {
+      this.mailerService.enqueue(
+        this.mailerService.notifyAdminsQuotationCreated({
+          id: savedEstimator.id,
+          quotationNumber: savedEstimator.quotationNumber,
+          customerFirstName: savedEstimator.firstname,
+          customerLastName: savedEstimator.lastname,
+          customerEmail: savedEstimator.email,
+          customerPhone:
+            savedEstimator.customerMobile || savedEstimator.phone,
+          subTotal: Number(savedEstimator.subTotal),
+          postedByName:
+            existingEstimator.postedBy?.fullName ||
+            existingEstimator.postedBy?.username ||
+            null,
+        }),
+        'quotation confirmed notify',
+      );
+    }
 
     const { itemGroups, ...rest } = savedEstimator;
     return {
@@ -474,6 +526,7 @@ export class CostEstimatorService {
       landmark?: string;
       locality?: string;
       category?: EstimationCategory;
+      status?: QuotationStatus | 'all';
     },
     page = 1,
     limit = 10,
@@ -490,7 +543,7 @@ export class CostEstimatorService {
       });
     }
 
-    
+
 
     if (filters.firstname) {
       queryBuilder.andWhere('costEstimator.firstname ILIKE :firstname', {
@@ -574,17 +627,60 @@ export class CostEstimatorService {
       });
     }
 
-    const [results, total] = await queryBuilder
-      .orderBy('costEstimator.createdAt', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
+    if (filters.status && filters.status !== 'all') {
+      queryBuilder.andWhere('costEstimator.status = :status', {
+        status: filters.status,
+      });
+    }
+
+    const countBase = this.costEstimatorRepository
+      .createQueryBuilder('costEstimator')
+      .leftJoin('costEstimator.postedBy', 'postedBy');
+    if (targetUserId) {
+      countBase.andWhere('costEstimator.postedById = :uid', {
+        uid: targetUserId,
+      });
+    }
+    if (filters.category) {
+      countBase.andWhere('costEstimator.category = :category', {
+        category: filters.category,
+      });
+    }
+
+    const [resultsAndTotal, allCount, draftCount, revisedCount] =
+      await Promise.all([
+        queryBuilder
+          .orderBy('costEstimator.createdAt', 'DESC')
+          .skip((page - 1) * limit)
+          .take(limit)
+          .getManyAndCount(),
+        countBase.clone().getCount(),
+        countBase
+          .clone()
+          .andWhere('costEstimator.status = :draft', {
+            draft: QuotationStatus.DRAFT,
+          })
+          .getCount(),
+        countBase
+          .clone()
+          .andWhere('costEstimator.status = :revised', {
+            revised: QuotationStatus.REVISED,
+          })
+          .getCount(),
+      ]);
+
+    const [results, total] = resultsAndTotal;
 
     return {
       data: results,
       total,
       page,
       limit,
+      statusCounts: {
+        all: allCount,
+        draft: draftCount,
+        revised: revisedCount,
+      },
     };
   }
 

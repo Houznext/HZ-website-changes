@@ -18,9 +18,9 @@ import {
 } from './dto/company-onboarding.dto';
 import { Project } from './entities/company-projects.entity';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { LocationDetails } from 'src/property/entities/location.entity';
-import { ConstructionStatus } from 'src/property/entities/property-details/constructionStatus.entity';
-import { MediaDetails } from 'src/property/entities/mediaDetails.entity';
+import { LocationDetails } from 'src/common/location/location.entity';
+import { ConstructionStatus } from 'src/common/location/construction-status.entity';
+import { MediaDetails } from 'src/common/location/media-details.entity';
 import { PropertyType } from './entities/project-property-type.entity';
 import { Sellers } from './entities/company-property-sellers.entity';
 import { FlooringPlans } from './entities/units-floor-planing.entity';

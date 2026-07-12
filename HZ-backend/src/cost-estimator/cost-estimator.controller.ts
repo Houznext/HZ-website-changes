@@ -21,7 +21,7 @@ import {
   CreateCostEstimatorDto,
   UpdateCostEstimatorDto,
 } from './dto/cost-estimator.dto';
-import { EstimationCategory } from './Enum/cost-estimator.enum';
+import { EstimationCategory, QuotationStatus } from './Enum/cost-estimator.enum';
 import { ControllerAuthGuard,RequestUser  } from 'src/guard';
 
 @ApiTags('cost-estimator')
@@ -83,6 +83,7 @@ export class CostEstimatorController {
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
     @Query('category') category?: EstimationCategory,
+    @Query('status') status?: QuotationStatus | 'all',
   ) {
     return await this.costEstimatorService.findAll(
       firstname,
@@ -100,6 +101,7 @@ export class CostEstimatorController {
       page ? Number(page) : 1,
       limit ? Number(limit) : 10,
       category,
+      status,
     );
   }
 
@@ -222,6 +224,7 @@ export class CostEstimatorController {
       page = 1,
       limit = 10,
       category,
+      status,
     } = query;
 
     const cleanedCategory = category
@@ -242,6 +245,10 @@ export class CostEstimatorController {
       landmark,
       locality,
       category: cleanedCategory,
+      status:
+        status === 'draft' || status === 'revised' || status === 'confirmed'
+          ? status
+          : 'all',
     };
 
     return this.costEstimatorService.fetchEstimationsByUser(
