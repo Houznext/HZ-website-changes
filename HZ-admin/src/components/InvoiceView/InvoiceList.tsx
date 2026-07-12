@@ -14,8 +14,10 @@ const STATUS_TABS = [
   { key: "draft", label: "Draft" },
   { key: "sent", label: "Sent" },
   { key: "revised", label: "Revised" },
+  { key: "partially_paid", label: "Partial" },
   { key: "paid", label: "Paid" },
   { key: "overdue", label: "Overdue" },
+  { key: "cancelled", label: "Cancelled" },
 ];
 
 function statusClass(s: string) {
@@ -24,6 +26,7 @@ function statusClass(s: string) {
   if (s === "overdue") return styles.rowOverdue;
   if (s === "draft") return styles.rowDraft;
   if (s === "revised") return styles.rowRevised;
+  if (s === "cancelled") return styles.rowDraft;
   return styles.rowSent;
 }
 
@@ -33,6 +36,7 @@ function statusPill(s: string) {
   if (s === "overdue") return styles.stOverdue;
   if (s === "draft") return styles.stDraft;
   if (s === "revised") return styles.stRevised;
+  if (s === "cancelled") return styles.stDraft;
   return styles.stSent;
 }
 
@@ -260,9 +264,13 @@ export default function InvoiceList() {
                   ? `${paidPct}% paid`
                   : inv.status === "draft"
                     ? "Not sent yet"
-                    : inv.balance_due > 0
-                      ? `Balance ${formatINR(inv.balance_due)}`
-                      : statusLabel(inv.status);
+                    : inv.status === "overdue"
+                      ? inv.balance_due > 0
+                        ? `Overdue · Balance ${formatINR(inv.balance_due)}`
+                        : "Overdue"
+                      : inv.balance_due > 0
+                        ? `Balance ${formatINR(inv.balance_due)}`
+                        : statusLabel(inv.status);
 
             return (
               <div
@@ -368,6 +376,14 @@ export default function InvoiceList() {
                           ? `, ${inv.original_sent_email}`
                           : ""}
                         . And this is the revised invoice.
+                      </p>
+                    )}
+                    {inv.status !== "revised" &&
+                      inv.status !== "draft" &&
+                      !!inv.sent_at && (
+                      <p className={styles.revisedNote}>
+                        Sent by email on {formatSentDateTime(inv.sent_at) || "—"}
+                        {inv.bill_to_email ? `, ${inv.bill_to_email}` : ""}.
                       </p>
                     )}
 

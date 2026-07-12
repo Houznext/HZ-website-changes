@@ -95,13 +95,24 @@ export class MailerService {
     });
   }
 
-  /** Outbound From header (Resend: use SMTP_FROM; SMTP_USER is often just "resend"). */
+  /**
+   * From header with display name, e.g. `Houznext <business@houznext.com>`.
+   * Gmail/Resend both show the name in the inbox when formatted this way.
+   */
   private mailFrom(): string {
+    const displayName =
+      process.env.SMTP_FROM_NAME?.trim() || 'Houznext';
     const from = process.env.SMTP_FROM?.trim();
-    if (from) return from;
+    if (from) {
+      if (/<[^>]+@[^>]+>/.test(from)) return from;
+      if (this.looksLikeEmail(from)) return `${displayName} <${from}>`;
+      return from;
+    }
     const user = process.env.SMTP_USER?.trim();
-    if (user && this.looksLikeEmail(user)) return user;
-    return 'business@houznext.com';
+    if (user && this.looksLikeEmail(user)) {
+      return `${displayName} <${user}>`;
+    }
+    return `${displayName} <business@houznext.com>`;
   }
 
   private looksLikeEmail(value: string): boolean {

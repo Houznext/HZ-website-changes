@@ -496,7 +496,37 @@ export class InvoicesService {
     };
   }
 
+  /**
+   * Invoices that were emailed (sent_at set) but have no payment rows should not
+   * stay stuck as paid/partial from PDF editor fields — put them back to sent/overdue.
+   */
+  private async repairIssuedStatusesWithoutPayments() {
+    const today = new Date().toISOString().slice(0, 10);
+    const stuck = await this.invoiceRepo
+      .createQueryBuilder('inv')
+      .leftJoin('inv.payments', 'p')
+      .where('inv.sentAt IS NOT NULL')
+      .andWhere('inv.status IN (:...statuses)', {
+        statuses: ['paid', 'partially_paid'],
+      })
+      .groupBy('inv.id')
+      .addGroupBy('inv.invoiceDue')
+      .having('COUNT(p.id) = 0')
+      .select(['inv.id', 'inv.invoiceDue'])
+      .getMany();
+
+    for (const inv of stuck) {
+      const pastDue = !!inv.invoiceDue && inv.invoiceDue < today;
+      await this.invoiceRepo.update(inv.id, {
+        status: pastDue ? 'overdue' : 'sent',
+      });
+    }
+  }
+
   async list(filters: InvoiceListFilterDto) {
+    // Repair issued invoices wrongly marked paid/partial from PDF amounts only.
+    await this.repairIssuedStatusesWithoutPayments();
+
     const page = filters.page || 1;
     const limit = filters.limit || 20;
     const qb = this.invoiceRepo
@@ -516,7 +546,17 @@ export class InvoicesService {
       );
     }
     if (filters.status && filters.status !== 'all') {
-      qb.andWhere('inv.status = :status', { status: filters.status });
+      if (filters.status === 'sent') {
+        // Sent tab = any invoice emailed to the customer (still shows Paid/Partial/Overdue pills).
+        qb.andWhere('inv.sentAt IS NOT NULL').andWhere(
+          'inv.status IN (:...sentStatuses)',
+          {
+            sentStatuses: ['sent', 'partially_paid', 'paid', 'overdue'],
+          },
+        );
+      } else {
+        qb.andWhere('inv.status = :status', { status: filters.status });
+      }
     }
     if (filters.invoice_type) {
       qb.andWhere('inv.invoiceType = :type', { type: filters.invoice_type });
@@ -550,6 +590,7 @@ export class InvoicesService {
   }
 
   async stats(branchId?: string) {
+    await this.repairIssuedStatusesWithoutPayments();
     const qb = this.invoiceRepo.createQueryBuilder('inv');
     if (branchId) {
       qb.andWhere(
@@ -566,6 +607,12 @@ export class InvoicesService {
     for (const r of rows) {
       byStatus[r.status] = (byStatus[r.status] || 0) + 1;
     }
+    // Sent tab count = all emailed invoices (any payment status).
+    byStatus.sent = rows.filter(
+      (r) =>
+        !!r.sentAt &&
+        ['sent', 'partially_paid', 'paid', 'overdue'].includes(r.status),
+    ).length;
     return {
       total: rows.length,
       total_billed: round2(totalBilled),
@@ -804,30 +851,34 @@ export class InvoicesService {
     const paymentsSum = round2(
       payments.reduce((s, p) => s + Number(p.amount), 0),
     );
-    // When payment rows exist, trust their sum. Otherwise keep manual PDF
-    // amounts (total paid / balance) set in the editor so send() does not wipe them.
-    const totalPaid =
-      payments.length > 0
-        ? paymentsSum
-        : round2(Number(inv.totalPaid || 0));
+    const hasPaymentRows = payments.length > 0;
+    // Prefer recorded payments for totals; otherwise keep manual PDF amounts.
+    const totalPaid = hasPaymentRows
+      ? paymentsSum
+      : round2(Number(inv.totalPaid || 0));
     const balanceDue = round2(Number(inv.grandTotal) - totalPaid);
     const grand = Number(inv.grandTotal || 0);
+    const pastDue =
+      !!inv.invoiceDue && new Date(inv.invoiceDue) < new Date();
 
     let status: InvoiceStatus = inv.status;
     if (status === 'draft' || status === 'revised' || status === 'cancelled') {
-      // no auto change
-    } else if (grand > 0 && totalPaid >= grand) {
-      status = 'paid';
-    } else if (totalPaid > 0) {
-      status = 'partially_paid';
-    } else if (
-      totalPaid === 0 &&
-      inv.invoiceDue &&
-      new Date(inv.invoiceDue) < new Date()
-    ) {
-      status = 'overdue';
+      // Lifecycle lock — do not auto-change
+    } else if (hasPaymentRows) {
+      // Only real payment rows drive paid / partial / overdue / sent.
+      if (grand > 0 && totalPaid >= grand) {
+        status = 'paid';
+      } else if (totalPaid > 0) {
+        status = 'partially_paid';
+      } else if (pastDue) {
+        status = 'overdue';
+      } else if (inv.sentAt) {
+        status = 'sent';
+      }
     } else if (inv.sentAt) {
-      status = 'sent';
+      // No payment rows: PDF display amounts must not change lifecycle status.
+      // Issued invoices stay Sent (or Overdue if past due).
+      status = pastDue ? 'overdue' : 'sent';
     }
 
     await this.invoiceRepo.update(invoiceId, {
