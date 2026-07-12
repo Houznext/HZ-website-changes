@@ -39,8 +39,9 @@ export class MailerService {
 
   constructor() {
     const port = Number(process.env.SMTP_PORT) || 587;
+    const host = process.env.SMTP_HOST || 'smtp.gmail.com';
     this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      host,
       port,
       secure: process.env.SMTP_SECURE === 'true' || port === 465,
       auth: {
@@ -52,6 +53,9 @@ export class MailerService {
       greetingTimeout: 8_000,
       socketTimeout: 15_000,
     });
+    console.log(
+      `[Mailer] SMTP host=${host} port=${port} from=${process.env.SMTP_FROM || process.env.SMTP_USER || 'business@houznext.com'}`,
+    );
   }
 
   /** Admin finance emails must never block create/update HTTP responses. */
@@ -60,6 +64,46 @@ export class MailerService {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`[Mailer] Background ${label} failed:`, msg);
     });
+  }
+
+  /** Outbound From header (Resend: use SMTP_FROM; SMTP_USER is often just "resend"). */
+  private mailFrom(): string {
+    const from = process.env.SMTP_FROM?.trim();
+    if (from) return from;
+    const user = process.env.SMTP_USER?.trim();
+    if (user && this.looksLikeEmail(user)) return user;
+    return 'business@houznext.com';
+  }
+
+  private looksLikeEmail(value: string): boolean {
+    const v = value.trim();
+    if (!v.includes('@')) return false;
+    const lower = v.toLowerCase();
+    return lower !== 'resend' && lower !== 'apikey';
+  }
+
+  /** Inbox used when FINANCE_NOTIFY_EMAIL / similar env vars are unset. */
+  private defaultAdminInbox(): string {
+    const from = process.env.SMTP_FROM?.trim();
+    if (from) {
+      const angled = from.match(/<([^>]+)>/);
+      if (angled?.[1] && this.looksLikeEmail(angled[1])) return angled[1].trim();
+      if (this.looksLikeEmail(from)) return from;
+    }
+    const user = process.env.SMTP_USER?.trim();
+    if (user && this.looksLikeEmail(user)) return user;
+    return 'business@houznext.com';
+  }
+
+  private parseEmailList(raw: string): string[] {
+    return Array.from(
+      new Set(
+        raw
+          .split(/[,;]+/)
+          .map((e) => e.trim())
+          .filter(Boolean),
+      ),
+    );
   }
 
   populateTemplate(template: string, data: Record<string, string>): string {
@@ -84,7 +128,7 @@ export class MailerService {
     }
 
     const mailOptions = {
-      from: process.env.SMTP_USER || 'business@houznext.com',
+      from: this.mailFrom(),
       to,
       subject,
       text,
@@ -125,7 +169,7 @@ ${params.bodyText
 </div></body></html>`;
 
     const mailOptions = {
-      from: process.env.SMTP_USER || 'business@houznext.com',
+      from: this.mailFrom(),
       to: params.to,
       subject: params.subject,
       text: params.bodyText,
@@ -281,16 +325,8 @@ ${params.bodyText
   ): Promise<void> {
     const raw =
       process.env.CRM_LEAD_DELETE_NOTIFY_EMAIL?.trim() ||
-      process.env.SMTP_USER?.trim() ||
-      'business@houznext.com';
-    const recipients = Array.from(
-      new Set(
-        raw
-          .split(/[,;]+/)
-          .map((e) => e.trim())
-          .filter(Boolean),
-      ),
-    );
+      this.defaultAdminInbox();
+    const recipients = this.parseEmailList(raw);
 
     const assignee =
       lead.assignedTo && typeof (lead.assignedTo as User).fullName === 'string'
@@ -399,17 +435,8 @@ ${params.bodyText
 
   private financeNotifyRecipients(): string[] {
     const raw =
-      process.env.FINANCE_NOTIFY_EMAIL?.trim() ||
-      process.env.SMTP_USER?.trim() ||
-      'business@houznext.com';
-    return Array.from(
-      new Set(
-        raw
-          .split(/[,;]+/)
-          .map((e) => e.trim())
-          .filter(Boolean),
-      ),
-    );
+      process.env.FINANCE_NOTIFY_EMAIL?.trim() || this.defaultAdminInbox();
+    return this.parseEmailList(raw);
   }
 
   private publicApiBase(): string {
@@ -654,16 +681,8 @@ ${params.bodyText
   }): Promise<void> {
     const raw =
       process.env.LIVEBUILD_ROOM_DELETE_NOTIFY_EMAIL?.trim() ||
-      process.env.SMTP_USER?.trim() ||
-      'business@houznext.com';
-    const adminRecipients = Array.from(
-      new Set(
-        raw
-          .split(/[,;]+/)
-          .map((e) => e.trim())
-          .filter(Boolean),
-      ),
-    );
+      this.defaultAdminInbox();
+    const adminRecipients = this.parseEmailList(raw);
 
     const when = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
     const wtList =
@@ -744,16 +763,8 @@ ${params.bodyText
     const raw =
       process.env.LIVEBUILD_PROJECT_DELETE_NOTIFY_EMAIL?.trim() ||
       process.env.LIVEBUILD_ROOM_DELETE_NOTIFY_EMAIL?.trim() ||
-      process.env.SMTP_USER?.trim() ||
-      'business@houznext.com';
-    const adminRecipients = Array.from(
-      new Set(
-        raw
-          .split(/[,;]+/)
-          .map((e) => e.trim())
-          .filter(Boolean),
-      ),
-    );
+      this.defaultAdminInbox();
+    const adminRecipients = this.parseEmailList(raw);
 
     const when = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
     const row = (label: string, value: string) =>

@@ -862,7 +862,19 @@ export class InvoicesService {
       await this.updateStatusFromPayments(id);
 
       const full = await this.findOne(id, true);
-      const pdfBuf = await this.pdfService.generate(full);
+      let pdfBuf: Buffer;
+      try {
+        pdfBuf = await this.pdfService.generate(full);
+      } catch (pdfErr) {
+        const msg =
+          pdfErr instanceof Error ? pdfErr.message : String(pdfErr);
+        if (/Could not find Chrome|Chrome|Chromium|executable/i.test(msg)) {
+          throw new BadRequestException(
+            'Invoice PDF could not be generated on the server (Chrome/Chromium missing). Redeploy backend with Chromium support, then try again.',
+          );
+        }
+        throw pdfErr;
+      }
       const invoiceNumber = String(full.invoice_number || id);
       const subject =
         dto.email_subject?.trim() ||

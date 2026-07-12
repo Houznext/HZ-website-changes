@@ -6,6 +6,27 @@ import { buildInvoicePdfHtml } from './invoice-pdf.template';
 
 const PDF_TIMEOUT_MS = 45_000;
 
+const CHROME_CANDIDATES = [
+  process.env.PUPPETEER_EXECUTABLE_PATH,
+  process.env.CHROME_PATH,
+  '/usr/bin/chromium',
+  '/usr/bin/chromium-browser',
+  '/usr/bin/google-chrome',
+  '/usr/bin/google-chrome-stable',
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+].filter(Boolean) as string[];
+
+function resolveChromeExecutable(): string | undefined {
+  for (const candidate of CHROME_CANDIDATES) {
+    try {
+      if (candidate && fs.existsSync(candidate)) return candidate;
+    } catch {
+      /* try next */
+    }
+  }
+  return undefined;
+}
+
 function loadLogoDataUrl(): string | undefined {
   const candidates = [
     path.join(process.cwd(), 'assets', 'houznext-logo.png'),
@@ -34,14 +55,26 @@ export class InvoicePdfService {
     const html = buildInvoicePdfHtml(inv, { logoDataUrl: this.logoDataUrl });
     let browser: Awaited<ReturnType<typeof puppeteer.launch>> | null = null;
 
+    const executablePath = resolveChromeExecutable();
+    if (executablePath) {
+      this.logger.log(`Launching Chromium for PDF: ${executablePath}`);
+    } else {
+      this.logger.warn(
+        'No system Chromium found; using Puppeteer bundled Chrome (may fail on Railway if not downloaded).',
+      );
+    }
+
     try {
       browser = await puppeteer.launch({
         headless: true,
+        ...(executablePath ? { executablePath } : {}),
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
+          '--disable-gpu',
           '--font-render-hinting=none',
+          '--single-process',
         ],
       });
 
