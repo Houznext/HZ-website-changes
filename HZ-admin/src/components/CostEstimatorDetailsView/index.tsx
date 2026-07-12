@@ -99,7 +99,7 @@ const CostEstimatorDetailsView = () => {
 
   // Delete estimation
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string | number) => {
     try {
       const userId = session?.data?.user?.id;
       router.push("/cost-estimator");
@@ -716,7 +716,9 @@ const CostEstimatorDetailsView = () => {
               Cancel
             </button>
             <button
-              onClick={() => handleDelete(details?.id)}
+              onClick={() => {
+                if (details?.id != null) handleDelete(details.id);
+              }}
               className="px-4 py-2 rounded-[8px] bg-red-50 hover:bg-red-100
                          border border-red-200 text-red-600 text-[13px]
                          font-medium transition-all"

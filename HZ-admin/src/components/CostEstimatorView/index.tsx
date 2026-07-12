@@ -262,7 +262,9 @@ const CostEstimatorView: React.FC = () => {
         return tb - ta;
       });
     } else {
-      out.sort((a, b) => (b?.id || 0) - (a?.id || 0));
+      out.sort((a, b) =>
+        String(b?.id ?? "").localeCompare(String(a?.id ?? "")),
+      );
     }
 
     return out;
