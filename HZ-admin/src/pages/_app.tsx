@@ -13,7 +13,6 @@ import { Toaster } from "react-hot-toast";
 import { useCallback, useMemo, useState } from "react";
 import SocketInitializer from "../components/chat/SocketInitializer";
 import SessionSync from "@/src/components/SessionSync";
-import Head from "next/head";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement, props?: any) => ReactNode;
@@ -50,30 +49,16 @@ const MyApp: AppType<{ session: Session | null }> = ({
     : (page: ReactElement) => page;
 
   return (
-    <>
-      <Head>
-        <link rel="icon" href="/images/houznext-icon.png" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
-        />
-      </Head>
-
-      <SessionProvider
-        session={session as Session}
-        refetchInterval={5 * 60}
-        refetchOnWindowFocus={false}
-      >
-        <SessionSync />
-        <SocketInitializer />
-        <div>{getLayout(<Component {...pageProps} />)}</div>
-        <Toaster position="top-right" reverseOrder={false} containerClassName="text-[12px]" />
-      </SessionProvider>
-    </>
+    <SessionProvider
+      session={session as Session}
+      refetchInterval={5 * 60}
+      refetchOnWindowFocus={false}
+    >
+      <SessionSync />
+      <SocketInitializer />
+      <div>{getLayout(<Component {...pageProps} />)}</div>
+      <Toaster position="top-right" reverseOrder={false} containerClassName="text-[12px]" />
+    </SessionProvider>
   );
 };
 

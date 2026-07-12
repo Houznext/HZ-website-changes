@@ -97,8 +97,8 @@ export class CostEstimatorController {
       pincode,
       landmark,
       locality,
-      (page = 1),
-      (limit = 10),
+      page ? Number(page) : 1,
+      limit ? Number(limit) : 10,
       category,
     );
   }
@@ -245,11 +245,12 @@ export class CostEstimatorController {
     };
 
     return this.costEstimatorService.fetchEstimationsByUser(
-      req.user ?? null,                               
+      req.user ?? null,
       filters,
-      Number(page),
-      Number(limit),
-      userId,                                  
+      Number(page) || 1,
+      Number(limit) || 10,
+      undefined,
+      userId,
     );
   }
 }

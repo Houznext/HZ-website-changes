@@ -352,7 +352,7 @@ const CostEstimatorView: React.FC = () => {
     try {
       const response = await apiClient.delete(
         `${apiClient.URLS.cost_estimator}/${id}`,
-        { data: { userId } },
+        { userId },
       );
       if (response.status === 200) {
         toast.success("Quotation deleted");

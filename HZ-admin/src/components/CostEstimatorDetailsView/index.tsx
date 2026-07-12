@@ -81,7 +81,8 @@ const CostEstimatorDetailsView = () => {
       const userId = session?.data?.user?.id;
       router.push("/cost-estimator");
       const response = await apiClient.delete(
-        `${apiClient.URLS.cost_estimator}/${id}`, { data: { userId } }
+        `${apiClient.URLS.cost_estimator}/${id}`,
+        { userId },
       );
       if (response.status === 200) {
         console.log("Estimation deleted successfully");

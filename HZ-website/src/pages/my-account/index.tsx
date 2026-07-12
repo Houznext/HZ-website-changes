@@ -41,10 +41,15 @@ export default function MyAccountDashboard() {
       setNameDraft(customer.name || '')
       const m = customer.mobile?.replace(/\D/g, '').slice(-10) ?? ''
       if (m.length === 10) {
-        fetch(`${API}/invoice-estimator/by-mobile/${m}`)
+        fetch(`${API}/invoices/by-mobile/${m}`)
           .then((r) => r.json())
           .then((invs: Array<{ invoiceDue?: string }>) => setInvoiceDue(invs?.some((i) => !!i.invoiceDue && new Date(i.invoiceDue) >= new Date()) ?? false))
-          .catch(() => setInvoiceDue(false))
+          .catch(() =>
+            fetch(`${API}/invoice-estimator/by-mobile/${m}`)
+              .then((r) => r.json())
+              .then((invs: Array<{ invoiceDue?: string }>) => setInvoiceDue(invs?.some((i) => !!i.invoiceDue && new Date(i.invoiceDue) >= new Date()) ?? false))
+              .catch(() => setInvoiceDue(false)),
+          )
       } else {
         setInvoiceDue(false)
       }

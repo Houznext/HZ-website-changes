@@ -80,8 +80,9 @@ export class CostEstimatorService {
       const savedEstimator =
         await this.costEstimatorRepository.save(costEstimator);
 
-      try {
-        await this.mailerService.notifyAdminsQuotationCreated({
+      // Do not await — SMTP timeouts on Railway were blocking duplicate/save for ~20s+.
+      this.mailerService.enqueue(
+        this.mailerService.notifyAdminsQuotationCreated({
           id: savedEstimator.id,
           quotationNumber: savedEstimator.quotationNumber,
           customerFirstName: savedEstimator.firstname,
@@ -90,13 +91,9 @@ export class CostEstimatorService {
           customerPhone: savedEstimator.customerMobile || savedEstimator.phone,
           subTotal: Number(savedEstimator.subTotal),
           postedByName: user.fullName || user.username,
-        });
-      } catch (e) {
-        console.error(
-          'CostEstimator create: admin quotation email failed (record saved):',
-          e instanceof Error ? e.message : e,
-        );
-      }
+        }),
+        'quotation created notify',
+      );
 
       // ✅ This removes all circular refs before returning
       return instanceToPlain(savedEstimator);
@@ -323,8 +320,8 @@ export class CostEstimatorService {
     const savedEstimator =
       await this.costEstimatorRepository.save(existingEstimator);
 
-    try {
-      await this.mailerService.notifyAdminsQuotationUpdated({
+    this.mailerService.enqueue(
+      this.mailerService.notifyAdminsQuotationUpdated({
         id: savedEstimator.id,
         quotationNumber: savedEstimator.quotationNumber,
         customerFirstName: savedEstimator.firstname,
@@ -336,13 +333,9 @@ export class CostEstimatorService {
           existingEstimator.postedBy?.fullName ||
           existingEstimator.postedBy?.username ||
           null,
-      });
-    } catch (e) {
-      console.error(
-        'CostEstimator update: admin quotation email failed (record saved):',
-        e instanceof Error ? e.message : e,
-      );
-    }
+      }),
+      'quotation updated notify',
+    );
 
     const { itemGroups, ...rest } = savedEstimator;
     return {
@@ -375,39 +368,49 @@ export class CostEstimatorService {
       const restoreUrl = this.mailerService.buildQuotationRestoreUrl(id, token);
       const formattedDate = new Date().toLocaleString();
 
-      const superAdmins = await this.userRepository.find({
-        where: { role: UserRole.ADMIN },
-      });
+      try {
+        const superAdmins = await this.userRepository.find({
+          where: { role: UserRole.ADMIN },
+        });
 
-      await Promise.all(
-        superAdmins.map((admin) =>
-          this.notificationService.createNotification({
-            userId: admin.id,
-            message: `CostEstimator ${costEstimator.firstname}  ID ${id} was deleted by ${deletedBy?.username} (ID: ${deletedBy?.id}) on ${formattedDate}.`,
+        await Promise.all(
+          superAdmins.map((admin) =>
+            this.notificationService.createNotification({
+              userId: admin.id,
+              message: `CostEstimator ${costEstimator.firstname}  ID ${id} was deleted by ${deletedBy?.username} (ID: ${deletedBy?.id}) on ${formattedDate}.`,
+            }),
+          ),
+        );
+
+        this.mailerService.enqueue(
+          this.mailerService.notifyAdminsAboutDeletion({
+            deletedEstimatorId: id,
+            deletedBy: {
+              id: deletedBy?.id || userId,
+              username: deletedBy?.username || deletedBy?.email || 'admin',
+            },
+            estimatorFirstName: [costEstimator.firstname, costEstimator.lastname]
+              .filter(Boolean)
+              .join(' '),
+            restoreUrl,
+            details: {
+              'Quotation #':
+                costEstimator.quotationNumber != null
+                  ? `QT-${String(costEstimator.quotationNumber).padStart(4, '0')}`
+                  : '—',
+              Email: costEstimator.email,
+              Phone: costEstimator.customerMobile || costEstimator.phone || '—',
+              Subtotal: `₹${Number(costEstimator.subTotal || 0).toLocaleString('en-IN')}`,
+            },
           }),
-        ),
-      );
-
-      await this.mailerService.notifyAdminsAboutDeletion({
-        deletedEstimatorId: id,
-        deletedBy: {
-          id: deletedBy?.id || userId,
-          username: deletedBy?.username || deletedBy?.email || 'admin',
-        },
-        estimatorFirstName: [costEstimator.firstname, costEstimator.lastname]
-          .filter(Boolean)
-          .join(' '),
-        restoreUrl,
-        details: {
-          'Quotation #':
-            costEstimator.quotationNumber != null
-              ? `QT-${String(costEstimator.quotationNumber).padStart(4, '0')}`
-              : '—',
-          Email: costEstimator.email,
-          Phone: costEstimator.customerMobile || costEstimator.phone || '—',
-          Subtotal: `₹${Number(costEstimator.subTotal || 0).toLocaleString('en-IN')}`,
-        },
-      });
+          'quotation deleted notify',
+        );
+      } catch (notifyErr) {
+        console.error(
+          `Quotation ${id} soft-deleted but notify/email failed:`,
+          notifyErr instanceof Error ? notifyErr.message : notifyErr,
+        );
+      }
 
       console.log(`CostEstimator with ID ${id} soft-deleted successfully`);
     } catch (error) {

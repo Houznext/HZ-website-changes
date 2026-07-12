@@ -38,14 +38,27 @@ export class MailerService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
+    const port = Number(process.env.SMTP_PORT) || 587;
     this.transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port,
+      secure: process.env.SMTP_SECURE === 'true' || port === 465,
       auth: {
         user: process.env.SMTP_USER || 'business@houznext.com',
         pass: process.env.SMTP_PASS || '',
       },
+      // Fail fast on Railway / blocked SMTP so API responses are not held open.
+      connectionTimeout: 8_000,
+      greetingTimeout: 8_000,
+      socketTimeout: 15_000,
+    });
+  }
+
+  /** Admin finance emails must never block create/update HTTP responses. */
+  enqueue(task: Promise<unknown>, label: string): void {
+    void task.catch((err: unknown) => {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[Mailer] Background ${label} failed:`, msg);
     });
   }
 

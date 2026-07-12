@@ -102,6 +102,7 @@ export class InvoicesController {
   ) {
     try {
       const inv = await this.invoicesService.restoreWithToken(id, token);
+      const safeNumber = String(inv.invoiceNumber || id).replace(/</g, '&lt;');
       res
         .status(200)
         .type('html')
@@ -109,7 +110,7 @@ export class InvoicesController {
 <body style="font-family:Inter,system-ui,sans-serif;background:#f5f7fa;padding:40px;">
   <div style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #dde8f5;border-radius:12px;padding:28px;">
     <h1 style="font-family:Montserrat,sans-serif;font-size:20px;margin:0 0 10px;">Invoice restored</h1>
-    <p style="color:#5a6a7e;margin:0 0 8px;">Invoice <strong>${inv.invoiceNumber || id}</strong> has been restored successfully.</p>
+    <p style="color:#5a6a7e;margin:0 0 8px;">Invoice <strong>${safeNumber}</strong> has been restored successfully.</p>
     <p style="color:#94a3b8;font-size:12px;margin:16px 0 0;">You can close this tab and refresh the admin Invoices list.</p>
   </div>
 </body></html>`);

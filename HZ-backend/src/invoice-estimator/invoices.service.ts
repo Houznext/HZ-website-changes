@@ -284,21 +284,29 @@ export class InvoicesService {
   ) {
     const grand = Number(inv.grandTotal || 0);
     const ps = dto.payment_status || 'payment_due';
+    // Draft/revised must keep lifecycle status so edit + send still work.
+    // Payment badge amounts are stored on totalPaid/balanceDue for the PDF.
+    const editable =
+      inv.status === 'draft' || inv.status === 'revised' || !inv.status;
+
     if (ps === 'paid') {
-      inv.status = 'paid';
+      if (!editable) inv.status = 'paid';
       inv.totalPaid = grand;
       inv.balanceDue = 0;
       return;
     }
     if (ps === 'partially_paid') {
-      inv.status = 'partially_paid';
+      if (!editable) inv.status = 'partially_paid';
       inv.totalPaid = round2(Math.min(grand, Math.max(0, Number(dto.amount_paid || 0))));
       inv.balanceDue = round2(Math.max(0, grand - Number(inv.totalPaid)));
       return;
     }
     inv.totalPaid = 0;
     inv.balanceDue = grand;
-    if (inv.status === 'paid' || inv.status === 'partially_paid') {
+    if (
+      !editable &&
+      (inv.status === 'paid' || inv.status === 'partially_paid')
+    ) {
       inv.status = 'sent';
     }
   }
@@ -658,25 +666,26 @@ export class InvoicesService {
       invoice_number: saved.invoiceNumber,
     });
 
-    try {
-      const full = await this.findOne(saved.id);
-      await this.mailerService.notifyAdminsInvoiceEvent({
-        action: 'created',
-        id: saved.id,
-        invoiceNumber: full.invoice_number,
-        billToName: full.bill_to_name,
-        billToEmail: full.bill_to_email,
-        billToMobile: full.bill_to_mobile,
-        status: full.status,
-        grandTotal: full.grand_total,
-        actorName: admin.fullName || admin.username || admin.email,
+    void this.findOne(saved.id)
+      .then((full) =>
+        this.mailerService.notifyAdminsInvoiceEvent({
+          action: 'created',
+          id: saved.id,
+          invoiceNumber: full.invoice_number,
+          billToName: full.bill_to_name,
+          billToEmail: full.bill_to_email,
+          billToMobile: full.bill_to_mobile,
+          status: full.status,
+          grandTotal: full.grand_total,
+          actorName: admin.fullName || admin.username || admin.email,
+        }),
+      )
+      .catch((e) => {
+        console.error(
+          'Invoice create: admin email failed (record saved):',
+          e instanceof Error ? e.message : e,
+        );
       });
-    } catch (e) {
-      console.error(
-        'Invoice create: admin email failed (record saved):',
-        e instanceof Error ? e.message : e,
-      );
-    }
 
     return this.findOne(saved.id);
   }
@@ -760,7 +769,7 @@ export class InvoicesService {
 
     await this.audit(id, actor?.id || dto.userId, 'edited', before, await this.findOne(id));
     const updated = await this.findOne(id);
-    try {
+    void (async () => {
       const actorUser = actor?.id
         ? await this.userRepo.findOne({ where: { id: actor.id } })
         : null;
@@ -779,12 +788,12 @@ export class InvoicesService {
           actorUser?.email ||
           actor?.email,
       });
-    } catch (e) {
+    })().catch((e) => {
       console.error(
         'Invoice update: admin email failed (record saved):',
         e instanceof Error ? e.message : e,
       );
-    }
+    });
     return updated;
   }
 
@@ -792,13 +801,22 @@ export class InvoicesService {
     const inv = await this.invoiceRepo.findOne({ where: { id: invoiceId } });
     if (!inv) return;
     const payments = await this.paymentRepo.find({ where: { invoiceId } });
-    const totalPaid = round2(payments.reduce((s, p) => s + Number(p.amount), 0));
+    const paymentsSum = round2(
+      payments.reduce((s, p) => s + Number(p.amount), 0),
+    );
+    // When payment rows exist, trust their sum. Otherwise keep manual PDF
+    // amounts (total paid / balance) set in the editor so send() does not wipe them.
+    const totalPaid =
+      payments.length > 0
+        ? paymentsSum
+        : round2(Number(inv.totalPaid || 0));
     const balanceDue = round2(Number(inv.grandTotal) - totalPaid);
+    const grand = Number(inv.grandTotal || 0);
 
     let status: InvoiceStatus = inv.status;
     if (status === 'draft' || status === 'revised' || status === 'cancelled') {
       // no auto change
-    } else if (totalPaid >= Number(inv.grandTotal)) {
+    } else if (grand > 0 && totalPaid >= grand) {
       status = 'paid';
     } else if (totalPaid > 0) {
       status = 'partially_paid';
@@ -816,8 +834,7 @@ export class InvoicesService {
       totalPaid,
       balanceDue,
       status,
-      fullyPaidAt:
-        totalPaid >= Number(inv.grandTotal) ? new Date() : null,
+      fullyPaidAt: grand > 0 && totalPaid >= grand ? new Date() : null,
     });
   }
 
@@ -1176,8 +1193,8 @@ export class InvoicesService {
       : null;
     const restoreUrl = this.mailerService.buildInvoiceRestoreUrl(id, token);
 
-    try {
-      await this.mailerService.notifyAdminsInvoiceEvent({
+    this.mailerService.enqueue(
+      this.mailerService.notifyAdminsInvoiceEvent({
         action: 'deleted',
         id,
         invoiceNumber: inv.invoiceNumber,
@@ -1192,13 +1209,9 @@ export class InvoicesService {
           actorUser?.email ||
           actor?.email,
         restoreUrl,
-      });
-    } catch (e) {
-      console.error(
-        'Invoice delete: admin email failed (record soft-deleted):',
-        e instanceof Error ? e.message : e,
-      );
-    }
+      }),
+      'invoice deleted notify',
+    );
 
     await this.audit(id, actor?.id || inv.userId, 'deleted', { status: inv.status }, {
       soft_deleted: true,
@@ -1329,11 +1342,10 @@ export class InvoicesService {
 
   @Cron('0 2 * * *')
   async markOverdueInvoices() {
+    // Only unpaid sent invoices — do not demote partially_paid to overdue.
     const rows = await this.invoiceRepo
       .createQueryBuilder('inv')
-      .where('inv.status IN (:...statuses)', {
-        statuses: ['sent', 'partially_paid'],
-      })
+      .where('inv.status = :status', { status: 'sent' })
       .andWhere('inv.invoiceDue < :today', {
         today: new Date().toISOString().slice(0, 10),
       })

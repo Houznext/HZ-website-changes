@@ -67,20 +67,16 @@ export class InvoiceEstimatorService {
       });
 
       const saved = await this.invoiceEstimatorRepository.save(invoice);
-      try {
-        await this.mailerService.notifyAdminsInvoiceAdminPanel({
+      this.mailerService.enqueue(
+        this.mailerService.notifyAdminsInvoiceAdminPanel({
           action: 'created',
           invoiceId: saved.id,
           invoiceNumber: saved.invoiceNumber,
           billToName: saved.billToName,
           actorName: actor?.fullName ?? actor?.email ?? null,
-        });
-      } catch (e) {
-        console.error(
-          'InvoiceEstimator create: admin email failed (invoice saved):',
-          e instanceof Error ? e.message : e,
-        );
-      }
+        }),
+        'legacy invoice created notify',
+      );
       return saved;
     } catch (error) {
       console.error('Error creating InvoiceEstimator:', error);
@@ -233,20 +229,16 @@ export class InvoiceEstimatorService {
         throw new BadRequestException(`Estimation not found with id: ${id}`);
       }
 
-      try {
-        await this.mailerService.notifyAdminsInvoiceAdminPanel({
+      this.mailerService.enqueue(
+        this.mailerService.notifyAdminsInvoiceAdminPanel({
           action: 'deleted',
           invoiceId: invoiceEstimator.id,
           invoiceNumber: invoiceEstimator.invoiceNumber,
           billToName: invoiceEstimator.billToName,
           actorName: actor?.fullName ?? actor?.email ?? null,
-        });
-      } catch (e) {
-        console.error(
-          'InvoiceEstimator delete: admin email failed (continuing delete):',
-          e instanceof Error ? e.message : e,
-        );
-      }
+        }),
+        'legacy invoice deleted notify',
+      );
 
       const user = await this.userRepository.findOne({
         where: { id: invoiceEstimator.postedBy.id },
