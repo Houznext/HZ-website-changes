@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Property } from './property/entities/property.entity';
@@ -35,9 +36,37 @@ interface DeletionNotification {
 
 @Injectable()
 export class MailerService {
-  private transporter: nodemailer.Transporter;
+  private transporter: nodemailer.Transporter | null = null;
+  private resend: Resend | null = null;
+  private readonly useResend: boolean;
+
+  /** Prefer RESEND_API_KEY; also accept SMTP_PASS when it is a Resend key (re_…). */
+  private static resolveResendApiKey(): string | undefined {
+    const dedicated = process.env.RESEND_API_KEY?.trim();
+    if (dedicated) return dedicated;
+
+    const smtpPass = process.env.SMTP_PASS?.trim();
+    if (smtpPass?.startsWith('re_')) return smtpPass;
+
+    // Railway may still have SMTP_HOST=smtp.resend.com + API key in SMTP_PASS
+    const host = (process.env.SMTP_HOST || '').toLowerCase();
+    if (host.includes('resend.com') && smtpPass) return smtpPass;
+
+    return undefined;
+  }
 
   constructor() {
+    const resendKey = MailerService.resolveResendApiKey();
+    this.useResend = Boolean(resendKey);
+
+    if (this.useResend) {
+      this.resend = new Resend(resendKey);
+      console.log(
+        `[Mailer] Transport=Resend API from=${this.mailFrom()}`,
+      );
+      return;
+    }
+
     const port = Number(process.env.SMTP_PORT) || 587;
     const host = process.env.SMTP_HOST || 'smtp.gmail.com';
     this.transporter = nodemailer.createTransport({
@@ -48,13 +77,13 @@ export class MailerService {
         user: process.env.SMTP_USER || 'business@houznext.com',
         pass: process.env.SMTP_PASS || '',
       },
-      // Fail fast on Railway / blocked SMTP so API responses are not held open.
       connectionTimeout: 8_000,
       greetingTimeout: 8_000,
       socketTimeout: 15_000,
     });
     console.log(
-      `[Mailer] SMTP host=${host} port=${port} from=${process.env.SMTP_FROM || process.env.SMTP_USER || 'business@houznext.com'}`,
+      `[Mailer] Transport=SMTP host=${host} port=${port} from=${this.mailFrom()} ` +
+        `(set RESEND_API_KEY=re_… on Railway to use Resend HTTPS instead of SMTP)`,
     );
   }
 
@@ -106,6 +135,75 @@ export class MailerService {
     );
   }
 
+  private assertMailConfigured(forInvoice = false): void {
+    if (this.useResend) return;
+    if (process.env.SMTP_PASS?.trim()) return;
+    if (forInvoice) {
+      throw new Error(
+        'Email is not configured on the server (set RESEND_API_KEY for production or SMTP_PASS for local SMTP).',
+      );
+    }
+    console.warn(
+      '[Mailer] No RESEND_API_KEY or SMTP_PASS; skipping outbound email.',
+    );
+  }
+
+  private async sendViaResend(params: {
+    to: string;
+    subject: string;
+    text: string;
+    html: string;
+    attachments?: Array<{ filename: string; content: Buffer }>;
+  }) {
+    if (!this.resend) {
+      throw new Error('Resend client is not initialized');
+    }
+    const { data, error } = await this.resend.emails.send({
+      from: this.mailFrom(),
+      to: params.to,
+      subject: params.subject,
+      text: params.text,
+      html: params.html,
+      attachments: params.attachments?.map((a) => ({
+        filename: a.filename,
+        content: a.content,
+      })),
+    });
+    if (error) {
+      const msg =
+        typeof error === 'object' && error && 'message' in error
+          ? String((error as { message: string }).message)
+          : String(error);
+      console.error(`[Mailer] Resend failed for ${params.to}:`, msg);
+      throw new Error(msg);
+    }
+    return data;
+  }
+
+  private async sendViaSmtp(params: {
+    to: string;
+    subject: string;
+    text: string;
+    html: string;
+    attachments?: Array<{
+      filename: string;
+      content: Buffer;
+      contentType?: string;
+    }>;
+  }) {
+    if (!this.transporter) {
+      throw new Error('SMTP transporter is not initialized');
+    }
+    return this.transporter.sendMail({
+      from: this.mailFrom(),
+      to: params.to,
+      subject: params.subject,
+      text: params.text,
+      html: params.html,
+      attachments: params.attachments,
+    });
+  }
+
   populateTemplate(template: string, data: Record<string, string>): string {
     return template.replace(/\$\{(.*?)\}/g, (_, key) => data[key] || '');
   }
@@ -119,27 +217,21 @@ export class MailerService {
   }
 
   async sendMail(to: string, subject: string, text: string, html: string) {
-    const pass = process.env.SMTP_PASS?.trim();
-    if (!pass) {
-      console.warn(
-        `[Mailer] SMTP_PASS is not set; skipping email to ${to}. Set SMTP_USER + SMTP_PASS (e.g. Gmail app password) to enable outbound mail.`,
-      );
+    if (!this.useResend && !process.env.SMTP_PASS?.trim()) {
+      this.assertMailConfigured(false);
       return;
     }
 
-    const mailOptions = {
-      from: this.mailFrom(),
-      to,
-      subject,
-      text,
-      html,
-    };
-
-    return this.transporter.sendMail(mailOptions).catch((err: unknown) => {
+    try {
+      if (this.useResend) {
+        return await this.sendViaResend({ to, subject, text, html });
+      }
+      return await this.sendViaSmtp({ to, subject, text, html });
+    } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`[Mailer] Failed to send mail to ${to}:`, msg);
       throw err;
-    });
+    }
   }
 
   async sendInvoiceToCustomer(params: {
@@ -149,15 +241,7 @@ export class MailerService {
     pdfBuffer: Buffer;
     pdfFilename: string;
   }) {
-    const pass = process.env.SMTP_PASS?.trim();
-    if (!pass) {
-      console.warn(
-        `[Mailer] SMTP_PASS is not set; skipping invoice email to ${params.to}.`,
-      );
-      throw new Error(
-        'Email is not configured on the server (SMTP_PASS missing).',
-      );
-    }
+    this.assertMailConfigured(true);
 
     const htmlBody = `<html><body style="font-family:system-ui,sans-serif;font-size:14px;color:#1f2933;line-height:1.6;">
 <div style="max-width:640px;margin:24px auto;padding:24px;">
@@ -168,26 +252,36 @@ ${params.bodyText
 <p style="margin-top:24px;font-size:12px;color:#64748b;">— Houznext Interiors</p>
 </div></body></html>`;
 
-    const mailOptions = {
-      from: this.mailFrom(),
-      to: params.to,
-      subject: params.subject,
-      text: params.bodyText,
-      html: htmlBody,
-      attachments: [
-        {
-          filename: params.pdfFilename,
-          content: params.pdfBuffer,
-          contentType: 'application/pdf',
-        },
-      ],
-    };
-
-    return this.transporter.sendMail(mailOptions).catch((err: unknown) => {
+    try {
+      if (this.useResend) {
+        return await this.sendViaResend({
+          to: params.to,
+          subject: params.subject,
+          text: params.bodyText,
+          html: htmlBody,
+          attachments: [
+            { filename: params.pdfFilename, content: params.pdfBuffer },
+          ],
+        });
+      }
+      return await this.sendViaSmtp({
+        to: params.to,
+        subject: params.subject,
+        text: params.bodyText,
+        html: htmlBody,
+        attachments: [
+          {
+            filename: params.pdfFilename,
+            content: params.pdfBuffer,
+            contentType: 'application/pdf',
+          },
+        ],
+      });
+    } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`[Mailer] Failed to send invoice to ${params.to}:`, msg);
       throw err;
-    });
+    }
   }
 
   async sendUserConfirmationEmail(property: Property, user: User) {

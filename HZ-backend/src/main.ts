@@ -26,13 +26,16 @@ loadEnvFile(`.env.${nodeEnv}`);
 loadEnvFile('.env.local');
 loadEnvFile('.env');
 
-if (!process.env.SMTP_PASS?.trim()) {
-  console.warn(
-    `[Env] SMTP_PASS is not set after loading env files under ${rootDir}. ` +
-      `Use file names .env.development / .env (not env.development). Keys: SMTP_USER, SMTP_PASS.`,
-  );
+if (process.env.RESEND_API_KEY?.trim() || process.env.SMTP_PASS?.trim()?.startsWith('re_')) {
+  console.log('[Env] Resend API key detected (outbound mail via Resend HTTPS API).');
+} else if (process.env.SMTP_PASS?.trim()) {
+  console.log('[Env] SMTP_PASS is set (outbound mail via SMTP).');
 } else {
-  console.log('[Env] SMTP_PASS is set (outbound mail enabled).');
+  console.warn(
+    `[Env] Neither RESEND_API_KEY nor SMTP_PASS is set under ${rootDir}. ` +
+      `Local: set SMTP_USER + SMTP_PASS in .env.development. ` +
+      `Railway: set RESEND_API_KEY=re_… + SMTP_FROM.`,
+  );
 }
 
 async function bootstrap() {
