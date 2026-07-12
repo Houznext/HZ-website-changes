@@ -761,14 +761,14 @@ useEffect(() => {
     return Boolean(saved);
   };
 
-  const confirmQuote = async () => {
+  const confirmQuote = async (): Promise<boolean> => {
     if (!validate()) {
       toast.error("Please fill all required fields before confirming.");
-      return;
+      return false;
     }
     if (!formValues.itemGroups?.length) {
       toast.error("Add at least one section before confirming.");
-      return;
+      return false;
     }
     // Re-confirming an already issued quote marks it as revised.
     const nextStatus =
@@ -784,7 +784,9 @@ useEffect(() => {
           ? "Quotation revised and saved."
           : "Quotation confirmed. Finance has been notified."
       );
+      return true;
     }
+    return false;
   };
 
   const handleDownload = async () => {
@@ -809,6 +811,9 @@ useEffect(() => {
       categoryProp ?? (activetab?.category as string) ?? "Interior";
     router.push(`/cost-estimator/${category}/${estId}?download=1`);
   };
+
+  const isIssuedQuote =
+    quotationStatus === "confirmed" || quotationStatus === "revised";
 
   const requestClose = () => {
     if (isDirty || (!estimationIdRef.current && hasDraftableContent(formValues))) {
@@ -1337,7 +1342,9 @@ useEffect(() => {
                 editItem={editItem}
                 deleteItem={removeItem}
                 removeSection={removeSection}
-                handleSubmit={() => void saveAsDraft()}
+                handleSubmit={() =>
+                  void (isIssuedQuote ? confirmQuote() : saveAsDraft())
+                }
                 openModal={openItemModal}
                 openSectionModal={AddsectionModal}
                 editSection={editSection}
@@ -1535,24 +1542,26 @@ useEffect(() => {
 
         {/* Action buttons */}
         <div className="flex items-center gap-2 flex-wrap justify-end">
-          <button
-            type="button"
-            onClick={() => void saveAsDraft()}
-            disabled={loading}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[8px]
-                       border border-gray-200 bg-white hover:bg-gray-50
-                       font-semibold text-gray-700 text-[13px]
-                       transition-all duration-150
-                       disabled:opacity-60 disabled:cursor-not-allowed"
-            style={{ fontFamily: "'Montserrat', sans-serif" }}
-          >
-            {loading ? (
-              <CgSpinner className="w-4 h-4 animate-spin" />
-            ) : (
-              <FiSave className="w-4 h-4" />
-            )}
-            Save as draft
-          </button>
+          {!isIssuedQuote && (
+            <button
+              type="button"
+              onClick={() => void saveAsDraft()}
+              disabled={loading}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[8px]
+                         border border-gray-200 bg-white hover:bg-gray-50
+                         font-semibold text-gray-700 text-[13px]
+                         transition-all duration-150
+                         disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              {loading ? (
+                <CgSpinner className="w-4 h-4 animate-spin" />
+              ) : (
+                <FiSave className="w-4 h-4" />
+              )}
+              Save as draft
+            </button>
+          )}
           <button
             type="button"
             onClick={() => void confirmQuote()}
@@ -1571,7 +1580,7 @@ useEffect(() => {
             ) : (
               <FiCheck className="w-4 h-4" />
             )}
-            Confirm quote
+            {isIssuedQuote ? "Save changes" : "Confirm quote"}
           </button>
           <button
             type="button"
@@ -1595,7 +1604,7 @@ useEffect(() => {
         </div>
       </div>
 
-      {/* ── Close prompt: save as draft ── */}
+      {/* ── Close prompt ── */}
       <Modal
         isOpen={openClosePrompt}
         closeModal={() => setOpenClosePrompt(false)}
@@ -1610,10 +1619,12 @@ useEffect(() => {
               className="text-[15px] font-bold text-gray-800"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              Save as draft?
+              {isIssuedQuote ? "Save changes?" : "Save as draft?"}
             </h3>
             <p className="text-[13px] text-gray-500 mt-1.5" style={{ fontFamily: "'Inter', sans-serif" }}>
-              You have unsaved changes. Save this quotation as a draft, discard changes, or keep editing.
+              {isIssuedQuote
+                ? "You have unsaved changes on this quotation. Save them, discard, or keep editing."
+                : "You have unsaved changes. Save this quotation as a draft, discard changes, or keep editing."}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
@@ -1638,10 +1649,20 @@ useEffect(() => {
             <button
               type="button"
               disabled={loading}
-              onClick={() => void saveAsDraft({ closeAfter: true })}
+              onClick={async () => {
+                if (isIssuedQuote) {
+                  const saved = await confirmQuote();
+                  if (saved) {
+                    setOpenClosePrompt(false);
+                    closeDrawer();
+                  }
+                } else {
+                  void saveAsDraft({ closeAfter: true });
+                }
+              }}
               className="px-3 py-2 rounded-[8px] bg-[#2f80ed] text-white text-[13px] font-semibold hover:bg-[#1a6dd6] disabled:opacity-60"
             >
-              Save as draft
+              {isIssuedQuote ? "Save changes" : "Save as draft"}
             </button>
           </div>
         </div>
