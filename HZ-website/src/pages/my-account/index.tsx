@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -9,6 +9,14 @@ import { countSavedDesigns } from '@/utils/savedDesigns'
 import LivebuildEntryCard from '@/livebuild/components/LivebuildEntryCard'
 import { configureLivebuildAuth, livebuildApi } from '@/livebuild/lib/api'
 import type { LbAccountStats } from '@/livebuild/lib/types'
+import {
+  fetchCustomerNotifications,
+  fetchUnreadNotificationCount,
+  formatNotificationTime,
+  markNotificationRead,
+  notificationAccent,
+  type CustomerNotification,
+} from '@/utils/customerNotifications'
 
 export default function MyAccountDashboard() {
   const { customer, isLoading } = useCustomerGuard()
@@ -27,9 +35,48 @@ export default function MyAccountDashboard() {
   const [linkOtp, setLinkOtp] = useState('')
   const [linkBusy, setLinkBusy] = useState(false)
   const [linkMsg, setLinkMsg] = useState('')
+  const [notifications, setNotifications] = useState<CustomerNotification[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [notificationsLoading, setNotificationsLoading] = useState(false)
   const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
   const hasMobile = (customer?.mobile ?? '').replace(/\D/g, '').length >= 10
+
+  const loadNotifications = useCallback(async () => {
+    if (!customer?.token || !hasMobile) {
+      setNotifications([])
+      setUnreadCount(0)
+      return
+    }
+    setNotificationsLoading(true)
+    try {
+      const [list, unread] = await Promise.all([
+        fetchCustomerNotifications(customer.token, { limit: 5 }),
+        fetchUnreadNotificationCount(customer.token),
+      ])
+      setNotifications(list.data ?? [])
+      setUnreadCount(unread.count ?? 0)
+    } catch {
+      setNotifications([])
+      setUnreadCount(0)
+    } finally {
+      setNotificationsLoading(false)
+    }
+  }, [customer?.token, hasMobile])
+
+  const openNotification = async (n: CustomerNotification) => {
+    if (!customer?.token) return
+    if (!n.isRead) {
+      try {
+        await markNotificationRead(customer.token, n.id)
+        setNotifications((prev) => prev.map((r) => (r.id === n.id ? { ...r, isRead: true } : r)))
+        setUnreadCount((c) => Math.max(0, c - 1))
+      } catch {
+        // still navigate
+      }
+    }
+    void router.push(n.href)
+  }
 
   useEffect(() => {
     try {
@@ -80,7 +127,14 @@ export default function MyAccountDashboard() {
       setLbStats(null)
       setLbStatsLoading(false)
     }
-  }, [customer, API])
+    void loadNotifications()
+  }, [customer, API, loadNotifications])
+
+  useEffect(() => {
+    const onFocus = () => void loadNotifications()
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
+  }, [loadNotifications])
 
   if (isLoading) return <><Navbar /><div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2f80ed]" /></div></>
   if (!customer) return null
@@ -308,6 +362,97 @@ export default function MyAccountDashboard() {
             hasMobile={hasMobile}
             isLoggedIn={!!customer}
           />
+          <div
+            style={{
+              marginBottom: 20,
+              background: '#fff',
+              border: '1px solid #dde8f5',
+              borderRadius: 11,
+              padding: '14px 16px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ fontFamily: 'Montserrat, system-ui', fontSize: 15, fontWeight: 800, color: '#1f2933' }}>
+                  Notifications
+                </div>
+                {unreadCount > 0 && (
+                  <span
+                    style={{
+                      minWidth: 20,
+                      height: 20,
+                      padding: '0 6px',
+                      borderRadius: 999,
+                      background: '#2f80ed',
+                      color: '#fff',
+                      fontSize: 11,
+                      fontWeight: 800,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => void router.push('/my-account/notifications')}
+                style={{ border: 'none', background: 'transparent', color: '#2f80ed', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+              >
+                View all →
+              </button>
+            </div>
+            {!hasMobile ? (
+              <p style={{ margin: 0, fontSize: 12, color: '#5a6a7e', lineHeight: 1.5 }}>
+                Link your mobile above to see quotation, invoice, and LiveBuild updates here.
+              </p>
+            ) : notificationsLoading ? (
+              <div style={{ display: 'grid', gap: 8 }}>
+                {[1, 2].map((k) => (
+                  <div key={k} style={{ height: 52, borderRadius: 8, background: '#f4f8fd' }} />
+                ))}
+              </div>
+            ) : notifications.length === 0 ? (
+              <p style={{ margin: 0, fontSize: 12, color: '#5a6a7e', lineHeight: 1.5 }}>
+                No updates yet. Confirmed quotations, invoices, and LiveBuild activity will appear here.
+              </p>
+            ) : (
+              <div style={{ display: 'grid', gap: 8 }}>
+                {notifications.map((n) => {
+                  const accent = notificationAccent(n.type)
+                  return (
+                    <button
+                      key={n.id}
+                      type="button"
+                      onClick={() => void openNotification(n)}
+                      style={{
+                        display: 'block',
+                        width: '100%',
+                        textAlign: 'left',
+                        border: `1px solid ${n.isRead ? '#eef4fb' : accent + '44'}`,
+                        borderRadius: 9,
+                        background: n.isRead ? '#fafcff' : '#fff',
+                        padding: '10px 12px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'flex-start' }}>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: 12, fontWeight: 800, color: '#1f2933' }}>{n.title}</div>
+                          <div style={{ fontSize: 11, color: '#5a6a7e', marginTop: 2, lineHeight: 1.45 }}>{n.summary}</div>
+                        </div>
+                        <div style={{ fontSize: 10, color: '#5a6a7e', whiteSpace: 'nowrap' }}>
+                          {formatNotificationTime(n.createdAt)}
+                        </div>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-2.5">
             {[
               {

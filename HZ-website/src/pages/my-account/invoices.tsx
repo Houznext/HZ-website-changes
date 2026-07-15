@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import toast from 'react-hot-toast'
 import Navbar from '@/components/Navbar'
@@ -67,6 +67,8 @@ export default function InvoicesPage() {
   const [loading, setLoading] = useState(true)
   const [rows, setRows] = useState<InvoiceRow[]>([])
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [highlightId, setHighlightId] = useState<string | null>(null)
+  const rowRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const router = useRouter()
   const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
@@ -85,6 +87,23 @@ export default function InvoicesPage() {
       .catch(() => setRows([]))
       .finally(() => setLoading(false))
   }, [customer, API])
+
+  useEffect(() => {
+    const id = typeof router.query.id === 'string' ? router.query.id : null
+    if (!id || loading || rows.length === 0) return
+    const match = rows.some((inv) => inv.id === id)
+    if (!match) return
+    setExpanded(id)
+    setHighlightId(id)
+    const el = rowRefs.current[id]
+    if (el) {
+      requestAnimationFrame(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      })
+    }
+    const t = window.setTimeout(() => setHighlightId(null), 4000)
+    return () => window.clearTimeout(t)
+  }, [router.query.id, loading, rows])
 
   const downloadPdf = (id: string) => {
     const m = (customer?.mobile ?? '').replace(/\D/g, '').slice(-10)
@@ -124,8 +143,17 @@ export default function InvoicesPage() {
                 const st = inv.status || 'sent'
                 const ss = statusStyle(st)
                 const open = expanded === inv.id
+                const highlighted = highlightId === inv.id
                 return (
-                  <div key={inv.id} className="rounded-[13px] border bg-white p-4 sm:p-5" style={{ borderColor: ss.border }}>
+                  <div
+                    key={inv.id}
+                    ref={(el) => { rowRefs.current[inv.id] = el }}
+                    className="rounded-[13px] border bg-white p-4 sm:p-5 transition-all duration-300"
+                    style={{
+                      borderColor: highlighted ? '#2f80ed' : ss.border,
+                      boxShadow: highlighted ? '0 0 0 2px #2f80ed33' : undefined,
+                    }}
+                  >
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">

@@ -20,6 +20,7 @@ import { S3Module } from 'src/common/s3/s3.module';
 import { ControllerAuthGuard } from 'src/guard';
 import { MailerService } from 'src/sendEmail.service';
 import { WhatsAppMsgService } from 'src/whatsApp.service';
+import { CustomerNotificationModule } from 'src/customer-notifications/customer-notification.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { WhatsAppMsgService } from 'src/whatsApp.service';
     ]),
     NotificationModule,
     S3Module,
+    CustomerNotificationModule,
   ],
 
   controllers: [InvoiceEstimatorController, InvoicesController],

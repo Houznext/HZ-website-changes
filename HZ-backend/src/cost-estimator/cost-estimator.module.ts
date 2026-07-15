@@ -11,11 +11,13 @@ import { SmsService } from 'src/sms.service';
 import { User } from 'src/user/entities/user.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
 import { S3Module } from 'src/common/s3/s3.module';
+import { CustomerNotificationModule } from 'src/customer-notifications/customer-notification.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([CostEstimator, ItemGroup, Notification, User, Branch]),
     S3Module,
+    CustomerNotificationModule,
   ],
   providers: [
     CostEstimatorService,

@@ -45,6 +45,11 @@ import {
   formatInvoiceSeriesNumber,
   parseInvoiceSeriesNumber,
 } from './utils/invoice-number.util';
+import { CustomerNotificationService } from 'src/customer-notifications/customer-notification.service';
+import {
+  CustomerNotificationResourceType,
+  CustomerNotificationType,
+} from 'src/customer-notifications/enums/customer-notification.enum';
 
 const COMPUTED_KEYS = [
   'subtotal',
@@ -108,7 +113,71 @@ export class InvoicesService {
     private readonly mailerService: MailerService,
     private readonly whatsAppService: WhatsAppMsgService,
     private readonly s3Service: S3Service,
+    private readonly customerNotifications: CustomerNotificationService,
   ) {}
+
+  private enqueueCustomerInvoiceNotify(
+    full: {
+      id: string;
+      invoice_number?: string;
+      bill_to_name?: string;
+      bill_to_mobile?: string;
+      status?: string;
+      grand_total?: number;
+      total_paid?: number;
+      balance_due?: number;
+      invoice_due?: string | null;
+      last_payment_date?: string | null;
+    },
+    type:
+      | CustomerNotificationType.INVOICE_CREATED
+      | CustomerNotificationType.INVOICE_PAYMENT_UPDATED,
+  ) {
+    const invNo = full.invoice_number || 'Invoice';
+    const status = full.status || 'sent';
+    const due = full.invoice_due || null;
+    const paidDate = full.last_payment_date || null;
+    const grand = Number(full.grand_total) || 0;
+    const paid = Number(full.total_paid) || 0;
+    const balance = Number(full.balance_due) || 0;
+
+    const title =
+      type === CustomerNotificationType.INVOICE_PAYMENT_UPDATED
+        ? 'Invoice payment update'
+        : 'New invoice available';
+
+    const parts = [
+      invNo,
+      full.bill_to_name ? `· ${full.bill_to_name}` : '',
+      `· ₹${grand.toLocaleString('en-IN')}`,
+      `· Status: ${status.replace(/_/g, ' ')}`,
+    ];
+    if (due) parts.push(`· Due: ${due}`);
+    if (paidDate) parts.push(`· Paid on: ${paidDate}`);
+    if (paid > 0) parts.push(`· Paid: ₹${paid.toLocaleString('en-IN')}`);
+    if (balance > 0 && type === CustomerNotificationType.INVOICE_PAYMENT_UPDATED) {
+      parts.push(`· Balance: ₹${balance.toLocaleString('en-IN')}`);
+    }
+
+    this.customerNotifications.enqueue({
+      mobile: full.bill_to_mobile,
+      type,
+      title,
+      summary: parts.filter(Boolean).join(' '),
+      href: `/my-account/invoices?id=${full.id}`,
+      resourceType: CustomerNotificationResourceType.INVOICE,
+      resourceId: full.id,
+      meta: {
+        invoiceNumber: invNo,
+        paymentStatus: status,
+        dueDate: due,
+        paidDate,
+        grandTotal: grand,
+        totalPaid: paid,
+        balanceDue: balance,
+      },
+    });
+  }
 
   private stripComputed<T extends object>(dto: T): T {
     const copy = { ...dto } as Record<string, unknown>;
@@ -1002,6 +1071,10 @@ export class InvoicesService {
       });
 
       const result = await this.findOne(id);
+      this.enqueueCustomerInvoiceNotify(
+        result,
+        CustomerNotificationType.INVOICE_CREATED,
+      );
       return {
         ...result,
         email_sent: true,
@@ -1202,7 +1275,14 @@ export class InvoicesService {
       ...dto,
       amount,
     });
-    return this.findOne(id);
+    const full = await this.findOne(id);
+    if (full.status !== 'draft' && full.status !== 'revised') {
+      this.enqueueCustomerInvoiceNotify(
+        full,
+        CustomerNotificationType.INVOICE_PAYMENT_UPDATED,
+      );
+    }
+    return full;
   }
 
   async updatePayment(
@@ -1226,7 +1306,14 @@ export class InvoicesService {
     await this.paymentRepo.save(payment);
     await this.updateStatusFromPayments(invoiceId);
     await this.audit(invoiceId, actor?.id || payment.recordedBy, 'payment_edited', before, payment);
-    return this.findOne(invoiceId);
+    const full = await this.findOne(invoiceId);
+    if (full.status !== 'draft' && full.status !== 'revised') {
+      this.enqueueCustomerInvoiceNotify(
+        full,
+        CustomerNotificationType.INVOICE_PAYMENT_UPDATED,
+      );
+    }
+    return full;
   }
 
   async deletePayment(invoiceId: string, paymentId: string, actor?: RequestUser) {
@@ -1237,7 +1324,14 @@ export class InvoicesService {
     await this.paymentRepo.remove(payment);
     await this.updateStatusFromPayments(invoiceId);
     await this.audit(invoiceId, actor?.id || payment.recordedBy, 'payment_deleted', payment, null);
-    return this.findOne(invoiceId);
+    const full = await this.findOne(invoiceId);
+    if (full.status !== 'draft' && full.status !== 'revised') {
+      this.enqueueCustomerInvoiceNotify(
+        full,
+        CustomerNotificationType.INVOICE_PAYMENT_UPDATED,
+      );
+    }
+    return full;
   }
 
   async delete(id: string, actor?: RequestUser): Promise<void> {

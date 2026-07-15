@@ -60,6 +60,11 @@ import { LivebuildRequest } from './livebuild-auth.guard';
 import { S3Service } from 'src/common/s3/s3.service';
 import { MailerService } from 'src/sendEmail.service';
 import { CustomerIdentityService } from '../common/customer-identity/customer-identity.service';
+import { CustomerNotificationService } from 'src/customer-notifications/customer-notification.service';
+import {
+  CustomerNotificationResourceType,
+  CustomerNotificationType,
+} from 'src/customer-notifications/enums/customer-notification.enum';
 import { LivebuildOtpService } from './livebuild-otp.service';
 import {
   activityFromDpr,
@@ -124,7 +129,49 @@ export class LivebuildService {
     private readonly mailerService: MailerService,
     private readonly otpService: LivebuildOtpService,
     private readonly customerIdentity: CustomerIdentityService,
+    private readonly customerNotifications: CustomerNotificationService,
   ) {}
+
+  private enqueueLivebuildNotify(
+    project: LivebuildProject | null | undefined,
+    type: CustomerNotificationType,
+    title: string,
+    summary: string,
+    hrefSuffix: string,
+    meta?: Record<string, unknown>,
+  ) {
+    if (!project?.customerMobile) return;
+    this.customerNotifications.enqueue(
+      {
+        mobile: project.customerMobile,
+        type,
+        title,
+        summary,
+        href: `/livebuild/${project.id}/${hrefSuffix}`,
+        resourceType: CustomerNotificationResourceType.LIVEBUILD_PROJECT,
+        resourceId: String(project.id),
+        meta: {
+          projectId: project.id,
+          projectName: project.name,
+          projectCode: project.projectCode,
+          ...meta,
+        },
+      },
+      'livebuild notify',
+    );
+  }
+
+  private async enqueueLivebuildNotifyByProjectId(
+    projectId: number,
+    type: CustomerNotificationType,
+    title: string,
+    summary: string,
+    hrefSuffix: string,
+    meta?: Record<string, unknown>,
+  ) {
+    const project = await this.projectRepo.findOne({ where: { id: projectId } });
+    this.enqueueLivebuildNotify(project, type, title, summary, hrefSuffix, meta);
+  }
 
   resolveAccess(req: LivebuildRequest): LbAccessContext {
     if (req.lbAdmin) return { isAdmin: true };
@@ -1128,7 +1175,11 @@ export class LivebuildService {
     return qb.getMany();
   }
 
-  async createDpr(projectId: number, dto: CreateDprDto) {
+  async createDpr(
+    projectId: number,
+    dto: CreateDprDto,
+    opts?: { notify?: boolean },
+  ) {
     await this.assertProjectAccess(projectId, { isAdmin: true });
     const reportDate = this.normalizeReportDate(dto.date);
     const dpr = await this.dprRepo.save(
@@ -1149,6 +1200,16 @@ export class LivebuildService {
         dto.workTypeId,
         projectId,
         dto.pct,
+      );
+    }
+    if (opts?.notify !== false) {
+      void this.enqueueLivebuildNotifyByProjectId(
+        projectId,
+        CustomerNotificationType.LIVEBUILD_DPR,
+        'Daily progress updated',
+        `Progress report for ${reportDate}`,
+        'day-progress',
+        { reportDate },
       );
     }
     return dpr;
@@ -1222,7 +1283,7 @@ export class LivebuildService {
           doneToday: entry.doneToday,
           notes: entry.notes,
           submittedBy: 'Admin',
-        });
+        }, { notify: false });
       }
 
       const photoFiles = files.filter((f) =>
@@ -1232,6 +1293,14 @@ export class LivebuildService {
         await this.uploadDprPhotos(dpr.id, photoFiles);
       }
     }
+    void this.enqueueLivebuildNotifyByProjectId(
+      projectId,
+      CustomerNotificationType.LIVEBUILD_DPR,
+      'Daily progress updated',
+      `Progress report for ${reportDate}`,
+      'day-progress',
+      { reportDate },
+    );
     return { ok: true, message: 'DPR submitted' };
   }
 
@@ -1354,12 +1423,23 @@ export class LivebuildService {
         displayOrder: dto.displayOrder ?? 0,
       }),
     );
+    this.enqueueLivebuildNotify(
+      project,
+      CustomerNotificationType.LIVEBUILD_PAYMENT,
+      'Payment milestone added',
+      `${dto.label.trim()} · ${dto.status ?? 'upcoming'}`,
+      'payments',
+      { paymentId: saved.id, label: saved.label, status: saved.status },
+    );
     return serializePayment(saved);
   }
 
   async updatePayment(id: number, dto: UpdatePaymentDto) {
     const payment = await this.paymentRepo.findOne({ where: { id } });
     if (!payment) throw new NotFoundException('Payment not found');
+    const project = await this.projectRepo.findOne({
+      where: { id: payment.projectId },
+    });
     const patch = { ...dto } as UpdatePaymentDto & { pctOfTotal?: number };
     if (patch.pct == null && patch.pctOfTotal != null) {
       patch.pct = patch.pctOfTotal;
@@ -1385,7 +1465,22 @@ export class LivebuildService {
     }
 
     Object.assign(payment, patch);
-    return serializePayment(await this.paymentRepo.save(payment));
+    const saved = await this.paymentRepo.save(payment);
+    this.enqueueLivebuildNotify(
+      project,
+      CustomerNotificationType.LIVEBUILD_PAYMENT,
+      'Payment schedule updated',
+      `${saved.label} · ${saved.status}${saved.dueDate ? ` · due ${saved.dueDate}` : ''}`,
+      'payments',
+      {
+        paymentId: saved.id,
+        label: saved.label,
+        status: saved.status,
+        dueDate: saved.dueDate,
+        paidDate: saved.paidDate,
+      },
+    );
+    return serializePayment(saved);
   }
 
   async deletePayment(id: number) {
@@ -1409,7 +1504,7 @@ export class LivebuildService {
     await this.assertProjectAccess(projectId, ctx);
     const count = await this.queryRepo.count({ where: { projectId } });
     const queryCode = `Q${String(count + 1).padStart(3, '0')}`;
-    return this.queryRepo.save(
+    const saved = await this.queryRepo.save(
       this.queryRepo.create({
         projectId,
         roomId: dto.roomId,
@@ -1420,6 +1515,17 @@ export class LivebuildService {
         status: 'open',
       }),
     );
+    if (ctx.isAdmin) {
+      void this.enqueueLivebuildNotifyByProjectId(
+        projectId,
+        CustomerNotificationType.LIVEBUILD_QUERY,
+        'New project query',
+        `${queryCode}: ${dto.subject}`,
+        'queries',
+        { queryId: saved.id, queryCode, subject: dto.subject },
+      );
+    }
+    return saved;
   }
 
   async replyQuery(id: number, dto: ReplyQueryDto) {
@@ -1433,6 +1539,14 @@ export class LivebuildService {
     query.repliedAt = new Date();
     query.status = 'resolved';
     const saved = await this.queryRepo.save(query);
+    void this.enqueueLivebuildNotifyByProjectId(
+      query.projectId,
+      CustomerNotificationType.LIVEBUILD_QUERY,
+      'Query answered',
+      `${query.queryCode}: ${query.subject}`,
+      'queries',
+      { queryId: saved.id, queryCode: query.queryCode, subject: query.subject },
+    );
     return serializeQuery(saved);
   }
 
@@ -1490,7 +1604,7 @@ export class LivebuildService {
       meta.roomId != null && meta.roomId !== ''
         ? Number(meta.roomId)
         : undefined;
-    return this.documentRepo.save(
+    const saved = await this.documentRepo.save(
       this.documentRepo.create({
         projectId,
         name: meta.name,
@@ -1504,6 +1618,15 @@ export class LivebuildService {
         fileSize: file.size,
       }),
     );
+    void this.enqueueLivebuildNotifyByProjectId(
+      projectId,
+      CustomerNotificationType.LIVEBUILD_DOCUMENT,
+      'New document uploaded',
+      meta.name,
+      'documents',
+      { documentId: saved.id, name: saved.name, category: saved.category },
+    );
+    return saved;
   }
 
   async uploadProjectCover(
@@ -1568,6 +1691,14 @@ export class LivebuildService {
       where: { id: saved.id },
       relations: ['room', 'workType'],
     });
+    void this.enqueueLivebuildNotifyByProjectId(
+      projectId,
+      CustomerNotificationType.LIVEBUILD_BOQ,
+      'Material added',
+      dto.name?.trim() || 'New BOQ item',
+      'materials',
+      { materialId: saved.id, name: dto.name, status: saved.status },
+    );
     return serializeMaterial(full!);
   }
 
@@ -1588,6 +1719,14 @@ export class LivebuildService {
       where: { id: saved.id },
       relations: ['room', 'workType'],
     });
+    void this.enqueueLivebuildNotifyByProjectId(
+      material.projectId,
+      CustomerNotificationType.LIVEBUILD_BOQ,
+      'Materials updated',
+      material.name || 'BOQ item updated',
+      'materials',
+      { materialId: saved.id, name: material.name, status: saved.status },
+    );
     return serializeMaterial(full!);
   }
 

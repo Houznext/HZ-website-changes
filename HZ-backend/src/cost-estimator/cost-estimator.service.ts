@@ -24,6 +24,11 @@ import { MailerService } from 'src/sendEmail.service';
 import { RequestUser } from 'src/guard';
 import { S3Service } from 'src/common/s3/s3.service';
 import { mobileSuffix10, sqlMobileSuffixMatch } from 'src/common/phone.util';
+import { CustomerNotificationService } from 'src/customer-notifications/customer-notification.service';
+import {
+  CustomerNotificationResourceType,
+  CustomerNotificationType,
+} from 'src/customer-notifications/enums/customer-notification.enum';
 
 @Injectable()
 export class CostEstimatorService {
@@ -35,7 +40,55 @@ export class CostEstimatorService {
     private notificationService: NotificationService,
     private readonly mailerService: MailerService,
     private readonly s3Service: S3Service,
+    private readonly customerNotifications: CustomerNotificationService,
   ) {}
+
+  private formatQn(num: number | null | undefined) {
+    if (num == null) return null;
+    return `QT-${String(num).padStart(4, '0')}`;
+  }
+
+  private enqueueCustomerQuotationNotify(
+    estimator: CostEstimator,
+    type:
+      | CustomerNotificationType.QUOTATION_CONFIRMED
+      | CustomerNotificationType.QUOTATION_REVISED,
+  ) {
+    const mobile = estimator.customerMobile || estimator.phone;
+    const qn = this.formatQn(estimator.quotationNumber);
+    const total = Number(estimator.subTotal) || 0;
+    const discount = Number(estimator.discount) || 0;
+    const net = Math.max(0, total - discount);
+    const title =
+      type === CustomerNotificationType.QUOTATION_REVISED
+        ? 'Quotation revised'
+        : 'New quotation ready';
+    const summary = [
+      qn ? `${qn}` : 'Quotation',
+      `for ${estimator.firstname || ''} ${estimator.lastname || ''}`.trim(),
+      `· ₹${net.toLocaleString('en-IN')}`,
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+    this.customerNotifications.enqueue({
+      mobile,
+      type,
+      title,
+      summary,
+      href: `/my-account/quotations?id=${estimator.id}`,
+      resourceType: CustomerNotificationResourceType.QUOTATION,
+      resourceId: estimator.id,
+      meta: {
+        quotationNumber: estimator.quotationNumber,
+        displayQuotationNumber: qn,
+        subTotal: total,
+        discount,
+        netTotal: net,
+        status: estimator.status,
+      },
+    });
+  }
 
   async create(createCostEstimatorDto: CreateCostEstimatorDto): Promise<any> {
     try {
@@ -109,7 +162,7 @@ export class CostEstimatorService {
         await this.costEstimatorRepository.save(costEstimator);
 
       // Finance email only when confirming (same as a newly created quote).
-      if (status === QuotationStatus.CONFIRMED) {
+      if (status === QuotationStatus.CONFIRMED || status === QuotationStatus.REVISED) {
         this.mailerService.enqueue(
           this.mailerService.notifyAdminsQuotationCreated({
             id: savedEstimator.id,
@@ -123,6 +176,12 @@ export class CostEstimatorService {
             postedByName: user.fullName || user.username,
           }),
           'quotation created notify',
+        );
+        this.enqueueCustomerQuotationNotify(
+          savedEstimator,
+          status === QuotationStatus.REVISED
+            ? CustomerNotificationType.QUOTATION_REVISED
+            : CustomerNotificationType.QUOTATION_CONFIRMED,
         );
       }
 
@@ -368,6 +427,11 @@ export class CostEstimatorService {
       (previousStatus === QuotationStatus.CONFIRMED &&
         nextStatus === QuotationStatus.REVISED);
 
+    const shouldNotifyCustomer =
+      becomingIssued ||
+      (previousStatus !== QuotationStatus.DRAFT &&
+        nextStatus === QuotationStatus.REVISED);
+
     // Finance email on first confirm, or when confirming changes on a confirmed quote (revised).
     if (becomingIssued) {
       this.mailerService.enqueue(
@@ -386,6 +450,15 @@ export class CostEstimatorService {
             null,
         }),
         'quotation confirmed notify',
+      );
+    }
+
+    if (shouldNotifyCustomer) {
+      this.enqueueCustomerQuotationNotify(
+        savedEstimator,
+        nextStatus === QuotationStatus.REVISED
+          ? CustomerNotificationType.QUOTATION_REVISED
+          : CustomerNotificationType.QUOTATION_CONFIRMED,
       );
     }
 

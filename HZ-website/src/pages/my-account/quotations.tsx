@@ -1,14 +1,25 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import SeoHead from '@/components/SeoHead'
 import { useCustomerGuard } from '@/hooks/useCustomerGuard'
 
+function formatQn(num: number | null | undefined) {
+  if (num == null) return null
+  return `QT-${String(num).padStart(4, '0')}`
+}
+
+function formatINR(n: number) {
+  return `₹${Number(n || 0).toLocaleString('en-IN')}`
+}
+
 export default function QuotationsPage() {
   const { customer, isLoading } = useCustomerGuard()
   const [loading, setLoading] = useState(true)
   const [rows, setRows] = useState<any[]>([])
+  const [highlightId, setHighlightId] = useState<string | null>(null)
+  const rowRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const router = useRouter()
   const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
@@ -32,6 +43,22 @@ export default function QuotationsPage() {
       .catch(() => setRows([]))
       .finally(() => setLoading(false))
   }, [customer, API])
+
+  useEffect(() => {
+    const id = typeof router.query.id === 'string' ? router.query.id : null
+    if (!id || loading || rows.length === 0) return
+    const match = rows.some((q) => String(q.id) === id)
+    if (!match) return
+    setHighlightId(id)
+    const el = rowRefs.current[id]
+    if (el) {
+      requestAnimationFrame(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      })
+    }
+    const t = window.setTimeout(() => setHighlightId(null), 4000)
+    return () => window.clearTimeout(t)
+  }, [router.query.id, loading, rows])
 
   if (isLoading) return <><Navbar /><div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2f80ed]" /></div></>
   if (!customer) return null
@@ -60,12 +87,44 @@ export default function QuotationsPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {rows.map((q, i) => (
-                <div key={q.id ?? i} className="rounded-[13px] border border-[#dde8f5] bg-white p-4">
-                  <div className="text-sm font-semibold text-[#1f2933]">{`${q.firstname ?? ''} ${q.lastname ?? ''}`.trim() || 'Quotation request'}</div>
-                  <div className="mt-1 text-xs text-[#5a6a7e]">{q.customerMobile ?? customer.mobile ?? ''}</div>
-                </div>
-              ))}
+              {rows.map((q, i) => {
+                const id = String(q.id ?? i)
+                const qn = q.displayQuotationNumber || formatQn(q.quotationNumber) || 'Quotation'
+                const total = Number(q.subTotal) || 0
+                const discount = Number(q.discount) || 0
+                const net = Math.max(0, total - discount)
+                const status = q.status || 'confirmed'
+                const highlighted = highlightId === id
+                return (
+                  <div
+                    key={id}
+                    ref={(el) => { rowRefs.current[id] = el }}
+                    className="rounded-[13px] border bg-white p-4 transition-all duration-300"
+                    style={{
+                      borderColor: highlighted ? '#2f80ed' : '#dde8f5',
+                      boxShadow: highlighted ? '0 0 0 2px #2f80ed33' : undefined,
+                    }}
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-head font-extrabold text-[#1f2933]">{qn}</span>
+                          <span className="rounded-full bg-[#e8f1fd] px-2 py-0.5 text-[10px] font-bold uppercase text-[#2f80ed]">
+                            {status}
+                          </span>
+                        </div>
+                        <div className="mt-1 text-sm font-semibold text-[#1f2933]">
+                          {`${q.firstname ?? ''} ${q.lastname ?? ''}`.trim() || 'Quotation request'}
+                        </div>
+                        <div className="mt-1 text-xs text-[#5a6a7e]">{q.date || ''} · {q.customerMobile ?? customer.mobile ?? ''}</div>
+                      </div>
+                      {net > 0 && (
+                        <div className="font-head text-lg font-extrabold text-[#2f80ed]">{formatINR(net)}</div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>

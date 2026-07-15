@@ -60,6 +60,7 @@ import { CmsModule } from './cms/cms.module';
 import { SiteCmsModule } from './site-cms/site-cms.module';
 import { PageSeoModule } from './page-seo/page-seo.module';
 import { LivebuildModule } from './livebuild/livebuild.module';
+import { CustomerNotificationModule } from './customer-notifications/customer-notification.module';
 
 @Module({
   imports: [
@@ -88,6 +89,7 @@ import { LivebuildModule } from './livebuild/livebuild.module';
     UserModule,
     S3Module,
     NotificationModule,
+    CustomerNotificationModule,
     TasksModule,
     BlogModule,
     OtpModule,

@@ -31,6 +31,7 @@ import {
   LivebuildDualAuthGuard,
 } from './livebuild-auth.guard';
 import { CustomerIdentityModule } from 'src/common/customer-identity/customer-identity.module';
+import { CustomerNotificationModule } from 'src/customer-notifications/customer-notification.module';
 import { S3Module } from 'src/common/s3/s3.module';
 import { SmsService } from 'src/sms.service';
 import { User } from 'src/user/entities/user.entity';
@@ -66,6 +67,7 @@ import { MailerService } from 'src/sendEmail.service';
     }),
     S3Module,
     CustomerIdentityModule,
+    CustomerNotificationModule,
     MulterModule.register({ storage: memoryStorage() }),
   ],
   controllers: [LivebuildController],
