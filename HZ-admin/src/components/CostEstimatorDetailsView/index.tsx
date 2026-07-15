@@ -11,7 +11,7 @@ import { useSession } from "next-auth/react";
 import Modal from "@/src/common/Modal";
 import Button from "@/src/common/Button";
 import { ConstEstimationTable } from "./ConstEstimationTable";
-import { CostEstimator } from "../CostEstimatorView/helper";
+import { CostEstimator, sumItemsGst } from "../CostEstimatorView/helper";
 import CostEstimatorForm from "../CostEstimatorView/CostEstimatorForm";
 import CostEstimationHeader from "./CostEstimatorHeader";
 import { usePermissionStore } from "@/src/stores/usePermissions";
@@ -129,6 +129,11 @@ const CostEstimatorDetailsView = () => {
     setEditingEstimation(null);
   };
 
+  const closeAttemptRef = useRef<(() => void) | null>(null);
+  const registerCloseAttempt = React.useCallback((fn: (() => void) | null) => {
+    closeAttemptRef.current = fn;
+  }, []);
+
   // Generate report function
 
   const generateReport = async (firstname: string, lastname: string) => {
@@ -220,10 +225,14 @@ const CostEstimatorDetailsView = () => {
   };
 
   const afterDiscount = Number(details?.subTotal || 0) - Number(details?.discount || 0);
-  const gstEnabled   = !!(details as any)?.gstEnabled;
-  const gstPct       = Number((details as any)?.gstPercentage ?? 18);
-  const gstAmount    = gstEnabled ? afterDiscount * (gstPct / 100) : 0;
-  const total        = afterDiscount + gstAmount;
+  const itemsGst = sumItemsGst(details?.itemGroups);
+  // Legacy fallback: overall quote GST only when no per-item GST exists
+  const legacyGst =
+    itemsGst <= 0 && !!(details as any)?.gstEnabled
+      ? afterDiscount * (Number((details as any)?.gstPercentage ?? 18) / 100)
+      : 0;
+  const gstAmount = itemsGst > 0 ? itemsGst : legacyGst;
+  const total = afterDiscount + gstAmount;
 
   return (
     <div className="mx-auto">
@@ -408,7 +417,7 @@ const CostEstimatorDetailsView = () => {
             <div className="grid grid-cols-3 gap-5 mt-5 mb-5 p-6
                             bg-gray-50 rounded-[12px] border border-gray-100">
 
-              {/* Col 1 — Prepared for: name + plain-text property/work type */}
+              {/* Col 1 — Prepared for */}
               <div>
                 <p style={{ fontSize: '11px', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px', fontFamily: "'Montserrat', sans-serif" }}>
                   Prepared for
@@ -418,58 +427,59 @@ const CostEstimatorDetailsView = () => {
                 </p>
                 <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '4px', fontFamily: "'Inter', sans-serif" }}>
                   <span style={{ fontWeight: 600, color: '#374151' }}>User contact:</span>{' '}
-                  {(details as any)?.customerMobile || '—'}
+                  {(details as any)?.customerMobile?.trim()
+                    ? (details as any).customerMobile
+                    : 'N/A'}
                 </p>
-                {details?.bhk && (
-                  <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '7px', fontFamily: "'Inter', sans-serif" }}>
-                    <span style={{ fontWeight: 600, color: '#374151' }}>Property type:</span>{' '}{details.bhk}
-                    {details?.property_type && ` · ${details.property_type}`}
-                  </p>
-                )}
                 <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '3px', fontFamily: "'Inter', sans-serif" }}>
                   <span style={{ fontWeight: 600, color: '#374151' }}>Work type:</span>{' '}{details?.workType || 'Interiors'}
                 </p>
               </div>
 
-              {/* Col 2 — Property */}
+              {/* Col 2 — Property: city, state, pincode + type */}
               <div>
                 <p style={{ fontSize: '11px', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px', fontFamily: "'Montserrat', sans-serif" }}>
-                  Property
-                </p>
-                <p style={{ fontSize: '15px', fontWeight: 700, color: '#1f2937', lineHeight: 1.3, fontFamily: "'Montserrat', sans-serif" }}>
-                  {details?.property_name || '—'}
-                </p>
-                <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '4px', fontFamily: "'Inter', sans-serif" }}>
-                  {details?.location?.locality && `${details.location.locality}, `}
-                  {details?.location?.city}
-                  {details?.location?.state && `, ${details.location.state}`}
-                  {details?.location?.pincode && ` — ${details.location.pincode}`}
+                  Property Details
                 </p>
                 <p style={{ fontSize: '13px', color: '#6b7280', fontFamily: "'Inter', sans-serif" }}>
-                  {details?.bhk}
-                  {details?.bhk && details?.property_type && ' · '}
-                  {details?.property_type}
-                  {details?.workType && ` · ${details.workType}`}
+                  {[
+                    details?.location?.city,
+                    details?.location?.state,
+                    details?.location?.pincode,
+                  ]
+                    .filter(Boolean)
+                    .join(', ') || '—'}
                 </p>
+                {(details?.bhk || details?.property_type) && (
+                  <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '6px', fontFamily: "'Inter', sans-serif" }}>
+                    <span style={{ fontWeight: 600, color: '#374151' }}>Property type:</span>{' '}
+                    {[details?.bhk, details?.property_type].filter(Boolean).join(' · ')}
+                  </p>
+                )}
+                {(details as any)?.currentStage?.trim() && (
+                  <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '3px', fontFamily: "'Inter', sans-serif" }}>
+                    <span style={{ fontWeight: 600, color: '#374151' }}>Current stage:</span>{' '}
+                    {(details as any).currentStage}
+                  </p>
+                )}
               </div>
 
-              {/* Col 3 — Prepared by: designer name + role + email + phone (moved from col 1) */}
+              {/* Col 3 — Prepared by */}
               <div>
                 <p style={{ fontSize: '11px', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px', fontFamily: "'Montserrat', sans-serif" }}>
                   Prepared by
                 </p>
-                <p style={{ fontSize: '15px', fontWeight: 700, color: '#1f2937', lineHeight: 1.3, fontFamily: "'Montserrat', sans-serif" }}>
+                <p style={{ fontSize: '15px', fontWeight: 500, color: '#1f2937', lineHeight: 1.3, fontFamily: "'Montserrat', sans-serif" }}>
                   {details?.designerName || 'Houznext Designer'}
                 </p>
                 <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '4px', fontFamily: "'Inter', sans-serif" }}>
                   Interior Designer
                 </p>
-                {/* Email + phone moved here from Prepared for */}
-                <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '4px', fontFamily: "'Inter', sans-serif" }}>
-                  {details?.email}
-                </p>
-                <p style={{ fontSize: '13px', color: '#6b7280', fontFamily: "'Inter', sans-serif" }}>
-                  {details?.phone}
+                <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '6px', fontFamily: "'Inter', sans-serif" }}>
+                  <span style={{ fontWeight: 600, color: '#374151' }}>Approved by:</span>{' '}
+                  {(details as any)?.approvedByName?.trim()
+                    ? (details as any).approvedByName
+                    : '—'}
                 </p>
               </div>
             </div>
@@ -518,10 +528,10 @@ const CostEstimatorDetailsView = () => {
                     − ₹ {Number(details?.discount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
-                {gstEnabled ? (
+                {gstAmount > 0 ? (
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.55)', fontFamily: "'Inter', sans-serif" }}>
-                      GST ({gstPct}%)
+                      GST
                     </span>
                     <span style={{ fontSize: '14px', fontWeight: 600, color: 'rgba(242,180,0,0.9)', fontVariantNumeric: 'tabular-nums', fontFamily: "'Inter', sans-serif" }}>
                       + ₹ {gstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -540,7 +550,7 @@ const CostEstimatorDetailsView = () => {
                 <div style={{ height: '1px', background: 'rgba(255,255,255,0.15)', margin: '4px 0' }} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '14px', fontWeight: 600, color: 'rgba(255,255,255,0.75)', fontFamily: "'Montserrat', sans-serif" }}>
-                    Estimated total {gstEnabled ? `(incl. GST ${gstPct}%)` : ''}
+                    Estimated total {gstAmount > 0 ? '(incl. GST)' : ''}
                   </span>
                   <span style={{ fontSize: '26px', fontWeight: 900, color: '#ffffff', fontVariantNumeric: 'tabular-nums', fontFamily: "'Montserrat', sans-serif" }}>
                     ₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -660,7 +670,10 @@ const CostEstimatorDetailsView = () => {
       {/* ── Edit Modal — all props unchanged ── */}
       <Modal
         isOpen={openModal}
-        closeModal={closeDrawer}
+        closeModal={() => {
+          if (closeAttemptRef.current) closeAttemptRef.current();
+          else closeDrawer();
+        }}
         title=""
         isCloseRequired={false}
         rootCls="z-[9999]"
@@ -675,6 +688,7 @@ const CostEstimatorDetailsView = () => {
             editingEstimation={editingEstimation}
             setEditingEstimation={setEditingEstimation}
             fetchDetails={fetchCostEstimationById}
+            registerCloseAttempt={registerCloseAttempt}
           />
         </div>
       </Modal>

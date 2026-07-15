@@ -6,6 +6,7 @@ import Modal from "@/src/common/Modal";
 import SelectBtnGrp from "@/src/common/SelectBtnGrp";
 import apiClient from "@/src/utils/apiClient";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import toast from "react-hot-toast";
 import { MdEdit } from "react-icons/md";
 import { ConstEstimationTable } from "../../CostEstimatorDetailsView/ConstEstimationTable";
@@ -29,6 +30,10 @@ import {
 import {
   CEformProps,
   CEformValues,
+  calcItemAmount,
+  calcItemGst,
+  calcItemTotalWithGst,
+  sumItemsGst,
   validateFormValues,
   validateItemInformation,
 } from "../helper";
@@ -44,6 +49,7 @@ const CostEstimatorForm = ({
   userId,
   category: categoryProp,
   onSuccessRefetch,
+  registerCloseAttempt,
 }: CEformProps) => {
   const [errors, setErrors] = useState<any>({});
   const [isEditing, setIsEditing] = useState(false);
@@ -62,9 +68,11 @@ const CostEstimatorForm = ({
     subTotal: 0,
     discount: 0,
     workType: "",
+    currentStage: "",
     details: "",
     floor_plan: "",
     property_image: "",
+    approvedByName: "",
     itemGroups: [],
     location: {
       city: "",
@@ -87,15 +95,20 @@ const CostEstimatorForm = ({
     null
   );
 
-  const [itemInformation, setItemInformation] = useState({
-    id: null,
+  const emptyItem = () => ({
+    id: null as null | number,
     item_name: "",
     description: "",
-    quantity: null,
-    unit_price: null,
-    amount: null,
-    area: null,
+    pricing_mode: "area" as "unit" | "area",
+    quantity: null as number | null,
+    unit_price: null as number | null,
+    amount: null as number | null,
+    area: null as number | null,
+    gst_enabled: false,
+    gst_percentage: 18 as number | null,
   });
+
+  const [itemInformation, setItemInformation] = useState(emptyItem());
   const [details, setDetails] = useState<any>(undefined);
   const [discountInput, setDiscountInput] = useState<number>(
     formValues.discount || 0
@@ -120,6 +133,14 @@ const CostEstimatorForm = ({
   const [OpenAddsectionModal, setOpenAddsectionModal] = useState(false);
   const [openDiscountModal, setOpenDiscountModal] = useState(false);
   const [openClosePrompt, setOpenClosePrompt] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<
+    | null
+    | { type: "item"; id: number; label: string }
+    | { type: "section"; index: number; label: string }
+  >(null);
+  const [approverOptions, setApproverOptions] = useState<
+    { id: string; name: string }[]
+  >([]);
   const [loading, setLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [quotationStatus, setQuotationStatus] = useState<
@@ -132,9 +153,6 @@ const CostEstimatorForm = ({
   const draftSaveInFlightRef = useRef(false);
   const autoDraftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // GST state — default 18%, off by default
-  const [gstEnabled, setGstEnabled] = useState(false);
-  const [gstPercentage, setGstPercentage] = useState<number>(18);
   const toDecimalString = (value: any) =>
     value === null || value === undefined ? "0" : String(value);
 
@@ -181,8 +199,10 @@ useEffect(() => {
         property_name: editingEstimation.property_name,
         bhk: editingEstimation.bhk,
         workType: (editingEstimation as any).workType || "",
+        currentStage: (editingEstimation as any).currentStage || "",
         floor_plan: editingEstimation.floor_plan,
         property_image: editingEstimation.property_image,
+        approvedByName: (editingEstimation as any)?.approvedByName || "",
         date: editingEstimation?.date
           ? new Date(editingEstimation.date).toISOString().split("T")[0]
           : new Date().toISOString().split("T")[0],
@@ -212,8 +232,6 @@ useEffect(() => {
         }),
       });
       setDetails(editingEstimation?.details);
-      setGstEnabled((editingEstimation as any).gstEnabled ?? false);
-      setGstPercentage((editingEstimation as any).gstPercentage ?? 18);
       setQuotationStatus(
         (editingEstimation as any).status === "draft"
           ? "draft"
@@ -250,16 +268,16 @@ useEffect(() => {
         subTotal: 0,
         discount: 0,
         workType: "",
+        currentStage: "",
         details: "",
         floor_plan: "",
         property_image: "",
+        approvedByName: "",
         itemGroups: [],
         location: emptyLocation,
       });
       setLocationDetails(emptyLocation);
       setDetails(undefined);
-      setGstEnabled(false);
-      setGstPercentage(18);
       setQuotationStatus("draft");
       setIsDirty(false);
     }
@@ -280,6 +298,51 @@ useEffect(() => {
     return () => {
       if (autoDraftTimerRef.current) clearTimeout(autoDraftTimerRef.current);
     };
+  }, []);
+
+  useEffect(() => {
+    const loadApprovers = async () => {
+      try {
+        // SuperAdmin is a branch role (Houznext Admin), not the legacy /roles list
+        const res = await apiClient.get(
+          `${apiClient.URLS.user}/super-admins`,
+          {},
+          true
+        );
+        if (res.status === 200 && Array.isArray(res.body)) {
+          const options = res.body
+            .map(
+              (u: {
+                id?: string;
+                fullName?: string;
+                firstName?: string;
+                lastName?: string;
+                email?: string;
+              }) => ({
+                id: String(u.id || ""),
+                name: String(
+                  u.fullName ||
+                    `${u.firstName || ""} ${u.lastName || ""}`.trim() ||
+                    u.email ||
+                    ""
+                ).trim(),
+              })
+            )
+            .filter((u: { id: string; name: string }) => u.id && u.name);
+          setApproverOptions(options);
+          return;
+        }
+      } catch (err) {
+        console.warn("Failed to load SuperAdmin approvers", err);
+      }
+      // Keep at least the known org admin label as a selectable option
+      setApproverOptions((prev) =>
+        prev.length
+          ? prev
+          : [{ id: "houznext-admin", name: "Houznext Admin" }]
+      );
+    };
+    void loadApprovers();
   }, []);
 
   // ---------------Validation functions-------------
@@ -312,22 +375,33 @@ useEffect(() => {
     }));
   };
 
-  const handleItemChange = (name: string, value: string) => {
+  const handleItemChange = (name: string, value: string | boolean) => {
     setItemInformation((prev) => {
       const updatedItem = {
         ...prev,
         [name]:
-          ["quantity", "unit_price", "area"].includes(name) && value !== ""
-            ? parseFloat(value)
-            : value,
+          name === "gst_enabled"
+            ? Boolean(value)
+            : ["quantity", "unit_price", "area", "gst_percentage"].includes(name) &&
+                value !== ""
+              ? parseFloat(value as string)
+              : value,
       };
 
-      const { quantity = 1, unit_price = 1, area = 1 } = updatedItem;
+      if (name === "pricing_mode") {
+        updatedItem.pricing_mode = value as "unit" | "area";
+        if (value === "unit") {
+          updatedItem.area = null;
+        } else {
+          updatedItem.quantity = null;
+        }
+      }
 
-      updatedItem.amount =
-        parseFloat(quantity as any) *
-        parseFloat(unit_price as any) *
-        parseFloat(area as any);
+      if (name === "gst_enabled" && !value) {
+        updatedItem.gst_percentage = 18;
+      }
+
+      updatedItem.amount = calcItemAmount(updatedItem);
 
       return updatedItem;
     });
@@ -421,6 +495,20 @@ useEffect(() => {
 
     const itemWithId = {
       ...itemInformation,
+      pricing_mode: itemInformation.pricing_mode || "area",
+      quantity:
+        (itemInformation.pricing_mode || "area") === "unit"
+          ? itemInformation.quantity
+          : null,
+      area:
+        (itemInformation.pricing_mode || "area") === "area"
+          ? itemInformation.area
+          : null,
+      gst_enabled: Boolean(itemInformation.gst_enabled),
+      gst_percentage: itemInformation.gst_enabled
+        ? Number(itemInformation.gst_percentage) || 18
+        : null,
+      amount: calcItemAmount(itemInformation),
       id: itemInformation.id || Date.now(),
     };
 
@@ -466,65 +554,72 @@ useEffect(() => {
     }
 
     toast.success(isEditing ? "Item updated" : "Item added");
-    setItemInformation({
-      id: null,
-      item_name: "",
-      description: "",
-      quantity: null,
-      unit_price: null,
-      amount: null,
-      area: null,
-    });
+    setItemInformation(emptyItem());
     setIsEditing(false);
     closeAddItemModal();
     setLoading(false);
   };
 
   const removeItem = (id: number) => {
-    markDirty();
-    const updatedItemGroups = formValues.itemGroups.map((group) => {
-      const updatedItems = group.items.filter((item) => item.id !== id);
-      return {
-        ...group,
-        items: updatedItems,
-      };
-    });
-    const newSubTotal = updatedItemGroups.reduce((total, group) => {
-      return (
-        total +
-        group.items.reduce((sum, item) => sum + Number(item.amount || 0), 0)
-      );
-    }, 0);
-
-    setFormValues((prev) => ({
-      ...prev,
-      itemGroups: updatedItemGroups,
-      subTotal: newSubTotal,
-    }));
+    let label = "this item";
+    for (const group of formValues.itemGroups) {
+      const found = group.items.find((item) => item.id === id);
+      if (found) {
+        label = found.item_name?.trim() || "this item";
+        break;
+      }
+    }
+    setDeleteConfirm({ type: "item", id, label });
   };
 
   const removeSection = (index: number) => {
+    const section = formValues.itemGroups[index];
+    const label = section?.title?.trim() || "this section";
+    setDeleteConfirm({ type: "section", index, label });
+  };
+
+  const performConfirmedDelete = () => {
+    if (!deleteConfirm) return;
     markDirty();
-    const updatedItemGroups = [...formValues.itemGroups];
-    updatedItemGroups.splice(index, 1);
 
-    const reorderedItemGroups = updatedItemGroups.map((group, idx) => ({
-      ...group,
-      order: idx,
-    }));
+    if (deleteConfirm.type === "item") {
+      const id = deleteConfirm.id;
+      const updatedItemGroups = formValues.itemGroups.map((group) => ({
+        ...group,
+        items: group.items.filter((item) => item.id !== id),
+      }));
+      const newSubTotal = updatedItemGroups.reduce((total, group) => {
+        return (
+          total +
+          group.items.reduce((sum, item) => sum + Number(item.amount || 0), 0)
+        );
+      }, 0);
+      setFormValues((prev) => ({
+        ...prev,
+        itemGroups: updatedItemGroups,
+        subTotal: newSubTotal,
+      }));
+    } else {
+      const updatedItemGroups = [...formValues.itemGroups];
+      updatedItemGroups.splice(deleteConfirm.index, 1);
+      const reorderedItemGroups = updatedItemGroups.map((group, idx) => ({
+        ...group,
+        order: idx,
+      }));
+      const newSubTotal = reorderedItemGroups.reduce((total, group) => {
+        return (
+          total +
+          group.items.reduce((sum, item) => sum + Number(item.amount || 0), 0)
+        );
+      }, 0);
+      setFormValues((prev) => ({
+        ...prev,
+        itemGroups: reorderedItemGroups,
+        subTotal: newSubTotal,
+      }));
+    }
 
-    const newSubTotal = reorderedItemGroups.reduce((total, group) => {
-      return (
-        total +
-        group.items.reduce((sum, item) => sum + Number(item.amount || 0), 0)
-      );
-    }, 0);
-
-    setFormValues((prev) => ({
-      ...prev,
-      itemGroups: reorderedItemGroups,
-      subTotal: newSubTotal,
-    }));
+    setDeleteConfirm(null);
   };
 
   const EditDetails = () => {
@@ -534,18 +629,34 @@ useEffect(() => {
   const editItem = (itemIndex: number, sectionIndex: number) => {
     const group = formValues.itemGroups[sectionIndex];
     const item = group.items[itemIndex];
-    console.log("group", group, item);
 
     if (item) {
+      const mode =
+        item.pricing_mode ||
+        (item.area != null && Number(item.area) !== 0 && Number(item.quantity) === 1
+          ? "area"
+          : item.quantity != null && Number(item.quantity) !== 0
+            ? "unit"
+            : "area");
       setItemInformation({
-        ...item,
         id: item.id || Date.now(),
+        item_name: item.item_name || "",
+        description: item.description || "",
+        pricing_mode: mode,
+        quantity: mode === "unit" ? item.quantity : null,
+        area: mode === "area" ? item.area : null,
+        unit_price: item.unit_price,
+        amount: item.amount ?? calcItemAmount({ ...item, pricing_mode: mode }),
+        gst_enabled: Boolean(item.gst_enabled),
+        gst_percentage: item.gst_enabled
+          ? Number(item.gst_percentage) || 18
+          : 18,
       });
       setIsEditing(true);
       setCurrentSectionIndex(sectionIndex);
       setEditingItemId(item.id);
+      setOpenAddItemModal(true);
     } else {
-      console.error("Item not found with ID:", itemIndex);
       toast.error("Item not found");
     }
   };
@@ -584,7 +695,6 @@ useEffect(() => {
     status: "draft" | "confirmed" | "revised",
     values: typeof formValues = formValues
   ) => {
-    const pct = Number(gstPercentage);
     const rawPhone =
       values.phone !== null &&
       values.phone !== undefined &&
@@ -607,8 +717,11 @@ useEffect(() => {
       details: details ?? values.details,
       discount: toDecimalString(values.discount),
       category: categoryProp ?? (activetab?.category as string) ?? "Interior",
-      gstEnabled: Boolean(gstEnabled),
-      gstPercentage: Number.isFinite(pct) ? pct : 18,
+      gstEnabled: false,
+      gstPercentage: 18,
+      approvedByName: values.approvedByName?.trim() || null,
+      workType: values.workType?.trim() || null,
+      currentStage: values.currentStage?.trim() || null,
       status,
       location: {
         city: "",
@@ -626,12 +739,17 @@ useEffect(() => {
         order: group.order ?? index,
         items: (group.items || []).map((item) => ({
           id: item.id || undefined,
+          pricing_mode: item.pricing_mode || "area",
           quantity: Number(item.quantity) || 0,
           unit_price: Number(item.unit_price) || 0,
           amount: Number(item.amount) || 0,
           area: Number(item.area) || 0,
           item_name: item.item_name || "",
           description: item.description || "",
+          gst_enabled: Boolean(item.gst_enabled),
+          gst_percentage: item.gst_enabled
+            ? Number(item.gst_percentage) || 18
+            : null,
         })),
       })),
     };
@@ -700,8 +818,6 @@ useEffect(() => {
               id: body.id,
               quotationNumber: body.quotationNumber,
               status: body.status || status,
-              gstEnabled,
-              gstPercentage,
               details: details ?? formValuesRef.current.details,
             }));
           } else {
@@ -815,13 +931,32 @@ useEffect(() => {
   const isIssuedQuote =
     quotationStatus === "confirmed" || quotationStatus === "revised";
 
+  const isEditingSavedQuote = Boolean(
+    estimationIdRef.current || editingEstimation?.id
+  );
+
   const requestClose = () => {
-    if (isDirty || (!estimationIdRef.current && hasDraftableContent(formValues))) {
+    // Editing a saved quotation: always ask before close.
+    // New quotation: ask if dirty or has draftable content.
+    if (
+      isEditingSavedQuote ||
+      isDirty ||
+      (!estimationIdRef.current && hasDraftableContent(formValues))
+    ) {
       setOpenClosePrompt(true);
       return;
     }
     closeDrawer();
   };
+
+  const requestCloseRef = useRef(requestClose);
+  requestCloseRef.current = requestClose;
+
+  useEffect(() => {
+    if (!registerCloseAttempt) return;
+    registerCloseAttempt(() => requestCloseRef.current());
+    return () => registerCloseAttempt(null);
+  }, [registerCloseAttempt]);
 
   // Auto-save draft when any field has content (mirrors invoice draft flow).
   useEffect(() => {
@@ -844,8 +979,6 @@ useEffect(() => {
   }, [
     formValues,
     details,
-    gstEnabled,
-    gstPercentage,
     quotationStatus,
     userId,
     isDirty,
@@ -912,15 +1045,7 @@ useEffect(() => {
 
   const closeAddItemModal = () => {
     setOpenAddItemModal(false);
-    setItemInformation({
-      id: null,
-      item_name: "",
-      description: "",
-      quantity: null,
-      unit_price: null,
-      amount: null,
-      area: null,
-    });
+    setItemInformation(emptyItem());
 
     setIsEditing(false);
     setEditingItemId(null);
@@ -928,6 +1053,9 @@ useEffect(() => {
   };
 
   const openItemModal = (sectionIndex: number) => {
+    setIsEditing(false);
+    setEditingItemId(null);
+    setItemInformation(emptyItem());
     setCurrentSectionIndex(sectionIndex);
     setOpenAddItemModal(true);
   };
@@ -935,7 +1063,13 @@ useEffect(() => {
     setOpenAddsectionModal(true);
   };
 
-  const proprtyTypes = ["Apartment", "Villas", "Independent House"];
+  const proprtyTypes = [
+    "Apartment",
+    "Villas",
+    "Independent House",
+    "Commercial",
+  ];
+  const isCommercial = formValues.property_type === "Commercial";
 
   return (
     <div className="h-full flex flex-col" style={{ background: '#f6f8fa', fontFamily: "'Inter', sans-serif" }}>
@@ -980,7 +1114,12 @@ useEffect(() => {
           </div>
         </div>
         <button
-          onClick={requestClose}
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            requestClose();
+          }}
           className="w-8 h-8 rounded-[8px] flex items-center justify-center
                      bg-gray-50 hover:bg-red-50 border border-gray-200
                      hover:border-red-200 text-gray-400 hover:text-red-500
@@ -1040,7 +1179,6 @@ useEffect(() => {
                     labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
                     value={formValues.customerMobile}
                     onChange={(e) => handleFormChange(e.target.name, e.target.value.replace(/\D/g, "").slice(0, 15))}
-                    required
                     placeholder="User mobile number"
                     errorMsg={error?.customerMobile}
                     name="customerMobile"
@@ -1063,28 +1201,6 @@ useEffect(() => {
                     errorMsg={error?.designerName}
                     name="designerName"
                   />
-                  <CustomInput
-                    label="Email"
-                    type="email"
-                    labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
-                    value={formValues.email}
-                    onChange={(e) => handleFormChange(e.target.name, e.target.value)}
-                    required
-                    placeholder="Enter email"
-                    errorMsg={error?.email}
-                    name="email"
-                  />
-                  <CustomInput
-                    label="Phone Number"
-                    type="number"
-                    labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
-                    value={formValues.phone}
-                    onChange={(e) => handleFormChange(e.target.name, +e.target.value)}
-                    required
-                    placeholder="Phone number"
-                    errorMsg={error?.phone}
-                    name="phone"
-                  />
                   <CustomDate
                     label="Date of Estimation"
                     labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
@@ -1094,6 +1210,39 @@ useEffect(() => {
                     errorMsg={error?.date}
                     name="date"
                   />
+                  <div className="md:col-span-2">
+                    <label
+                      className="mb-1 block text-[11.5px] font-medium text-gray-500"
+                      style={{ fontFamily: "'Inter', sans-serif" }}
+                    >
+                      Approved by
+                    </label>
+                    <select
+                      className="w-full rounded-[8px] border border-[#d0d7de] px-3 py-2 text-[13px] text-[#24292f] focus:outline-none focus:ring-2 focus:ring-[#2f80ed]/20 focus:border-[#2f80ed]"
+                      value={formValues.approvedByName || ""}
+                      onChange={(e) =>
+                        handleFormChange("approvedByName", e.target.value)
+                      }
+                    >
+                      <option value="">Select approver</option>
+                      {formValues.approvedByName &&
+                        !approverOptions.some(
+                          (u) => u.name === formValues.approvedByName
+                        ) && (
+                          <option value={formValues.approvedByName}>
+                            {formValues.approvedByName}
+                          </option>
+                        )}
+                      {approverOptions.map((u) => (
+                        <option key={u.id} value={u.name}>
+                          {u.name}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-[11px] text-[#8c959f]">
+                      Super admin users only
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1120,13 +1269,12 @@ useEffect(() => {
               <div className="bg-gray-50 rounded-[10px] border border-gray-100 p-4 space-y-4">
                 <CustomInput
                   type="text"
-                  label="Property Name"
+                  label="Project Name"
                   labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
                   rootCls="md:max-w-none"
                   value={formValues.property_name}
                   onChange={(e) => handleFormChange(e.target.name, e.target.value)}
-                  required
-                  placeholder="Property name"
+                  placeholder="Project name"
                   name="property_name"
                 />
                 <div className="min-w-0">
@@ -1139,9 +1287,18 @@ useEffect(() => {
                                border border-gray-200 hover:border-[#2f80ed]
                                hover:bg-blue-50 hover:text-[#2f80ed]
                                transition-all duration-150"
-                    onSelectChange={(v) => handleFormChange("property_type", v as string)}
+                    onSelectChange={(v) => {
+                      const next = String(v);
+                      markDirty();
+                      setFormValues((prev) => ({
+                        ...prev,
+                        property_type: next,
+                        bhk: next === "Commercial" ? null : prev.bhk,
+                      }));
+                    }}
                     slant={false}
                     defaultValue={formValues.property_type}
+                    required={false}
                   />
                 </div>
               </div>
@@ -1161,12 +1318,20 @@ useEffect(() => {
                     onSelectChange={(v) => handleFormChange("bhk", v as string)}
                     slant={false}
                     defaultValue={formValues.bhk}
+                    required={false}
+                    disabled={isCommercial}
                   />
+                  {isCommercial && (
+                    <p className="mt-1 text-[11px] text-[#8c959f]">
+                      BHK is not applicable for commercial properties
+                    </p>
+                  )}
                 </div>
                 <div className="md:hidden">
                   <select
-                    className="mt-2 w-full rounded-[8px] border border-[#d0d7de] px-3 py-2 text-[13px] text-[#24292f] focus:outline-none focus:ring-2 focus:ring-[#2f80ed]/20 focus:border-[#2f80ed]"
+                    className="mt-2 w-full rounded-[8px] border border-[#d0d7de] px-3 py-2 text-[13px] text-[#24292f] focus:outline-none focus:ring-2 focus:ring-[#2f80ed]/20 focus:border-[#2f80ed] disabled:opacity-50 disabled:cursor-not-allowed"
                     value={formValues.bhk || ""}
+                    disabled={isCommercial}
                     onChange={(e) => handleFormChange("bhk", e.target.value)}
                   >
                     <option value="">Select BHK</option>
@@ -1184,6 +1349,20 @@ useEffect(() => {
                   onChange={(e) => handleFormChange(e.target.name, e.target.value)}
                   placeholder="e.g. Interior Works"
                   name="workType"
+                  required
+                  errorMsg={error?.workType}
+                />
+                <CustomInput
+                  type="text"
+                  label="Current Stage"
+                  labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                  rootCls="md:max-w-none"
+                  value={formValues.currentStage || ""}
+                  onChange={(e) => handleFormChange(e.target.name, e.target.value)}
+                  placeholder="e.g. Design / Construction"
+                  name="currentStage"
+                  required
+                  errorMsg={error?.currentStage}
                 />
               </div>
             </div>
@@ -1259,7 +1438,6 @@ useEffect(() => {
                 placeholder="Locality"
                 errorMsg={error?.location?.locality}
                 name="locality"
-                required
               />
               <CustomInput
                 type="text"
@@ -1270,7 +1448,6 @@ useEffect(() => {
                 placeholder="Pincode"
                 errorMsg={error?.location?.pincode}
                 name="pincode"
-                required
               />
               <CustomInput
                 type="text"
@@ -1319,20 +1496,13 @@ useEffect(() => {
               <div>
                 <h2 className="text-[13.5px] font-semibold text-gray-800" style={{ fontFamily: "'Montserrat', sans-serif" }}>Item Groups</h2>
                 <p className="text-[11px] text-gray-400" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  Amount = Quantity × Unit Price × Area
+                  Qty-based: Total = Qty × Amount · Area-based: Total = Area × Amount
                 </p>
               </div>
             </div>
-            <button
-              onClick={AddsectionModal}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px]
-                         border border-gray-200 bg-white hover:bg-gray-50
-                         text-gray-600 hover:text-gray-800 text-[12px] font-medium
-                         transition-all"
-              style={{ fontFamily: "'Inter', sans-serif" }}
-            >
-              <FiPlus className="w-3.5 h-3.5" /> Add Section
-            </button>
+            <span className="text-[11px] text-[#5a6a7e]" style={{ fontFamily: "'Inter', sans-serif" }}>
+              {formValues?.itemGroups?.length || 0} sections
+            </span>
           </div>
           <div className="p-4">
             {formValues?.itemGroups?.length > 0 ? (
@@ -1356,10 +1526,20 @@ useEffect(() => {
                 </div>
                 <p className="text-[13px] font-medium text-[#57606a]">No sections yet</p>
                 <p className="text-[11.5px] text-[#8c959f] mt-0.5">
-                  Click + Add Section to start building this quote
+                  Click + Add section below to start building this quote
                 </p>
               </div>
             )}
+            <button
+              type="button"
+              onClick={AddsectionModal}
+              className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[8px]
+                         bg-[#2f80ed] px-3 py-2.5 text-[12.5px] font-semibold text-white
+                         shadow-[0_1px_3px_rgba(47,128,237,0.3)] transition-all hover:bg-[#1a6dd6]"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              <FiPlus className="w-3.5 h-3.5" /> Add section
+            </button>
           </div>
         </div>
 
@@ -1403,86 +1583,52 @@ useEffect(() => {
           <div className="bg-white rounded-[12px] border border-gray-100 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <div className="p-5">
               <div className="flex flex-col gap-2">
-
-                {/* GST toggle row */}
-                <div className="flex items-center gap-3 pb-3 border-b border-[#eaeef2]">
-                  <label className="flex items-center gap-2 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={gstEnabled}
-                      onChange={(e) => {
-                        markDirty();
-                        setGstEnabled(e.target.checked);
-                      }}
-                      className="w-4 h-4 rounded border-gray-300 text-[#2f80ed] accent-[#2f80ed] cursor-pointer"
-                    />
-                    <span className="text-[13px] font-semibold text-[#24292f]" style={{ fontFamily: "'Inter', sans-serif" }}>
-                      Include GST
-                    </span>
-                  </label>
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="number"
-                      min={0}
-                      max={100}
-                      step={0.1}
-                      value={gstPercentage}
-                      onChange={(e) => {
-                        markDirty();
-                        setGstPercentage(Number(e.target.value) || 0);
-                      }}
-                      className="w-16 px-2 py-1 text-[13px] font-semibold text-[#24292f] border border-[#d0d7de] rounded-[6px] text-right focus:outline-none focus:border-[#2f80ed] focus:ring-1 focus:ring-[#2f80ed]"
-                      style={{ fontFamily: "'Inter', sans-serif" }}
-                    />
-                    <span className="text-[13px] text-[#8c959f]">%</span>
-                  </div>
-                  {gstEnabled && (
-                    <span className="text-[11px] text-[#8c959f] ml-auto" style={{ fontFamily: "'Inter', sans-serif" }}>
-                      GST on after-discount total
-                    </span>
-                  )}
-                </div>
-
-                {/* Amounts */}
-                <div className="flex flex-col items-end gap-2 max-w-xs ml-auto w-full">
-                  <div className="flex items-center justify-between w-full">
-                    <span className="text-[12.5px] text-[#8c959f]">Subtotal</span>
-                    <span className="text-[14px] font-semibold text-[#24292f] tabular-nums">
-                      ₹ {Number(formValues?.subTotal || 0).toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                  {Number(formValues?.discount) > 0 && (
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-[12.5px] text-[#16a34a]">Discount</span>
-                      <span className="text-[14px] font-semibold text-[#16a34a] tabular-nums">
-                        − ₹ {Number(formValues?.discount || 0).toLocaleString("en-IN")}
-                      </span>
-                    </div>
-                  )}
-                  {gstEnabled && (() => {
-                    const base = Number(formValues?.subTotal || 0) - Number(formValues?.discount || 0);
-                    const gstAmt = base * (gstPercentage / 100);
-                    return (
+                {(() => {
+                  const itemsGst = sumItemsGst(formValues.itemGroups);
+                  const base =
+                    Number(formValues?.subTotal || 0) -
+                    Number(formValues?.discount || 0);
+                  const grand = base + itemsGst;
+                  return (
+                    <div className="flex flex-col items-end gap-2 max-w-xs ml-auto w-full">
                       <div className="flex items-center justify-between w-full">
-                        <span className="text-[12.5px] text-[#d97706]">GST ({gstPercentage}%)</span>
-                        <span className="text-[14px] font-semibold text-[#d97706] tabular-nums">
-                          + ₹ {gstAmt.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <span className="text-[12.5px] text-[#8c959f]">Subtotal</span>
+                        <span className="text-[14px] font-semibold text-[#24292f] tabular-nums">
+                          ₹ {Number(formValues?.subTotal || 0).toLocaleString("en-IN")}
                         </span>
                       </div>
-                    );
-                  })()}
-                  <div className="h-px w-full bg-[#eaeef2] my-1" />
-                  <div className="flex items-center justify-between w-full">
-                    <span className="text-[13px] font-bold text-[#24292f]">Grand Total</span>
-                    <span className="text-[18px] font-bold text-[#2f80ed] tabular-nums">
-                      {(() => {
-                        const base = Number(formValues?.subTotal || 0) - Number(formValues?.discount || 0);
-                        const grand = gstEnabled ? base + base * (gstPercentage / 100) : base;
-                        return `₹ ${grand.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                      })()}
-                    </span>
-                  </div>
-                </div>
+                      {Number(formValues?.discount) > 0 && (
+                        <div className="flex items-center justify-between w-full">
+                          <span className="text-[12.5px] text-[#16a34a]">Discount</span>
+                          <span className="text-[14px] font-semibold text-[#16a34a] tabular-nums">
+                            − ₹ {Number(formValues?.discount || 0).toLocaleString("en-IN")}
+                          </span>
+                        </div>
+                      )}
+                      {itemsGst > 0 && (
+                        <div className="flex items-center justify-between w-full">
+                          <span className="text-[12.5px] text-[#d97706]">GST</span>
+                          <span className="text-[14px] font-semibold text-[#d97706] tabular-nums">
+                            + ₹ {itemsGst.toLocaleString("en-IN", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </span>
+                        </div>
+                      )}
+                      <div className="h-px w-full bg-[#eaeef2] my-1" />
+                      <div className="flex items-center justify-between w-full">
+                        <span className="text-[13px] font-bold text-[#24292f]">Grand Total</span>
+                        <span className="text-[18px] font-bold text-[#2f80ed] tabular-nums">
+                          ₹ {grand.toLocaleString("en-IN", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div>
@@ -1525,7 +1671,9 @@ useEffect(() => {
         {formValues.subTotal > 0 && (
           <div className="text-center hidden md:block">
             <div className="text-[10.5px] font-medium text-gray-400" style={{ fontFamily: "'Inter', sans-serif" }}>
-              {gstEnabled ? `Estimated total (incl. GST ${gstPercentage}%)` : 'Estimated total'}
+              {sumItemsGst(formValues.itemGroups) > 0
+                ? "Estimated total (incl. item GST)"
+                : "Estimated total"}
             </div>
             <div
               className="text-[18px] font-black text-[#2f80ed] tracking-tight tabular-nums"
@@ -1533,7 +1681,7 @@ useEffect(() => {
             >
               {(() => {
                 const base = (Number(formValues.subTotal) || 0) - (Number(formValues.discount) || 0);
-                const grand = gstEnabled ? base + base * (gstPercentage / 100) : base;
+                const grand = base + sumItemsGst(formValues.itemGroups);
                 return `₹${grand.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
               })()}
             </div>
@@ -1604,13 +1752,13 @@ useEffect(() => {
         </div>
       </div>
 
-      {/* ── Close prompt ── */}
+      {/* ── Delete item / section confirm ── */}
       <Modal
-        isOpen={openClosePrompt}
-        closeModal={() => setOpenClosePrompt(false)}
+        isOpen={!!deleteConfirm}
+        closeModal={() => setDeleteConfirm(null)}
         title=""
         isCloseRequired={false}
-        className="md:w-[420px] w-[340px] rounded-[16px] shadow-[0_24px_80px_rgba(0,0,0,0.18)]"
+        className="md:w-[400px] w-[340px] rounded-[16px] shadow-[0_24px_80px_rgba(0,0,0,0.18)]"
         rootCls="z-[99999]"
       >
         <div className="flex flex-col gap-4 w-full p-1">
@@ -1619,54 +1767,124 @@ useEffect(() => {
               className="text-[15px] font-bold text-gray-800"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              {isIssuedQuote ? "Save changes?" : "Save as draft?"}
+              {deleteConfirm?.type === "section" ? "Remove section?" : "Remove item?"}
             </h3>
-            <p className="text-[13px] text-gray-500 mt-1.5" style={{ fontFamily: "'Inter', sans-serif" }}>
-              {isIssuedQuote
-                ? "You have unsaved changes on this quotation. Save them, discard, or keep editing."
-                : "You have unsaved changes. Save this quotation as a draft, discard changes, or keep editing."}
+            <p
+              className="mt-1.5 text-[13px] text-gray-500"
+              style={{ fontFamily: "'Inter', sans-serif" }}
+            >
+              {deleteConfirm?.type === "section"
+                ? `Are you sure you want to remove “${deleteConfirm.label}” and all its items?`
+                : `Are you sure you want to remove “${deleteConfirm?.label}”?`}
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+          <div className="flex items-center justify-end gap-2.5">
             <button
               type="button"
-              onClick={() => setOpenClosePrompt(false)}
-              className="px-3 py-2 rounded-[8px] border border-gray-200 text-[13px] font-medium text-gray-600 hover:bg-gray-50"
+              onClick={() => setDeleteConfirm(null)}
+              className="rounded-[8px] border border-gray-200 bg-white px-5 py-2 text-[13px] font-semibold text-gray-600 transition-all hover:bg-gray-50"
+              style={{ fontFamily: "'Inter', sans-serif" }}
             >
-              Keep editing
+              No
             </button>
             <button
               type="button"
-              onClick={() => {
-                setOpenClosePrompt(false);
-                setIsDirty(false);
-                closeDrawer();
-              }}
-              className="px-3 py-2 rounded-[8px] border border-red-200 bg-red-50 text-[13px] font-medium text-red-600 hover:bg-red-100"
+              onClick={performConfirmedDelete}
+              className="rounded-[8px] border border-red-200 bg-red-600 px-5 py-2 text-[13px] font-semibold text-white transition-all hover:bg-red-700"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              Discard
-            </button>
-            <button
-              type="button"
-              disabled={loading}
-              onClick={async () => {
-                if (isIssuedQuote) {
-                  const saved = await confirmQuote();
-                  if (saved) {
-                    setOpenClosePrompt(false);
-                    closeDrawer();
-                  }
-                } else {
-                  void saveAsDraft({ closeAfter: true });
-                }
-              }}
-              className="px-3 py-2 rounded-[8px] bg-[#2f80ed] text-white text-[13px] font-semibold hover:bg-[#1a6dd6] disabled:opacity-60"
-            >
-              {isIssuedQuote ? "Save changes" : "Save as draft"}
+              Yes
             </button>
           </div>
         </div>
       </Modal>
+
+      {/* ── Close prompt (ported to body so it centers on the viewport) ── */}
+      {typeof document !== "undefined" &&
+        openClosePrompt &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[100000] flex min-h-screen items-center justify-center p-4"
+            style={{ background: "rgba(15, 23, 42, 0.45)" }}
+            onClick={() => setOpenClosePrompt(false)}
+            role="presentation"
+          >
+            <div
+              className="w-full max-w-[420px] rounded-[16px] bg-white p-5 shadow-[0_24px_80px_rgba(0,0,0,0.18)]"
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="close-quote-prompt-title"
+            >
+              <div className="flex flex-col gap-4 w-full">
+                <div>
+                  <h3
+                    id="close-quote-prompt-title"
+                    className="text-[15px] font-bold text-gray-800"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  >
+                    {isIssuedQuote
+                      ? "Save changes before closing?"
+                      : "Save as draft before closing?"}
+                  </h3>
+                  <p
+                    className="text-[13px] text-gray-500 mt-1.5"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                  >
+                    {isIssuedQuote
+                      ? "Save your edits to this quotation, discard them, or keep editing."
+                      : "Save this quotation as a draft, discard changes, or keep editing."}
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setOpenClosePrompt(false)}
+                    className="px-3 py-2 rounded-[8px] border border-gray-200 text-[13px] font-medium text-gray-600 hover:bg-gray-50"
+                  >
+                    Keep editing
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpenClosePrompt(false);
+                      setIsDirty(false);
+                      closeDrawer();
+                    }}
+                    className="px-3 py-2 rounded-[8px] border border-red-200 bg-red-50 text-[13px] font-medium text-red-600 hover:bg-red-100"
+                  >
+                    Discard
+                  </button>
+                  <button
+                    type="button"
+                    disabled={loading}
+                    onClick={async () => {
+                      // No edits — just close
+                      if (!isDirty && isEditingSavedQuote) {
+                        setOpenClosePrompt(false);
+                        closeDrawer();
+                        return;
+                      }
+                      if (isIssuedQuote) {
+                        const saved = await confirmQuote();
+                        if (saved) {
+                          setOpenClosePrompt(false);
+                          closeDrawer();
+                        }
+                      } else {
+                        void saveAsDraft({ closeAfter: true });
+                      }
+                    }}
+                    className="px-3 py-2 rounded-[8px] bg-[#2f80ed] text-white text-[13px] font-semibold hover:bg-[#1a6dd6] disabled:opacity-60"
+                  >
+                    {isIssuedQuote ? "Save changes" : "Save as draft"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
 
       {/* ── Add Section Modal ── */}
       <Modal
@@ -1763,17 +1981,40 @@ useEffect(() => {
               value={itemInformation?.item_name}
               errorMsg={errors?.item_name}
             />
-            <CustomInput
-              name="quantity"
-              label="Quantity"
-              placeholder="Enter quantity"
-              labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
-              onChange={(e) => handleItemChange("quantity", e.target.value)}
-              type="number"
-              required
-              value={itemInformation?.quantity || null}
-              errorMsg={errors?.quantity}
-            />
+            <div>
+              <label
+                className="mb-1.5 block text-[11.5px] font-medium text-gray-500"
+                style={{ fontFamily: "'Inter', sans-serif" }}
+              >
+                Pricing mode
+              </label>
+              <div className="inline-flex rounded-[7px] bg-[#f1f5f9] p-[3px]">
+                <button
+                  type="button"
+                  onClick={() => handleItemChange("pricing_mode", "unit")}
+                  className={`rounded-[5px] px-3 py-1.5 text-[11px] font-bold transition-all ${
+                    (itemInformation.pricing_mode || "area") === "unit"
+                      ? "bg-white text-[#2f80ed] shadow-sm"
+                      : "text-[#5a6a7e]"
+                  }`}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                >
+                  Qty-based
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleItemChange("pricing_mode", "area")}
+                  className={`rounded-[5px] px-3 py-1.5 text-[11px] font-bold transition-all ${
+                    (itemInformation.pricing_mode || "area") === "area"
+                      ? "bg-white text-[#2f80ed] shadow-sm"
+                      : "text-[#5a6a7e]"
+                  }`}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                >
+                  Area-based
+                </button>
+              </div>
+            </div>
           </div>
 
           <CustomInput
@@ -1789,21 +2030,36 @@ useEffect(() => {
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <CustomInput
-              name="area"
-              label="Area (sft/Box)"
-              placeholder="Enter area"
-              labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
-              onChange={(e) => handleItemChange("area", e.target.value)}
-              type="number"
-              required
-              value={itemInformation?.area || null}
-            />
+            {(itemInformation.pricing_mode || "area") === "unit" ? (
+              <CustomInput
+                name="quantity"
+                label="Qty"
+                placeholder="Enter quantity"
+                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                onChange={(e) => handleItemChange("quantity", e.target.value)}
+                type="number"
+                required
+                value={itemInformation?.quantity || null}
+                errorMsg={errors?.quantity}
+              />
+            ) : (
+              <CustomInput
+                name="area"
+                label="Area"
+                placeholder="Enter area"
+                labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
+                onChange={(e) => handleItemChange("area", e.target.value)}
+                type="number"
+                required
+                value={itemInformation?.area || null}
+                errorMsg={errors?.area}
+              />
+            )}
             <CustomInput
               name="unit_price"
-              label="Unit/Box Price (₹)"
+              label="Amount (₹)"
               labelCls="text-[11.5px] font-medium text-gray-500 mb-1"
-              placeholder="Enter unit price"
+              placeholder="Enter amount / rate"
               onChange={(e) => handleItemChange("unit_price", e.target.value)}
               type="number"
               required
@@ -1812,13 +2068,86 @@ useEffect(() => {
             />
           </div>
 
-          {/* Calculated amount preview */}
+          <div className="rounded-[10px] border border-gray-100 bg-gray-50 p-3.5">
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="flex cursor-pointer select-none items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={Boolean(itemInformation.gst_enabled)}
+                  onChange={(e) =>
+                    handleItemChange("gst_enabled", e.target.checked)
+                  }
+                  className="h-4 w-4 cursor-pointer accent-[#2f80ed]"
+                />
+                <span
+                  className="text-[13px] font-semibold text-[#24292f]"
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
+                  Include GST
+                </span>
+              </label>
+              {itemInformation.gst_enabled && (
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={0.1}
+                    value={itemInformation.gst_percentage ?? 18}
+                    onChange={(e) =>
+                      handleItemChange("gst_percentage", e.target.value)
+                    }
+                    className="w-16 rounded-[6px] border border-[#d0d7de] px-2 py-1 text-right text-[13px] font-semibold text-[#24292f] focus:border-[#2f80ed] focus:outline-none focus:ring-1 focus:ring-[#2f80ed]"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                  />
+                  <span className="text-[13px] text-[#8c959f]">%</span>
+                  {errors?.gst_percentage && (
+                    <span className="text-[11px] text-red-500">
+                      {errors.gst_percentage}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Calculated total preview */}
           {(itemInformation?.amount ?? 0) > 0 && (
-            <div className="bg-gray-50 rounded-[10px] border border-gray-100 p-4 flex items-center justify-between">
-              <span className="text-[12.5px] text-[#57606a] font-medium">Calculated Amount</span>
-              <span className="text-[16px] font-bold text-[#2f80ed] tabular-nums">
-                ₹ {itemInformation.amount?.toLocaleString("en-IN")}
-              </span>
+            <div className="bg-gray-50 rounded-[10px] border border-gray-100 p-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[12.5px] text-[#57606a] font-medium">
+                  {(itemInformation.pricing_mode || "area") === "unit"
+                    ? "Taxable = Qty × Amount"
+                    : "Taxable = Area × Amount"}
+                </span>
+                <span className="text-[14px] font-semibold text-[#24292f] tabular-nums">
+                  ₹ {Number(itemInformation.amount || 0).toLocaleString("en-IN")}
+                </span>
+              </div>
+              {itemInformation.gst_enabled && (
+                <div className="flex items-center justify-between">
+                  <span className="text-[12.5px] text-[#d97706] font-medium">
+                    GST ({Number(itemInformation.gst_percentage) || 0}%)
+                  </span>
+                  <span className="text-[14px] font-semibold text-[#d97706] tabular-nums">
+                    ₹ {calcItemGst(itemInformation).toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center justify-between border-t border-gray-200 pt-2">
+                <span className="text-[12.5px] text-[#57606a] font-medium">
+                  Line total
+                </span>
+                <span className="text-[16px] font-bold text-[#2f80ed] tabular-nums">
+                  ₹ {calcItemTotalWithGst(itemInformation).toLocaleString("en-IN", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
             </div>
           )}
 

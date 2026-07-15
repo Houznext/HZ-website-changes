@@ -20,11 +20,14 @@ export class ItemGroup {
     id?: number;
     item_name: string;
     description: string;
+    pricing_mode?: 'unit' | 'area';
     quantity: number;
     unit_price: number;
     discount?: number;
     amount: number;
     area?: number;
+    gst_enabled?: boolean;
+    gst_percentage?: number | null;
   }[];
 
   @Column('int', { default: 0 })

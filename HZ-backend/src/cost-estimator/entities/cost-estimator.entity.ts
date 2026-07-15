@@ -60,19 +60,24 @@ export class CostEstimator {
   @Column('text', { nullable: true, default: null })
   designerName: string;
 
+  /** Display name of SuperAdmin who approved the quotation */
+  @Column('text', { nullable: true, default: null })
+  approvedByName: string | null;
+
   @Column('text', { nullable: true, default: null })
   bhk: string;
 
-  @Column({
-    type: 'enum',
-    enum: PropertyType,
-    default: PropertyType.Apartment,
-    nullable: true,
-  })
+  @Column({ type: 'varchar', length: 50, nullable: true, default: PropertyType.Apartment })
   property_type: PropertyType;
 
   @Column('text', { nullable: true, default: null })
   property_name: string;
+
+  @Column('text', { nullable: true, default: null })
+  workType: string | null;
+
+  @Column('text', { nullable: true, default: null })
+  currentStage: string | null;
 
   @Column('text', { nullable: true, default: null })
   floor_plan: string;

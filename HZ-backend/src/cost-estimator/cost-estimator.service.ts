@@ -605,6 +605,8 @@ export class CostEstimatorService {
     limit = 10,
     _branchId?: string,
     targetUserId?: string,
+    sortBy: 'recent' | 'name' | 'date' | 'value' = 'recent',
+    sortDir: 'asc' | 'desc' = 'desc',
   ) {
     const queryBuilder = this.costEstimatorRepository
       .createQueryBuilder('costEstimator')
@@ -720,10 +722,38 @@ export class CostEstimatorService {
       });
     }
 
+    // Sort
+    const sortKey = String(sortBy || 'recent').toLowerCase();
+    const dir =
+      String(sortDir || 'desc').toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+    if (sortKey === 'name') {
+      queryBuilder
+        .orderBy('costEstimator.firstname', 'ASC')
+        .addOrderBy('costEstimator.lastname', 'ASC');
+    } else if (sortKey === 'date') {
+      queryBuilder
+        .orderBy('costEstimator.updatedAt', dir)
+        .addOrderBy('costEstimator.createdAt', dir);
+    } else if (sortKey === 'value') {
+      // Net quotation value (subtotal − discount); highest first by default
+      queryBuilder
+        .addSelect(
+          'COALESCE(costEstimator.subTotal, 0) - COALESCE(costEstimator.discount, 0)',
+          'quotation_net_value',
+        )
+        .orderBy('quotation_net_value', dir)
+        .addOrderBy('costEstimator.updatedAt', 'DESC');
+    } else {
+      // recent — QT number series (highest / newest QT first)
+      queryBuilder
+        .orderBy('costEstimator.quotationNumber', 'DESC', 'NULLS LAST')
+        .addOrderBy('costEstimator.createdAt', 'DESC');
+    }
+
     const [resultsAndTotal, allCount, draftCount, revisedCount] =
       await Promise.all([
         queryBuilder
-          .orderBy('costEstimator.createdAt', 'DESC')
           .skip((page - 1) * limit)
           .take(limit)
           .getManyAndCount(),

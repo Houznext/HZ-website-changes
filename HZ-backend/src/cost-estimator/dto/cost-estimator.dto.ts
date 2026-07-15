@@ -169,6 +169,21 @@ export class CreateCostEstimatorDto {
   @IsOptional()
   designerName?: string;
 
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  approvedByName?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  workType?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  currentStage?: string;
+
   @ApiProperty()
   @IsString()
   @IsOptional()
@@ -265,6 +280,21 @@ export class UpdateCostEstimatorDto {
   @IsOptional()
   @IsString()
   designerName?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  approvedByName?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  workType?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  currentStage?: string;
 
   @ApiProperty()
   @IsEnum(EstimationCategory)

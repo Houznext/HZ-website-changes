@@ -11,6 +11,8 @@ interface FiltersState {
 }
 
 export type QuotationStatusFilter = "all" | "draft" | "revised";
+export type QuotationSortBy = "recent" | "name" | "date" | "value";
+export type QuotationSortDir = "asc" | "desc";
 
 interface CostEstimatorStore {
   costEstimators: CostEstimator[];
@@ -26,6 +28,8 @@ interface CostEstimatorStore {
     page?: number,
     limit?: number,
     status?: QuotationStatusFilter,
+    sortBy?: QuotationSortBy,
+    sortDir?: QuotationSortDir,
   ) => Promise<void>;
   filters: FiltersState;
   setFilters: (filters: FiltersState) => void;
@@ -55,6 +59,8 @@ export const useCostEstimatorStore = create<CostEstimatorStore>((set, get) => ({
     page = 1,
     limit = 10,
     status,
+    sortBy = "recent",
+    sortDir = "desc",
   ) => {
     set({ isLoading: true });
     try {
@@ -64,9 +70,12 @@ export const useCostEstimatorStore = create<CostEstimatorStore>((set, get) => ({
         statusFilter && statusFilter !== "all"
           ? `&status=${encodeURIComponent(statusFilter)}`
           : "";
+      const sortQuery = `&sortBy=${encodeURIComponent(sortBy)}&sortDir=${encodeURIComponent(
+        sortBy === "date" ? sortDir : sortBy === "value" ? sortDir : "desc",
+      )}`;
       const url = `${apiClient.URLS.cost_estimator}/by-user/${userId}?category=${encodeURIComponent(
         cleaned,
-      )}&page=${page}&limit=${limit}${statusQuery}`;
+      )}&page=${page}&limit=${limit}${statusQuery}${sortQuery}`;
       const res = await apiClient.get(url, {}, true);
       const data = Array.isArray(res.body?.data)
         ? res.body.data

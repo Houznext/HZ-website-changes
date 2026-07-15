@@ -21,6 +21,7 @@ export enum PropertyType {
   Apartment = 'Apartment',
   Villas = 'Villas',
   IndependentHouse = 'Independent House',
+  Commercial = 'Commercial',
 }
 
 export enum CommercialPropertyType {

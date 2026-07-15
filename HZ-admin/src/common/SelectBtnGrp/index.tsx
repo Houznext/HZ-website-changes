@@ -10,6 +10,7 @@ interface SelectBtnGrpProps {
     labelCls?: string;
     className?: string;
     required?: boolean;
+    disabled?: boolean;
     btnClass?: string;
     onSelectChange?: (selectedOption: Option) => void;
     defaultValue?: string | Option;
@@ -33,17 +34,22 @@ const SelectBtnGrp: React.FC<SelectBtnGrpProps> = ({
     btnClass,
     onSelectChange,
     defaultValue,
-    slant
+    slant,
+    required = true,
+    disabled = false,
 }) => {
     const [selectedName, setSelectedName] = useState<string>(getOptionName(defaultValue));
 
     useEffect(() => {
         if (defaultValue) {
             setSelectedName(getOptionName(defaultValue));
+        } else {
+            setSelectedName('');
         }
     }, [defaultValue]);
 
     const handleSelect = (option: Option) => {
+        if (disabled) return;
         setSelectedName(getOptionName(option));
         onSelectChange?.(option);
     };
@@ -79,15 +85,16 @@ const SelectBtnGrp: React.FC<SelectBtnGrpProps> = ({
     };
 
     return (
-        <div className='flex flex-col'>
+        <div className={twMerge('flex flex-col', disabled && 'opacity-50 pointer-events-none')}>
             <p className={twMerge('md:text-[14px] text-[12px] font-medium flex text-gray-600 mb-2 relative', labelCls)}>
-                {label} <span className='text-red-500'>*</span>
+                {label}{required ? <span className='text-red-500'>*</span> : null}
             </p>
             <div className={twMerge('flex', className)}>
                 {options.map((option, index) => (
                     <button
                         key={index}
                         type="button"
+                        disabled={disabled}
                         className={twMerge(
                             'relative px-4 py-[6px] border mb-2 transition duration-300 ease-in-out hover:bg-gray-200',
                             isSelected(option)

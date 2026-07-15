@@ -17,13 +17,21 @@ import {
   LayoutGrid,
   Rows,
   ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  ChevronDown,
   Plus,
   Calculator,
   Eye,
   FileDown,
   Copy,
+  Check,
 } from "lucide-react";
-import { useCostEstimatorStore } from "@/src/stores/costEstimatorstrore";
+import {
+  useCostEstimatorStore,
+  QuotationSortBy,
+  QuotationSortDir,
+} from "@/src/stores/costEstimatorstrore";
 import PaginationControls from "../CrmView/pagination";
 import { FiHome, FiSun, FiPenTool } from "react-icons/fi";
 
@@ -41,6 +49,40 @@ type FiltersState = {
   DateData: Record<string, boolean>;
   DesignedData: Record<string, boolean>;
   stateData: Record<string, boolean>;
+};
+
+const SORT_OPTIONS: {
+  key: QuotationSortBy;
+  label: string;
+  hint: string;
+}[] = [
+  {
+    key: "recent",
+    label: "Recent",
+    hint: "QT number series (newest first)",
+  },
+  {
+    key: "name",
+    label: "Name",
+    hint: "A → Z by customer name",
+  },
+  {
+    key: "date",
+    label: "Date modified",
+    hint: "By last update",
+  },
+  {
+    key: "value",
+    label: "Value",
+    hint: "Highest value first",
+  },
+];
+
+const SORT_LABELS: Record<QuotationSortBy, string> = {
+  name: "Name",
+  date: "Date modified",
+  value: "Value",
+  recent: "Recent",
 };
 
 // Phase-1: Only Interiors; Custom Builder and Solar hidden
@@ -71,7 +113,10 @@ const CostEstimatorView: React.FC = () => {
   console.log("costEstimators", costEstimators);
 
   const [view, setView] = useState<"cards" | "compact">("cards");
-  const [sort, setSort] = useState<"recent" | "name" | "total">("recent");
+  const [sort, setSort] = useState<QuotationSortBy>("recent");
+  const [dateDir, setDateDir] = useState<QuotationSortDir>("desc");
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
+  const sortMenuRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
   const searchTimer = useRef<number | null>(null);
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -123,7 +168,7 @@ const CostEstimatorView: React.FC = () => {
     }
   }, [router.query?.category]);
 
-  // Fetch on auth / tab / pagination / status filter change
+  // Fetch on auth / tab / pagination / status / sort change
   useEffect(() => {
     if (status === "authenticated" && userId) {
       fetchCostEstimators(
@@ -132,9 +177,35 @@ const CostEstimatorView: React.FC = () => {
         currentPage,
         pageSize,
         statusFilter,
+        sort,
+        sort === "date" ? dateDir : "desc",
       );
     }
-  }, [status, userId, activeTab, currentPage, pageSize, statusFilter]);
+  }, [
+    status,
+    userId,
+    activeTab,
+    currentPage,
+    pageSize,
+    statusFilter,
+    sort,
+    dateDir,
+  ]);
+
+  // Close sort menu on outside click
+  useEffect(() => {
+    if (!sortMenuOpen) return;
+    const onPointerDown = (e: MouseEvent) => {
+      if (
+        sortMenuRef.current &&
+        !sortMenuRef.current.contains(e.target as Node)
+      ) {
+        setSortMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [sortMenuOpen]);
 
   // Build filter option sets whenever data changes
   useEffect(() => {
@@ -211,6 +282,22 @@ const CostEstimatorView: React.FC = () => {
     Object.keys(filters).length === 0 ||
     Object.values(filters).every((val) => !val);
 
+  const getQuoteValue = (e: CostEstimator) =>
+    (Number(e.subTotal) || 0) - (Number(e.discount) || 0);
+
+  const getModifiedTime = (e: CostEstimator) => {
+    const raw =
+      (e as any).updatedAt || (e as any).createdAt || e.date || null;
+    const t = raw ? new Date(raw).getTime() : 0;
+    return Number.isFinite(t) ? t : 0;
+  };
+
+  const getDisplayName = (e: CostEstimator) =>
+    `${e.firstname || ""} ${e.lastname || ""}`.trim().toLowerCase();
+
+  const getQuotationNumber = (e: CostEstimator) =>
+    Number((e as any).quotationNumber) || 0;
+
   const filtered = useMemo(() => {
     const q = debouncedQuery.toLowerCase();
 
@@ -252,23 +339,27 @@ const CostEstimatorView: React.FC = () => {
         })
       : [];
 
-    // Sorting
+    // Keep client order aligned with selected sort (search/filter on current page)
     if (sort === "name") {
-      out.sort((a, b) => (a.firstname || "").localeCompare(b.firstname || ""));
-    } else if (sort === "total") {
+      out.sort((a, b) => getDisplayName(a).localeCompare(getDisplayName(b)));
+    } else if (sort === "value") {
+      out.sort((a, b) => getQuoteValue(b) - getQuoteValue(a));
+    } else if (sort === "date") {
       out.sort((a, b) => {
-        const ta = (Number(a.subTotal) || 0) - (Number(a.discount) || 0);
-        const tb = (Number(b.subTotal) || 0) - (Number(b.discount) || 0);
-        return tb - ta;
+        const diff = getModifiedTime(a) - getModifiedTime(b);
+        return dateDir === "asc" ? diff : -diff;
       });
     } else {
-      out.sort((a, b) =>
-        String(b?.id ?? "").localeCompare(String(a?.id ?? "")),
-      );
+      // recent — QT number series (highest / newest QT first)
+      out.sort((a, b) => {
+        const diff = getQuotationNumber(b) - getQuotationNumber(a);
+        if (diff !== 0) return diff;
+        return getModifiedTime(b) - getModifiedTime(a);
+      });
     }
 
     return out;
-  }, [costEstimators, debouncedQuery, selectedFilters, sort]);
+  }, [costEstimators, debouncedQuery, selectedFilters, sort, dateDir]);
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   const paginatedData = useMemo(() => filtered, [filtered]);
@@ -280,7 +371,22 @@ const CostEstimatorView: React.FC = () => {
         currentPage,
         pageSize,
         statusFilter,
+        sort,
+        sort === "date" ? dateDir : "desc",
       );
+  };
+
+  const applySort = (next: QuotationSortBy) => {
+    setSort(next);
+    setCurrentPage(1);
+    if (next !== "date") setSortMenuOpen(false);
+  };
+
+  const applyDateDir = (dir: QuotationSortDir) => {
+    setSort("date");
+    setDateDir(dir);
+    setCurrentPage(1);
+    setSortMenuOpen(false);
   };
 
   useEffect(() => {
@@ -362,6 +468,11 @@ const CostEstimatorView: React.FC = () => {
     setEditingEstimation(null);
   };
 
+  const closeAttemptRef = useRef<(() => void) | null>(null);
+  const registerCloseAttempt = React.useCallback((fn: (() => void) | null) => {
+    closeAttemptRef.current = fn;
+  }, []);
+
   const handleEditProxy = async (estimation: CostEstimator) => {
     // The list response omits itemGroups — fetch the full record first so the
     // form can pre-populate the existing item table correctly.
@@ -404,6 +515,8 @@ const CostEstimatorView: React.FC = () => {
             currentPage,
             pageSize,
             statusFilter,
+            sort,
+            sort === "date" ? dateDir : "desc",
           );
         }
       }
@@ -609,24 +722,116 @@ const CostEstimatorView: React.FC = () => {
               );
             })}
 
-            {/* Sort */}
-            <button
-              className="flex items-center gap-1.5 h-9 px-3 rounded-[8px] border border-[#d0d7de]
-                         bg-white hover:bg-[#f6f8fa] text-[12px] font-medium text-[#57606a]
-                         hover:text-[#24292f] transition-all whitespace-nowrap"
-              onClick={() =>
-                setSort((s) =>
-                  s === "recent" ? "name" : s === "name" ? "total" : "recent",
-                )
-              }
-              title={`Sort: ${sort}`}
-            >
-              <ArrowUpDown className="w-3.5 h-3.5 text-[#8c959f]" />
-              Sort:{" "}
-              <span className="capitalize text-[#24292f] font-semibold">
-                {sort}
-              </span>
-            </button>
+            {/* Sort dropdown */}
+            <div className="relative" ref={sortMenuRef}>
+              <button
+                type="button"
+                className="flex items-center gap-1.5 h-9 px-3 rounded-[8px] border border-[#d0d7de]
+                           bg-white hover:bg-[#f6f8fa] text-[12px] font-medium text-[#57606a]
+                           hover:text-[#24292f] transition-all whitespace-nowrap"
+                onClick={() => setSortMenuOpen((o) => !o)}
+                aria-expanded={sortMenuOpen}
+                title={`Sort: ${SORT_LABELS[sort]}${
+                  sort === "date"
+                    ? dateDir === "asc"
+                      ? " (oldest first)"
+                      : " (newest first)"
+                    : ""
+                }`}
+              >
+                <ArrowUpDown className="w-3.5 h-3.5 text-[#8c959f]" />
+                Sort:{" "}
+                <span className="text-[#24292f] font-semibold">
+                  {SORT_LABELS[sort]}
+                  {sort === "date"
+                    ? dateDir === "asc"
+                      ? " ↑"
+                      : " ↓"
+                    : ""}
+                </span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-[#8c959f] transition-transform ${
+                    sortMenuOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {sortMenuOpen && (
+                <div
+                  className="absolute right-0 mt-1.5 w-[240px] rounded-[10px] border border-[#eaeef2]
+                             bg-white shadow-[0_12px_40px_rgba(15,42,68,0.12)] z-[80] p-1.5"
+                  role="menu"
+                >
+                  {SORT_OPTIONS.map((opt) => {
+                    const active = sort === opt.key;
+                    return (
+                      <div key={opt.key} className="mb-0.5 last:mb-0">
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => applySort(opt.key)}
+                          className={`w-full flex items-start gap-2 px-2.5 py-2 rounded-[8px] text-left
+                                      transition-colors ${
+                                        active
+                                          ? "bg-[#eaf1fd] text-[#2f80ed]"
+                                          : "hover:bg-[#f6f8fa] text-[#24292f]"
+                                      }`}
+                        >
+                          <span className="mt-0.5 w-3.5 shrink-0">
+                            {active ? (
+                              <Check className="w-3.5 h-3.5" />
+                            ) : null}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-[12.5px] font-semibold">
+                              {opt.label}
+                            </span>
+                            <span
+                              className={`block text-[11px] mt-0.5 ${
+                                active ? "text-[#2f80ed]/80" : "text-[#8c959f]"
+                              }`}
+                            >
+                              {opt.hint}
+                            </span>
+                          </span>
+                        </button>
+
+                        {opt.key === "date" && (
+                          <div className="flex items-center gap-1.5 pl-8 pr-2 pb-2">
+                            <button
+                              type="button"
+                              onClick={() => applyDateDir("asc")}
+                              className={`inline-flex items-center gap-1 h-7 px-2 rounded-[6px] border text-[11px] font-semibold transition-colors ${
+                                sort === "date" && dateDir === "asc"
+                                  ? "border-[#2f80ed] bg-[#eaf1fd] text-[#2f80ed]"
+                                  : "border-[#d0d7de] bg-white text-[#57606a] hover:bg-[#f6f8fa]"
+                              }`}
+                              title="Oldest first"
+                            >
+                              <ArrowUp className="w-3 h-3" />
+                              Asc
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => applyDateDir("desc")}
+                              className={`inline-flex items-center gap-1 h-7 px-2 rounded-[6px] border text-[11px] font-semibold transition-colors ${
+                                sort === "date" && dateDir === "desc"
+                                  ? "border-[#2f80ed] bg-[#eaf1fd] text-[#2f80ed]"
+                                  : "border-[#d0d7de] bg-white text-[#57606a] hover:bg-[#f6f8fa]"
+                              }`}
+                              title="Newest first"
+                            >
+                              <ArrowDown className="w-3 h-3" />
+                              Desc
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
 
             {/* View toggle */}
             <div className="flex h-9 border border-[#d0d7de] rounded-lg overflow-hidden">
@@ -709,6 +914,8 @@ const CostEstimatorView: React.FC = () => {
                         currentPage,
                         pageSize,
                         statusFilter,
+                        sort,
+                        sort === "date" ? dateDir : "desc",
                       );
                     } catch {}
                   }}
@@ -734,6 +941,8 @@ const CostEstimatorView: React.FC = () => {
                       currentPage,
                       pageSize,
                       statusFilter,
+                      sort,
+                      sort === "date" ? dateDir : "desc",
                     );
                   } catch {}
                 }}
@@ -764,7 +973,10 @@ const CostEstimatorView: React.FC = () => {
       {/* ── Form Modal — 100% unchanged ── */}
       <Modal
         isOpen={openModal}
-        closeModal={closeDrawer}
+        closeModal={() => {
+          if (closeAttemptRef.current) closeAttemptRef.current();
+          else closeDrawer();
+        }}
         isCloseRequired={false}
         rootCls="z-[200]"
         className="bg-white/80 backdrop-blur-xl border border-white/40 shadow-[0_20px_60px_rgba(15,42,68,0.35)] rounded-2xl p-0 w-full max-w-5xl mx-auto"
@@ -779,6 +991,7 @@ const CostEstimatorView: React.FC = () => {
             userId={userId}
             category={activeTab}
             onSuccessRefetch={refetchList}
+            registerCloseAttempt={registerCloseAttempt}
           />
         </div>
       </Modal>

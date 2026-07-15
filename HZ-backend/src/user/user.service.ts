@@ -1102,6 +1102,52 @@ async getAdminUsersOverview(
     }));
   }
 
+  /** Staff users who hold the branch SuperAdmin role (e.g. Houznext Admin). */
+  async listSuperAdminUsers(): Promise<
+    { id: string; fullName: string; email: string }[]
+  > {
+    const memberships = await this.userRepository.manager
+      .getRepository(UserBranchMembership)
+      .createQueryBuilder('m')
+      .innerJoinAndSelect('m.user', 'user')
+      .innerJoinAndSelect('m.branchRoles', 'role')
+      .where('role.roleName = :roleName', { roleName: 'SuperAdmin' })
+      .andWhere('user.kind = :kind', { kind: UserKind.STAFF })
+      .getMany();
+
+    const byId = new Map<string, { id: string; fullName: string; email: string }>();
+    for (const m of memberships) {
+      const u = m.user;
+      if (!u?.id || byId.has(u.id)) continue;
+      const fullName =
+        (u.fullName || `${u.firstName || ''} ${u.lastName || ''}`).trim() ||
+        u.username ||
+        u.email ||
+        'Admin';
+      byId.set(u.id, { id: u.id, fullName, email: u.email || '' });
+    }
+
+    // Fallback: users with platform ADMIN role (covers seed admin if role link missing)
+    if (byId.size === 0) {
+      const admins = await this.userRepository.find({
+        where: { role: UserRole.ADMIN, kind: UserKind.STAFF },
+        select: ['id', 'fullName', 'firstName', 'lastName', 'username', 'email'],
+      });
+      for (const u of admins) {
+        const fullName =
+          (u.fullName || `${u.firstName || ''} ${u.lastName || ''}`).trim() ||
+          u.username ||
+          u.email ||
+          'Admin';
+        byId.set(u.id, { id: u.id, fullName, email: u.email || '' });
+      }
+    }
+
+    return Array.from(byId.values()).sort((a, b) =>
+      a.fullName.localeCompare(b.fullName),
+    );
+  }
+
   // ---------------------------------------------------------------------------
 async findByEmailOrPhone(
   email?: string,

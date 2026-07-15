@@ -225,6 +225,8 @@ export class CostEstimatorController {
       limit = 10,
       category,
       status,
+      sortBy = 'recent',
+      sortDir = 'desc',
     } = query;
 
     const cleanedCategory = category
@@ -251,6 +253,14 @@ export class CostEstimatorController {
           : 'all',
     };
 
+    const allowedSort = ['recent', 'name', 'date', 'value'] as const;
+    const resolvedSortBy = (allowedSort as readonly string[]).includes(
+      String(sortBy),
+    )
+      ? (sortBy as (typeof allowedSort)[number])
+      : 'recent';
+    const resolvedSortDir = sortDir === 'asc' ? 'asc' : 'desc';
+
     return this.costEstimatorService.fetchEstimationsByUser(
       req.user ?? null,
       filters,
@@ -258,6 +268,8 @@ export class CostEstimatorController {
       Number(limit) || 10,
       undefined,
       userId,
+      resolvedSortBy,
+      resolvedSortDir,
     );
   }
 }

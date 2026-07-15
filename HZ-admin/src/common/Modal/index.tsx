@@ -1,8 +1,8 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Dialog, Transition } from '@headlessui/react';
 import { twMerge } from 'tailwind-merge';
 import Button from '../Button';
-import { int } from 'aws-sdk/clients/datapipeline';
 
 interface ModalProps {
   isOpen?: boolean;
@@ -15,11 +15,29 @@ interface ModalProps {
   rootCls?: string;
 }
 
-const Modal = ({ isOpen, closeModal, title, titleCls, children, className, isCloseRequired = true, rootCls }: ModalProps) => {
+const Modal = ({
+  isOpen,
+  closeModal,
+  title,
+  titleCls,
+  children,
+  className,
+  isCloseRequired = true,
+  rootCls,
+}: ModalProps) => {
+  const [mounted, setMounted] = useState(false);
 
-  return (
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const content = (
     <Transition appear show={Boolean(isOpen)} as={Fragment}>
-      <Dialog as="div" static className={twMerge('relative z-[100]', rootCls)} onClose={closeModal}>
+      <Dialog
+        as="div"
+        className={twMerge('relative z-[100]', rootCls)}
+        onClose={closeModal ?? (() => undefined)}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -33,7 +51,7 @@ const Modal = ({ isOpen, closeModal, title, titleCls, children, className, isClo
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center md:p-4 p-2 text-center">
+          <div className="flex min-h-screen items-center justify-center md:p-4 p-2 text-center">
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -56,19 +74,17 @@ const Modal = ({ isOpen, closeModal, title, titleCls, children, className, isClo
                   {title}
                 </Dialog.Title>
                 <div className="mt-2">{children}</div>
-                {
-                  isCloseRequired && (
-                    <div className="mt-4">
-                      <Button
-                        type="button"
-                        className="inline-flex justify-center rounded-md border border-transparent bg-blue-50 px-4 py-1 text-[12px] md:text-[14px] font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5297ff]focus-visible:ring-offset-2"
-                        onClick={closeModal}
-                      >
-                        Close
-                      </Button>
-                    </div>
-                  )
-                }
+                {isCloseRequired && (
+                  <div className="mt-4">
+                    <Button
+                      type="button"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-50 px-4 py-1 text-[12px] md:text-[14px] font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5297ff] focus-visible:ring-offset-2"
+                      onClick={closeModal}
+                    >
+                      Close
+                    </Button>
+                  </div>
+                )}
               </Dialog.Panel>
             </Transition.Child>
           </div>
@@ -76,6 +92,11 @@ const Modal = ({ isOpen, closeModal, title, titleCls, children, className, isClo
       </Dialog>
     </Transition>
   );
+
+  // Always portal to body so nested modals (e.g. inside Edit Quotation) center
+  // on the viewport instead of a transformed/overflow parent like the quote table.
+  if (!mounted) return null;
+  return createPortal(content, document.body);
 };
 
 export default Modal;

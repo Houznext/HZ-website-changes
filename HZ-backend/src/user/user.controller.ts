@@ -87,6 +87,17 @@ export class UserController {
     return this.userService.getAdminUsersOverview(filters);
   }
 
+  @UseGuards(ControllerAuthGuard)
+  @AdminPortal()
+  @Get('super-admins')
+  @ApiOperation({
+    summary: 'List staff users with the branch SuperAdmin role',
+  })
+  @HttpCode(200)
+  async listSuperAdmins() {
+    return this.userService.listSuperAdminUsers();
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiResponse({
