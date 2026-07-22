@@ -8,7 +8,11 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { Categories, PropertyTypeEnum } from '../enums/crm.enum';
+import {
+  Categories,
+  PropertyTypeEnum,
+  WhenToStartEnum,
+} from '../enums/crm.enum';
 import { User } from 'src/user/entities/user.entity';
 import { LeadStatusLog } from './leadStatus.entity';
 import { Branch } from 'src/branch/entities/branch.entity'; // <-- new
@@ -37,6 +41,13 @@ export class CRMLead {
     nullable: true,
   })
   propertytype?: PropertyTypeEnum;
+
+  @Column({
+    type: 'enum',
+    enum: WhenToStartEnum,
+    nullable: true,
+  })
+  whenToStart?: WhenToStartEnum;
 
   @Column({ default: 'Unknown', nullable: true })
   bhk?: string;

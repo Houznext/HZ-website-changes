@@ -86,6 +86,13 @@ export enum PropertyTypeEnum {
   independent_floor = 'Independent Floor',
 }
 
+export enum WhenToStartEnum {
+  Immediately = 'Immediately',
+  Within_1_month = 'Within 1 month',
+  One_to_3_months = '1-3 months',
+  Three_plus_months = '3+ months',
+}
+
 export enum PlatForm {
   MAGIC_BRICKS = 'MAGIC BRICKS',
   NINETY_NINE_ACRES = '99 ACERS',
@@ -138,6 +145,7 @@ export interface Lead {
   Phonenumber: string;
   bhk: string;
   propertytype: PropertyTypeEnum;
+  whenToStart?: WhenToStartEnum | string;
   email: string;
   platform: PlatForm;
   serviceType: ServiceCategory;
@@ -299,6 +307,13 @@ export const propertytypedata = Object.values(PropertyTypeEnum).map((propertytyp
   propertytype,
 }));
 
+export const whenToStartData = Object.values(WhenToStartEnum).map(
+  (whenToStart, index) => ({
+    id: index + 1,
+    whenToStart,
+  }),
+);
+
 export const platformData = Object.values(PlatForm).map((platform, index) => ({
   id: index + 1,
   platform,
@@ -376,6 +391,7 @@ export const headers = [
   { label: "City", key: "city" },
   { label: "State", key: "state" },
   { label: "Property Type", key: "propertytype" },
+  { label: "When to start", key: "whenToStart" },
   { label: "BHK", key: "bhk" },
   { label: "Platform", key: "platform" },
   { label: "Service Type", key: "serviceType" },

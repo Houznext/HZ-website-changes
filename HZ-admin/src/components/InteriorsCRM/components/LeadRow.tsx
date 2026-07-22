@@ -61,6 +61,9 @@ export default function LeadRow({
         </div>
       </td>
       <td className="px-3 py-2.5 text-[12.5px] text-slate-700">{String(lead.propertytype)}</td>
+      <td className="px-3 py-2.5 text-[12.5px] text-slate-700">
+        {String(lead.whenToStart || "—")}
+      </td>
       <td className="px-3 py-2.5 text-[12.5px] text-slate-700">{lead.bhk || "—"}</td>
       <td className="px-3 py-2.5 text-[12.5px] text-slate-700 max-w-[120px] truncate">
         {String(lead.platform)}

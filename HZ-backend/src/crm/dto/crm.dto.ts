@@ -26,6 +26,7 @@ import {
   PlatForm,
   PaintingPackageEnum,
   PaintingTypeEnum,
+  WhenToStartEnum,
 } from '../enums/crm.enum';
 
 /**
@@ -82,6 +83,14 @@ export class CreateCrmLeadDto {
   @IsEnum(PropertyTypeEnum)
   @IsOptional()
   propertytype?: PropertyTypeEnum;
+
+  @ApiPropertyOptional({
+    enum: WhenToStartEnum,
+    description: 'When the customer wants to start (required in admin CRM form)',
+  })
+  @IsEnum(WhenToStartEnum)
+  @IsOptional()
+  whenToStart?: WhenToStartEnum;
 
   @ApiPropertyOptional({ enum: PaintingPackageEnum })
   @IsEnum(PaintingPackageEnum)
@@ -242,6 +251,11 @@ export class UpdateCrmLeadDto {
   @IsOptional()
   propertytype?: PropertyTypeEnum;
 
+  @ApiPropertyOptional({ enum: WhenToStartEnum })
+  @IsEnum(WhenToStartEnum)
+  @IsOptional()
+  whenToStart?: WhenToStartEnum;
+
   @ApiPropertyOptional({
     description: 'Lead source platform (from CRM field options or legacy value)',
   })
@@ -386,6 +400,7 @@ export class ReturnCrmLeadDto {
   platform?: string;
   serviceType?: string;
   propertytype: PropertyTypeEnum;
+  whenToStart?: WhenToStartEnum;
   paintingPackage?: PaintingPackageEnum;
   paintingType?: PaintingTypeEnum;
   bhk: string;

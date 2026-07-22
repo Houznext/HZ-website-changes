@@ -5,7 +5,7 @@ import { CSVLink } from "react-csv";
 import { Download, Search, Trash2, X } from "lucide-react";
 import { useInteriorsCRM } from "../CRMContext";
 import LeadRow from "../components/LeadRow";
-import { LEAD_STATUSES, PLATFORMS, PROPERTY_TYPES } from "../constants";
+import { LEAD_STATUSES, PLATFORMS, PROPERTY_TYPES, WHEN_TO_START_OPTIONS } from "../constants";
 import { headers } from "../../NewCrmView/types";
 import type { Lead } from "../../NewCrmView/types";
 import { useCrmLeadStatusDefinitions } from "@/src/hooks/useCrmLeadStatusDefinitions";
@@ -84,6 +84,8 @@ export default function AllLeads() {
     setBarPlatform,
     barPropertyType,
     setBarPropertyType,
+    barWhenToStart,
+    setBarWhenToStart,
     barCity,
     setBarCity,
     datePreset,
@@ -250,6 +252,21 @@ export default function AllLeads() {
           </select>
           <select
             className="rounded-lg border border-[#e2e8f0] px-2 py-2 text-[12.5px] text-slate-700"
+            value={barWhenToStart}
+            onChange={(e) => {
+              setBarWhenToStart(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="all">When to start</option>
+            {WHEN_TO_START_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+          <select
+            className="rounded-lg border border-[#e2e8f0] px-2 py-2 text-[12.5px] text-slate-700"
             value={barCity}
             onChange={(e) => {
               setBarCity(e.target.value);
@@ -398,6 +415,7 @@ export default function AllLeads() {
                 </th>
                 <th className="text-left px-3 py-2.5">Lead</th>
                 <th className="text-left px-3 py-2.5">Property type</th>
+                <th className="text-left px-3 py-2.5">When to start</th>
                 <th className="text-left px-3 py-2.5">BHK</th>
                 <th className="text-left px-3 py-2.5">Platform</th>
                 <th className="text-left px-3 py-2.5">Assigned to</th>

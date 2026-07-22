@@ -67,6 +67,14 @@ export enum PropertyTypeEnum {
   independent_house = 'Independent House',
   independent_floor = 'Independent Floor',
 }
+
+/** When the customer wants to start the project */
+export enum WhenToStartEnum {
+  Immediately = 'Immediately',
+  Within_1_month = 'Within 1 month',
+  One_to_3_months = '1-3 months',
+  Three_plus_months = '3+ months',
+}
 export enum PlatForm {
   MAGIC_BRICKS = 'MAGIC BRICKS',
   NINETY_NINE_ACRES = '99 ACERS',

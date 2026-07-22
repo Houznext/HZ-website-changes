@@ -14,6 +14,7 @@ import {
   leaddata,
   statesOptions,
   PlatForm,
+  whenToStartData,
 } from "./types";
 import {
   useAllCrmFieldOptions,
@@ -46,6 +47,7 @@ interface FormData {
   Phonenumber: string;
   email: string;
   propertytype: string;
+  whenToStart: string;
   bhk: string;
   city: string;
   state: string;
@@ -147,6 +149,7 @@ const canShowBranchFilter =
           Phonenumber: res.body.Phonenumber || "",
           email: res.body.email || "",
           propertytype: res.body.propertytype || "Flat",
+          whenToStart: res.body.whenToStart || "",
           bhk: res.body.bhk || "",
           city: res.body.city || "",
           state: res.body.state || "",
@@ -178,6 +181,7 @@ const canShowBranchFilter =
       Phonenumber: "",
       email: "",
       propertytype: "Flat",
+      whenToStart: "",
       bhk: "",
       city: "",
       state: defaultState,
@@ -220,6 +224,10 @@ const canShowBranchFilter =
       newErrors.state = "State is required";
     }
 
+    if (!String(formData.whenToStart || "").trim()) {
+      newErrors.whenToStart = "When to start is required";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -243,6 +251,7 @@ const canShowBranchFilter =
         Phonenumber: formData.Phonenumber.trim(),
         email: formData.email.trim() || undefined,
         propertytype: formData.propertytype || "Flat",
+        whenToStart: formData.whenToStart,
         bhk: formData.bhk || undefined,
         city: formData.city.trim(),
         state: formData.state.trim() || "Andhra Pradesh",
@@ -322,6 +331,11 @@ const canShowBranchFilter =
     platformOptions.find((item) => item.platform === formData.platform) ??
     platformOptions.find((item) => item.platform === defaultPlatform) ??
     platformOptions[0];
+
+  const selectedWhenToStart =
+    whenToStartData.find(
+      (item) => item.whenToStart === formData.whenToStart,
+    ) || null;
 
   const handleClose = () => {
     resetForm();
@@ -632,6 +646,31 @@ const canShowBranchFilter =
                         platform: value.platform,
                       }))
                     }
+                  />
+
+                  <SingleSelect
+                    type="single-select"
+                    label="When to start"
+                    name="whenToStart"
+                    labelCls=" font-medium label-text leading-[22.8px] text-[#000000]"
+                    required
+                    placeholder="Select when to start"
+                    options={whenToStartData}
+                    selectedOption={selectedWhenToStart}
+                    optionsInterface={{
+                      isObj: true,
+                      displayKey: "whenToStart",
+                    }}
+                    errorMsg={errors.whenToStart}
+                    handleChange={(_name, value) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        whenToStart: value.whenToStart,
+                      }));
+                      if (errors.whenToStart) {
+                        setErrors((prev) => ({ ...prev, whenToStart: "" }));
+                      }
+                    }}
                   />
 {canShowBranchFilter ? (
                   <SearchComponent

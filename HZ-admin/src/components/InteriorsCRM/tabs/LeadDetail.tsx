@@ -124,6 +124,7 @@ export default function LeadDetail() {
   const grid = [
     { label: "Service type", value: String(lead.serviceType || "—") },
     { label: "Property type", value: String(lead.propertytype || "—") },
+    { label: "When to start", value: String(lead.whenToStart || "—") },
     { label: "BHK", value: lead.bhk || "—" },
     { label: "Platform", value: String(lead.platform || "—") },
     { label: "City", value: lead.city || "—" },

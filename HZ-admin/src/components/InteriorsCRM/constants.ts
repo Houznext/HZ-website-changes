@@ -85,6 +85,13 @@ export const PROPERTY_TYPES = [
   "Independent Floor",
 ] as const;
 
+export const WHEN_TO_START_OPTIONS = [
+  "Immediately",
+  "Within 1 month",
+  "1-3 months",
+  "3+ months",
+] as const;
+
 export const PLATFORMS = [
   "Magic Bricks",
   "99 Acres",
