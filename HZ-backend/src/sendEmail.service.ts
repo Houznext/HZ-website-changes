@@ -384,6 +384,19 @@ ${params.bodyText
         : '—';
 
     const cityState = [lead.city, lead.state].filter(Boolean).join(', ') || '—';
+    const address = [
+      lead.houseNo,
+      lead.apartmentName,
+      lead.areaName,
+      lead.pincode,
+    ]
+      .filter(Boolean)
+      .join(', ') || '—';
+
+    const fmtDate = (d?: Date | null) =>
+      d
+        ? new Date(d).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+        : '—';
 
     const rows: [string, string][] = [
       ['Name', lead.Fullname || '—'],
@@ -392,11 +405,21 @@ ${params.bodyText
       ['Email', lead.email || '—'],
       ['Status', String(lead.leadstatus || '—')],
       ['Service', String(lead.serviceType || '—')],
+      ['Category', String(lead.category || '—')],
       ['Property type', String(lead.propertytype || '—')],
       ['BHK', lead.bhk || '—'],
+      ['Package', lead.package || '—'],
+      ['When to start', String(lead.whenToStart || '—')],
       ['City / State', cityState],
+      ['Address', address],
       ['Platform', String(lead.platform || '—')],
+      ['Review', lead.review || '—'],
+      ['Monthly bill', lead.monthly_bill != null ? String(lead.monthly_bill) : '—'],
       ['Assigned to', assignee],
+      ['Rejection reason', lead.rejectionReason || '—'],
+      ['Future potential', lead.isFuturePotential ? 'Yes' : 'No'],
+      ['Created at', fmtDate(lead.createdAt)],
+      ['Follow-up', fmtDate(lead.followUpDate)],
     ];
 
     const tableHtml = rows
@@ -418,7 +441,18 @@ ${params.bodyText
 </div></body></html>`;
 
     const subject = `CRM lead deleted: ${lead.Fullname || lead.id}`;
-    const text = `Lead deleted: ${lead.Fullname} (ID ${lead.id}). Phone: ${lead.Phonenumber}. Deleted by: ${who}.`;
+    const text = [
+      `Lead deleted: ${lead.Fullname || '—'} (ID ${lead.id})`,
+      `Phone: ${lead.Phonenumber || '—'}`,
+      `Email: ${lead.email || '—'}`,
+      `Status: ${lead.leadstatus || '—'}`,
+      `Service: ${lead.serviceType || '—'}`,
+      `Property: ${lead.propertytype || '—'} ${lead.bhk || ''}`.trim(),
+      `Location: ${cityState}`,
+      `Platform: ${lead.platform || '—'}`,
+      `Assigned to: ${assignee}`,
+      `Deleted by: ${who}`,
+    ].join('\n');
 
     for (const email of recipients) {
       await this.sendMail(email, subject, text, html);

@@ -759,19 +759,13 @@ export class CrmLeadService implements OnModuleInit {
       year: 'numeric',
     });
 
+    // In-app only on create — email is sent only when a lead is deleted.
     if (created.assignedTo) {
       await this.notificationService.createNotification({
         userId: created.assignedTo.id,
         message: `New lead "${created.Fullname}" assigned on ${formattedDate}.`,
       });
-      await this.mailerService.sendUserNotification(
-        created.assignedTo,
-        'New Lead Assigned',
-        USER_NOTIFICATION_TEMPLATE,
-      );
     }
-
-    await this.mailerService.notifyAdminsAboutLead(created);
 
     return created;
   }
