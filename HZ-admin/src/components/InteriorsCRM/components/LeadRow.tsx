@@ -61,7 +61,9 @@ export default function LeadRow({
             <p className="text-[12.5px] font-semibold text-slate-800 whitespace-nowrap">
               {lead.Fullname}
             </p>
-            <p className="text-[10px] text-slate-400 whitespace-nowrap">#{lead.id}</p>
+            <p className="text-[10px] text-slate-400 whitespace-nowrap">
+              {lead.Phonenumber || "—"}
+            </p>
           </div>
         </div>
       </td>
