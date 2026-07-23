@@ -190,7 +190,7 @@ export default function AllLeads() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 min-w-0 max-w-full">
       <div className="rounded-xl border border-[#e2e8f0] bg-white p-4 shadow-sm">
         <div className="flex flex-wrap items-end gap-3">
           <div className="relative min-w-[200px] flex-1">
@@ -398,12 +398,27 @@ export default function AllLeads() {
         </div>
       ) : null}
 
-      <div className="rounded-xl border border-[#e2e8f0] bg-white shadow-sm">
-        <div className="overflow-x-auto overscroll-x-contain">
-          <table className="w-max min-w-full border-collapse table-auto">
+      <div className="rounded-xl border border-[#e2e8f0] bg-white shadow-sm max-w-full">
+        <div className="w-full max-w-full overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]">
+          <table className="border-collapse table-fixed w-[1620px] min-w-[1620px]">
+            <colgroup>
+              <col className="w-[44px]" />
+              <col className="w-[180px]" />
+              <col className="w-[120px]" />
+              <col className="w-[120px]" />
+              <col className="w-[130px]" />
+              <col className="w-[80px]" />
+              <col className="w-[140px]" />
+              <col className="w-[130px]" />
+              <col className="w-[120px]" />
+              <col className="w-[120px]" />
+              <col className="w-[140px]" />
+              <col className="w-[160px]" />
+              <col className="w-[136px]" />
+            </colgroup>
             <thead>
               <tr className="bg-[#f8fafc] text-[10.5px] font-bold uppercase tracking-[0.07em] text-slate-500 border-b border-[#e2e8f0]">
-                <th className="text-left px-3 py-2.5 w-10 whitespace-nowrap sticky left-0 z-20 bg-[#f8fafc]">
+                <th className="text-left px-3 py-2.5 whitespace-nowrap">
                   <input
                     type="checkbox"
                     checked={
@@ -413,40 +428,26 @@ export default function AllLeads() {
                     className="rounded border-slate-300"
                   />
                 </th>
-                <th className="text-left px-3 py-2.5 whitespace-nowrap sticky left-10 z-20 bg-[#f8fafc] min-w-[160px]">
-                  Lead
-                </th>
-                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[110px]">
-                  City
-                </th>
-                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[110px]">
-                  State
-                </th>
-                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[120px]">
-                  Property
-                </th>
-                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[72px]">
-                  BHK
-                </th>
-                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[130px]">
+                <th className="text-left px-3 py-2.5 whitespace-nowrap">Lead</th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap">City</th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap">State</th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap">Property</th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap">BHK</th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap">
                   When to Start
                 </th>
-                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[120px]">
-                  Status
-                </th>
-                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[110px]">
-                  Added
-                </th>
-                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[110px]">
+                <th className="text-left px-3 py-2.5 whitespace-nowrap">Status</th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap">Added</th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap">
                   Follow Up
                 </th>
-                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[120px]">
+                <th className="text-left px-3 py-2.5 whitespace-nowrap">
                   Platform
                 </th>
-                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[140px]">
+                <th className="text-left px-3 py-2.5 whitespace-nowrap">
                   Assigned To
                 </th>
-                <th className="text-left px-3 py-2.5 whitespace-nowrap sticky right-0 z-20 bg-[#f8fafc] min-w-[120px]">
+                <th className="text-left px-3 py-2.5 whitespace-nowrap">
                   Actions
                 </th>
               </tr>

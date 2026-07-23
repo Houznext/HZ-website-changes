@@ -41,10 +41,10 @@ export default function LeadRow({
   return (
     <tr
       onClick={() => openLeadDetail(lead)}
-      className="border-b border-[#f1f5f9] hover:bg-slate-50 cursor-pointer transition-colors duration-150 group"
+      className="border-b border-[#f1f5f9] hover:bg-slate-50 cursor-pointer transition-colors duration-150"
     >
       <td
-        className="px-3 py-2.5 w-10 whitespace-nowrap sticky left-0 z-10 bg-white group-hover:bg-slate-50"
+        className="px-3 py-2.5 whitespace-nowrap"
         onClick={(e) => e.stopPropagation()}
       >
         <input
@@ -54,14 +54,14 @@ export default function LeadRow({
           className="rounded border-slate-300"
         />
       </td>
-      <td className="px-3 py-2.5 whitespace-nowrap sticky left-10 z-10 bg-white group-hover:bg-slate-50 min-w-[160px]">
+      <td className="px-3 py-2.5 whitespace-nowrap">
         <div className="flex items-center gap-2.5">
-          <AgentAvatar name={lead.Fullname} size={32} className="text-[10px]" />
-          <div className="min-w-0">
-            <p className="text-[12.5px] font-semibold text-slate-800">
+          <AgentAvatar name={lead.Fullname} size={32} className="text-[10px] shrink-0" />
+          <div>
+            <p className="text-[12.5px] font-semibold text-slate-800 whitespace-nowrap">
               {lead.Fullname}
             </p>
-            <p className="text-[10px] text-slate-400">#{lead.id}</p>
+            <p className="text-[10px] text-slate-400 whitespace-nowrap">#{lead.id}</p>
           </div>
         </div>
       </td>
@@ -100,8 +100,14 @@ export default function LeadRow({
         <div className="flex items-center gap-1.5">
           {lead.assignedTo ? (
             <>
-              <AgentAvatar name={lead.assignedTo} size={24} className="text-[9px]" />
-              <span className="text-[12px] text-slate-700">{lead.assignedTo}</span>
+              <AgentAvatar
+                name={lead.assignedTo}
+                size={24}
+                className="text-[9px] shrink-0"
+              />
+              <span className="text-[12px] text-slate-700 whitespace-nowrap">
+                {lead.assignedTo}
+              </span>
             </>
           ) : (
             <span className="text-slate-400 text-[12px]">—</span>
@@ -109,7 +115,7 @@ export default function LeadRow({
         </div>
       </td>
       <td
-        className="px-3 py-2.5 whitespace-nowrap sticky right-0 z-10 bg-white group-hover:bg-slate-50"
+        className="px-3 py-2.5 whitespace-nowrap"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-1">

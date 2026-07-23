@@ -13,7 +13,7 @@ const CrmPage = () => {
     return <AccessDenied resource="CRM" />;
   }
   return (
-    <div className="flex w-full min-h-full md:px-6 md:py-4 px-3 py-5">
+    <div className="flex w-full min-w-0 min-h-full md:px-6 md:py-4 px-3 py-5">
       <InteriorsCRM />
     </div>
   );

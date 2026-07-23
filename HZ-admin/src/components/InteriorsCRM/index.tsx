@@ -29,7 +29,7 @@ function InteriorsCRMInner() {
   } = useInteriorsCRM();
 
   return (
-    <div className="flex flex-col h-full min-h-[calc(100vh-120px)]">
+    <div className="flex flex-col h-full min-h-[calc(100vh-120px)] w-full min-w-0">
       {!detailView ? (
         <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
           <div className="bg-[#f1f5f9] p-[3px] rounded-[9px] flex flex-wrap gap-0.5">
@@ -67,7 +67,7 @@ function InteriorsCRMInner() {
         </div>
       ) : null}
 
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader />

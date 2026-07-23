@@ -11,7 +11,7 @@ export default function StatusBadge({ status, size = "md" }: StatusBadgeProps) {
     size === "sm" ? "text-[9.5px] px-2 py-[1px]" : "text-[10.5px] px-2.5 py-0.5";
   return (
     <span
-      className={`inline-flex items-center font-semibold rounded-full ${sizeClass}`}
+      className={`inline-flex items-center font-semibold rounded-full whitespace-nowrap ${sizeClass}`}
       style={{ background: style.bg, color: style.text }}
     >
       {status}
