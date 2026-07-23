@@ -398,12 +398,12 @@ export default function AllLeads() {
         </div>
       ) : null}
 
-      <div className="rounded-xl border border-[#e2e8f0] bg-white overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px]">
+      <div className="rounded-xl border border-[#e2e8f0] bg-white shadow-sm">
+        <div className="overflow-x-auto overscroll-x-contain">
+          <table className="w-max min-w-full border-collapse table-auto">
             <thead>
               <tr className="bg-[#f8fafc] text-[10.5px] font-bold uppercase tracking-[0.07em] text-slate-500 border-b border-[#e2e8f0]">
-                <th className="text-left px-3 py-2.5 w-10">
+                <th className="text-left px-3 py-2.5 w-10 whitespace-nowrap sticky left-0 z-20 bg-[#f8fafc]">
                   <input
                     type="checkbox"
                     checked={
@@ -413,16 +413,42 @@ export default function AllLeads() {
                     className="rounded border-slate-300"
                   />
                 </th>
-                <th className="text-left px-3 py-2.5">Lead</th>
-                <th className="text-left px-3 py-2.5">Property type</th>
-                <th className="text-left px-3 py-2.5">When to start</th>
-                <th className="text-left px-3 py-2.5">BHK</th>
-                <th className="text-left px-3 py-2.5">Platform</th>
-                <th className="text-left px-3 py-2.5">Assigned to</th>
-                <th className="text-left px-3 py-2.5">Status</th>
-                <th className="text-left px-3 py-2.5">Follow-up</th>
-                <th className="text-left px-3 py-2.5">Added</th>
-                <th className="text-left px-3 py-2.5">Actions</th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap sticky left-10 z-20 bg-[#f8fafc] min-w-[160px]">
+                  Lead
+                </th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[110px]">
+                  City
+                </th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[110px]">
+                  State
+                </th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[120px]">
+                  Property
+                </th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[72px]">
+                  BHK
+                </th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[130px]">
+                  When to Start
+                </th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[120px]">
+                  Status
+                </th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[110px]">
+                  Added
+                </th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[110px]">
+                  Follow Up
+                </th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[120px]">
+                  Platform
+                </th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap min-w-[140px]">
+                  Assigned To
+                </th>
+                <th className="text-left px-3 py-2.5 whitespace-nowrap sticky right-0 z-20 bg-[#f8fafc] min-w-[120px]">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
