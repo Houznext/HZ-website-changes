@@ -20,8 +20,8 @@ const tabs: { key: HeroTab; label: string; Icon: typeof Landmark }[] = [
 const DEFAULT_POPULAR_TAGS = [
   '2BHK Hyderabad',
   'Villas Kokapet',
-  'Plots Bengaluru',
-  'Ready to move Mumbai',
+  'Plots Vikarabad',
+  'Ready to Move Bachupally',
   'Apartments Chennai',
 ];
 
@@ -74,7 +74,7 @@ function HeroHeadline({ text }: { text: string }) {
   const lines = text.split('\n').map((l) => l.trimEnd()).filter((l, i, arr) => l.length > 0 || arr.length === 1);
   if (!lines.length) return null;
   return (
-    <h1 className="font-montserrat text-[clamp(26px,8vw,36px)] font-extrabold leading-[1.15] tracking-tight text-white md:text-5xl md:leading-[1.12]">
+    <h1 className="font-montserrat text-[clamp(24px,5.2vw,44px)] font-extrabold leading-[1.12] tracking-tight text-white lg:text-[44px] lg:leading-[1.1]">
       {lines.map((line, i) => (
         <span key={`${i}-${line.slice(0, 12)}`}>
           {i > 0 ? <br /> : null}
@@ -150,7 +150,7 @@ export function HeroSection() {
       : DEFAULT_HERO_METRICS;
 
   return (
-    <section className="relative min-h-[min(92vh,820px)] overflow-hidden bg-navy">
+    <section className="relative flex min-h-[calc(100svh-3.5rem)] flex-col overflow-hidden bg-navy md:min-h-[calc(100svh-4rem)]">
       <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
         {slides.map((src, i) => {
           const active = i === slide % slides.length;
@@ -182,15 +182,15 @@ export function HeroSection() {
       />
       <div className="pointer-events-none absolute inset-0 z-[2] bg-navy/25" aria-hidden />
 
-      <div className="relative z-10 mx-auto flex min-h-[min(92vh,820px)] max-w-infra flex-col items-center justify-center px-4 pb-12 pt-10 sm:pb-16 sm:pt-14 md:px-7 md:pb-20 md:pt-16">
-        <div className="flex w-full max-w-3xl flex-col items-center px-0 text-center sm:px-8 md:px-12">
+      <div className="relative z-10 mx-auto flex w-full max-w-infra flex-1 flex-col items-center justify-center px-4 py-5 sm:py-6 md:px-7 md:py-7 lg:py-8">
+        <div className="flex w-full max-w-5xl flex-col items-center px-0 text-center sm:px-4 md:px-6">
           <HeroHeadline text={headline} />
 
-          <p className="mt-3 max-w-xl font-inter text-[13px] leading-relaxed text-white/85 sm:mt-4 md:text-[15px]">
+          <p className="mt-2 max-w-2xl font-inter text-[13px] leading-relaxed text-white/85 sm:mt-3 md:text-[15px]">
             {subheadline}
           </p>
 
-          <div className="mt-6 w-full max-w-2xl rounded-2xl border border-white/20 bg-white/[0.12] p-2.5 shadow-[0_8px_40px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:mt-10 sm:p-3 md:p-4">
+          <div className="mt-4 w-full max-w-5xl rounded-2xl border border-white/20 bg-white/[0.12] p-3 shadow-[0_8px_40px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:mt-5 sm:p-4 md:mt-6 md:p-5 lg:px-6 lg:py-5">
             <div className="flex gap-0.5 rounded-xl bg-black/20 p-0.5 sm:gap-1 sm:p-1">
               {tabs.map(({ key, label, Icon }) => {
                 const active = activeTab === key;
@@ -202,7 +202,7 @@ export function HeroSection() {
                       setActiveTab(key);
                       recordTypeInterest(key, 4);
                     }}
-                    className={`flex min-h-[40px] flex-1 items-center justify-center gap-1 rounded-lg py-2.5 font-montserrat text-[11px] font-bold transition sm:gap-2 sm:py-3 sm:text-xs md:text-[13px] ${
+                    className={`flex min-h-[40px] flex-1 items-center justify-center gap-1 rounded-lg py-2 font-montserrat text-[11px] font-bold transition sm:gap-2 sm:py-2.5 sm:text-xs md:text-[13px] ${
                       active
                         ? 'bg-hero-blue text-white shadow-md'
                         : 'text-white/85 hover:bg-white/10 hover:text-white'
@@ -215,19 +215,19 @@ export function HeroSection() {
               })}
             </div>
 
-            <div className="mt-4">
+            <div className="mt-3 w-full sm:mt-4">
               <HeroSearch />
             </div>
 
-            <div className="mt-4 border-t border-white/10 pt-3 sm:mt-5 sm:pt-4">
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:justify-center sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden">
+            <div className="mt-3 border-t border-white/10 pt-3 sm:mt-4 sm:pt-3.5">
+              <div className="flex flex-nowrap items-center justify-start gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] md:justify-center md:gap-2.5 md:overflow-visible md:pb-0 lg:gap-3 [&::-webkit-scrollbar]:hidden">
                 <span className="shrink-0 font-inter text-xs font-semibold text-white/90 sm:text-sm">Popular:</span>
                 {popularTags.map((tag) => (
                   <button
                     key={tag}
                     type="button"
                     onClick={() => setQuery(tag)}
-                    className="shrink-0 rounded-full border border-white/35 bg-white/[0.06] px-3 py-1.5 font-inter text-xs text-white/95 transition hover:border-white/55 hover:bg-white/10 md:text-[13px]"
+                    className="shrink-0 rounded-full border border-white/35 bg-white/[0.06] px-2.5 py-1 font-inter text-[11px] text-white/95 transition hover:border-white/55 hover:bg-white/10 sm:px-3 sm:py-1.5 sm:text-xs md:text-[12.5px] lg:text-[13px]"
                   >
                     {tag}
                   </button>
@@ -236,14 +236,14 @@ export function HeroSection() {
             </div>
 
             <div
-              className={`mt-4 grid gap-3 rounded-xl border border-white/10 bg-black/15 px-3 py-4 sm:mt-6 sm:gap-4 sm:px-4 sm:py-5 md:gap-6 md:px-6 ${
+              className={`mt-3 grid gap-2.5 rounded-xl border border-white/10 bg-black/15 px-3 py-3 sm:mt-4 sm:gap-4 sm:px-4 sm:py-4 md:gap-6 md:px-6 md:py-4 ${
                 metrics.length <= 2 ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'
               }`}
             >
               {metrics.map((m) => (
                 <div key={`${m.value}-${m.label}`} className="min-w-0 text-center sm:text-left">
                   <p
-                    className={`font-montserrat text-xl font-extrabold leading-tight sm:text-2xl md:text-3xl ${
+                    className={`font-montserrat text-lg font-extrabold leading-tight sm:text-2xl md:text-[28px] ${
                       m.accent ? 'text-hero-teal' : 'text-white'
                     }`}
                   >
