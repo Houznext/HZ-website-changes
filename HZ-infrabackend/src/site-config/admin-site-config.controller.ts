@@ -110,6 +110,28 @@ class PatchBrowseByTypeDto {
   cards?: Partial<Record<(typeof BROWSE_TYPE_KEYS)[number], BrowseTypeCardPatchDto>>;
 }
 
+class PatchRecentListingsDto {
+  @IsOptional()
+  @IsString()
+  eyebrow?: string;
+
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  subtitle?: string;
+
+  @IsOptional()
+  @IsString()
+  viewAllLabel?: string;
+
+  @IsOptional()
+  @IsString()
+  emptyMessage?: string;
+}
+
 class PatchFeaturedProjectsDto {
   @IsOptional()
   @IsString()
@@ -470,6 +492,16 @@ export class AdminSiteConfigController {
   @Patch('browse-by-type')
   patchBrowseByType(@Body() body: PatchBrowseByTypeDto) {
     return this.cfg.patchBrowseByType(body);
+  }
+
+  @Get('recent-listings')
+  getRecentListings() {
+    return this.cfg.getRecentListings();
+  }
+
+  @Patch('recent-listings')
+  patchRecentListings(@Body() body: PatchRecentListingsDto) {
+    return this.cfg.patchRecentListings(body);
   }
 
   @Get('featured-projects')

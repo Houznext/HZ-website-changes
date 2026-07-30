@@ -115,6 +115,7 @@ const NAV_GROUPS: NavGroup[] = [
     links: [
       { href: '/website-cms/hero', label: 'Website Hero', icon: Image, match: (p) => p.startsWith('/website-cms/hero') },
       { href: '/website-cms/browse-by-type', label: 'Browse by type', icon: LayoutGrid, match: (p) => p.startsWith('/website-cms/browse-by-type') },
+      { href: '/website-cms/recent-listings', label: 'Recent listings', icon: Home, match: (p) => p.startsWith('/website-cms/recent-listings') },
       { href: '/website-cms/featured-projects', label: 'Featured projects', icon: Home, match: (p) => p.startsWith('/website-cms/featured-projects') },
       { href: '/website-cms/curated-properties', label: 'Curated for you', icon: LayoutGrid, match: (p) => p.startsWith('/website-cms/curated-properties') },
       { href: '/website-cms/browse-by-city', label: 'Browse by city', icon: LayoutGrid, match: (p) => p.startsWith('/website-cms/browse-by-city') },

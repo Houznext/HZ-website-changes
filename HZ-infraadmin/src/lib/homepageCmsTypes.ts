@@ -12,6 +12,14 @@ export type BrowseByTypeSection = {
   images: Record<'Land' | 'Villa' | 'Apartment' | 'Plot', string | null>;
 };
 
+export type RecentListingsContent = {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  viewAllLabel: string;
+  emptyMessage: string;
+};
+
 export type FeaturedProjectsContent = {
   eyebrow: string;
   title: string;

@@ -6,6 +6,7 @@ import { PropertyTypeCards } from '@/components/home/PropertyTypeCards';
 import { CuratedSection } from '@/components/home/CuratedSection';
 import { CityGrid } from '@/components/home/CityGrid';
 import { FeaturedProjects } from '@/components/home/FeaturedProjects';
+import { RecentListings, fetchRecentListings } from '@/components/home/RecentListings';
 import { Testimonials } from '@/components/home/Testimonials';
 import { ListPropertyCTA } from '@/components/home/ListPropertyCTA';
 import { WhyHouznextInfra } from '@/components/home/WhyHouznextInfra';
@@ -34,20 +35,22 @@ export const getStaticProps: GetStaticProps<{
   villas: PublicProperty[];
   apartments: PublicProperty[];
   plots: PublicProperty[];
+  recentListings: PublicProperty[];
   initialPageSeo: Awaited<ReturnType<typeof fetchPageSeo>>;
   initialSeoGeo: Awaited<ReturnType<typeof fetchSeoGeo>>;
 }> = async () => {
   const base = process.env.INFRA_BACKEND_URL || process.env.NEXT_PUBLIC_INFRA_API_URL || 'http://127.0.0.1:4001';
-  const [lands, villas, apartments, plots, initialPageSeo, initialSeoGeo] = await Promise.all([
+  const [lands, villas, apartments, plots, recentListings, initialPageSeo, initialSeoGeo] = await Promise.all([
     fetchFeatured(base, 'Land', 3),
     fetchFeatured(base, 'Villa', 3),
     fetchFeatured(base, 'Apartment', 3),
     fetchFeatured(base, 'Plot', 5),
+    fetchRecentListings(base),
     fetchPageSeo('/'),
     fetchSeoGeo(),
   ]);
   return {
-    props: { lands, villas, apartments, plots, initialPageSeo, initialSeoGeo },
+    props: { lands, villas, apartments, plots, recentListings, initialPageSeo, initialSeoGeo },
     revalidate: 60,
   };
 };
@@ -57,12 +60,14 @@ export default function HomePage({
   villas,
   apartments,
   plots,
+  recentListings,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   return (
     <div className="min-h-screen bg-offwhite">
       <Navbar />
       <HeroSection />
       <PropertyTypeCards />
+      <RecentListings initialItems={recentListings} />
       <FeaturedProjects />
       <CuratedSection fallback={{ Land: lands, Villa: villas, Apartment: apartments, Plot: plots }} />
       <CityGrid />

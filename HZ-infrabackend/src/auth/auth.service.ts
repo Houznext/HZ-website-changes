@@ -213,7 +213,11 @@ export class AuthService {
   ): Promise<void> {
     const existing = await this.infraUserRepo.findOne({ where: { email: email.trim().toLowerCase() } });
     if (existing) {
-      console.log('Infra portal admin already exists — skipping');
+      existing.passwordHash = await bcrypt.hash(password, 12);
+      if (username?.trim()) existing.username = username.trim();
+      existing.isVerified = true;
+      await this.infraUserRepo.save(existing);
+      console.log(`Infra portal admin password reset: ${email}`);
       return;
     }
 

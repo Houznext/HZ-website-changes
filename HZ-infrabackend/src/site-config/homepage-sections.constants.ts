@@ -1,6 +1,7 @@
 import { BROWSE_TYPE_KEYS, BrowseTypeKey } from './browse-type.constants';
 
 export const SECTION_KEYS = {
+  RECENT_LISTINGS: 'recent_listings',
   FEATURED_PROJECTS: 'featured_projects',
   CURATED: 'curated_properties',
   BROWSE_CITY: 'browse_by_city',
@@ -20,6 +21,14 @@ export type BrowseByTypeContentDto = {
   sectionTitle: string;
   sectionSubtitle: string;
   cards: Record<BrowseTypeKey, BrowseTypeCardContent>;
+};
+
+export type RecentListingsContentDto = {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  viewAllLabel: string;
+  emptyMessage: string;
 };
 
 export type FeaturedProjectsContentDto = {
@@ -133,6 +142,14 @@ export const DEFAULT_BROWSE_BY_TYPE_CONTENT: BrowseByTypeContentDto = {
       href: '/buy?type=Plot',
     },
   },
+};
+
+export const DEFAULT_RECENT_LISTINGS: RecentListingsContentDto = {
+  eyebrow: 'Fresh on the market',
+  title: 'Recent Listings',
+  subtitle: 'Newly added land, villas, apartments and plots — verified before they go live',
+  viewAllLabel: 'View all listings →',
+  emptyMessage: 'No Recent Listings Available.',
 };
 
 export const DEFAULT_FEATURED_PROJECTS: FeaturedProjectsContentDto = {

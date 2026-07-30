@@ -17,10 +17,12 @@ import {
   DEFAULT_CURATED,
   DEFAULT_FEATURED_PROJECTS,
   DEFAULT_FOR_SELLERS,
+  DEFAULT_RECENT_LISTINGS,
   DEFAULT_TESTIMONIALS,
   DEFAULT_WHY_HOUZNEXT,
   FeaturedProjectsContentDto,
   ForSellersContentDto,
+  RecentListingsContentDto,
   mergeBrowseTypeContent,
   mergePayload,
   SECTION_KEYS,
@@ -234,6 +236,14 @@ export class SiteConfigService {
     row.sectionPayload = merged as unknown as Record<string, unknown>;
     await this.repo.save(row);
     return merged;
+  }
+
+  getRecentListings() {
+    return this.getSection(SECTION_KEYS.RECENT_LISTINGS, DEFAULT_RECENT_LISTINGS);
+  }
+
+  patchRecentListings(patch: Partial<RecentListingsContentDto>) {
+    return this.patchSection(SECTION_KEYS.RECENT_LISTINGS, DEFAULT_RECENT_LISTINGS, patch);
   }
 
   getFeaturedProjects() {

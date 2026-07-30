@@ -17,6 +17,11 @@ export class SiteConfigController {
     return this.cfg.getBrowseByType();
   }
 
+  @Get('recent-listings')
+  recentListings() {
+    return this.cfg.getRecentListings();
+  }
+
   @Get('featured-projects')
   featuredProjects() {
     return this.cfg.getFeaturedProjects();
