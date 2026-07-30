@@ -11,10 +11,10 @@ const ALL_TYPES: PropertyTypeKey[] = ['Land', 'Villa', 'Apartment', 'Plot'];
 const DEFAULT_CITY = 'Hyderabad';
 
 const TYPE_LIMITS: Record<PropertyTypeKey, number> = {
-  Land: 3,
-  Villa: 3,
-  Apartment: 3,
-  Plot: 5,
+  Land: 12,
+  Villa: 12,
+  Apartment: 12,
+  Plot: 12,
 };
 
 export type PersonalizationProfile = {

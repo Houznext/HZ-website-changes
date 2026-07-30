@@ -164,10 +164,10 @@ export const DEFAULT_CURATED: CuratedContentDto = {
   defaultSubtitle: 'Picks tailored to your city and browsing — updates as you explore',
   viewAllLabel: 'View all →',
   rows: [
-    { type: 'Land', title: 'Featured Lands', cols: 3 },
-    { type: 'Villa', title: 'Featured Villas', cols: 3 },
-    { type: 'Apartment', title: 'Featured Apartments', cols: 3 },
-    { type: 'Plot', title: 'Plots — Five feed', cols: 5 },
+    { type: 'Land', title: 'Featured Lands', cols: 5 },
+    { type: 'Villa', title: 'Featured Villas', cols: 5 },
+    { type: 'Apartment', title: 'Featured Apartments', cols: 5 },
+    { type: 'Plot', title: 'Featured Plots', cols: 5 },
   ],
 };
 

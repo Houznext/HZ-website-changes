@@ -41,10 +41,10 @@ export const getStaticProps: GetStaticProps<{
 }> = async () => {
   const base = process.env.INFRA_BACKEND_URL || process.env.NEXT_PUBLIC_INFRA_API_URL || 'http://127.0.0.1:4001';
   const [lands, villas, apartments, plots, recentListings, initialPageSeo, initialSeoGeo] = await Promise.all([
-    fetchFeatured(base, 'Land', 3),
-    fetchFeatured(base, 'Villa', 3),
-    fetchFeatured(base, 'Apartment', 3),
-    fetchFeatured(base, 'Plot', 5),
+    fetchFeatured(base, 'Land', 12),
+    fetchFeatured(base, 'Villa', 12),
+    fetchFeatured(base, 'Apartment', 12),
+    fetchFeatured(base, 'Plot', 12),
     fetchRecentListings(base),
     fetchPageSeo('/'),
     fetchSeoGeo(),

@@ -17,10 +17,10 @@ import type { PublicProperty } from '@/types/property.types';
 import type { InfraProperty } from '@/types/infra.types';
 
 const SECTION_LABELS: Record<PropertyTypeKey, { title: string; href: (city: string) => string; cols: 3 | 5 }> = {
-  Land: { title: 'Featured Lands', href: (city) => `/buy?propertyType=Land&city=${encodeURIComponent(city)}`, cols: 3 },
-  Villa: { title: 'Featured Villas', href: (city) => `/buy?propertyType=Villa&city=${encodeURIComponent(city)}`, cols: 3 },
-  Apartment: { title: 'Featured Apartments', href: (city) => `/buy?propertyType=Apartment&city=${encodeURIComponent(city)}`, cols: 3 },
-  Plot: { title: 'Plots — Five feed', href: (city) => `/buy?propertyType=Plot&city=${encodeURIComponent(city)}`, cols: 5 },
+  Land: { title: 'Featured Lands', href: (city) => `/buy?propertyType=Land&city=${encodeURIComponent(city)}`, cols: 5 },
+  Villa: { title: 'Featured Villas', href: (city) => `/buy?propertyType=Villa&city=${encodeURIComponent(city)}`, cols: 5 },
+  Apartment: { title: 'Featured Apartments', href: (city) => `/buy?propertyType=Apartment&city=${encodeURIComponent(city)}`, cols: 5 },
+  Plot: { title: 'Featured Plots', href: (city) => `/buy?propertyType=Plot&city=${encodeURIComponent(city)}`, cols: 5 },
 };
 
 export type CuratedCmsRow = { type: string; title: string; cols: 3 | 5 };
