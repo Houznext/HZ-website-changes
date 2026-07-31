@@ -24,9 +24,8 @@ const DEFAULT_COPY = {
   emptyMessage: 'No Recent Listings Available.',
 };
 
-/** Backend caps public list at 50 per page — we walk pages until all are loaded. */
-const PAGE_SIZE = 50;
-const MAX_PAGES = 20;
+/** Homepage preview — remaining listings live on /buy (View all listings). */
+const HOME_RECENT_LIMIT = 5;
 
 type Props = {
   initialItems?: PublicProperty[];
@@ -35,8 +34,6 @@ type Props = {
 type ListPayload = {
   data?: PublicProperty[];
   items?: PublicProperty[];
-  totalPages?: number;
-  total?: number;
 };
 
 function parsePropertyList(payload: unknown): PublicProperty[] {
@@ -48,34 +45,15 @@ function parsePropertyList(payload: unknown): PublicProperty[] {
   return [];
 }
 
-function totalPagesFrom(payload: unknown, pageItems: number): number {
-  if (payload && typeof payload === 'object') {
-    const j = payload as ListPayload;
-    if (typeof j.totalPages === 'number' && j.totalPages > 0) return j.totalPages;
-    if (typeof j.total === 'number' && j.total > 0) return Math.ceil(j.total / PAGE_SIZE);
-  }
-  return pageItems < PAGE_SIZE ? 1 : MAX_PAGES;
-}
-
-async function loadAllRecentListings(): Promise<PublicProperty[]> {
-  const all: PublicProperty[] = [];
+async function loadRecentListingsPreview(): Promise<PublicProperty[]> {
   try {
-    let page = 1;
-    let totalPages = 1;
-    while (page <= totalPages && page <= MAX_PAGES) {
-      const res = await api.get('/properties', {
-        params: { sortBy: 'newest', limit: PAGE_SIZE, page },
-      });
-      const batch = parsePropertyList(res.data);
-      all.push(...batch);
-      totalPages = totalPagesFrom(res.data, batch.length);
-      if (!batch.length) break;
-      page += 1;
-    }
+    const res = await api.get('/properties', {
+      params: { sortBy: 'newest', limit: HOME_RECENT_LIMIT, page: 1 },
+    });
+    return parsePropertyList(res.data).slice(0, HOME_RECENT_LIMIT);
   } catch {
-    /* keep whatever was collected */
+    return [];
   }
-  return all;
 }
 
 function RecentListingCard({ property }: { property: PublicProperty }) {
@@ -96,7 +74,7 @@ function RecentListingCard({ property }: { property: PublicProperty }) {
             alt={property.title}
             fill
             className="object-cover transition duration-500 group-hover:scale-105"
-            sizes="(max-width:480px) 100vw, (max-width:1100px) 50vw, 25vw"
+            sizes="(max-width:480px) 100vw, (max-width:1100px) 33vw, 20vw"
             unoptimized={img.includes('127.0.0.1') || img.includes('localhost')}
           />
         ) : (
@@ -149,7 +127,7 @@ function RecentListingCard({ property }: { property: PublicProperty }) {
 }
 
 export function RecentListings({ initialItems = [] }: Props) {
-  const [items, setItems] = useState<PublicProperty[]>(initialItems);
+  const [items, setItems] = useState<PublicProperty[]>(initialItems.slice(0, HOME_RECENT_LIMIT));
   const [loading, setLoading] = useState(initialItems.length === 0);
   const [copy, setCopy] = useState(DEFAULT_COPY);
 
@@ -172,15 +150,15 @@ export function RecentListings({ initialItems = [] }: Props) {
     let alive = true;
     void (async () => {
       if (initialItems.length === 0) setLoading(true);
-      const fresh = await loadAllRecentListings();
+      const fresh = await loadRecentListingsPreview();
       if (!alive) return;
-      if (fresh.length) setItems(fresh);
+      if (fresh.length) setItems(fresh.slice(0, HOME_RECENT_LIMIT));
       setLoading(false);
     })();
     return () => {
       alive = false;
     };
-    // SSR props are a first paint only; client refresh loads the full newest set.
+    // SSR props are a first paint only; client refresh loads the newest preview.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -216,7 +194,7 @@ export function RecentListings({ initialItems = [] }: Props) {
 
         {loading ? (
           <div id="home-recent-grid">
-            {Array.from({ length: 8 }).map((_, i) => (
+            {Array.from({ length: HOME_RECENT_LIMIT }).map((_, i) => (
               <div key={i} className="h-[360px] animate-pulse rounded-2xl border border-[#dde8f5] bg-white" />
             ))}
           </div>
@@ -226,7 +204,7 @@ export function RecentListings({ initialItems = [] }: Props) {
           </p>
         ) : (
           <div id="home-recent-grid">
-            {items.map((p) => (
+            {items.slice(0, HOME_RECENT_LIMIT).map((p) => (
               <RecentListingCard key={p.propertyId} property={p} />
             ))}
           </div>
@@ -236,26 +214,16 @@ export function RecentListings({ initialItems = [] }: Props) {
   );
 }
 
-/** Server / ISR fetch — walks every page so homepage SSR includes the full recent set. */
+/** Server / ISR fetch — first 5 newest listings for the homepage preview. */
 export async function fetchRecentListings(base: string): Promise<PublicProperty[]> {
   const root = base.replace(/\/$/, '');
-  const all: PublicProperty[] = [];
   try {
-    let page = 1;
-    let totalPages = 1;
-    while (page <= totalPages && page <= MAX_PAGES) {
-      const url = `${root}/properties?sortBy=newest&limit=${PAGE_SIZE}&page=${page}`;
-      const res = await fetch(url);
-      if (!res.ok) break;
-      const j = await res.json();
-      const batch = parsePropertyList(j);
-      all.push(...batch);
-      totalPages = totalPagesFrom(j, batch.length);
-      if (!batch.length) break;
-      page += 1;
-    }
+    const url = `${root}/properties?sortBy=newest&limit=${HOME_RECENT_LIMIT}&page=1`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const j = await res.json();
+    return parsePropertyList(j).slice(0, HOME_RECENT_LIMIT);
   } catch {
-    return all;
+    return [];
   }
-  return all;
 }
